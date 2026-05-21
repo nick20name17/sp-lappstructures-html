@@ -708,9 +708,23 @@
         transition: opacity 0.15s ease, transform 0.15s ease;
         z-index: 200;
       }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="estimate-detail-app-shell">
       <div class="app-frame" data-comment="estimate-detail-app-frame">
         <!-- Sidebar -->
@@ -719,7 +733,7 @@
           data-comment="estimate-detail-sidebar"
           id="sidebar"
           aria-label="Primary navigation">
-          <a class="sidebar-logo" data-comment="estimate-detail-sidebar-logo" href="home.html" aria-label="Go to home">
+          <a class="sidebar-logo" data-comment="estimate-detail-sidebar-logo" href="orders.html" aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="estimate-detail-sidebar-logo-mark">
               <img data-comment="estimate-detail-sidebar-logo-img" src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png" alt="Lapp Structures" />
             </span>
@@ -799,7 +813,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m12 19-7-7 7-7" /><path d="M19 12H5" />
                   </svg>
-                  Back
+                  <span id="estimate-detail-back-label">Back</span>
                 </button>
               </div>
             </header>
@@ -913,6 +927,27 @@
           <button class="btn btn-primary" data-comment="estimate-detail-sales-confirm" data-component="button" type="button" id="estimate-detail-sales-confirm">
             Create Sales Order
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discard edit confirm dialog -->
+    <div class="dialog-overlay" data-comment="estimate-detail-discard-overlay" id="estimate-detail-discard-overlay" data-dialog-type="discardEdit">
+      <div class="dialog size-sm" data-comment="estimate-detail-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <button type="button" class="dialog-close-btn" data-comment="estimate-detail-discard-close" data-dialog-close aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="dialog-header" data-comment="estimate-detail-discard-header">
+          <div class="dialog-header-row" data-comment="estimate-detail-discard-header-row">
+            <h2 class="dialog-title" data-comment="estimate-detail-discard-title">Discard unsaved changes?</h2>
+          </div>
+          <p class="dialog-description" data-comment="estimate-detail-discard-description">
+            You have unsaved changes. If you go back, your edits will be lost.
+          </p>
+        </div>
+        <div class="dialog-footer" data-comment="estimate-detail-discard-footer">
+          <button class="btn btn-outline" data-comment="estimate-detail-discard-cancel" data-component="button" type="button" id="estimate-detail-discard-cancel">Keep Editing</button>
+          <button class="btn btn-destructive" data-comment="estimate-detail-discard-confirm" data-component="button" type="button" id="estimate-detail-discard-confirm">Discard</button>
         </div>
       </div>
     </div>
@@ -1120,6 +1155,7 @@
       const params = new URLSearchParams(window.location.search);
       const idParam = Number(params.get("id"));
       const initialId = Number.isFinite(idParam) && idParam > 0 ? idParam : SEED_ESTIMATES[0].id;
+      const initialEdit = params.get("edit") === "1";
 
       const store = createStore({
         user: { id: 1, name: "Anna Lee", email: "anna@lapp.com", role: "admin" },
@@ -1134,6 +1170,8 @@
         selectedId: initialId,
         isLoading: true,
         dialog: { type: "closed" },
+        isEditMode: initialEdit,
+        isDirty: false,
       });
 
       // ───── Utils ─────
@@ -1281,8 +1319,15 @@
         const est = getEstimate(s.selectedId);
         const titleEl = document.getElementById("estimate-detail-title");
         const badgeEl = document.getElementById("estimate-detail-header-badge");
-        titleEl.textContent = est ? `Estimate ${est.id}` : `Estimate ${s.selectedId || ""}`.trim();
-        if (est) {
+        const backLabel = document.getElementById("estimate-detail-back-label");
+        if (s.isEditMode) {
+          titleEl.textContent = est ? `Edit Estimate ${est.id}` : "Edit Estimate";
+          backLabel.textContent = "Back to Details";
+        } else {
+          titleEl.textContent = est ? `Estimate ${est.id}` : `Estimate ${s.selectedId || ""}`.trim();
+          backLabel.textContent = "Back";
+        }
+        if (est && !s.isEditMode) {
           const label = STATUS_LABELS[est.status] || est.status;
           badgeEl.innerHTML = `<span class="status-badge ${est.status}" data-comment="estimate-detail-header-status-badge" data-component="badge">${escapeHtml(label)}</span>`;
         } else {
@@ -1352,6 +1397,50 @@
                   <div class="detail-row" data-comment="estimate-detail-block-${safeTitle}-row-${f.key.replace(/_/g,'-')}">
                     <p class="detail-row-label" data-comment="estimate-detail-block-${safeTitle}-row-${f.key.replace(/_/g,'-')}-label">${escapeHtml(f.label)}</p>
                     ${renderFieldValue(est, f)}
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // ───── Render: product configuration card ─────
+      function renderProductConfigCard(est) {
+        const a = est.attributes || {};
+        const rows = [
+          ["shed-style", "Shed Style", a.shed_style ?? est.shed_style],
+          ["shed-size", "Shed Size", a.shed_size ?? est.shed_size ?? est.dimension],
+          ["door-type", "Door Type", a.door_type ?? est.door_type],
+          ["door-color", "Door Color", a.door_color ?? est.door_color],
+          ["door-trim-color", "Door Trim Color", a.door_trim_color],
+          ["siding-type", "Siding Type", a.siding_type],
+          ["siding-style", "Siding Style", a.siding_style],
+          ["siding-color", "Siding Color", a.siding_color],
+          ["window-type", "Window Type", a.window_type],
+          ["window-color", "Window Color", a.window_color],
+          ["window-trim-color", "Window Trim Color", a.window_trim_color],
+          ["roof-type", "Roof Type", a.roof_type],
+          ["roof-sheeting", "Roof Sheeting", a.roof_sheeting],
+          ["roof-color", "Roof Color", a.roof_color],
+          ["shutter-type", "Shutter Type", a.shutter_type],
+          ["shutter-color", "Shutter Color", a.shutter_color],
+          ["trim-type", "Trim Type", a.trim_type],
+          ["trim-color", "Trim Color", a.trim_color],
+          ["fascia", "Fascia", a.fascia],
+          ["corner-trim-color", "Corner Trim Color", a.corner_trim_color],
+        ];
+        return `
+          <div class="card" data-comment="estimate-detail-product-config-card" data-component="card">
+            <div class="card-header" data-comment="estimate-detail-product-config-card-header">
+              <div class="card-title" data-comment="estimate-detail-product-config-card-title">Product Configuration</div>
+            </div>
+            <div class="card-content" data-comment="estimate-detail-product-config-card-content">
+              <div class="detail-grid cols-2" data-comment="estimate-detail-product-config-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;">
+                ${rows.map(([id, label, value]) => `
+                  <div class="kv-row" data-comment="estimate-detail-product-config-row-${id}" style="display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid color-mix(in oklch, var(--border) 60%, transparent);padding:4px 0;">
+                    <span data-comment="estimate-detail-product-config-row-${id}-label" style="font-size:0.875rem;font-weight:500;color:var(--foreground);">${escapeHtml(label)}</span>
+                    <span data-comment="estimate-detail-product-config-row-${id}-value" style="font-size:0.875rem;color:var(--muted-foreground);text-align:right;">${value == null || value === "" ? "—" : escapeHtml(String(value))}</span>
                   </div>
                 `).join("")}
               </div>
@@ -1559,7 +1648,7 @@
                   ${ICONS.copy} Duplicate
                 </button>
                 ${(est.status === "draft" || est.status === "accepted") ? `
-                  <a class="btn btn-outline btn-sm" data-comment="estimate-detail-action-add-drawing" data-component="button" href="documents.html?estimateId=${est.id}">
+                  <a class="btn btn-outline btn-sm" data-comment="estimate-detail-action-add-drawing" data-component="button" href="editor-create-mockup.html?estimateId=${est.id}">
                     ${ICONS.paintbrush} Add Drawing
                   </a>` : ""}
                 ${canEdit ? `
@@ -1644,6 +1733,10 @@
             if (block.title === "Customer") {
               return blockHtml + renderAddressCard(est);
             }
+            // Insert Product Configuration card right after "Estimate" block
+            if (block.title === "Estimate") {
+              return blockHtml + renderProductConfigCard(est);
+            }
             return blockHtml;
           }).join("");
           return `
@@ -1654,6 +1747,11 @@
           `;
         }).join("");
 
+        if (s.isEditMode) {
+          root.innerHTML = renderEditForm(est);
+          return;
+        }
+
         root.innerHTML = `
           <div class="detail-body" data-comment="estimate-detail-body">
             ${sectionsHtml}
@@ -1661,6 +1759,50 @@
             ${renderLineItems(est)}
           </div>
           ${renderFooter(est)}
+        `;
+      }
+
+      // ───── Render: inline edit form (mirrors estimates-create.html shape, minimal subset) ─────
+      function renderEditForm(est) {
+        const customerName = est.customer ? `${est.customer.first_name} ${est.customer.last_name}` : "";
+        return `
+          <div class="detail-body" id="edit-form" data-comment="estimate-detail-edit-form">
+            <div class="section" data-comment="estimate-detail-edit-section">
+              <h3 class="section-title" data-comment="estimate-detail-edit-section-title">Edit Estimate Details</h3>
+              <div class="card" data-comment="estimate-detail-edit-card" data-component="card">
+                <div class="card-content" data-comment="estimate-detail-edit-card-content">
+                  <div class="detail-grid cols-2" data-comment="estimate-detail-edit-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                    <div class="detail-row" data-comment="estimate-detail-edit-customer">
+                      <label class="detail-row-label" data-comment="estimate-detail-edit-customer-label" for="edit-customer">Customer</label>
+                      <input id="edit-customer" data-comment="estimate-detail-edit-customer-input" data-edit-field type="text" value="${escapeHtml(customerName)}" style="width:100%;height:36px;padding:0 10px;border:1px solid var(--input);border-radius:6px;font-family:inherit;font-size:0.875rem;outline:none;background:var(--card);color:var(--foreground);" />
+                    </div>
+                    <div class="detail-row" data-comment="estimate-detail-edit-po">
+                      <label class="detail-row-label" data-comment="estimate-detail-edit-po-label" for="edit-po">P.O. Number</label>
+                      <input id="edit-po" data-comment="estimate-detail-edit-po-input" data-edit-field type="text" value="${escapeHtml(est.po_number ?? "")}" style="width:100%;height:36px;padding:0 10px;border:1px solid var(--input);border-radius:6px;font-family:inherit;font-size:0.875rem;outline:none;background:var(--card);color:var(--foreground);" />
+                    </div>
+                    <div class="detail-row" data-comment="estimate-detail-edit-name">
+                      <label class="detail-row-label" data-comment="estimate-detail-edit-name-label" for="edit-name">Estimate name</label>
+                      <input id="edit-name" data-comment="estimate-detail-edit-name-input" data-edit-field type="text" value="${escapeHtml(est.name ?? "")}" style="width:100%;height:36px;padding:0 10px;border:1px solid var(--input);border-radius:6px;font-family:inherit;font-size:0.875rem;outline:none;background:var(--card);color:var(--foreground);" />
+                    </div>
+                    <div class="detail-row" data-comment="estimate-detail-edit-delivery">
+                      <label class="detail-row-label" data-comment="estimate-detail-edit-delivery-label" for="edit-delivery">Delivery Method</label>
+                      <input id="edit-delivery" data-comment="estimate-detail-edit-delivery-input" data-edit-field type="text" value="${escapeHtml(est.delivery_method ?? "")}" style="width:100%;height:36px;padding:0 10px;border:1px solid var(--input);border-radius:6px;font-family:inherit;font-size:0.875rem;outline:none;background:var(--card);color:var(--foreground);" />
+                    </div>
+                    <div class="detail-row" data-comment="estimate-detail-edit-memo" style="grid-column:1 / -1;">
+                      <label class="detail-row-label" data-comment="estimate-detail-edit-memo-label" for="edit-memo">Memo (Internal)</label>
+                      <textarea id="edit-memo" data-comment="estimate-detail-edit-memo-input" data-edit-field rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--input);border-radius:6px;font-family:inherit;font-size:0.875rem;outline:none;background:var(--card);color:var(--foreground);resize:vertical;">${escapeHtml(est.memo ?? "")}</textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="detail-footer" data-comment="estimate-detail-edit-footer">
+            <div class="actions-row" data-comment="estimate-detail-edit-actions-row" style="justify-content:flex-end;">
+              <button type="button" class="btn btn-outline btn-sm" data-comment="estimate-detail-edit-cancel" data-component="button" data-action="cancel-edit">Cancel</button>
+              <button type="button" class="btn btn-primary btn-sm" data-comment="estimate-detail-edit-save" data-component="button" data-action="save-edit">${ICONS.check} Save Changes</button>
+            </div>
+          </div>
         `;
       }
 
@@ -1676,6 +1818,7 @@
         document.getElementById("estimate-detail-approve-overlay").classList.toggle("is-open", s.dialog.type === "approve");
         document.getElementById("estimate-detail-reject-overlay").classList.toggle("is-open", s.dialog.type === "reject");
         document.getElementById("estimate-detail-sales-overlay").classList.toggle("is-open", s.dialog.type === "createSalesOrder");
+        document.getElementById("estimate-detail-discard-overlay").classList.toggle("is-open", s.dialog.type === "discardEdit");
       }
 
       // ───── Subscribe + initial render ─────
@@ -1719,9 +1862,25 @@
       });
 
       // ───── Handlers: back + actions ─────
-      document.getElementById("estimate-detail-back-btn").addEventListener("click", () => {
+      function exitEditMode() {
+        store.set({ isEditMode: false, isDirty: false, dialog: { type: "closed" } });
+        const url = new URL(window.location.href);
+        url.searchParams.delete("edit");
+        window.history.replaceState({}, "", url.toString());
+      }
+      function attemptBackOrExit() {
+        const s = store.get();
+        if (s.isEditMode) {
+          if (s.isDirty) {
+            store.set({ dialog: { type: "discardEdit" } });
+          } else {
+            exitEditMode();
+          }
+          return;
+        }
         window.location.href = "estimates.html";
-      });
+      }
+      document.getElementById("estimate-detail-back-btn").addEventListener("click", attemptBackOrExit);
       document.getElementById("estimate-detail-root").addEventListener("click", (e) => {
         const btn = e.target.closest("[data-action]");
         if (!btn) return;
@@ -1731,9 +1890,23 @@
         else if (action === "open-approve")   store.set({ dialog: { type: "approve" } });
         else if (action === "open-reject")    store.set({ dialog: { type: "reject" } });
         else if (action === "open-sales")     store.set({ dialog: { type: "createSalesOrder" } });
-        else if (action === "edit")           window.location.href = `estimate-detail.html?id=${id}&edit=1`;
+        else if (action === "edit") {
+          store.set({ isEditMode: true, isDirty: false });
+          const url = new URL(window.location.href);
+          url.searchParams.set("edit", "1");
+          window.history.replaceState({}, "", url.toString());
+        }
+        else if (action === "cancel-edit")    attemptBackOrExit();
+        else if (action === "save-edit")      exitEditMode();
         else if (action === "duplicate")      { /* mock */ }
         else if (action === "print")          window.print();
+      });
+      // Track dirty state inside edit form
+      document.getElementById("estimate-detail-root").addEventListener("input", (e) => {
+        if (!store.get().isEditMode) return;
+        if (e.target.closest("[data-edit-field]")) {
+          if (!store.get().isDirty) store.set({ isDirty: true });
+        }
       });
 
       // ───── Handlers: dialogs ─────
@@ -1746,6 +1919,8 @@
       document.getElementById("estimate-detail-reject-confirm").addEventListener("click", () => rejectEstimate(store.get().selectedId));
       document.getElementById("estimate-detail-sales-cancel").addEventListener("click", closeDialog);
       document.getElementById("estimate-detail-sales-confirm").addEventListener("click", () => createSalesOrder(store.get().selectedId));
+      document.getElementById("estimate-detail-discard-cancel").addEventListener("click", closeDialog);
+      document.getElementById("estimate-detail-discard-confirm").addEventListener("click", () => exitEditMode());
 
       // Overlay click + X button close
       document.querySelectorAll(".dialog-overlay").forEach((overlay) => {
@@ -1761,5 +1936,28 @@
         if (e.key === "Escape" && store.get().dialog.type !== "closed") closeDialog();
       });
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

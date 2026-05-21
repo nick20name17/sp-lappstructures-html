@@ -759,6 +759,9 @@
       }
       .select[aria-disabled="true"] .select-trigger { opacity: 0.5; pointer-events: none; }
       .select.select-sm .select-trigger { height: 32px; padding: 2px 10px; }
+      @media (max-width: 768px) {
+        .hide-mobile { display: none !important; }
+      }
       .select.select-inline { width: auto; min-width: 80px; }
 
       /* ───── Toast ───── */
@@ -767,9 +770,23 @@
       .toast.success { border-left: 3px solid var(--success, #16a34a); }
       .toast.error { border-left: 3px solid var(--destructive, #dc2626); }
       @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="users-app-shell">
       <div class="app-frame" data-comment="users-app-frame">
         <!-- ───── Sidebar ───── -->
@@ -781,7 +798,7 @@
           <a
             class="sidebar-logo"
             data-comment="users-sidebar-logo"
-            href="home.html"
+            href="orders.html"
             aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="users-sidebar-logo-mark">
               <img
@@ -1088,6 +1105,7 @@
                           </span>
                         </th>
                         <th
+                          class="hide-mobile"
                           data-comment="users-table-th-location">
                           <span class="th-inner" data-comment="users-table-th-location-inner">Location</span>
                         </th>
@@ -1390,12 +1408,7 @@
                 <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
               </button>
               <input type="hidden" name="location" value="" />
-              <div class="select-popover" style="display:none" role="listbox">
-                <div class="select-item" data-value="Lancaster" data-comment="users-dialog-input-location-opt-lancaster">Lancaster</div>
-                <div class="select-item" data-value="York" data-comment="users-dialog-input-location-opt-york">York</div>
-                <div class="select-item" data-value="Harrisburg" data-comment="users-dialog-input-location-opt-harrisburg">Harrisburg</div>
-                <div class="select-item" data-value="Reading" data-comment="users-dialog-input-location-opt-reading">Reading</div>
-              </div>
+              <div class="select-popover" style="display:none" role="listbox" data-comment="users-dialog-input-location-popover"></div>
             </div>
             <span
               class="form-message"
@@ -1742,7 +1755,59 @@
         // dialog state
         dialog: { type: "closed" },
         formErrors: {},
+
+        // location options (loaded async when dialog opens)
+        locationsLoading: false,
+        locations: [],
       });
+
+      // ───── Mock async location loader ─────
+      let _locationsLoadStarted = false;
+      function loadLocations() {
+        if (_locationsLoadStarted) return;
+        _locationsLoadStarted = true;
+        store.set({ locationsLoading: true, locations: [] });
+        setTimeout(() => {
+          store.set({
+            locationsLoading: false,
+            locations: ["Lancaster", "York", "Harrisburg", "Reading"],
+          });
+        }, 300);
+      }
+
+      function renderLocationOptions() {
+        const s = store.get();
+        const wrap = document.getElementById("users-input-location");
+        if (!wrap) return;
+        const popover = wrap.querySelector(".select-popover");
+        const hidden = wrap.querySelector('input[type="hidden"]');
+        const labelEl = wrap.querySelector(".select-trigger-label");
+        const trigger = wrap.querySelector(".select-trigger");
+        if (!popover) return;
+        if (s.locationsLoading) {
+          popover.innerHTML = `<div class="select-item is-disabled" data-comment="users-dialog-input-location-loading" style="pointer-events:none;opacity:0.6;">Loading…</div>`;
+          if (labelEl && !hidden.value) {
+            labelEl.textContent = "Loading…";
+            trigger && trigger.setAttribute("data-placeholder", "true");
+          }
+          return;
+        }
+        popover.innerHTML = s.locations.map((loc) => {
+          const slug = loc.toLowerCase();
+          const sel = hidden.value === loc ? " is-selected" : "";
+          return `<div class="select-item${sel}" data-value="${loc}" data-comment="users-dialog-input-location-opt-${slug}">${loc}</div>`;
+        }).join("");
+        // Resync label if needed
+        if (labelEl) {
+          if (hidden.value) {
+            labelEl.textContent = hidden.value;
+            trigger && trigger.removeAttribute("data-placeholder");
+          } else {
+            labelEl.textContent = wrap.dataset.placeholder || "Choose...";
+            trigger && trigger.setAttribute("data-placeholder", "true");
+          }
+        }
+      }
 
       // ───── Sidebar renderers ─────
       function renderSidebarNav() {
@@ -1834,6 +1899,29 @@
         }
       }
 
+      // ───── Field error helper (mock API error mapping) ─────
+      function setFieldError(name, msg) {
+        store.set((s) => ({ formErrors: { ...s.formErrors, [name]: msg } }));
+      }
+
+      // Mock API save: rejects with field errors for duplicate email
+      function mockSaveUser(data, currentId) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            const dupe = store.get().users.find(
+              (u) => u.email && data.email &&
+                u.email.toLowerCase() === data.email.toLowerCase() &&
+                u.id !== currentId,
+            );
+            if (dupe) {
+              reject({ fieldErrors: { email: "Email already in use." } });
+              return;
+            }
+            resolve(data);
+          }, 0);
+        });
+      }
+
       // ───── User CRUD actions ─────
       function addUser(data) {
         store.set((s) => ({
@@ -1910,7 +1998,7 @@
               <td><span class="skeleton-bar" style="width: 75%" data-comment="users-skeleton-row-${r + 1}-name"></span></td>
               <td><span class="skeleton-bar" style="width: 80%" data-comment="users-skeleton-row-${r + 1}-email"></span></td>
               <td><span class="skeleton-bar" style="width: 66%" data-comment="users-skeleton-row-${r + 1}-role"></span></td>
-              <td><span class="skeleton-bar" style="width: 66%" data-comment="users-skeleton-row-${r + 1}-location"></span></td>
+              <td class="hide-mobile"><span class="skeleton-bar" style="width: 66%" data-comment="users-skeleton-row-${r + 1}-location"></span></td>
               <td></td>
             </tr>
           `).join("");
@@ -1942,7 +2030,7 @@
               <td data-comment="users-table-row-${u.id}-name">${escapeHtml(`${u.first_name} ${u.last_name}`.trim())}</td>
               <td data-comment="users-table-row-${u.id}-email">${escapeHtml(u.email || "—")}</td>
               <td data-comment="users-table-row-${u.id}-role"><span class="role-badge" data-comment="users-table-row-${u.id}-role-badge">${ROLE_LABELS[u.role] || u.role}</span></td>
-              <td data-comment="users-table-row-${u.id}-location">${escapeHtml(locationText)}</td>
+              <td class="hide-mobile" data-comment="users-table-row-${u.id}-location">${escapeHtml(locationText)}</td>
               <td data-comment="users-table-row-${u.id}-actions">
                 <div class="row-actions" data-comment="users-table-row-${u.id}-actions-wrap">
                   <button type="button" class="btn-icon-sm" data-comment="users-table-row-${u.id}-edit" data-component="button" data-action="edit" data-user-id="${u.id}" aria-label="Edit user">${ICONS.pencil}</button>
@@ -2071,6 +2159,7 @@
       store.subscribe(renderSortIcons);
       store.subscribe(renderSearchInput);
       store.subscribe(renderDialog);
+      store.subscribe(renderLocationOptions);
 
       renderSidebarNav();
       renderUser();
@@ -2081,6 +2170,7 @@
       renderSearchInput();
       renderDialog();
       initSelects();
+      renderLocationOptions();
 
       // Simulate brief loading state
       setTimeout(() => store.set({ usersLoading: false }), 250);
@@ -2158,6 +2248,7 @@
         if (!user) return;
         if (btn.dataset.action === "edit") {
           store.set({ dialog: { type: "edit", user }, formErrors: {} });
+          loadLocations();
         } else if (btn.dataset.action === "delete") {
           store.set({ dialog: { type: "delete", user } });
         }
@@ -2166,11 +2257,14 @@
       // ───── Handlers: dialog ─────
       document.getElementById("users-add-btn").addEventListener("click", () => {
         store.set({ dialog: { type: "create" }, formErrors: {} });
+        loadLocations();
       });
       document.getElementById("users-dialog-cancel").addEventListener("click", () => {
         store.set({ dialog: { type: "closed" }, formErrors: {} });
       });
       document.getElementById("users-input-role").addEventListener("change", () => {
+        const roleVal = document.getElementById("users-input-role").value;
+        if (roleVal === "retail_location" || roleVal === "sales") loadLocations();
         renderDialog();
       });
       document.getElementById("users-form").addEventListener("submit", (e) => {
@@ -2182,13 +2276,26 @@
           store.set({ formErrors: errors });
           return;
         }
+        // Omit location entirely when role doesn't use it
         if (data.role !== "retail_location" && data.role !== "sales") {
-          data.location = "";
+          delete data.location;
         }
         if (!data.password) delete data.password;
         const cur = store.get().dialog;
-        if (cur.type === "create") addUser(data);
-        else if (cur.type === "edit") updateUser(cur.user.id, data);
+        const currentId = cur.type === "edit" ? cur.user.id : null;
+        // Mock API call — maps field-level errors back onto the form
+        mockSaveUser(data, currentId)
+          .then((saved) => {
+            if (cur.type === "create") addUser(saved);
+            else if (cur.type === "edit") updateUser(cur.user.id, saved);
+          })
+          .catch((err) => {
+            if (err && err.fieldErrors) {
+              Object.entries(err.fieldErrors).forEach(([k, msg]) => setFieldError(k, msg));
+            } else {
+              toast("Save failed");
+            }
+          });
       });
 
       document.getElementById("users-delete-cancel").addEventListener("click", () => {
@@ -2241,5 +2348,28 @@
         })[c]);
       }
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

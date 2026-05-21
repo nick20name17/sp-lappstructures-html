@@ -781,7 +781,32 @@
         border-radius: 9999px;
         border: 1px solid var(--border);
         flex-shrink: 0;
+        padding: 0;
       }
+      .color-dot-wrap { position: relative; display: inline-flex; }
+      .color-popover {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        z-index: 60;
+        background: var(--popover);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.04);
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+      }
+      .color-swatch {
+        width: 22px; height: 22px;
+        border-radius: 9999px;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        padding: 0;
+      }
+      .color-swatch:hover { transform: scale(1.1); }
+      .color-swatch.is-selected { box-shadow: 0 0 0 2px var(--ring); }
       .attr-value-delete {
         padding: 4px;
         border-radius: 4px;
@@ -910,9 +935,23 @@
         opacity: 1;
         transform: translateY(0);
       }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="app-shell">
       <div class="app-frame" data-comment="app-frame">
         <!-- ───── Sidebar ───── -->
@@ -924,7 +963,7 @@
           <a
             class="sidebar-logo"
             data-comment="sidebar-logo"
-            href="home.html"
+            href="orders.html"
             aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="sidebar-logo-mark">
               <img
@@ -1251,9 +1290,18 @@
         // Attribute tab search
         attrSearch: "",
 
+        // Show building options toggle (categories tab)
+        showBuildingOptions: true,
+
+        // Color picker popover state: { attrType, attrId, valueId } | null
+        colorPickerFor: null,
+
         // Loading flag
         isLoading: true,
       });
+
+      // Color presets for option color picker
+      const COLOR_PRESETS = ["#ef4444","#f97316","#eab308","#22c55e","#14b8a6","#3b82f6","#6366f1","#a855f7","#ec4899","#64748b"];
 
       // ───── Sub-tab config ─────
       const PRODUCT_SUB_TABS = [
@@ -1300,6 +1348,20 @@
           },
           addingOptionFor: null,
           optionName: "",
+        }));
+      }
+
+      function setAttributeValueColor(type, attrId, valueId, hex) {
+        store.set((s) => ({
+          attributes: {
+            ...s.attributes,
+            [type]: (s.attributes[type] || []).map((a) =>
+              a.id === attrId
+                ? { ...a, values: a.values.map((v) => v.id === valueId ? { ...v, hex_color: hex } : v) }
+                : a,
+            ),
+          },
+          colorPickerFor: null,
         }));
       }
 
@@ -1425,6 +1487,8 @@
       // ───── Render: top tabs ─────
       function renderTopTabs() {
         const s = store.get();
+        const bar = document.querySelector('[data-comment="attributes-tabs-bar"]');
+        if (bar) bar.style.display = s.isLoading ? "none" : "";
         document.querySelectorAll("[data-toptab]").forEach((el) => {
           el.classList.toggle("active", el.dataset.toptab === s.topTab);
         });
@@ -1433,6 +1497,9 @@
       // ───── Render: sub-tabs sidebar ─────
       function renderSubTabs() {
         const s = store.get();
+        const sidebarEl = document.querySelector('[data-comment="attributes-tab-sidebar"]');
+        if (sidebarEl) sidebarEl.style.display = s.isLoading ? "none" : "";
+        if (s.isLoading) return;
         const items = s.topTab === "users" ? USER_SUB_TABS : PRODUCT_SUB_TABS;
         const active = s.topTab === "users" ? "user" : s.productSubTab;
         const list = document.getElementById("attributes-sub-tabs");
@@ -1496,21 +1563,31 @@
           <div class="tab-toolbar" data-comment="attributes-toolbar">
             <div class="tab-count-row" data-comment="attributes-count-row">
               <p class="tab-count" data-comment="attributes-count">${count} select${count !== 1 ? "s" : ""}</p>
+              <div style="display:flex;gap:8px;">
+                <button type="button" class="btn btn-outline btn-sm"
+                  data-comment="attributes-toggle-loading"
+                  data-component="button"
+                  id="attributes-toggle-loading">Toggle loading</button>
+                ${!s.addingSelect ? `
+                  <button type="button" class="btn btn-primary btn-sm"
+                    data-comment="attributes-new-select"
+                    data-component="button"
+                    id="attributes-new-select">${ICONS.plus} New select</button>
+                ` : ""}
+              </div>
             </div>
 
             ${s.addingSelect ? renderAddSelectForm() : ""}
 
-            ${hasData ? `
-              <div class="search-wrap" data-comment="attributes-search">
-                ${ICONS.search}
-                <input type="text" class="input"
-                  data-comment="attributes-search-input"
-                  data-component="input"
-                  id="attributes-search-input"
-                  placeholder="Search..."
-                  value="${s.attrSearch}" />
-              </div>
-            ` : ""}
+            <div class="search-wrap" data-comment="attributes-search">
+              ${ICONS.search}
+              <input type="text" class="input"
+                data-comment="attributes-search-input"
+                data-component="input"
+                id="attributes-search-input"
+                placeholder="Search attributes..."
+                value="${s.attrSearch}" />
+            </div>
           </div>
 
           <div class="tab-body-scroll" data-comment="attributes-scroll">
@@ -1524,7 +1601,10 @@
                 ${filtered.map((a) => renderAttributeRow(a, type)).join("")}
               </div>
             ` : `
-              <p class="attr-empty-line" data-comment="attributes-no-results" style="padding:16px 0;">No results for "${s.attrSearch}".</p>
+              <div class="empty-state" data-comment="attributes-no-results" data-component="card">
+                <p class="empty-state-title" data-comment="attributes-no-results-title">No matches</p>
+                <p class="empty-state-sub" data-comment="attributes-no-results-sub">No attributes match "${s.attrSearch}".</p>
+              </div>
             `)}
           </div>
         `;
@@ -1626,14 +1706,38 @@
       }
 
       function renderAttributeValue(attr, v, type) {
+        const s = store.get();
+        const pickerOpen = s.colorPickerFor && s.colorPickerFor.attrId === attr.id && s.colorPickerFor.valueId === v.id;
         return `
           <div class="attr-value-row" data-comment="attributes-value-${v.id}">
             <div class="attr-value-left" data-comment="attributes-value-${v.id}-left">
               ${attr.hex_color ? `
-                <button type="button" class="color-dot"
-                  data-comment="attributes-value-${v.id}-color"
-                  style="background:${v.hex_color || "#e2e8f0"};"
-                  title="Change color"></button>
+                <span class="color-dot-wrap" data-comment="attributes-value-${v.id}-color-wrap">
+                  <button type="button" class="color-dot"
+                    data-comment="attributes-value-${v.id}-color"
+                    data-component="button"
+                    data-open-color="${v.id}"
+                    data-attr-id="${attr.id}"
+                    data-attr-type="${type}"
+                    style="background:${v.hex_color || "#e2e8f0"};"
+                    title="Change color"></button>
+                  ${pickerOpen ? `
+                    <div class="color-popover" data-comment="attributes-value-${v.id}-color-popover" data-component="popover">
+                      ${COLOR_PRESETS.map((hex) => `
+                        <button type="button"
+                          class="color-swatch ${v.hex_color && v.hex_color.toLowerCase() === hex.toLowerCase() ? "is-selected" : ""}"
+                          data-comment="attributes-value-${v.id}-swatch-${hex.replace('#','')}"
+                          data-component="button"
+                          data-pick-color="${hex}"
+                          data-attr-id="${attr.id}"
+                          data-attr-type="${type}"
+                          data-value-id="${v.id}"
+                          style="background:${hex};"
+                          title="${hex}"></button>
+                      `).join("")}
+                    </div>
+                  ` : ""}
+                </span>
               ` : ""}
               <span data-comment="attributes-value-${v.id}-name">${v.name}</span>
             </div>
@@ -1759,6 +1863,17 @@
                 </button>
               ` : ""}
             </div>
+            <div class="checkbox-row" data-comment="categories-show-building-options-row">
+              <input type="checkbox" class="checkbox"
+                data-comment="categories-show-building-options"
+                data-component="checkbox"
+                id="categories-show-building-options"
+                ${s.showBuildingOptions ? "checked" : ""} />
+              <label class="checkbox-label" for="categories-show-building-options"
+                data-comment="categories-show-building-options-label">
+                Show building options
+              </label>
+            </div>
             ${s.catAdding ? `
               <form class="inline-form" data-comment="categories-add-form" id="categories-add-form">
                 <input type="text" class="input input-sm"
@@ -1796,7 +1911,7 @@
                   <div class="list-row" data-comment="categories-row-${c.id}">
                     <div class="attr-value-left" data-comment="categories-row-${c.id}-left">
                       <span class="list-row-name" data-comment="categories-row-${c.id}-name">${c.name}</span>
-                      ${c.with_attribute_values
+                      ${c.with_attribute_values && s.showBuildingOptions
                         ? `<span class="pill" data-comment="categories-row-${c.id}-pill" data-component="badge">Building options</span>`
                         : ""}
                     </div>
@@ -1949,6 +2064,47 @@
           store.set({ addingSelect: false, selectName: "", hasColor: false });
           return;
         }
+
+        // New select button
+        if (e.target.closest("#attributes-new-select")) {
+          store.set({ addingSelect: true });
+          return;
+        }
+
+        // Toggle loading debug
+        if (e.target.closest("#attributes-toggle-loading")) {
+          store.set({ isLoading: !s.isLoading });
+          return;
+        }
+
+        // Open color picker popover
+        const openColorBtn = e.target.closest("[data-open-color]");
+        if (openColorBtn) {
+          const attrId = Number(openColorBtn.dataset.attrId);
+          const valueId = Number(openColorBtn.dataset.openColor);
+          const attrType = openColorBtn.dataset.attrType;
+          const cur = s.colorPickerFor;
+          const same = cur && cur.attrId === attrId && cur.valueId === valueId;
+          store.set({ colorPickerFor: same ? null : { attrType, attrId, valueId } });
+          return;
+        }
+
+        // Pick color swatch
+        const swatch = e.target.closest("[data-pick-color]");
+        if (swatch) {
+          setAttributeValueColor(
+            swatch.dataset.attrType,
+            Number(swatch.dataset.attrId),
+            Number(swatch.dataset.valueId),
+            swatch.dataset.pickColor,
+          );
+          return;
+        }
+
+        // Close popover when clicking outside it
+        if (s.colorPickerFor && !e.target.closest(".color-popover") && !e.target.closest("[data-open-color]")) {
+          store.set({ colorPickerFor: null });
+        }
       });
 
       // Inputs (delegated via input event)
@@ -2031,6 +2187,10 @@
           store.set({ catWithValues: t.checked });
           return;
         }
+        if (t.id === "categories-show-building-options") {
+          store.set({ showBuildingOptions: t.checked });
+          return;
+        }
       });
 
       // Form submit
@@ -2082,6 +2242,14 @@
         });
       });
 
+      // Close color popover when clicking outside the tab body
+      document.addEventListener("click", (e) => {
+        const s = store.get();
+        if (!s.colorPickerFor) return;
+        if (e.target.closest("#attributes-tab-body")) return;
+        store.set({ colorPickerFor: null });
+      });
+
       // ───── Reveal ─────
       const observer = new IntersectionObserver(
         (entries) => entries.forEach((entry) => {
@@ -2091,5 +2259,28 @@
       );
       document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

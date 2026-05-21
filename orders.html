@@ -1320,9 +1320,28 @@
       .select[aria-disabled="true"] .select-trigger { opacity: 0.5; pointer-events: none; }
       .select.select-sm .select-trigger { height: 32px; padding: 2px 10px; }
       .select.select-inline { width: auto; min-width: 80px; }
-    </style>
+    
+      /* Hide-mobile cols */
+      @media (max-width: 768px) {
+        .data-table .hide-mobile { display: none; }
+      }
+
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="app-shell">
       <div class="app-frame" data-comment="app-frame">
         <!-- ───── Sidebar ───── -->
@@ -1334,7 +1353,7 @@
           <a
             class="sidebar-logo"
             data-comment="sidebar-logo"
-            href="home.html"
+            href="orders.html"
             aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="sidebar-logo-mark">
               <img
@@ -1577,6 +1596,7 @@
                   class="btn btn-primary"
                   data-comment="orders-action-new-estimate"
                   data-component="button"
+                  id="orders-action-new-estimate"
                   href="estimates-create.html">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1607,12 +1627,16 @@
                     <colgroup>
                       <col style="width: 120px" />
                       <col style="width: 140px" />
+                      <col style="width: 200px" />
                       <col style="width: 150px" />
-                      <col style="width: 200px" />
-                      <col style="width: 200px" />
-                      <col style="width: 170px" />
-                      <col style="width: 170px" />
                       <col style="width: 120px" />
+                      <col style="width: 200px" />
+                      <col class="hide-mobile" style="width: 130px" />
+                      <col class="hide-mobile" style="width: 170px" />
+                      <col style="width: 170px" />
+                      <col style="width: 200px" />
+                      <col class="hide-mobile" style="width: 120px" />
+                      <col style="width: 240px" />
                     </colgroup>
                     <thead data-comment="orders-table-head">
                       <tr data-comment="orders-table-head-row">
@@ -1628,19 +1652,28 @@
                             <span class="th-sort-icon" data-sort-icon></span>
                           </span>
                         </th>
-                        <th data-comment="orders-th-category">
-                          <span class="th-inner"><span>Category</span></span>
-                        </th>
-                        <th data-comment="orders-th-stage">
-                          <span class="th-inner"><span>Stage</span></span>
-                        </th>
                         <th data-comment="orders-th-customer" data-sort-key="customer">
                           <span class="th-inner th-sortable">
                             <span>Customer</span>
                             <span class="th-sort-icon" data-sort-icon></span>
                           </span>
                         </th>
-                        <th data-comment="orders-th-scheduled-delivery">
+                        <th data-comment="orders-th-category">
+                          <span class="th-inner"><span>Category</span></span>
+                        </th>
+                        <th data-comment="orders-th-dimension">
+                          <span class="th-inner"><span>Dimension</span></span>
+                        </th>
+                        <th data-comment="orders-th-stage">
+                          <span class="th-inner"><span>Stage</span></span>
+                        </th>
+                        <th class="hide-mobile" data-comment="orders-th-po" data-sort-key="po_no">
+                          <span class="th-inner th-sortable">
+                            <span>PO #</span>
+                            <span class="th-sort-icon" data-sort-icon></span>
+                          </span>
+                        </th>
+                        <th class="hide-mobile" data-comment="orders-th-scheduled-delivery">
                           <span class="th-inner"><span>Scheduled Delivery</span></span>
                         </th>
                         <th data-comment="orders-th-ship-type" data-sort-key="ship_type">
@@ -1649,8 +1682,14 @@
                             <span class="th-sort-icon" data-sort-icon></span>
                           </span>
                         </th>
-                        <th data-comment="orders-th-total">
+                        <th data-comment="orders-th-address">
+                          <span class="th-inner"><span>Address</span></span>
+                        </th>
+                        <th class="hide-mobile" data-comment="orders-th-total">
                           <span class="th-inner"><span>Total</span></span>
+                        </th>
+                        <th data-comment="orders-th-memo">
+                          <span class="th-inner"><span>Memo</span></span>
                         </th>
                       </tr>
                     </thead>
@@ -2079,6 +2118,7 @@
           customer_id: 1,
           po_no: "PO-44210",
           ship_type: "Local Delivery",
+          ship_address: "412 Maple Ridge Rd",
           ship_city: "Lancaster",
           ship_state: "PA",
           ship_zip: "17601",
@@ -2099,6 +2139,7 @@
           customer_id: 2,
           po_no: "PO-44211",
           ship_type: "Freight",
+          ship_address: "88 Industrial Pkwy",
           ship_city: "Reading",
           ship_state: "PA",
           ship_zip: "19601",
@@ -2118,6 +2159,7 @@
           customer_id: 3,
           po_no: null,
           ship_type: "Pickup",
+          ship_address: "27 Orchard Ln",
           ship_city: "York",
           ship_state: "PA",
           ship_zip: "17402",
@@ -2137,6 +2179,7 @@
           customer_id: 4,
           po_no: "PO-44215",
           ship_type: "Local Delivery",
+          ship_address: "1305 Cameron St",
           ship_city: "Harrisburg",
           ship_state: "PA",
           ship_zip: "17101",
@@ -2156,6 +2199,7 @@
           customer_id: 5,
           po_no: "PO-44219",
           ship_type: "Freight",
+          ship_address: "744 Hamilton Blvd",
           ship_city: "Allentown",
           ship_state: "PA",
           ship_zip: "18101",
@@ -2175,6 +2219,7 @@
           customer_id: 6,
           po_no: null,
           ship_type: "Local Delivery",
+          ship_address: "62 Linden St",
           ship_city: "Bethlehem",
           ship_state: "PA",
           ship_zip: "18017",
@@ -2194,6 +2239,7 @@
           customer_id: 7,
           po_no: "PO-44230",
           ship_type: "Local Delivery",
+          ship_address: "950 Cumberland St",
           ship_city: "Lebanon",
           ship_state: "PA",
           ship_zip: "17042",
@@ -2213,6 +2259,7 @@
           customer_id: 8,
           po_no: "PO-44233",
           ship_type: "Freight",
+          ship_address: "320 Penn Ave",
           ship_city: "Pittsburgh",
           ship_state: "PA",
           ship_zip: "15201",
@@ -2232,6 +2279,7 @@
           customer_id: 1,
           po_no: "PO-44240",
           ship_type: "Local Delivery",
+          ship_address: "412 Maple Ridge Rd",
           ship_city: "Lancaster",
           ship_state: "PA",
           ship_zip: "17601",
@@ -2251,6 +2299,7 @@
           customer_id: 2,
           po_no: null,
           ship_type: "Pickup",
+          ship_address: "88 Industrial Pkwy",
           ship_city: "Reading",
           ship_state: "PA",
           ship_zip: "19601",
@@ -2270,6 +2319,7 @@
           customer_id: 3,
           po_no: "PO-44248",
           ship_type: "Freight",
+          ship_address: "27 Orchard Ln",
           ship_city: "York",
           ship_state: "PA",
           ship_zip: "17402",
@@ -2289,6 +2339,7 @@
           customer_id: 4,
           po_no: "PO-44251",
           ship_type: "Local Delivery",
+          ship_address: "1305 Cameron St",
           ship_city: "Harrisburg",
           ship_state: "PA",
           ship_zip: "17101",
@@ -2308,6 +2359,7 @@
           customer_id: 5,
           po_no: null,
           ship_type: "Local Delivery",
+          ship_address: "744 Hamilton Blvd",
           ship_city: "Allentown",
           ship_state: "PA",
           ship_zip: "18101",
@@ -2327,6 +2379,7 @@
           customer_id: 6,
           po_no: "PO-44260",
           ship_type: "Freight",
+          ship_address: "62 Linden St",
           ship_city: "Bethlehem",
           ship_state: "PA",
           ship_zip: "18017",
@@ -2346,6 +2399,7 @@
           customer_id: 7,
           po_no: "PO-44266",
           ship_type: "Local Delivery",
+          ship_address: "950 Cumberland St",
           ship_city: "Lebanon",
           ship_state: "PA",
           ship_zip: "17042",
@@ -2378,7 +2432,7 @@
         isLoading: true,
         searchTerm: "",
         searchInput: "",
-        sort: { key: null, dir: null }, // dir: 'asc' | 'desc'
+        sort: { key: "invoice", dir: "desc" }, // dir: 'asc' | 'desc'; default -invoice
         page: 1,
         pageSize: 10,
         previewOrder: null,
@@ -2524,9 +2578,13 @@
       }
 
       function getShippingAddress(o) {
-        if (!o.ship_zip && !o.ship_city) return "—";
-        const parts = [o.ship_city, o.ship_state].filter(Boolean).join(" ");
-        return o.ship_zip ? `${parts} - ${o.ship_zip}` : parts;
+        if (!o.ship_zip && !o.ship_city && !o.ship_address) return "—";
+        const locality = [o.ship_city, o.ship_state].filter(Boolean).join(" ");
+        const tail = o.ship_zip ? (locality ? `${locality} - ${o.ship_zip}` : o.ship_zip) : locality;
+        return [o.ship_address, tail].filter(Boolean).join(", ");
+      }
+      function getShippingStreet(o) {
+        return o.ship_address || "—";
       }
 
       function esc(v) {
@@ -2667,12 +2725,16 @@
               <tr data-comment="orders-skeleton-row-${i}">
                 <td><span class="skeleton" style="width:80%"></span></td>
                 <td><span class="skeleton" style="width:70%"></span></td>
-                <td><span class="skeleton" style="width:60%"></span></td>
-                <td><span class="skeleton" style="width:85%"></span></td>
                 <td><span class="skeleton" style="width:70%"></span></td>
-                <td><span class="skeleton" style="width:65%"></span></td>
                 <td><span class="skeleton" style="width:60%"></span></td>
-                <td><span class="skeleton" style="width:50%"></span></td>
+                <td><span class="skeleton" style="width:55%"></span></td>
+                <td><span class="skeleton" style="width:85%"></span></td>
+                <td class="hide-mobile"><span class="skeleton" style="width:60%"></span></td>
+                <td class="hide-mobile"><span class="skeleton" style="width:65%"></span></td>
+                <td><span class="skeleton" style="width:60%"></span></td>
+                <td><span class="skeleton" style="width:75%"></span></td>
+                <td class="hide-mobile"><span class="skeleton" style="width:50%"></span></td>
+                <td><span class="skeleton" style="width:80%"></span></td>
               </tr>
             `,
             )
@@ -2685,7 +2747,7 @@
         if (rows.length === 0) {
           tbody.innerHTML = `
             <tr data-comment="orders-empty-row">
-              <td colspan="8" class="col-empty" data-comment="orders-empty-cell">No orders found.</td>
+              <td colspan="12" class="col-empty" data-comment="orders-empty-cell">No orders found.</td>
             </tr>
           `;
           return;
@@ -2698,14 +2760,18 @@
               <tr class="clickable" data-comment="orders-row-${idSafe}" data-row-id="${idSafe}">
                 <td data-comment="orders-row-${idSafe}-invoice">${esc(o.invoice)}</td>
                 <td data-comment="orders-row-${idSafe}-created">${esc(formatDate(o.crea_date))}</td>
-                <td data-comment="orders-row-${idSafe}-category"><span class="cell-overflow">${esc(o.category || "—")}</span></td>
-                <td data-comment="orders-row-${idSafe}-stage">${renderStageBadge(o.status, `orders-row-${idSafe}-stage-badge`)}</td>
                 <td data-comment="orders-row-${idSafe}-customer">
-                  <a class="cell-link cell-overflow" data-comment="orders-row-${idSafe}-customer-link" href="customer-detail.html?id=${esc(o.customer_id)}" onclick="event.stopPropagation()">${esc(o.customer || "—")}</a>
+                  <a class="cell-link cell-overflow" data-comment="orders-row-${idSafe}-customer-link" href="customer-detail.html?id=${esc(o.customer_id)}&tab=orders" onclick="event.stopPropagation()">${esc(o.customer || "—")}</a>
                 </td>
-                <td data-comment="orders-row-${idSafe}-scheduled">${esc(formatDate(o.dp_estprod))}</td>
+                <td data-comment="orders-row-${idSafe}-category"><span class="cell-overflow">${esc(o.category || "—")}</span></td>
+                <td data-comment="orders-row-${idSafe}-dimension"><span class="cell-overflow">${esc(o.dimension || "—")}</span></td>
+                <td data-comment="orders-row-${idSafe}-stage">${renderStageBadge(o.status, `orders-row-${idSafe}-stage-badge`)}</td>
+                <td class="hide-mobile" data-comment="orders-row-${idSafe}-po">${esc(o.po_no || "—")}</td>
+                <td class="hide-mobile" data-comment="orders-row-${idSafe}-scheduled">${esc(formatDate(o.dp_estprod))}</td>
                 <td data-comment="orders-row-${idSafe}-ship-type">${esc(o.ship_type || "—")}</td>
-                <td data-comment="orders-row-${idSafe}-total">${esc(formatCurrency(o.total))}</td>
+                <td data-comment="orders-row-${idSafe}-address"><span class="cell-overflow">${esc(getShippingStreet(o))}</span></td>
+                <td class="hide-mobile" data-comment="orders-row-${idSafe}-total">${esc(formatCurrency(o.total))}</td>
+                <td data-comment="orders-row-${idSafe}-memo"><span class="cell-overflow">${esc(o.memo || "—")}</span></td>
               </tr>
             `;
           })
@@ -2850,6 +2916,54 @@
         `;
       }
 
+      /* ───── Role visibility ───── */
+      function applyRoleVisibility() {
+        let currentUser = null;
+        try { currentUser = JSON.parse(localStorage.getItem("currentUser") || "null"); } catch (e) {}
+        const role = currentUser && currentUser.role;
+        const viewOnly = role === "sales" || (currentUser && currentUser.viewOnly === true);
+        const btn = document.getElementById("orders-action-new-estimate");
+        if (btn) btn.style.display = viewOnly ? "none" : "";
+      }
+
+      /* ───── URL sync ───── */
+      function orderingParam() {
+        const { sort } = store.get();
+        if (!sort.key || !sort.dir) return "";
+        return (sort.dir === "desc" ? "-" : "") + sort.key;
+      }
+      function readUrlState() {
+        const params = new URLSearchParams(window.location.search);
+        const patch = {};
+        const page = parseInt(params.get("page") || "", 10);
+        if (page > 0) patch.page = page;
+        const pageSize = parseInt(params.get("pageSize") || "", 10);
+        if (pageSize > 0) patch.pageSize = pageSize;
+        const search = params.get("search");
+        if (search != null) { patch.searchInput = search; patch.searchTerm = search; }
+        const ordering = params.get("ordering");
+        if (ordering) {
+          const dir = ordering.startsWith("-") ? "desc" : "asc";
+          const key = ordering.replace(/^-/, "");
+          patch.sort = { key, dir };
+        }
+        if (Object.keys(patch).length) store.set(patch);
+      }
+      let urlSyncReady = false;
+      function writeUrlState() {
+        if (!urlSyncReady) return;
+        const s = store.get();
+        const params = new URLSearchParams();
+        if (s.page && s.page !== 1) params.set("page", String(s.page));
+        if (s.pageSize && s.pageSize !== 10) params.set("pageSize", String(s.pageSize));
+        const ord = orderingParam();
+        if (ord && ord !== "-invoice") params.set("ordering", ord);
+        if (s.searchTerm) params.set("search", s.searchTerm);
+        const qs = params.toString();
+        const url = window.location.pathname + (qs ? "?" + qs : "");
+        window.history.replaceState(null, "", url);
+      }
+
       /* ───── Subscribe ───── */
       store.subscribe(renderSidebarNav);
       store.subscribe(renderUser);
@@ -2860,6 +2974,11 @@
       store.subscribe(renderPagination);
       store.subscribe(renderSortIcons);
       store.subscribe(renderDrawer);
+      store.subscribe(writeUrlState);
+
+      readUrlState();
+      urlSyncReady = true;
+      applyRoleVisibility();
 
       renderSidebarNav();
       renderUser();
@@ -2998,5 +3117,28 @@
       );
       document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

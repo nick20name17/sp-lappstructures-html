@@ -849,14 +849,28 @@
       .select[aria-disabled="true"] .select-trigger { opacity: 0.5; pointer-events: none; }
       .select.select-sm .select-trigger { height: 32px; padding: 2px 10px; }
       .select.select-inline { width: auto; min-width: 80px; }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="site-checks-create-app-shell">
       <div class="app-frame" data-comment="site-checks-create-app-frame">
         <!-- Sidebar -->
         <aside class="sidebar" data-comment="site-checks-create-sidebar" id="sidebar" aria-label="Primary navigation">
-          <a class="sidebar-logo" data-comment="site-checks-create-sidebar-logo" href="home.html" aria-label="Go to home">
+          <a class="sidebar-logo" data-comment="site-checks-create-sidebar-logo" href="orders.html" aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="site-checks-create-sidebar-logo-mark">
               <img data-comment="site-checks-create-sidebar-logo-img" src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png" alt="Lapp Structures" />
             </span>
@@ -934,10 +948,6 @@
             </header>
 
             <form id="site-check-form" class="form-body" data-comment="site-checks-create-form" data-component="form" novalidate>
-              <div class="form-banner" id="form-banner" data-comment="site-checks-create-form-banner" style="display: none">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-comment="site-checks-create-form-banner-icon"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-                <span data-comment="site-checks-create-form-banner-text">Please complete required fields.</span>
-              </div>
               <div class="form-section" data-comment="site-checks-create-form-section">
                 <!-- Assignment block -->
                 <div class="form-block" data-comment="site-checks-create-block-assignment" data-component="card">
@@ -1035,35 +1045,6 @@
                       </div>
                     </div>
 
-                    <!-- Type -->
-                    <div class="form-field" data-comment="site-checks-create-field-type">
-                      <label class="form-label" for="type-select" data-comment="site-checks-create-field-type-label">Type</label>
-                      <div class="select" id="type-select" data-comment="site-checks-create-field-type-select" data-component="select" data-placeholder="Choose...">
-                        <button type="button" class="select-trigger" aria-expanded="false" data-comment="site-checks-create-field-type-select-trigger">
-                          <span class="select-trigger-label"></span>
-                          <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                        </button>
-                        <input type="hidden" value="site_check" />
-                        <div class="select-popover" style="display:none" role="listbox">
-                          <div class="select-item is-selected" data-value="site_check" data-comment="site-checks-create-field-type-option-site_check">Site Check</div>
-                          <div class="select-item" data-value="follow_up" data-comment="site-checks-create-field-type-option-follow_up">Follow Up</div>
-                          <div class="select-item" data-value="phone_call" data-comment="site-checks-create-field-type-option-phone_call">Phone Call</div>
-                          <div class="select-item" data-value="other" data-comment="site-checks-create-field-type-option-other">Other</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Status (segmented) -->
-                    <div class="form-field" data-comment="site-checks-create-field-status">
-                      <label class="form-label" data-comment="site-checks-create-field-status-label">Status</label>
-                      <div class="status-segmented" id="status-segmented" data-comment="site-checks-create-field-status-segmented">
-                        <button type="button" class="is-active" data-value="pending" data-comment="site-checks-create-field-status-pending">Pending</button>
-                        <button type="button" data-value="in_progress" data-comment="site-checks-create-field-status-in_progress">In Progress</button>
-                        <button type="button" data-value="completed" data-comment="site-checks-create-field-status-completed">Completed</button>
-                        <button type="button" data-value="cancelled" data-comment="site-checks-create-field-status-cancelled">Cancelled</button>
-                      </div>
-                    </div>
-
                     <!-- Notify checkbox (full row) -->
                     <div class="form-field full" data-comment="site-checks-create-field-notify">
                       <label class="checkbox-row" data-comment="site-checks-create-field-notify-row">
@@ -1117,7 +1098,7 @@
             <!-- Footer (sticky) -->
             <div class="form-footer" data-comment="site-checks-create-form-footer">
               <div class="footer-actions-end" data-comment="site-checks-create-form-footer-actions">
-                <a class="btn btn-outline btn-sm" data-comment="site-checks-create-cancel-btn" data-component="button" href="site-checks.html">Cancel</a>
+                <button type="button" class="btn btn-outline btn-sm" data-comment="site-checks-create-cancel-btn" data-component="button" id="cancel-btn">Cancel</button>
                 <button type="submit" form="site-check-form" class="btn btn-primary btn-sm" data-comment="site-checks-create-save-btn" data-component="button" id="save-btn">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-comment="site-checks-create-save-btn-icon"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
                   <span data-comment="site-checks-create-save-btn-label">Save</span>
@@ -1131,6 +1112,18 @@
 
     <!-- Toast stack -->
     <div class="toast-stack" id="toast-stack" data-comment="site-checks-create-toast-stack"></div>
+
+    <!-- Discard changes dialog -->
+    <div id="discard-overlay" data-comment="site-checks-create-discard-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; align-items: center; justify-content: center;">
+      <div data-comment="site-checks-create-discard-dialog" style="background: var(--card); border-radius: 12px; padding: 20px; width: 360px; max-width: calc(100vw - 32px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2);">
+        <h3 data-comment="site-checks-create-discard-title" style="font-size: 1rem; font-weight: 600; margin-bottom: 6px; color: var(--foreground);">Discard changes?</h3>
+        <p data-comment="site-checks-create-discard-desc" style="font-size: 0.875rem; color: var(--muted-foreground); margin-bottom: 16px;">Your unsaved changes will be lost.</p>
+        <div data-comment="site-checks-create-discard-actions" style="display: flex; gap: 8px; justify-content: flex-end;">
+          <button type="button" class="btn btn-outline btn-sm" data-comment="site-checks-create-discard-keep" id="discard-keep">Keep editing</button>
+          <button type="button" class="btn btn-primary btn-sm" data-comment="site-checks-create-discard-confirm" id="discard-confirm">Discard</button>
+        </div>
+      </div>
+    </div>
 
     <script>
       /* ───── Shadcn-style custom <select> polyfill ───── */
@@ -1373,11 +1366,10 @@
           assigned_to_id: null,
           estimate_id: prefilledEstimate ? prefilledEstimate.id : null,
           start_date: "",
-          type: "site_check",
-          status: "pending",
           notify_assigned_to: true,
           comments: "",
         },
+        dirty: false,
         attachments: [], // [{ id, name, size }]
         errors: {},      // { contact_id?, assigned_to_id?, estimate_id? }
         submitAttempted: false,
@@ -1406,7 +1398,7 @@
 
       // ───── Actions ─────
       function setForm(updates) {
-        store.set((s) => ({ form: { ...s.form, ...updates } }));
+        store.set((s) => ({ form: { ...s.form, ...updates }, dirty: true }));
         revalidateIfSubmitted();
       }
       function setContact(id) {
@@ -1417,7 +1409,7 @@
             const est = findEstimate(next.estimate_id);
             if (est && id != null && est.customer_id !== id) next.estimate_id = null;
           }
-          return { form: next };
+          return { form: next, dirty: true };
         });
         revalidateIfSubmitted();
       }
@@ -1430,12 +1422,9 @@
             const est = findEstimate(id);
             if (est && !next.contact_id) next.contact_id = est.customer_id;
           }
-          return { form: next };
+          return { form: next, dirty: true };
         });
         revalidateIfSubmitted();
-      }
-      function setStatus(value) {
-        store.set((s) => ({ form: { ...s.form, status: value } }));
       }
       function addAttachments(files) {
         const list = Array.from(files).map((f) => ({
@@ -1443,10 +1432,10 @@
           name: f.name,
           size: f.size,
         }));
-        store.set((s) => ({ attachments: [...s.attachments, ...list] }));
+        store.set((s) => ({ attachments: [...s.attachments, ...list], dirty: true }));
       }
       function removeAttachment(id) {
-        store.set((s) => ({ attachments: s.attachments.filter((f) => f.id !== id) }));
+        store.set((s) => ({ attachments: s.attachments.filter((f) => f.id !== id), dirty: true }));
       }
       function setOpenPopover(name) {
         store.set({ openPopover: name });
@@ -1482,7 +1471,6 @@
         const errors = validate(s.form);
         store.set({ submitAttempted: true, errors });
         if (Object.keys(errors).length > 0) {
-          showToast("error", "Please complete required fields.");
           return;
         }
         store.set({ isSaving: true });
@@ -1701,17 +1689,6 @@
           errEl.style.display = hasError ? "block" : "none";
           if (hasError) errEl.textContent = s.errors[f.key];
         });
-        const banner = document.getElementById("form-banner");
-        const showBanner = s.submitAttempted && Object.keys(s.errors).length > 0;
-        banner.style.display = showBanner ? "flex" : "none";
-      }
-
-      // ───── Status segmented ─────
-      function renderStatus() {
-        const s = store.get();
-        document.querySelectorAll("#status-segmented button").forEach((btn) => {
-          btn.classList.toggle("is-active", btn.dataset.value === s.form.status);
-        });
       }
 
       // ───── Attachments list ─────
@@ -1773,7 +1750,6 @@
       store.subscribe(renderAssignedOptions);
       store.subscribe(renderEstimateOptions);
       store.subscribe(renderErrors);
-      store.subscribe(renderStatus);
       store.subscribe(renderAttachments);
       store.subscribe(renderSaveBtn);
       store.subscribe(renderToasts);
@@ -1789,7 +1765,6 @@
       renderAssignedOptions();
       renderEstimateOptions();
       renderErrors();
-      renderStatus();
       renderAttachments();
       renderSaveBtn();
       renderToasts();
@@ -1884,16 +1859,6 @@
       document.getElementById("start-date").addEventListener("input", (e) => {
         store.set((s) => ({ form: { ...s.form, start_date: e.target.value } }));
       });
-      // Type
-      document.getElementById("type-select").addEventListener("change", (e) => {
-        store.set((s) => ({ form: { ...s.form, type: e.target.value } }));
-      });
-      // Status
-      document.getElementById("status-segmented").addEventListener("click", (e) => {
-        const btn = e.target.closest("[data-value]");
-        if (!btn) return;
-        setStatus(btn.dataset.value);
-      });
       // Notify
       document.getElementById("notify-checkbox").addEventListener("change", (e) => {
         store.set((s) => ({ form: { ...s.form, notify_assigned_to: e.target.checked } }));
@@ -1934,6 +1899,28 @@
 
       // Submit
       document.getElementById("site-check-form").addEventListener("submit", handleSubmit);
+
+      // ───── Dirty tracking + discard dialog ─────
+      const formEl = document.getElementById("site-check-form");
+      function markDirty() { if (!store.get().dirty) store.set({ dirty: true }); }
+      formEl.addEventListener("input", markDirty);
+      formEl.addEventListener("change", markDirty);
+
+      const discardOverlay = document.getElementById("discard-overlay");
+      function openDiscardDialog() { discardOverlay.style.display = "flex"; }
+      function closeDiscardDialog() { discardOverlay.style.display = "none"; }
+      document.getElementById("cancel-btn").addEventListener("click", () => {
+        if (store.get().dirty) openDiscardDialog();
+        else window.location.href = "site-checks.html";
+      });
+      document.getElementById("discard-keep").addEventListener("click", closeDiscardDialog);
+      document.getElementById("discard-confirm").addEventListener("click", () => {
+        store.set({ dirty: false });
+        window.location.href = "site-checks.html";
+      });
+      discardOverlay.addEventListener("click", (e) => {
+        if (e.target === discardOverlay) closeDiscardDialog();
+      });
 
       /* ───── Date picker (shadcn-style) ───── */
       (function () {
@@ -2099,5 +2086,10 @@
         initAll();
       })();
     </script>
-  </body>
+      <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

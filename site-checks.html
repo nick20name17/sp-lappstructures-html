@@ -332,6 +332,7 @@
         transition: background 0.15s ease, color 0.15s ease;
       }
       .btn:disabled { pointer-events: none; opacity: 0.5; }
+      .btn-sm { height: 32px; padding: 6px 12px; font-size: 0.8125rem; }
       .btn-primary { background: var(--primary); color: var(--primary-foreground); }
       .btn-primary:hover { background: color-mix(in oklch, var(--primary) 90%, black); }
       .btn-outline { background: white; color: var(--foreground); border: 1px solid var(--border); }
@@ -557,7 +558,70 @@
       .dialog-title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; color: var(--foreground); }
       .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
       .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
-    
+      .dialog-label { display:block; font-size:0.875rem; font-weight:500; color:var(--foreground); margin-bottom:6px; }
+      .dialog-textarea {
+        width:100%; min-height:78px; padding:10px 12px;
+        font-family:inherit; font-size:0.875rem; color:var(--foreground);
+        border:1px solid var(--input); border-radius:6px; background:white;
+        resize:vertical; outline:none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .dialog-textarea:focus { border-color:var(--ring); box-shadow:0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent); }
+      .btn-destructive { background: var(--destructive); color: white; }
+      .btn-destructive:hover { background: color-mix(in oklch, var(--destructive) 90%, black); }
+      .btn-success { background: var(--success); color: white; }
+      .btn-success:hover { background: color-mix(in oklch, var(--success) 90%, black); }
+
+      /* Right side drawer (Sheet) */
+      .sheet-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+        display: none; z-index: 90;
+      }
+      .sheet-overlay.is-open { display: block; }
+      .sheet {
+        position: fixed; top: 0; right: 0; bottom: 0;
+        width: 100%; max-width: 720px;
+        background: var(--background-secondary);
+        box-shadow: -8px 0 24px rgba(0,0,0,0.15);
+        z-index: 95; transform: translateX(100%);
+        transition: transform 0.25s ease;
+        display: flex; flex-direction: column;
+      }
+      .sheet.is-open { transform: translateX(0); }
+      .sheet-header {
+        flex-shrink:0; padding: 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; gap: 12px;
+      }
+      .sheet-title { font-size: 1.125rem; font-weight: 500; color: var(--foreground); }
+      .sheet-close { margin-left: auto; padding: 6px; border-radius: 6px; color: var(--muted-foreground); display:inline-flex; align-items:center; justify-content:center; }
+      .sheet-close:hover { background: var(--secondary); color: var(--foreground); }
+      .sheet-close svg { width: 18px; height: 18px; }
+      .sheet-body { flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+      .sheet-footer { flex-shrink: 0; padding: 12px 16px; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--background-secondary); }
+      .sheet-footer .actions-end { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+      .sc-card {
+        background: var(--card); border: 1px solid var(--border);
+        border-radius: 12px; padding: 16px;
+      }
+      .sc-card-title { font-size: 1rem; font-weight: 500; margin-bottom: 12px; }
+      .sc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      @media (max-width: 640px) { .sc-grid { grid-template-columns: 1fr; } }
+      .sc-row-label { font-size: 0.875rem; font-weight: 500; margin-bottom: 4px; }
+      .sc-row-val { font-size: 0.875rem; color: var(--muted-foreground); }
+      .sc-row-val.link { color: var(--accent-foreground); }
+      .sc-row-val.link:hover { text-decoration: underline; }
+      .btn-destructive-outline {
+        background: white; color: var(--destructive); border: 1px solid var(--destructive);
+      }
+      .btn-destructive-outline:hover { background: color-mix(in oklch, var(--destructive) 8%, white); }
+
+      /* Mobile column hiding */
+      @media (max-width: 768px) {
+        .data-table thead .hide-mobile,
+        .data-table tbody .hide-mobile { display: none; }
+      }
+
       /* shadcn-style select */
       .select { position: relative; display: inline-block; width: 100%; }
       .select .select-trigger {
@@ -636,9 +700,23 @@
       .select[aria-disabled="true"] .select-trigger { opacity: 0.5; pointer-events: none; }
       .select.select-sm .select-trigger { height: 32px; padding: 2px 10px; }
       .select.select-inline { width: auto; min-width: 80px; }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="site-checks-app-shell">
       <div class="app-frame" data-comment="site-checks-app-frame">
         <!-- Sidebar -->
@@ -650,7 +728,7 @@
           <a
             class="sidebar-logo"
             data-comment="site-checks-sidebar-logo"
-            href="home.html"
+            href="orders.html"
             aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="site-checks-sidebar-logo-mark">
               <img
@@ -867,6 +945,7 @@
                 </div>
                 <a
                   class="btn btn-primary"
+                  id="site-checks-add-btn"
                   data-comment="site-checks-add-btn"
                   data-component="button"
                   href="site-checks-create.html">
@@ -908,7 +987,7 @@
                         <th data-comment="site-checks-table-th-id">
                           <span class="th-inner" data-comment="site-checks-table-th-id-inner">#</span>
                         </th>
-                        <th data-comment="site-checks-table-th-location">
+                        <th class="hide-mobile" data-comment="site-checks-table-th-location">
                           <span class="th-inner" data-comment="site-checks-table-th-location-inner">Retail Location</span>
                         </th>
                         <th data-comment="site-checks-table-th-estimate">
@@ -920,11 +999,11 @@
                         <th data-comment="site-checks-table-th-status">
                           <span class="th-inner" data-comment="site-checks-table-th-status-inner">Status</span>
                         </th>
-                        <th data-comment="site-checks-table-th-assigned-to">
+                        <th class="hide-mobile" data-comment="site-checks-table-th-assigned-to">
                           <span class="th-inner" data-comment="site-checks-table-th-assigned-to-inner">Assigned To</span>
                         </th>
                         <th
-                          class="sortable"
+                          class="sortable hide-mobile"
                           data-comment="site-checks-table-th-start-date"
                           data-sort-key="start_date_time">
                           <span class="th-inner" data-comment="site-checks-table-th-start-date-inner">
@@ -1020,6 +1099,56 @@
             </div>
           </div>
         </main>
+      </div>
+    </div>
+
+    <!-- Right-side preview drawer -->
+    <div class="sheet-overlay" data-comment="site-checks-sheet-overlay" id="site-checks-sheet-overlay"></div>
+    <aside class="sheet" data-comment="site-checks-sheet" id="site-checks-sheet" aria-label="Site check details">
+      <div class="sheet-header" data-comment="site-checks-sheet-header">
+        <h2 class="sheet-title" data-comment="site-checks-sheet-title" id="site-checks-sheet-title">Site Check</h2>
+        <span data-comment="site-checks-sheet-badge-slot" id="site-checks-sheet-badge"></span>
+        <button type="button" class="sheet-close" id="site-checks-sheet-close" data-comment="site-checks-sheet-close" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="sheet-body" data-comment="site-checks-sheet-body" id="site-checks-sheet-body"></div>
+      <div class="sheet-footer" data-comment="site-checks-sheet-footer" id="site-checks-sheet-footer"></div>
+    </aside>
+
+    <!-- Mark as Done dialog -->
+    <div class="dialog-overlay" data-comment="site-checks-done-overlay" id="site-checks-done-overlay">
+      <div class="dialog" data-comment="site-checks-done-dialog" role="alertdialog" aria-modal="true">
+        <div data-comment="site-checks-done-header">
+          <h2 class="dialog-title" data-comment="site-checks-done-title">Mark as Done</h2>
+          <p class="dialog-description" data-comment="site-checks-done-description" style="margin-top:8px">
+            Are you sure you want to mark <span id="site-checks-done-id-label" style="color:var(--foreground);font-weight:500">SC-…</span> as completed? The date completed will be set to now.
+          </p>
+        </div>
+        <div data-comment="site-checks-done-results-wrap">
+          <label class="dialog-label" for="site-checks-done-results" data-comment="site-checks-done-results-label">Results of Site Check</label>
+          <textarea class="dialog-textarea" id="site-checks-done-results" data-comment="site-checks-done-results-input" rows="3" placeholder="Enter results…"></textarea>
+        </div>
+        <div class="dialog-footer" data-comment="site-checks-done-footer">
+          <button type="button" class="btn btn-outline" id="site-checks-done-cancel" data-comment="site-checks-done-cancel">Cancel</button>
+          <button type="button" class="btn btn-success" id="site-checks-done-confirm" data-comment="site-checks-done-confirm">Mark as Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mark as Cancelled dialog -->
+    <div class="dialog-overlay" data-comment="site-checks-cancel-overlay" id="site-checks-cancel-overlay">
+      <div class="dialog" data-comment="site-checks-cancel-dialog" role="alertdialog" aria-modal="true">
+        <div data-comment="site-checks-cancel-header">
+          <h2 class="dialog-title" data-comment="site-checks-cancel-title">Mark as Cancelled</h2>
+          <p class="dialog-description" data-comment="site-checks-cancel-description" style="margin-top:8px">
+            Are you sure you want to cancel <span id="site-checks-cancel-id-label" style="color:var(--foreground);font-weight:500">SC-…</span>? This will mark the site check as cancelled.
+          </p>
+        </div>
+        <div class="dialog-footer" data-comment="site-checks-cancel-footer">
+          <button type="button" class="btn btn-outline" id="site-checks-cancel-keep" data-comment="site-checks-cancel-keep">Keep Open</button>
+          <button type="button" class="btn btn-destructive" id="site-checks-cancel-confirm" data-comment="site-checks-cancel-confirm">Mark as Cancelled</button>
+        </div>
       </div>
     </div>
 
@@ -1218,7 +1347,19 @@
         chevronsUpDown: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>',
         check: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
         mapPinCell: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+        pencil: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>',
+        printer: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V2h12v7"/><path d="M6 14h12v8H6z"/></svg>',
+        ban: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>',
+        externalLink: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>',
       };
+
+      // Read current user from localStorage for permission gating (fallback admin)
+      let CURRENT_USER = { role: "admin", name: "Anna Lee", email: "anna@lapp.com" };
+      try {
+        const lsUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+        if (lsUser) CURRENT_USER = { role: lsUser.role || "admin", name: lsUser.name || "Anna Lee", email: lsUser.email || "anna@lapp.com" };
+      } catch (e) {}
+      const VIEW_ONLY = CURRENT_USER.role === "sales";
 
       const NAV_BY_ROLE = {
         admin: [
@@ -1261,24 +1402,28 @@
 
       // Seed site checks — fields mirror site-check-columns.tsx
       const SEED_SITE_CHECKS = [
-        { id: 501, contact: SEED_CUSTOMERS[0], estimate_id: 10024, status: "pending",     assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-22T09:00:00" },
-        { id: 502, contact: SEED_CUSTOMERS[1], estimate_id: 10025, status: "in_progress", assigned_to: ASSIGNED_USERS[1], start_date_time: "2025-05-21T11:30:00" },
-        { id: 503, contact: SEED_CUSTOMERS[2], estimate_id: 10026, status: "completed",   assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-18T08:00:00" },
-        { id: 504, contact: SEED_CUSTOMERS[3], estimate_id: 10027, status: "cancelled",   assigned_to: ASSIGNED_USERS[2], start_date_time: "2025-05-05T14:00:00" },
-        { id: 505, contact: SEED_CUSTOMERS[4], estimate_id: 10028, status: "pending",     assigned_to: ASSIGNED_USERS[3], start_date_time: "2025-05-24T10:00:00" },
-        { id: 506, contact: SEED_CUSTOMERS[5], estimate_id: 10029, status: "in_progress", assigned_to: ASSIGNED_USERS[1], start_date_time: "2025-05-20T09:00:00" },
-        { id: 507, contact: SEED_CUSTOMERS[6], estimate_id: 10030, status: "completed",   assigned_to: ASSIGNED_USERS[2], start_date_time: "2025-05-15T13:30:00" },
-        { id: 508, contact: SEED_CUSTOMERS[7], estimate_id: 10031, status: "pending",     assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-25T15:00:00" },
-        { id: 509, contact: SEED_CUSTOMERS[0], estimate_id: 10032, status: "pending",     assigned_to: ASSIGNED_USERS[3], start_date_time: "2025-05-26T08:30:00" },
-        { id: 510, contact: SEED_CUSTOMERS[1], estimate_id: 10033, status: "in_progress", assigned_to: ASSIGNED_USERS[1], start_date_time: "2025-05-23T12:00:00" },
-        { id: 511, contact: SEED_CUSTOMERS[2], estimate_id: 10034, status: "completed",   assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-12T09:00:00" },
-        { id: 512, contact: SEED_CUSTOMERS[3], estimate_id: 10035, status: "pending",     assigned_to: ASSIGNED_USERS[2], start_date_time: "2025-05-27T10:30:00" },
-        { id: 513, contact: SEED_CUSTOMERS[4], estimate_id: 10036, status: "cancelled",   assigned_to: ASSIGNED_USERS[3], start_date_time: "2025-04-30T11:00:00" },
-        { id: 514, contact: SEED_CUSTOMERS[5], estimate_id: null,  status: "pending",     assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-28T14:00:00" },
+        { id: 501, contact_id: 1, contact: SEED_CUSTOMERS[0], estimate_id: 10024, status: "pending",     type: "site_check", assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-22T09:00:00", date_completed: null, comments: "", results_of_site_check: "" },
+        { id: 502, contact_id: 2, contact: SEED_CUSTOMERS[1], estimate_id: 10025, status: "in_progress", type: "site_check", assigned_to: ASSIGNED_USERS[1], start_date_time: "2025-05-21T11:30:00", date_completed: null, comments: "", results_of_site_check: "" },
+        { id: 503, contact_id: 3, contact: SEED_CUSTOMERS[2], estimate_id: 10026, status: "completed",   type: "site_check", assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-18T08:00:00", date_completed: "2025-05-18T11:30:00", comments: "", results_of_site_check: "Access confirmed." },
+        { id: 504, contact_id: 4, contact: SEED_CUSTOMERS[3], estimate_id: 10027, status: "cancelled",   type: "site_check", assigned_to: ASSIGNED_USERS[2], start_date_time: "2025-05-05T14:00:00", date_completed: null, comments: "", results_of_site_check: "" },
+        { id: 505, contact_id: 5, contact: SEED_CUSTOMERS[4], estimate_id: 10028, status: "pending",     type: "follow_up",  assigned_to: ASSIGNED_USERS[3], start_date_time: "2025-05-24T10:00:00", date_completed: null, comments: "", results_of_site_check: "" },
+        { id: 506, contact_id: 6, contact: SEED_CUSTOMERS[5], estimate_id: 10029, status: "in_progress", type: "site_check", assigned_to: ASSIGNED_USERS[1], start_date_time: "2025-05-20T09:00:00", date_completed: null, comments: "", results_of_site_check: "" },
+        { id: 507, contact_id: 7, contact: SEED_CUSTOMERS[6], estimate_id: 10030, status: "completed",   type: "site_check", assigned_to: ASSIGNED_USERS[2], start_date_time: "2025-05-15T13:30:00", date_completed: "2025-05-15T15:45:00", comments: "", results_of_site_check: "" },
+        { id: 508, contact_id: 8, contact: SEED_CUSTOMERS[7], estimate_id: 10031, status: "pending",     type: "site_check", assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-25T15:00:00", date_completed: null, comments: "", results_of_site_check: "" },
+        { id: 509, contact_id: 1, contact: SEED_CUSTOMERS[0], estimate_id: 10032, status: "pending",     type: "site_check", assigned_to: ASSIGNED_USERS[3], start_date_time: "2025-05-26T08:30:00", date_completed: null, comments: "", results_of_site_check: "" },
+        { id: 510, contact_id: 2, contact: SEED_CUSTOMERS[1], estimate_id: 10033, status: "in_progress", type: "site_check", assigned_to: ASSIGNED_USERS[1], start_date_time: "2025-05-23T12:00:00", date_completed: null, comments: "", results_of_site_check: "" },
+        { id: 511, contact_id: 3, contact: SEED_CUSTOMERS[2], estimate_id: 10034, status: "completed",   type: "site_check", assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-12T09:00:00", date_completed: "2025-05-12T11:00:00", comments: "", results_of_site_check: "" },
+        { id: 512, contact_id: 4, contact: SEED_CUSTOMERS[3], estimate_id: 10035, status: "pending",     type: "site_check", assigned_to: ASSIGNED_USERS[2], start_date_time: "2025-05-27T10:30:00", date_completed: null, comments: "", results_of_site_check: "" },
+        { id: 513, contact_id: 5, contact: SEED_CUSTOMERS[4], estimate_id: 10036, status: "cancelled",   type: "site_check", assigned_to: ASSIGNED_USERS[3], start_date_time: "2025-04-30T11:00:00", date_completed: null, comments: "", results_of_site_check: "" },
+        { id: 514, contact_id: 6, contact: SEED_CUSTOMERS[5], estimate_id: null,  status: "pending",     type: "site_check", assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-28T14:00:00", date_completed: null, comments: "", results_of_site_check: "" },
       ];
 
+      // Mock seed-loading-failure flag: set window.__SEED_FAIL = true in console then reload to test
+      const SEED_FAIL = (typeof window !== "undefined" && window.__SEED_FAIL === true);
+
       const store = createStore({
-        user: { id: 1, name: "Anna Lee", email: "anna@lapp.com", role: "admin" },
+        user: { id: 1, name: CURRENT_USER.name, email: CURRENT_USER.email, role: CURRENT_USER.role },
+        viewOnly: VIEW_ONLY,
         collapsed: false,
         searchOpen: false,
         searchTerm: "",
@@ -1288,7 +1433,7 @@
 
         siteChecks: SEED_SITE_CHECKS,
         siteChecksLoading: true,
-        siteChecksError: false,
+        siteChecksError: SEED_FAIL,
         listSearchInput: "",
         listSearchTerm: "",
         sort: { key: "start_date_time", dir: "desc" },
@@ -1296,7 +1441,15 @@
         pageSize: 10,
 
         dialog: { type: "closed" },
+        drawerId: null,
+        doneResults: "",
       });
+
+      // Permission gate: hide Add button for view-only roles
+      if (VIEW_ONLY) {
+        const addBtn = document.getElementById("site-checks-add-btn");
+        if (addBtn) addBtn.style.display = "none";
+      }
 
       // ───── Sidebar renderers ─────
       function renderSidebarNav() {
@@ -1379,6 +1532,22 @@
         store.set((s) => ({
           siteChecks: s.siteChecks.filter((sc) => sc.id !== id),
           dialog: { type: "closed" },
+          drawerId: s.drawerId === id ? null : s.drawerId,
+        }));
+      }
+      function markDone(id, results) {
+        store.set((s) => ({
+          siteChecks: s.siteChecks.map((sc) => sc.id === id
+            ? { ...sc, status: "completed", date_completed: new Date().toISOString(), results_of_site_check: results || sc.results_of_site_check }
+            : sc),
+          dialog: { type: "closed" },
+          doneResults: "",
+        }));
+      }
+      function markCancelled(id) {
+        store.set((s) => ({
+          siteChecks: s.siteChecks.map((sc) => sc.id === id ? { ...sc, status: "cancelled" } : sc),
+          dialog: { type: "closed" },
         }));
       }
 
@@ -1438,15 +1607,16 @@
         const colCount = 8;
 
         if (s.siteChecksLoading) {
+          // skeleton widths spec: ["w-1/4","w-1/3","w-1/4","w-1/2","w-1/3",""]
           body.innerHTML = Array.from({ length: 5 }).map((_, r) => `
             <tr data-comment="site-checks-skeleton-row-${r + 1}">
               <td><span class="skeleton-bar" style="width: 25%" data-comment="site-checks-skeleton-row-${r + 1}-id"></span></td>
-              <td><span class="skeleton-bar" style="width: 33%" data-comment="site-checks-skeleton-row-${r + 1}-location"></span></td>
+              <td class="hide-mobile"><span class="skeleton-bar" style="width: 33%" data-comment="site-checks-skeleton-row-${r + 1}-location"></span></td>
               <td><span class="skeleton-bar" style="width: 25%" data-comment="site-checks-skeleton-row-${r + 1}-estimate"></span></td>
               <td><span class="skeleton-bar" style="width: 50%" data-comment="site-checks-skeleton-row-${r + 1}-customer"></span></td>
               <td><span class="skeleton-bar" style="width: 33%" data-comment="site-checks-skeleton-row-${r + 1}-status"></span></td>
-              <td><span class="skeleton-bar" style="width: 60%" data-comment="site-checks-skeleton-row-${r + 1}-assigned"></span></td>
-              <td><span class="skeleton-bar" style="width: 70%" data-comment="site-checks-skeleton-row-${r + 1}-date"></span></td>
+              <td class="hide-mobile" data-comment="site-checks-skeleton-row-${r + 1}-assigned"></td>
+              <td class="hide-mobile"></td>
               <td></td>
             </tr>
           `).join("");
@@ -1478,7 +1648,7 @@
           return `
             <tr class="clickable" data-comment="${ctx}" data-site-check-id="${sc.id}">
               <td class="id-cell" data-comment="${ctx}-id">SC-${sc.id}</td>
-              <td data-comment="${ctx}-location">
+              <td class="hide-mobile" data-comment="${ctx}-location">
                 ${sc.contact?.location
                   ? `<span class="location-cell" data-comment="${ctx}-location-cell">
                       <span class="location-cell-icon" data-comment="${ctx}-location-icon">${ICONS.mapPinCell}</span>
@@ -1497,12 +1667,13 @@
                   : "—"}
               </td>
               <td data-comment="${ctx}-status">${renderSCBadge(sc.status, ctx)}</td>
-              <td data-comment="${ctx}-assigned-to">${escapeHtml(assignedName || "—")}</td>
-              <td data-comment="${ctx}-start-date">${formatDate(sc.start_date_time)}</td>
+              <td class="hide-mobile" data-comment="${ctx}-assigned-to">${escapeHtml(assignedName || "—")}</td>
+              <td class="hide-mobile" data-comment="${ctx}-start-date">${formatDate(sc.start_date_time)}</td>
               <td data-comment="${ctx}-actions">
+                ${s.viewOnly ? "" : `
                 <div class="row-actions" data-comment="${ctx}-actions-wrap" onclick="event.stopPropagation()">
                   <button type="button" class="btn-icon-sm danger" data-comment="${ctx}-delete" data-component="button" data-action="delete" data-site-check-id="${sc.id}" aria-label="Delete site check">${ICONS.trash2}</button>
-                </div>
+                </div>`}
               </td>
             </tr>
           `;
@@ -1545,8 +1716,97 @@
 
       function renderDialog() {
         const s = store.get();
-        const overlay = document.getElementById("site-checks-delete-overlay");
-        overlay.classList.toggle("is-open", s.dialog.type === "delete");
+        document.getElementById("site-checks-delete-overlay").classList.toggle("is-open", s.dialog.type === "delete");
+        document.getElementById("site-checks-done-overlay").classList.toggle("is-open", s.dialog.type === "done");
+        document.getElementById("site-checks-cancel-overlay").classList.toggle("is-open", s.dialog.type === "cancelled");
+        // Sync labels
+        const sc = s.dialog && s.dialog.siteCheck ? s.dialog.siteCheck : (s.drawerId ? s.siteChecks.find(x => x.id === s.drawerId) : null);
+        if (sc) {
+          document.getElementById("site-checks-done-id-label").textContent = `SC-${sc.id}`;
+          document.getElementById("site-checks-cancel-id-label").textContent = `SC-${sc.id}`;
+        }
+        const ta = document.getElementById("site-checks-done-results");
+        if (ta && ta.value !== s.doneResults) ta.value = s.doneResults;
+      }
+
+      // ───── Drawer ─────
+      function renderDrawer() {
+        const s = store.get();
+        const overlay = document.getElementById("site-checks-sheet-overlay");
+        const sheet = document.getElementById("site-checks-sheet");
+        const open = s.drawerId != null;
+        overlay.classList.toggle("is-open", open);
+        sheet.classList.toggle("is-open", open);
+        if (!open) return;
+
+        const sc = s.siteChecks.find((x) => x.id === s.drawerId);
+        if (!sc) return;
+        const label = SC_LABELS[sc.status] || sc.status;
+        const isCompleted = sc.status === "completed";
+
+        document.getElementById("site-checks-sheet-title").textContent = `Site Check SC-${sc.id}`;
+        document.getElementById("site-checks-sheet-badge").innerHTML = `
+          <span class="sc-badge ${sc.status}" data-comment="site-checks-sheet-status-badge">
+            ${isCompleted ? `<span data-comment="site-checks-sheet-status-icon">${ICONS.check}</span>` : `<span class="dot" data-comment="site-checks-sheet-status-dot"></span>`}
+            ${escapeHtml(label)}
+          </span>`;
+
+        const contactName = sc.contact ? `${sc.contact.first_name} ${sc.contact.last_name}`.trim() : "—";
+        const assignedName = sc.assigned_to ? `${sc.assigned_to.first_name} ${sc.assigned_to.last_name}`.trim() : "—";
+        const body = document.getElementById("site-checks-sheet-body");
+        body.innerHTML = `
+          <div class="sc-card" data-comment="site-checks-sheet-assignment-card">
+            <div class="sc-card-title" data-comment="site-checks-sheet-assignment-title">Assignment</div>
+            <div class="sc-grid" data-comment="site-checks-sheet-assignment-grid">
+              <div data-comment="site-checks-sheet-row-customer">
+                <div class="sc-row-label">Customer</div>
+                ${sc.contact_id
+                  ? `<a class="sc-row-val link" href="customer-detail.html?id=${sc.contact_id}" data-comment="site-checks-sheet-row-customer-value">${escapeHtml(contactName)}</a>`
+                  : `<div class="sc-row-val">${escapeHtml(contactName)}</div>`}
+              </div>
+              ${sc.contact?.location ? `
+                <div data-comment="site-checks-sheet-row-location">
+                  <div class="sc-row-label">Retail Location</div>
+                  <div class="sc-row-val">${escapeHtml(sc.contact.location)}</div>
+                </div>` : ""}
+              <div data-comment="site-checks-sheet-row-assigned-to">
+                <div class="sc-row-label">Assigned To</div>
+                <div class="sc-row-val">${escapeHtml(assignedName)}</div>
+              </div>
+              ${sc.estimate_id ? `
+                <div data-comment="site-checks-sheet-row-estimate">
+                  <div class="sc-row-label">Related Estimate</div>
+                  <a class="sc-row-val link" href="estimate-detail.html?id=${sc.estimate_id}">${sc.estimate_id}</a>
+                </div>` : ""}
+              <div data-comment="site-checks-sheet-row-start-date">
+                <div class="sc-row-label">Start Date</div>
+                <div class="sc-row-val">${formatDate(sc.start_date_time)}</div>
+              </div>
+              <div data-comment="site-checks-sheet-row-completed">
+                <div class="sc-row-label">Date Completed</div>
+                <div class="sc-row-val">${formatDate(sc.date_completed)}</div>
+              </div>
+            </div>
+          </div>
+          ${sc.results_of_site_check ? `
+            <div class="sc-card" data-comment="site-checks-sheet-results-card">
+              <div class="sc-card-title">Results of Site Check</div>
+              <div class="sc-row-val" style="white-space:pre-wrap">${escapeHtml(sc.results_of_site_check)}</div>
+            </div>` : ""}
+        `;
+
+        const footer = document.getElementById("site-checks-sheet-footer");
+        const canEdit = sc.status === "pending" || sc.status === "in_progress";
+        const canChange = sc.status !== "completed" && sc.status !== "cancelled";
+        footer.innerHTML = `
+          ${s.viewOnly ? "" : `<button type="button" class="btn btn-destructive-outline btn-sm" data-comment="site-checks-sheet-delete" data-drawer-action="delete">${ICONS.trash2} Delete</button>`}
+          <div class="actions-end" data-comment="site-checks-sheet-actions-end">
+            ${(!s.viewOnly && canEdit) ? `<a class="btn btn-primary btn-sm" data-comment="site-checks-sheet-edit" href="site-checks-edit.html?id=${sc.id}">${ICONS.pencil} Edit</a>` : ""}
+            <button type="button" class="btn btn-outline btn-sm" data-comment="site-checks-sheet-print" data-drawer-action="print">${ICONS.printer} Print</button>
+            ${(!s.viewOnly && canChange) ? `<button type="button" class="btn btn-destructive btn-sm" data-comment="site-checks-sheet-cancel" data-drawer-action="open-cancel">${ICONS.ban} Mark as Cancelled</button>` : ""}
+            ${(!s.viewOnly && canChange) ? `<button type="button" class="btn btn-success btn-sm" data-comment="site-checks-sheet-done" data-drawer-action="open-done">${ICONS.check} Mark as Done</button>` : ""}
+          </div>
+        `;
       }
 
       store.subscribe(renderSidebarNav);
@@ -1557,6 +1817,7 @@
       store.subscribe(renderSortIcons);
       store.subscribe(renderSearchInput);
       store.subscribe(renderDialog);
+      store.subscribe(renderDrawer);
 
       renderSidebarNav();
       renderUser();
@@ -1566,6 +1827,7 @@
       renderSortIcons();
       renderSearchInput();
       renderDialog();
+      renderDrawer();
       initSelects();
 
       setTimeout(() => store.set({ siteChecksLoading: false }), 250);
@@ -1639,29 +1901,62 @@
           if (sc) store.set({ dialog: { type: "delete", siteCheck: sc } });
           return;
         }
-        // Row click → navigate to detail
+        // Row click → open drawer (preview) instead of navigating
         const row = e.target.closest("tr.clickable[data-site-check-id]");
         if (row) {
-          window.location.href = `site-check-detail.html?id=${row.dataset.siteCheckId}`;
+          const id = Number(row.dataset.siteCheckId);
+          store.set({ drawerId: id });
         }
       });
 
-      // ───── Dialog ─────
-      document.getElementById("site-checks-delete-cancel").addEventListener("click", () => {
-        store.set({ dialog: { type: "closed" } });
+      // ───── Drawer handlers ─────
+      document.getElementById("site-checks-sheet-close").addEventListener("click", () => store.set({ drawerId: null }));
+      document.getElementById("site-checks-sheet-overlay").addEventListener("click", () => store.set({ drawerId: null }));
+      document.getElementById("site-checks-sheet-footer").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-drawer-action]");
+        if (!btn) return;
+        const action = btn.dataset.drawerAction;
+        const s = store.get();
+        const sc = s.siteChecks.find((x) => x.id === s.drawerId);
+        if (!sc) return;
+        if (action === "delete")       store.set({ dialog: { type: "delete", siteCheck: sc } });
+        else if (action === "open-done")   store.set({ dialog: { type: "done", siteCheck: sc }, doneResults: "" });
+        else if (action === "open-cancel") store.set({ dialog: { type: "cancelled", siteCheck: sc } });
+        else if (action === "print")       window.print();
       });
+
+      // ───── Dialog: delete ─────
+      document.getElementById("site-checks-delete-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
       document.getElementById("site-checks-delete-confirm").addEventListener("click", () => {
         const cur = store.get().dialog;
         if (cur.type === "delete") deleteSiteCheck(cur.siteCheck.id);
       });
-      // Esc + backdrop close
-      document.getElementById("site-checks-delete-overlay").addEventListener("click", (e) => {
-        if (e.target.id === "site-checks-delete-overlay") store.set({ dialog: { type: "closed" } });
+      // Dialog: done
+      document.getElementById("site-checks-done-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      document.getElementById("site-checks-done-confirm").addEventListener("click", () => {
+        const cur = store.get().dialog;
+        if (cur.type === "done") markDone(cur.siteCheck.id, store.get().doneResults.trim());
+      });
+      document.getElementById("site-checks-done-results").addEventListener("input", (e) => store.set({ doneResults: e.target.value }));
+      // Dialog: cancelled
+      document.getElementById("site-checks-cancel-keep").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      document.getElementById("site-checks-cancel-confirm").addEventListener("click", () => {
+        const cur = store.get().dialog;
+        if (cur.type === "cancelled") markCancelled(cur.siteCheck.id);
+      });
+
+      // Backdrop + Esc close (all dialogs)
+      ["site-checks-delete-overlay","site-checks-done-overlay","site-checks-cancel-overlay"].forEach((id) => {
+        const ov = document.getElementById(id);
+        ov.addEventListener("click", (e) => {
+          if (e.target === ov) store.set({ dialog: { type: "closed" } });
+        });
       });
       document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && store.get().dialog.type === "delete") {
-          store.set({ dialog: { type: "closed" } });
-        }
+        if (e.key !== "Escape") return;
+        const s = store.get();
+        if (s.dialog.type !== "closed") store.set({ dialog: { type: "closed" } });
+        else if (s.drawerId != null) store.set({ drawerId: null });
       });
 
       function escapeHtml(s) {
@@ -1670,5 +1965,28 @@
         })[c]);
       }
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

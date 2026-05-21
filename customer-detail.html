@@ -919,15 +919,180 @@
       .cd-empty-heading { font-size: 1.05rem; font-weight: 500; color: var(--foreground); }
       .cd-empty-text { font-size: 0.875rem; }
 
+      /* ───── Multi-checkbox group ───── */
+      .cd-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; padding: 4px 0; }
+      .cd-form-hint { font-size: 0.6875rem; color: var(--muted-foreground); margin-top: 2px; }
+      .cd-form-row select {
+        height: 36px;
+        padding: 0 10px;
+        border: 1px solid var(--input);
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 0.875rem;
+        outline: none;
+        background: var(--card);
+        color: var(--foreground);
+      }
+      .cd-form-row select:focus { border-color: var(--ring); }
+
+      /* ───── Role-hidden ───── */
+      [data-role-hidden].is-role-hidden { display: none !important; }
+
+      /* ───── Info-card mobile collapse ───── */
+      .cd-info-card-toggle {
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        padding: 4px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted-foreground);
+      }
+      .cd-info-card-toggle svg {
+        width: 16px; height: 16px;
+        transition: transform 0.2s ease;
+      }
+      .cd-info-card.is-collapsed .cd-info-card-toggle svg { transform: rotate(-90deg); }
+      .cd-info-card.is-collapsed .cd-info-card-body { display: none; }
+      @media (max-width: 639px) {
+        .cd-info-card-toggle { display: inline-flex; }
+      }
+
+      /* ───── Kebab menu ───── */
+      .cd-kebab-wrap { position: relative; display: inline-block; }
+      .cd-kebab-btn {
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        height: 28px; width: 28px;
+        border-radius: 6px;
+        color: var(--muted-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .cd-kebab-btn:hover { background: var(--secondary); color: var(--foreground); }
+      .cd-kebab-btn svg { width: 16px; height: 16px; }
+      .cd-kebab-menu {
+        position: absolute;
+        top: calc(100% + 4px);
+        right: 0;
+        z-index: 30;
+        min-width: 160px;
+        background: var(--popover, #fff);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        padding: 4px;
+        display: none;
+      }
+      .cd-kebab-wrap.is-open .cd-kebab-menu { display: block; }
+      .cd-kebab-item {
+        display: block;
+        width: 100%;
+        padding: 6px 10px;
+        text-align: left;
+        font-size: 0.8125rem;
+        background: transparent;
+        border: 0;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: inherit;
+        color: var(--foreground);
+      }
+      .cd-kebab-item:hover { background: var(--accent); }
+      .cd-kebab-item.is-destructive { color: var(--destructive); }
+
+      /* ───── Drawer (side sheet) ───── */
+      .cd-drawer-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 200;
+        display: none;
+      }
+      .cd-drawer-overlay.is-open { display: block; }
+      .cd-drawer {
+        position: fixed;
+        top: 0; right: 0; bottom: 0;
+        width: 100%;
+        max-width: 480px;
+        background: var(--card);
+        border-left: 1px solid var(--border);
+        box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+        z-index: 210;
+        transform: translateX(100%);
+        transition: transform 0.25s ease;
+        display: flex;
+        flex-direction: column;
+      }
+      .cd-drawer.is-open { transform: translateX(0); }
+      .cd-drawer-header {
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      .cd-drawer-title { font-size: 1rem; font-weight: 600; }
+      .cd-drawer-body {
+        padding: 16px 20px;
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .cd-drawer-row { display: flex; flex-direction: column; gap: 2px; }
+      .cd-drawer-row-label {
+        font-size: 0.6875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted-foreground);
+      }
+      .cd-drawer-row-value { font-size: 0.875rem; color: var(--foreground); }
+      .cd-drawer-footer {
+        padding: 12px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      .cd-drawer-close {
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        height: 28px; width: 28px;
+        border-radius: 6px;
+        color: var(--muted-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .cd-drawer-close:hover { background: var(--secondary); color: var(--foreground); }
+      .cd-drawer-close svg { width: 16px; height: 16px; }
+
       /* ───── Toast ───── */
       .toast-container { position: fixed; bottom: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 999; pointer-events: none; }
       .toast { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); font-size: 0.875rem; min-width: 240px; animation: toast-in 0.2s ease; pointer-events: auto; color: var(--foreground); }
       .toast.success { border-left: 3px solid var(--success, #16a34a); }
       .toast.error { border-left: 3px solid var(--destructive, #dc2626); }
       @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="customer-detail-app-shell">
       <div class="app-frame" data-comment="customer-detail-app-frame">
         <!-- ───── Sidebar ───── -->
@@ -939,7 +1104,7 @@
           <a
             class="sidebar-logo"
             data-comment="customer-detail-sidebar-logo"
-            href="home.html"
+            href="orders.html"
             aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="customer-detail-sidebar-logo-mark">
               <img
@@ -1093,6 +1258,92 @@
       </div>
     </div>
 
+    <!-- Estimate detail drawer -->
+    <div class="cd-drawer-overlay" data-comment="customer-detail-estimate-drawer-overlay" id="estimate-drawer-overlay"></div>
+    <aside class="cd-drawer" data-comment="customer-detail-estimate-drawer" id="estimate-drawer" role="dialog" aria-modal="true" aria-label="Estimate details">
+      <div class="cd-drawer-header" data-comment="customer-detail-estimate-drawer-header">
+        <h2 class="cd-drawer-title" data-comment="customer-detail-estimate-drawer-title" id="estimate-drawer-title">Estimate</h2>
+        <button type="button" class="cd-drawer-close" data-comment="customer-detail-estimate-drawer-close" data-drawer-close="estimate" aria-label="Close drawer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+      </div>
+      <div class="cd-drawer-body" data-comment="customer-detail-estimate-drawer-body" id="estimate-drawer-body"></div>
+      <div class="cd-drawer-footer" data-comment="customer-detail-estimate-drawer-footer">
+        <button type="button" class="btn btn-outline btn-sm" data-drawer-close="estimate">Close</button>
+      </div>
+    </aside>
+
+    <!-- Order detail drawer -->
+    <div class="cd-drawer-overlay" data-comment="customer-detail-order-drawer-overlay" id="order-drawer-overlay"></div>
+    <aside class="cd-drawer" data-comment="customer-detail-order-drawer" id="order-drawer" role="dialog" aria-modal="true" aria-label="Order details">
+      <div class="cd-drawer-header" data-comment="customer-detail-order-drawer-header">
+        <h2 class="cd-drawer-title" data-comment="customer-detail-order-drawer-title" id="order-drawer-title">Sales Order</h2>
+        <button type="button" class="cd-drawer-close" data-comment="customer-detail-order-drawer-close" data-drawer-close="order" aria-label="Close drawer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+      </div>
+      <div class="cd-drawer-body" data-comment="customer-detail-order-drawer-body" id="order-drawer-body"></div>
+      <div class="cd-drawer-footer" data-comment="customer-detail-order-drawer-footer">
+        <button type="button" class="btn btn-outline btn-sm" data-drawer-close="order">Close</button>
+      </div>
+    </aside>
+
+    <!-- Approve Estimate Dialog -->
+    <div class="cd-dialog-overlay" data-comment="customer-detail-approve-estimate-overlay" id="approve-estimate-overlay">
+      <div class="cd-dialog" data-comment="customer-detail-approve-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div>
+          <h2 class="cd-dialog-title">Approve estimate?</h2>
+          <p class="cd-dialog-desc" id="approve-estimate-desc">This will mark the estimate as approved.</p>
+        </div>
+        <div class="cd-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" data-estimate-confirm="approve">Approve</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reject Estimate Dialog -->
+    <div class="cd-dialog-overlay" data-comment="customer-detail-reject-estimate-overlay" id="reject-estimate-overlay">
+      <div class="cd-dialog" data-comment="customer-detail-reject-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div>
+          <h2 class="cd-dialog-title">Reject estimate?</h2>
+          <p class="cd-dialog-desc" id="reject-estimate-desc">This will mark the estimate as rejected.</p>
+        </div>
+        <div class="cd-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel">Cancel</button>
+          <button type="button" class="btn btn-destructive btn-sm" data-estimate-confirm="reject">Reject</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Estimate Dialog -->
+    <div class="cd-dialog-overlay" data-comment="customer-detail-delete-estimate-overlay" id="delete-estimate-overlay">
+      <div class="cd-dialog" data-comment="customer-detail-delete-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div>
+          <h2 class="cd-dialog-title">Delete estimate?</h2>
+          <p class="cd-dialog-desc" id="delete-estimate-desc">This action cannot be undone.</p>
+        </div>
+        <div class="cd-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel">Cancel</button>
+          <button type="button" class="btn btn-destructive btn-sm" data-estimate-confirm="delete">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Sales Order Dialog -->
+    <div class="cd-dialog-overlay" data-comment="customer-detail-create-so-overlay" id="create-so-overlay">
+      <div class="cd-dialog" data-comment="customer-detail-create-so-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div>
+          <h2 class="cd-dialog-title">Create sales order?</h2>
+          <p class="cd-dialog-desc" id="create-so-desc">A new sales order will be created from this estimate.</p>
+        </div>
+        <div class="cd-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" data-estimate-confirm="createSO">Create</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Edit customer dialog -->
     <div class="cd-dialog-overlay" data-comment="customer-detail-edit-dialog-overlay" id="edit-dialog-overlay">
       <div class="cd-dialog" data-comment="customer-detail-edit-dialog" data-component="dialog" role="dialog" aria-modal="true">
@@ -1121,8 +1372,9 @@
           </div>
           <div class="cd-form-grid" data-comment="customer-detail-edit-form-grid-phones">
             <div class="cd-form-row" data-comment="customer-detail-edit-row-primary-phone">
-              <label for="cd-edit-primary-phone" data-comment="customer-detail-edit-row-primary-phone-label">Primary Phone</label>
+              <label for="cd-edit-primary-phone" data-comment="customer-detail-edit-row-primary-phone-label">Primary Phone<span class="required-star">*</span></label>
               <input id="cd-edit-primary-phone" data-comment="customer-detail-edit-row-primary-phone-input" data-component="input" type="tel" placeholder="(973)-467-9365" />
+              <span class="cd-form-error" data-error-for="cd-edit-primary-phone"></span>
             </div>
             <div class="cd-form-row" data-comment="customer-detail-edit-row-secondary-phone">
               <label for="cd-edit-secondary-phone" data-comment="customer-detail-edit-row-secondary-phone-label">Secondary Phone</label>
@@ -1134,15 +1386,17 @@
               <label for="cd-edit-website" data-comment="customer-detail-edit-row-website-label">Website URL</label>
               <input id="cd-edit-website" data-comment="customer-detail-edit-row-website-input" data-component="input" type="text" placeholder="https://example.com" />
             </div>
-            <div class="cd-form-row" data-comment="customer-detail-edit-row-location">
-              <label for="cd-edit-location" data-comment="customer-detail-edit-row-location-label">Location</label>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-location" data-role-required="admin,retail_location">
+              <label for="cd-edit-location" data-comment="customer-detail-edit-row-location-label">Location<span class="required-star" data-role-asterisk style="display:none">*</span></label>
               <input id="cd-edit-location" data-comment="customer-detail-edit-row-location-input" data-component="input" type="text" placeholder="Lancaster, PA" />
+              <span class="cd-form-error" data-error-for="cd-edit-location"></span>
             </div>
           </div>
           <div class="cd-form-grid" data-comment="customer-detail-edit-form-grid-ebms-company">
             <div class="cd-form-row" data-comment="customer-detail-edit-row-ebms-id">
               <label for="cd-edit-ebms-id" data-comment="customer-detail-edit-row-ebms-id-label">EBMS customer ID</label>
               <input id="cd-edit-ebms-id" data-comment="customer-detail-edit-row-ebms-id-input" data-component="input" type="text" placeholder="Enter EBMS ID" />
+              <span class="cd-form-hint" data-comment="customer-detail-edit-row-ebms-id-hint">Format: ABC-1234</span>
             </div>
             <div class="cd-form-row" data-comment="customer-detail-edit-row-company">
               <label for="cd-edit-company" data-comment="customer-detail-edit-row-company-label">Company name</label>
@@ -1158,49 +1412,147 @@
             <textarea id="cd-edit-note" data-comment="customer-detail-edit-row-note-input" data-component="textarea" rows="2" placeholder="Enter note"></textarea>
           </div>
 
-          <p class="cd-dialog-section-title" data-comment="customer-detail-edit-section-billing">Billing Address</p>
-          <div class="cd-form-grid-4" data-comment="customer-detail-edit-form-grid-billing">
-            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-street">
-              <label for="cd-edit-billing-street" data-comment="customer-detail-edit-row-billing-street-label">Street</label>
-              <input id="cd-edit-billing-street" data-comment="customer-detail-edit-row-billing-street-input" data-component="input" type="text" placeholder="Enter street" />
+          <p class="cd-dialog-section-title" data-comment="customer-detail-edit-section-sales">Sales Details</p>
+          <div class="cd-form-grid" data-comment="customer-detail-edit-form-grid-sales">
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-tags">
+              <label>Tags</label>
+              <div class="cd-checkbox-group" id="cd-edit-tags">
+                <label class="cd-form-checkbox"><input type="checkbox" data-tag-value="VIP" />VIP</label>
+                <label class="cd-form-checkbox"><input type="checkbox" data-tag-value="Dealer" />Dealer</label>
+                <label class="cd-form-checkbox"><input type="checkbox" data-tag-value="Repeat" />Repeat</label>
+                <label class="cd-form-checkbox"><input type="checkbox" data-tag-value="Builder" />Builder</label>
+                <label class="cd-form-checkbox"><input type="checkbox" data-tag-value="Rush" />Rush</label>
+                <label class="cd-form-checkbox"><input type="checkbox" data-tag-value="New" />New</label>
+              </div>
             </div>
-            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-city">
-              <label for="cd-edit-billing-city" data-comment="customer-detail-edit-row-billing-city-label">City</label>
-              <input id="cd-edit-billing-city" data-comment="customer-detail-edit-row-billing-city-input" data-component="input" type="text" placeholder="City" />
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-sales-rep">
+              <label for="cd-edit-sales-rep">Sales Rep</label>
+              <select id="cd-edit-sales-rep" data-component="select">
+                <option value="">—</option>
+                <option>Tom Bradley</option><option>Linda Park</option><option>Marcus Yu</option>
+                <option>Sarah Chen</option><option>James Wright</option>
+              </select>
             </div>
-            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-state">
-              <label for="cd-edit-billing-state" data-comment="customer-detail-edit-row-billing-state-label">State</label>
-              <input id="cd-edit-billing-state" data-comment="customer-detail-edit-row-billing-state-input" data-component="input" type="text" placeholder="State" />
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-terms">
+              <label for="cd-edit-terms">Terms</label>
+              <select id="cd-edit-terms" data-component="select">
+                <option value="">—</option>
+                <option>Net 30</option><option>Net 60</option><option>Net 90</option>
+                <option>Due on receipt</option><option>COD</option><option>50% deposit</option>
+              </select>
             </div>
-            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-zip">
-              <label for="cd-edit-billing-zip" data-comment="customer-detail-edit-row-billing-zip-label">Zip</label>
-              <input id="cd-edit-billing-zip" data-comment="customer-detail-edit-row-billing-zip-input" data-component="input" type="text" placeholder="Postal code" />
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-customer-type">
+              <label for="cd-edit-customer-type">Customer Type</label>
+              <select id="cd-edit-customer-type" data-component="select">
+                <option value="">—</option>
+                <option>Residential</option><option>Commercial</option><option>Builder</option><option>Dealer</option>
+              </select>
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-lead-origin">
+              <label for="cd-edit-lead-origin">Lead Origin</label>
+              <select id="cd-edit-lead-origin" data-component="select">
+                <option value="">—</option>
+                <option>Web</option><option>Referral</option><option>Trade Show</option><option>Cold Outreach</option>
+              </select>
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-lead-status">
+              <label for="cd-edit-lead-status">Lead Status</label>
+              <select id="cd-edit-lead-status" data-component="select">
+                <option value="">—</option>
+                <option>New</option><option>Contacted</option><option>Qualified</option><option>Lost</option><option>Customer</option>
+              </select>
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-lead-rating">
+              <label for="cd-edit-lead-rating">Lead Rating</label>
+              <select id="cd-edit-lead-rating" data-component="select">
+                <option value="">—</option>
+                <option>Hot</option><option>Warm</option><option>Cold</option>
+              </select>
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-lead-source">
+              <label for="cd-edit-lead-source">Lead Source</label>
+              <select id="cd-edit-lead-source" data-component="select">
+                <option value="">—</option>
+                <option>Google</option><option>Facebook</option><option>Instagram</option><option>Word of Mouth</option><option>Other</option>
+              </select>
             </div>
           </div>
 
-          <label class="cd-form-checkbox" data-comment="customer-detail-edit-row-same-as-billing">
-            <input id="cd-edit-same-as-billing" data-comment="customer-detail-edit-row-same-as-billing-input" data-component="input" type="checkbox" />
-            Use billing as shipping
+          <p class="cd-dialog-section-title" data-comment="customer-detail-edit-section-positioning">Positioning</p>
+          <div class="cd-form-row" data-comment="customer-detail-edit-row-available-times">
+            <label>Available times</label>
+            <div class="cd-checkbox-group" id="cd-edit-available-times">
+              <label class="cd-form-checkbox"><input type="checkbox" data-time-value="Morning" />Morning</label>
+              <label class="cd-form-checkbox"><input type="checkbox" data-time-value="Afternoon" />Afternoon</label>
+              <label class="cd-form-checkbox"><input type="checkbox" data-time-value="Evening" />Evening</label>
+              <label class="cd-form-checkbox"><input type="checkbox" data-time-value="Weekends" />Weekends</label>
+            </div>
+          </div>
+          <label class="cd-form-checkbox" data-comment="customer-detail-edit-row-opt-marketing">
+            <input id="cd-edit-opt-out-marketing" type="checkbox" /> Opt Out of Marketing Emails
           </label>
+          <label class="cd-form-checkbox" data-comment="customer-detail-edit-row-opt-billing">
+            <input id="cd-edit-opt-out-billing" type="checkbox" /> Opt Out of Billing Emails
+          </label>
+
+          <p class="cd-dialog-section-title" data-comment="customer-detail-edit-section-billing">Billing Address</p>
+          <div class="cd-form-grid-4" data-comment="customer-detail-edit-form-grid-billing">
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-street">
+              <label for="cd-edit-billing-street">Street<span class="required-star">*</span></label>
+              <input id="cd-edit-billing-street" data-component="input" type="text" placeholder="Enter street" />
+              <span class="cd-form-error" data-error-for="cd-edit-billing-street"></span>
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-city">
+              <label for="cd-edit-billing-city">City<span class="required-star">*</span></label>
+              <input id="cd-edit-billing-city" data-component="input" type="text" placeholder="City" />
+              <span class="cd-form-error" data-error-for="cd-edit-billing-city"></span>
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-state">
+              <label for="cd-edit-billing-state">State<span class="required-star">*</span></label>
+              <input id="cd-edit-billing-state" data-component="input" type="text" placeholder="Pennsylvania" />
+              <span class="cd-form-error" data-error-for="cd-edit-billing-state"></span>
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-zip">
+              <label for="cd-edit-billing-zip">Postal Code<span class="required-star">*</span></label>
+              <input id="cd-edit-billing-zip" data-component="input" type="text" placeholder="Postal code" />
+              <span class="cd-form-error" data-error-for="cd-edit-billing-zip"></span>
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-country" style="grid-column: span 4">
+              <label for="cd-edit-billing-country">Country</label>
+              <input id="cd-edit-billing-country" data-component="input" type="text" placeholder="United States" />
+            </div>
+          </div>
 
           <p class="cd-dialog-section-title" data-comment="customer-detail-edit-section-shipping">Shipping Address</p>
           <div class="cd-form-grid-4" data-comment="customer-detail-edit-form-grid-shipping">
             <div class="cd-form-row" data-comment="customer-detail-edit-row-shipping-street">
-              <label for="cd-edit-shipping-street" data-comment="customer-detail-edit-row-shipping-street-label">Street</label>
-              <input id="cd-edit-shipping-street" data-comment="customer-detail-edit-row-shipping-street-input" data-component="input" type="text" placeholder="Enter street" />
+              <label for="cd-edit-shipping-street">Street<span class="required-star">*</span></label>
+              <input id="cd-edit-shipping-street" data-component="input" type="text" placeholder="Enter street" />
+              <span class="cd-form-error" data-error-for="cd-edit-shipping-street"></span>
             </div>
             <div class="cd-form-row" data-comment="customer-detail-edit-row-shipping-city">
-              <label for="cd-edit-shipping-city" data-comment="customer-detail-edit-row-shipping-city-label">City</label>
-              <input id="cd-edit-shipping-city" data-comment="customer-detail-edit-row-shipping-city-input" data-component="input" type="text" placeholder="City" />
+              <label for="cd-edit-shipping-city">City<span class="required-star">*</span></label>
+              <input id="cd-edit-shipping-city" data-component="input" type="text" placeholder="City" />
+              <span class="cd-form-error" data-error-for="cd-edit-shipping-city"></span>
             </div>
             <div class="cd-form-row" data-comment="customer-detail-edit-row-shipping-state">
-              <label for="cd-edit-shipping-state" data-comment="customer-detail-edit-row-shipping-state-label">State</label>
-              <input id="cd-edit-shipping-state" data-comment="customer-detail-edit-row-shipping-state-input" data-component="input" type="text" placeholder="State" />
+              <label for="cd-edit-shipping-state">State<span class="required-star">*</span></label>
+              <input id="cd-edit-shipping-state" data-component="input" type="text" placeholder="Pennsylvania" />
+              <span class="cd-form-error" data-error-for="cd-edit-shipping-state"></span>
             </div>
             <div class="cd-form-row" data-comment="customer-detail-edit-row-shipping-zip">
-              <label for="cd-edit-shipping-zip" data-comment="customer-detail-edit-row-shipping-zip-label">Zip</label>
-              <input id="cd-edit-shipping-zip" data-comment="customer-detail-edit-row-shipping-zip-input" data-component="input" type="text" placeholder="Postal code" />
+              <label for="cd-edit-shipping-zip">Postal Code<span class="required-star">*</span></label>
+              <input id="cd-edit-shipping-zip" data-component="input" type="text" placeholder="Postal code" />
+              <span class="cd-form-error" data-error-for="cd-edit-shipping-zip"></span>
             </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-shipping-country" style="grid-column: span 4">
+              <label for="cd-edit-shipping-country">Country</label>
+              <input id="cd-edit-shipping-country" data-component="input" type="text" placeholder="United States" />
+            </div>
+          </div>
+
+          <div class="cd-form-row" data-comment="customer-detail-edit-row-location-required" data-role-required="admin,retail_location" style="display:none">
+            <!-- location handled above; role-required indicator shown below -->
           </div>
         </div>
 
@@ -1755,8 +2107,8 @@
             <hr class="cd-info-divider" data-comment="customer-detail-info-divider-contact" />
             <div class="cd-info-section" data-comment="customer-detail-info-section-contact">
               ${contactItems.map((ci) => `
-                <div class="cd-info-contact-row" data-comment="customer-detail-info-contact-${ci.id}" title="${esc(ci.tooltip)}">
-                  ${ICONS[ci.icon]}
+                <div class="cd-info-contact-row" data-comment="customer-detail-info-contact-${ci.id}">
+                  <span title="${esc(ci.tooltip)}" data-comment="customer-detail-info-contact-${ci.id}-icon" style="display:inline-flex;align-items:center">${ICONS[ci.icon]}</span>
                   <span data-comment="customer-detail-info-contact-${ci.id}-value">${esc(ci.value)}</span>
                 </div>
               `).join("")}
@@ -1798,16 +2150,29 @@
 
       /* ───── Render: tab tables ───── */
       function renderEstimatesTable(estimates, customerId) {
+        const kebabSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>';
         const bodyRows = estimates.length === 0
           ? `<tr data-comment="customer-detail-estimates-empty-row">
-               <td colspan="4" class="empty" data-comment="customer-detail-estimates-empty-cell">No estimates for this customer.</td>
+               <td colspan="6" class="empty" data-comment="customer-detail-estimates-empty-cell">No estimates for this customer.</td>
              </tr>`
           : estimates.map((e) => `
-              <tr data-comment="customer-detail-estimates-row-${e.id}" onclick="window.location.href='estimates.html?id=${e.id}'">
+              <tr data-comment="customer-detail-estimates-row-${e.id}" data-estimate-row data-estimate-id="${e.id}">
+                <td data-comment="customer-detail-estimates-row-${e.id}-id">${esc(e.name)}</td>
                 <td data-comment="customer-detail-estimates-row-${e.id}-name">${esc(e.name)}</td>
-                <td data-comment="customer-detail-estimates-row-${e.id}-created">${formatDate(e.crea_date)}</td>
                 <td data-comment="customer-detail-estimates-row-${e.id}-status">${esc(e.status)}</td>
+                <td data-comment="customer-detail-estimates-row-${e.id}-date">${formatDate(e.crea_date)}</td>
                 <td data-comment="customer-detail-estimates-row-${e.id}-total">${formatCurrency(e.total)}</td>
+                <td data-comment="customer-detail-estimates-row-${e.id}-actions" style="text-align:right;width:48px">
+                  <span class="cd-kebab-wrap" data-kebab-wrap>
+                    <button type="button" class="cd-kebab-btn" data-comment="customer-detail-estimates-row-${e.id}-kebab" data-kebab-toggle="${e.id}" aria-label="Estimate actions">${kebabSvg}</button>
+                    <div class="cd-kebab-menu" data-comment="customer-detail-estimates-row-${e.id}-kebab-menu">
+                      <button type="button" class="cd-kebab-item" data-comment="customer-detail-estimates-row-${e.id}-action-approve" data-estimate-action="approve" data-estimate-id="${e.id}">Approve</button>
+                      <button type="button" class="cd-kebab-item" data-comment="customer-detail-estimates-row-${e.id}-action-reject" data-estimate-action="reject" data-estimate-id="${e.id}">Reject</button>
+                      <button type="button" class="cd-kebab-item" data-comment="customer-detail-estimates-row-${e.id}-action-createso" data-estimate-action="createSO" data-estimate-id="${e.id}">Create Sales Order</button>
+                      <button type="button" class="cd-kebab-item is-destructive" data-comment="customer-detail-estimates-row-${e.id}-action-delete" data-estimate-action="delete" data-estimate-id="${e.id}">Delete</button>
+                    </div>
+                  </span>
+                </td>
               </tr>
             `).join("");
 
@@ -1816,10 +2181,12 @@
             <table class="cd-table" data-comment="customer-detail-estimates-table" data-component="table">
               <thead data-comment="customer-detail-estimates-thead">
                 <tr data-comment="customer-detail-estimates-thead-row">
-                  <th data-comment="customer-detail-estimates-th-name">Estimate</th>
-                  <th data-comment="customer-detail-estimates-th-created">Created</th>
+                  <th data-comment="customer-detail-estimates-th-id">Estimate #</th>
+                  <th data-comment="customer-detail-estimates-th-name">Name</th>
                   <th data-comment="customer-detail-estimates-th-status">Status</th>
+                  <th data-comment="customer-detail-estimates-th-date">Date</th>
                   <th data-comment="customer-detail-estimates-th-total">Total</th>
+                  <th data-comment="customer-detail-estimates-th-actions" style="width:48px"></th>
                 </tr>
               </thead>
               <tbody data-comment="customer-detail-estimates-tbody">${bodyRows}</tbody>
@@ -1831,15 +2198,19 @@
       function renderOrdersTable(orders) {
         const bodyRows = orders.length === 0
           ? `<tr data-comment="customer-detail-orders-empty-row">
-               <td colspan="7" class="empty" data-comment="customer-detail-orders-empty-cell">No sales orders for this customer.</td>
+               <td colspan="11" class="empty" data-comment="customer-detail-orders-empty-cell">No sales orders for this customer.</td>
              </tr>`
           : orders.map((o) => {
               const idSafe = esc(o.autoid);
               return `
-                <tr data-comment="customer-detail-orders-row-${idSafe}" onclick="window.location.href='order-detail.html?id=${idSafe}'">
+                <tr data-comment="customer-detail-orders-row-${idSafe}" data-order-row data-order-id="${idSafe}">
                   <td data-comment="customer-detail-orders-row-${idSafe}-invoice">${esc(o.invoice)}</td>
                   <td data-comment="customer-detail-orders-row-${idSafe}-created">${formatDate(o.crea_date)}</td>
                   <td data-comment="customer-detail-orders-row-${idSafe}-category"><span class="cell-overflow">${esc(o.category || "—")}</span></td>
+                  <td data-comment="customer-detail-orders-row-${idSafe}-dimension"><span class="cell-overflow">${esc(o.dimension || "—")}</span></td>
+                  <td data-comment="customer-detail-orders-row-${idSafe}-po"><span class="cell-overflow">${esc(o.po_number || "—")}</span></td>
+                  <td data-comment="customer-detail-orders-row-${idSafe}-address"><span class="cell-overflow">${esc(o.address || "—")}</span></td>
+                  <td data-comment="customer-detail-orders-row-${idSafe}-memo"><span class="cell-overflow">${esc(o.memo || "—")}</span></td>
                   <td data-comment="customer-detail-orders-row-${idSafe}-stage">${renderStageBadge(o.status, `customer-detail-orders-row-${idSafe}-stage-badge`)}</td>
                   <td data-comment="customer-detail-orders-row-${idSafe}-scheduled">${formatDate(o.dp_estprod)}</td>
                   <td data-comment="customer-detail-orders-row-${idSafe}-ship-type">${esc(o.ship_type || "—")}</td>
@@ -1856,6 +2227,10 @@
                   <th data-comment="customer-detail-orders-th-invoice">Invoice</th>
                   <th data-comment="customer-detail-orders-th-created">Created</th>
                   <th data-comment="customer-detail-orders-th-category">Category</th>
+                  <th data-comment="customer-detail-orders-th-dimension">Dimension</th>
+                  <th data-comment="customer-detail-orders-th-po">PO #</th>
+                  <th data-comment="customer-detail-orders-th-address">Address</th>
+                  <th data-comment="customer-detail-orders-th-memo">Memo</th>
                   <th data-comment="customer-detail-orders-th-stage">Stage</th>
                   <th data-comment="customer-detail-orders-th-scheduled">Scheduled</th>
                   <th data-comment="customer-detail-orders-th-ship-type">Ship Type</th>
@@ -1932,14 +2307,21 @@
 
         return `
           <!-- ── Left card: info ── -->
-          <aside class="cd-info-card" data-comment="customer-detail-info-card" data-component="card">
+          <aside class="cd-info-card" data-comment="customer-detail-info-card" data-component="card" id="customer-detail-info-card">
             <div class="cd-info-card-header" data-comment="customer-detail-info-card-header">
-              <h2 class="cd-info-card-title" data-comment="customer-detail-info-card-title">Customer Info</h2>
+              <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
+                <button type="button" class="cd-info-card-toggle" data-comment="customer-detail-info-card-toggle" data-info-toggle aria-label="Toggle customer info">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <h2 class="cd-info-card-title" data-comment="customer-detail-info-card-title">Customer Info</h2>
+              </div>
               <button type="button" class="btn btn-ghost btn-icon-sm" data-comment="customer-detail-info-edit-btn" data-component="button" data-open-dialog="edit" aria-label="Edit customer">
                 ${ICONS.pencil}
               </button>
             </div>
-            ${renderInfoCardBody(c)}
+            <div class="cd-info-card-body" data-comment="customer-detail-info-card-body">
+              ${renderInfoCardBody(c)}
+            </div>
           </aside>
 
           <!-- ── Right: tabs ── -->
@@ -2018,7 +2400,28 @@
         document.getElementById("cd-edit-shipping-city").value = c.shipping?.city || "";
         document.getElementById("cd-edit-shipping-state").value = c.shipping?.state || "";
         document.getElementById("cd-edit-shipping-zip").value = c.shipping?.zip_code || "";
-        document.getElementById("cd-edit-same-as-billing").checked = false;
+        document.getElementById("cd-edit-billing-country").value = c.billing?.country || "";
+        document.getElementById("cd-edit-shipping-country").value = c.shipping?.country || "";
+        // Selects
+        const setSel = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ""; };
+        setSel("cd-edit-sales-rep", c.sales_rep);
+        setSel("cd-edit-terms", c.terms);
+        setSel("cd-edit-customer-type", c.customer_type);
+        setSel("cd-edit-lead-origin", c.lead_origin);
+        setSel("cd-edit-lead-status", c.lead_status);
+        setSel("cd-edit-lead-rating", c.lead_rating);
+        setSel("cd-edit-lead-source", c.lead_source);
+        // Tags multi
+        const tagNames = (c.tags || []).map((t) => t.name || t);
+        document.querySelectorAll("#cd-edit-tags input[data-tag-value]").forEach((cb) => {
+          cb.checked = tagNames.includes(cb.dataset.tagValue);
+        });
+        const times = c.available_times || [];
+        document.querySelectorAll("#cd-edit-available-times input[data-time-value]").forEach((cb) => {
+          cb.checked = times.includes(cb.dataset.timeValue);
+        });
+        document.getElementById("cd-edit-opt-out-marketing").checked = !!c.opt_out_marketing;
+        document.getElementById("cd-edit-opt-out-billing").checked = !!c.opt_out_billing;
         // clear errors
         document.querySelectorAll("#edit-dialog-overlay .cd-form-row").forEach((r) => r.classList.remove("has-error"));
         document.querySelectorAll("#edit-dialog-overlay [data-error-for]").forEach((e) => (e.textContent = ""));
@@ -2108,21 +2511,22 @@
           if (which === "edit") {
             const c = getActiveCustomer();
             if (!c) return;
-            const sameAsBilling = document.getElementById("cd-edit-same-as-billing").checked;
             const billing = {
               street: document.getElementById("cd-edit-billing-street").value.trim(),
               city: document.getElementById("cd-edit-billing-city").value.trim(),
               state: document.getElementById("cd-edit-billing-state").value.trim(),
               zip_code: document.getElementById("cd-edit-billing-zip").value.trim(),
+              country: document.getElementById("cd-edit-billing-country").value.trim(),
             };
-            const shipping = sameAsBilling
-              ? { ...billing }
-              : {
-                  street: document.getElementById("cd-edit-shipping-street").value.trim(),
-                  city: document.getElementById("cd-edit-shipping-city").value.trim(),
-                  state: document.getElementById("cd-edit-shipping-state").value.trim(),
-                  zip_code: document.getElementById("cd-edit-shipping-zip").value.trim(),
-                };
+            const shipping = {
+              street: document.getElementById("cd-edit-shipping-street").value.trim(),
+              city: document.getElementById("cd-edit-shipping-city").value.trim(),
+              state: document.getElementById("cd-edit-shipping-state").value.trim(),
+              zip_code: document.getElementById("cd-edit-shipping-zip").value.trim(),
+              country: document.getElementById("cd-edit-shipping-country").value.trim(),
+            };
+            const tags = Array.from(document.querySelectorAll("#cd-edit-tags input[data-tag-value]:checked")).map((cb) => ({ name: cb.dataset.tagValue }));
+            const available_times = Array.from(document.querySelectorAll("#cd-edit-available-times input[data-time-value]:checked")).map((cb) => cb.dataset.timeValue);
             const updates = {
               first_name: document.getElementById("cd-edit-first-name").value.trim(),
               last_name: document.getElementById("cd-edit-last-name").value.trim(),
@@ -2135,8 +2539,19 @@
               company: document.getElementById("cd-edit-company").value.trim() || null,
               position: document.getElementById("cd-edit-position").value.trim() || null,
               note: document.getElementById("cd-edit-note").value.trim() || null,
-              billing: Object.values(billing).some(Boolean) ? billing : null,
-              shipping: Object.values(shipping).some(Boolean) ? shipping : null,
+              sales_rep: document.getElementById("cd-edit-sales-rep").value || null,
+              terms: document.getElementById("cd-edit-terms").value || null,
+              customer_type: document.getElementById("cd-edit-customer-type").value || null,
+              lead_origin: document.getElementById("cd-edit-lead-origin").value || null,
+              lead_status: document.getElementById("cd-edit-lead-status").value || null,
+              lead_rating: document.getElementById("cd-edit-lead-rating").value || null,
+              lead_source: document.getElementById("cd-edit-lead-source").value || null,
+              tags,
+              available_times,
+              opt_out_marketing: document.getElementById("cd-edit-opt-out-marketing").checked,
+              opt_out_billing: document.getElementById("cd-edit-opt-out-billing").checked,
+              billing,
+              shipping,
             };
             // Validate
             const errors = {};
@@ -2145,6 +2560,19 @@
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!updates.email) errors["cd-edit-email"] = "Email is required";
             else if (!emailPattern.test(updates.email)) errors["cd-edit-email"] = "Invalid email";
+            if (!updates.primary_phone) errors["cd-edit-primary-phone"] = "Primary phone is required";
+            if (!billing.street) errors["cd-edit-billing-street"] = "Required";
+            if (!billing.city) errors["cd-edit-billing-city"] = "Required";
+            if (!billing.state) errors["cd-edit-billing-state"] = "Required";
+            if (!billing.zip_code) errors["cd-edit-billing-zip"] = "Required";
+            if (!shipping.street) errors["cd-edit-shipping-street"] = "Required";
+            if (!shipping.city) errors["cd-edit-shipping-city"] = "Required";
+            if (!shipping.state) errors["cd-edit-shipping-state"] = "Required";
+            if (!shipping.zip_code) errors["cd-edit-shipping-zip"] = "Required";
+            const role = getCurrentUserRole();
+            if ((role === "admin" || role === "retail_location") && !updates.location) {
+              errors["cd-edit-location"] = "Location is required";
+            }
             // Render errors
             document.querySelectorAll("#edit-dialog-overlay .cd-form-row").forEach((r) => r.classList.remove("has-error"));
             document.querySelectorAll("#edit-dialog-overlay [data-error-for]").forEach((el) => {
@@ -2187,19 +2615,221 @@
       document.getElementById("edit-dialog-overlay").addEventListener("click", (e) => {
         if (e.target === e.currentTarget) store.set({ editDialogOpen: false });
       });
-      document.getElementById("cd-edit-same-as-billing").addEventListener("change", (e) => {
-        const checked = e.target.checked;
-        ["street", "city", "state", "zip"].forEach((k) => {
-          const shipEl = document.getElementById(`cd-edit-shipping-${k}`);
-          const billEl = document.getElementById(`cd-edit-billing-${k}`);
-          if (!shipEl || !billEl) return;
-          shipEl.disabled = checked;
-          if (checked) shipEl.value = billEl.value;
-        });
-      });
       document.getElementById("delete-dialog-overlay").addEventListener("click", (e) => {
         if (e.target === e.currentTarget) store.set({ deleteDialogOpen: false });
       });
+
+      /* ───── Role visibility ───── */
+      function getCurrentUserRole() {
+        try {
+          return (
+            window.currentUserRole ||
+            localStorage.getItem("currentUserRole") ||
+            "admin"
+          );
+        } catch (e) { return "admin"; }
+      }
+      function applyRoleVisibility() {
+        const role = getCurrentUserRole();
+        const VIEW_ONLY = ["sales", "view"];
+        const isViewOnly = VIEW_ONLY.includes(role);
+        document.querySelectorAll("[data-role-hidden]").forEach((el) => {
+          const hideRoles = (el.dataset.roleHidden || "").split(",").map((r) => r.trim());
+          const hide = hideRoles.includes(role) || (isViewOnly && hideRoles.some((r) => VIEW_ONLY.includes(r)));
+          el.classList.toggle("is-role-hidden", hide);
+        });
+        document.querySelectorAll("[data-role-required]").forEach((el) => {
+          const roles = (el.dataset.roleRequired || "").split(",").map((r) => r.trim());
+          const required = roles.includes(role);
+          const ast = el.querySelector("[data-role-asterisk]");
+          if (ast) ast.style.display = required ? "" : "none";
+        });
+      }
+      store.subscribe(applyRoleVisibility);
+      applyRoleVisibility();
+
+      /* ───── Mobile info card toggle ───── */
+      document.body.addEventListener("click", (e) => {
+        const toggle = e.target.closest("[data-info-toggle]");
+        if (toggle) {
+          const card = document.getElementById("customer-detail-info-card");
+          if (card) card.classList.toggle("is-collapsed");
+        }
+      });
+      // Init collapsed state on mobile after each render
+      const setMobileCollapsed = () => {
+        const card = document.getElementById("customer-detail-info-card");
+        if (!card) return;
+        if (window.innerWidth < 640) card.classList.add("is-collapsed");
+        else card.classList.remove("is-collapsed");
+      };
+      store.subscribe(setMobileCollapsed);
+      window.addEventListener("resize", setMobileCollapsed);
+      setMobileCollapsed();
+
+      /* ───── Kebab menu (close on outside click) ───── */
+      document.body.addEventListener("click", (e) => {
+        const toggle = e.target.closest("[data-kebab-toggle]");
+        document.querySelectorAll(".cd-kebab-wrap.is-open").forEach((w) => {
+          if (toggle && w.contains(toggle)) return;
+          w.classList.remove("is-open");
+        });
+        if (toggle) {
+          e.stopPropagation();
+          const wrap = toggle.closest("[data-kebab-wrap]");
+          if (wrap) wrap.classList.toggle("is-open");
+        }
+      });
+
+      /* ───── Estimate row click → drawer ───── */
+      function openEstimateDrawer(estimate) {
+        const body = document.getElementById("estimate-drawer-body");
+        document.getElementById("estimate-drawer-title").textContent = estimate.name;
+        body.innerHTML = `
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Estimate #</div><div class="cd-drawer-row-value">${esc(estimate.name)}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Status</div><div class="cd-drawer-row-value">${esc(estimate.status)}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Date</div><div class="cd-drawer-row-value">${formatDate(estimate.crea_date)}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Total</div><div class="cd-drawer-row-value">${formatCurrency(estimate.total)}</div></div>
+        `;
+        document.getElementById("estimate-drawer-overlay").classList.add("is-open");
+        document.getElementById("estimate-drawer").classList.add("is-open");
+      }
+      function openOrderDrawer(order) {
+        const body = document.getElementById("order-drawer-body");
+        document.getElementById("order-drawer-title").textContent = order.invoice;
+        body.innerHTML = `
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Invoice</div><div class="cd-drawer-row-value">${esc(order.invoice)}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Category</div><div class="cd-drawer-row-value">${esc(order.category || "—")}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Dimension</div><div class="cd-drawer-row-value">${esc(order.dimension || "—")}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">PO #</div><div class="cd-drawer-row-value">${esc(order.po_number || "—")}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Address</div><div class="cd-drawer-row-value">${esc(order.address || "—")}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Memo</div><div class="cd-drawer-row-value">${esc(order.memo || "—")}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Ship Type</div><div class="cd-drawer-row-value">${esc(order.ship_type || "—")}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Scheduled</div><div class="cd-drawer-row-value">${formatDate(order.dp_estprod)}</div></div>
+          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Total</div><div class="cd-drawer-row-value">${formatCurrency(order.total)}</div></div>
+        `;
+        document.getElementById("order-drawer-overlay").classList.add("is-open");
+        document.getElementById("order-drawer").classList.add("is-open");
+      }
+      function closeDrawer(which) {
+        document.getElementById(`${which}-drawer-overlay`).classList.remove("is-open");
+        document.getElementById(`${which}-drawer`).classList.remove("is-open");
+      }
+
+      let _pendingEstimateAction = null;
+      function openEstimateActionDialog(action, estimate) {
+        _pendingEstimateAction = { action, estimate };
+        const overlayId = {
+          approve: "approve-estimate-overlay",
+          reject: "reject-estimate-overlay",
+          delete: "delete-estimate-overlay",
+          createSO: "create-so-overlay",
+        }[action];
+        const descId = {
+          approve: "approve-estimate-desc",
+          reject: "reject-estimate-desc",
+          delete: "delete-estimate-desc",
+          createSO: "create-so-desc",
+        }[action];
+        const descTexts = {
+          approve: `Mark ${estimate.name} as approved?`,
+          reject: `Mark ${estimate.name} as rejected?`,
+          delete: `Delete ${estimate.name}? This action cannot be undone.`,
+          createSO: `Create a new sales order from ${estimate.name}?`,
+        };
+        if (descId) document.getElementById(descId).textContent = descTexts[action];
+        if (overlayId) document.getElementById(overlayId).classList.add("is-open");
+      }
+      function closeAllEstimateDialogs() {
+        ["approve-estimate-overlay","reject-estimate-overlay","delete-estimate-overlay","create-so-overlay"].forEach((id) => {
+          document.getElementById(id).classList.remove("is-open");
+        });
+        _pendingEstimateAction = null;
+      }
+
+      document.body.addEventListener("click", (e) => {
+        // Drawer close
+        const drawerClose = e.target.closest("[data-drawer-close]");
+        if (drawerClose) { closeDrawer(drawerClose.dataset.drawerClose); return; }
+        // Estimate row click
+        const estRow = e.target.closest("[data-estimate-row]");
+        if (estRow && !e.target.closest("[data-kebab-wrap]")) {
+          const id = Number(estRow.dataset.estimateId);
+          const est = store.get().estimates.find((x) => x.id === id);
+          if (est) openEstimateDrawer(est);
+          return;
+        }
+        // Order row click
+        const ordRow = e.target.closest("[data-order-row]");
+        if (ordRow) {
+          const id = ordRow.dataset.orderId;
+          const ord = store.get().orders.find((x) => x.autoid === id);
+          if (ord) openOrderDrawer(ord);
+          return;
+        }
+        // Estimate kebab action
+        const estAction = e.target.closest("[data-estimate-action]");
+        if (estAction) {
+          e.stopPropagation();
+          const id = Number(estAction.dataset.estimateId);
+          const est = store.get().estimates.find((x) => x.id === id);
+          if (est) openEstimateActionDialog(estAction.dataset.estimateAction, est);
+          document.querySelectorAll(".cd-kebab-wrap.is-open").forEach((w) => w.classList.remove("is-open"));
+          return;
+        }
+        // Estimate confirm dialogs
+        const confirmBtn = e.target.closest("[data-estimate-confirm]");
+        if (confirmBtn) {
+          const action = confirmBtn.dataset.estimateConfirm;
+          const pending = _pendingEstimateAction;
+          closeAllEstimateDialogs();
+          if (action === "cancel" || !pending) return;
+          if (action === "delete") {
+            store.set((s) => ({ estimates: s.estimates.filter((e) => e.id !== pending.estimate.id) }));
+            toast("Estimate deleted");
+          } else if (action === "approve") {
+            store.set((s) => ({ estimates: s.estimates.map((e) => e.id === pending.estimate.id ? { ...e, status: "Approved" } : e) }));
+            toast("Estimate approved");
+          } else if (action === "reject") {
+            store.set((s) => ({ estimates: s.estimates.map((e) => e.id === pending.estimate.id ? { ...e, status: "Rejected" } : e) }));
+            toast("Estimate rejected");
+          } else if (action === "createSO") {
+            toast("Sales order created");
+          }
+        }
+      });
+
+      ["estimate-drawer-overlay","order-drawer-overlay"].forEach((id) => {
+        document.getElementById(id).addEventListener("click", () => closeDrawer(id.replace("-drawer-overlay","")));
+      });
+      ["approve-estimate-overlay","reject-estimate-overlay","delete-estimate-overlay","create-so-overlay"].forEach((id) => {
+        document.getElementById(id).addEventListener("click", (e) => {
+          if (e.target === e.currentTarget) closeAllEstimateDialogs();
+        });
+      });
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

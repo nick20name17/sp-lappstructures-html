@@ -567,9 +567,41 @@
         border-color: var(--ring);
         box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent);
       }
-    </style>
+
+      /* Inline edit form */
+      .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+      .form-field { display: flex; flex-direction: column; gap: 6px; }
+      .form-field.full { grid-column: 1 / -1; }
+      .form-field label { font-size: 0.875rem; font-weight: 500; }
+      .form-input, .form-textarea, .form-select {
+        height: 36px; padding: 6px 12px; font-family: inherit; font-size: 0.875rem;
+        color: var(--foreground); background: white; border: 1px solid var(--input);
+        border-radius: 6px; outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .form-textarea { height: auto; min-height: 80px; resize: vertical; padding: 10px 12px; }
+      .form-input:focus, .form-textarea:focus, .form-select:focus {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent);
+      }
+
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="site-check-detail-app-shell">
       <div class="app-frame" data-comment="site-check-detail-app-frame">
         <!-- Sidebar -->
@@ -578,7 +610,7 @@
           data-comment="site-check-detail-sidebar"
           id="sidebar"
           aria-label="Primary navigation">
-          <a class="sidebar-logo" data-comment="site-check-detail-sidebar-logo" href="home.html" aria-label="Go to home">
+          <a class="sidebar-logo" data-comment="site-check-detail-sidebar-logo" href="orders.html" aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="site-check-detail-sidebar-logo-mark">
               <img data-comment="site-check-detail-sidebar-logo-img" src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png" alt="Lapp Structures" />
             </span>
@@ -750,6 +782,20 @@
       </div>
     </div>
 
+    <!-- Discard changes dialog -->
+    <div class="dialog-overlay" data-comment="site-check-detail-discard-overlay" id="site-check-detail-discard-overlay">
+      <div class="dialog dialog-sm" data-comment="site-check-detail-discard-dialog" role="alertdialog" aria-modal="true">
+        <div class="dialog-header" data-comment="site-check-detail-discard-header">
+          <h2 class="dialog-title" data-comment="site-check-detail-discard-title">Discard changes?</h2>
+          <p class="dialog-description" data-comment="site-check-detail-discard-description">You have unsaved changes. Are you sure you want to leave the edit view?</p>
+        </div>
+        <div class="dialog-footer" data-comment="site-check-detail-discard-footer">
+          <button class="btn btn-outline" type="button" id="site-check-detail-discard-cancel" data-comment="site-check-detail-discard-cancel">Keep editing</button>
+          <button class="btn btn-destructive" type="button" id="site-check-detail-discard-confirm" data-comment="site-check-detail-discard-confirm">Discard</button>
+        </div>
+      </div>
+    </div>
+
     <script>
       // ───── Store ─────
       function createStore(initialState) {
@@ -883,8 +929,17 @@
       const idParam = Number(params.get("id"));
       const initialId = Number.isFinite(idParam) && idParam > 0 ? idParam : SEED_SITE_CHECKS[0].id;
 
+      // Read current user / role-based gating
+      let CURRENT_USER = { role: "admin", name: "Anna Lee", email: "anna@lapp.com" };
+      try {
+        const lsUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+        if (lsUser) CURRENT_USER = { role: lsUser.role || "admin", name: lsUser.name || "Anna Lee", email: lsUser.email || "anna@lapp.com" };
+      } catch (e) {}
+      const VIEW_ONLY = CURRENT_USER.role === "sales";
+
       const store = createStore({
-        user: { id: 1, name: "Anna Lee", email: "anna@lapp.com", role: "admin" },
+        user: { id: 1, name: CURRENT_USER.name, email: CURRENT_USER.email, role: CURRENT_USER.role },
+        viewOnly: VIEW_ONLY,
         collapsed: false,
         searchOpen: false,
         searchTerm: "",
@@ -897,6 +952,10 @@
         isLoading: true,
         dialog: { type: "closed" },
         doneResults: "",
+        editing: false,
+        editForm: null,
+        editDirty: false,
+        pendingDiscard: null, // "exit" | null
       });
 
       // ───── Utils ─────
@@ -1151,7 +1210,7 @@
                 ${hasComments ? `
                   <div class="detail-row" data-comment="site-check-detail-row-comments">
                     <p class="detail-row-label" data-comment="site-check-detail-row-comments-label">Comments</p>
-                    <div class="prose-body" data-comment="site-check-detail-row-comments-value">${sanitizeUserHtml(sc.comments)}</div>
+                    <div class="prose-body" data-comment="site-check-detail-row-comments-value" id="site-check-detail-comments-value" style="white-space:pre-wrap"></div>
                   </div>` : ""}
                 ${hasResults ? `
                   <div class="detail-row" data-comment="site-check-detail-row-results">
@@ -1167,6 +1226,8 @@
 
       // ───── Render: footer (created by + actions) ─────
       function renderFooter(sc) {
+        const s = store.get();
+        const viewOnly = s.viewOnly;
         const canEdit = sc.status === "pending" || sc.status === "in_progress";
         const canChangeStatus = sc.status !== "completed" && sc.status !== "cancelled";
 
@@ -1196,22 +1257,22 @@
           <div class="detail-footer" data-comment="site-check-detail-footer">
             ${createdBy}
             <div class="actions-row" data-comment="site-check-detail-actions-row">
-              <button type="button" class="btn btn-destructive-outline btn-sm" data-comment="site-check-detail-action-delete" data-component="button" data-action="open-delete">
+              ${viewOnly ? "" : `<button type="button" class="btn btn-destructive-outline btn-sm" data-comment="site-check-detail-action-delete" data-component="button" data-action="open-delete">
                 ${ICONS.trash2} Delete
-              </button>
+              </button>`}
               <div class="actions-row-end" data-comment="site-check-detail-actions-end">
-                ${canEdit ? `
+                ${(!viewOnly && canEdit) ? `
                   <button type="button" class="btn btn-primary btn-sm" data-comment="site-check-detail-action-edit" data-component="button" data-action="edit">
                     ${ICONS.pencil} Edit
                   </button>` : ""}
                 <button type="button" class="btn btn-outline btn-sm" data-comment="site-check-detail-action-print" data-component="button" data-action="print">
                   ${ICONS.printer} Print
                 </button>
-                ${canChangeStatus ? `
+                ${(!viewOnly && canChangeStatus) ? `
                   <button type="button" class="btn btn-destructive btn-sm" data-comment="site-check-detail-action-mark-cancelled" data-component="button" data-action="open-cancel">
                     ${ICONS.ban} Mark as Cancelled
                   </button>` : ""}
-                ${canChangeStatus ? `
+                ${(!viewOnly && canChangeStatus) ? `
                   <button type="button" class="btn btn-success btn-sm" data-comment="site-check-detail-action-mark-done" data-component="button" data-action="open-done">
                     ${ICONS.check} Mark as Done
                   </button>` : ""}
@@ -1251,6 +1312,63 @@
         `;
       }
 
+      // ───── Render: edit form ─────
+      function renderEditForm(sc) {
+        const f = store.get().editForm || {};
+        return `
+          <div class="detail-body" data-comment="site-check-detail-edit-body">
+            <div class="section" data-comment="site-check-detail-edit-section">
+              <h3 class="section-title" data-comment="site-check-detail-edit-section-title">Edit Site Check</h3>
+              <div class="section-cards" data-comment="site-check-detail-edit-section-cards">
+                <div class="card" data-comment="site-check-detail-edit-card">
+                  <div class="card-header"><div class="card-title">Site Check</div></div>
+                  <div class="card-content">
+                    <form id="site-check-detail-edit-form" data-comment="site-check-detail-edit-form" class="form-grid">
+                      <div class="form-field" data-comment="site-check-detail-edit-field-type">
+                        <label for="sc-edit-type">Type</label>
+                        <select id="sc-edit-type" name="type" class="form-select" data-comment="site-check-detail-edit-input-type">
+                          ${Object.entries(TYPE_LABELS).map(([v,l]) => `<option value="${v}" ${f.type===v?"selected":""}>${l}</option>`).join("")}
+                        </select>
+                      </div>
+                      <div class="form-field" data-comment="site-check-detail-edit-field-assigned">
+                        <label for="sc-edit-assigned">Assigned To</label>
+                        <select id="sc-edit-assigned" name="assigned_to_id" class="form-select" data-comment="site-check-detail-edit-input-assigned">
+                          ${ASSIGNED_USERS.map((u) => `<option value="${u.id}" ${f.assigned_to_id===u.id?"selected":""}>${u.first_name} ${u.last_name}</option>`).join("")}
+                        </select>
+                      </div>
+                      <div class="form-field" data-comment="site-check-detail-edit-field-start-date">
+                        <label for="sc-edit-start">Start Date</label>
+                        <input id="sc-edit-start" name="start_date_time" type="datetime-local" class="form-input" value="${escapeHtml((f.start_date_time||"").slice(0,16))}" data-comment="site-check-detail-edit-input-start-date" />
+                      </div>
+                      <div class="form-field" data-comment="site-check-detail-edit-field-estimate">
+                        <label for="sc-edit-estimate">Related Estimate</label>
+                        <input id="sc-edit-estimate" name="estimate_id" type="number" class="form-input" value="${f.estimate_id ?? ""}" data-comment="site-check-detail-edit-input-estimate" />
+                      </div>
+                      <div class="form-field full" data-comment="site-check-detail-edit-field-comments">
+                        <label for="sc-edit-comments">Comments</label>
+                        <textarea id="sc-edit-comments" name="comments" class="form-textarea" rows="3" data-comment="site-check-detail-edit-input-comments">${escapeHtml(f.comments || "")}</textarea>
+                      </div>
+                      <div class="form-field full" data-comment="site-check-detail-edit-field-results">
+                        <label for="sc-edit-results">Results of Site Check</label>
+                        <textarea id="sc-edit-results" name="results_of_site_check" class="form-textarea" rows="3" data-comment="site-check-detail-edit-input-results">${escapeHtml(f.results_of_site_check || "")}</textarea>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="detail-footer" data-comment="site-check-detail-edit-footer">
+            <div class="actions-row" data-comment="site-check-detail-edit-actions-row">
+              <div class="actions-row-end" data-comment="site-check-detail-edit-actions-end">
+                <button type="button" class="btn btn-outline btn-sm" data-comment="site-check-detail-edit-cancel" data-action="edit-cancel">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" data-comment="site-check-detail-edit-save" data-action="edit-save">Save</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
       // ───── Render: detail view ─────
       function renderDetail() {
         const s = store.get();
@@ -1267,6 +1385,23 @@
           return;
         }
 
+        // Update back button label depending on edit mode
+        const backBtn = document.getElementById("site-check-detail-back-btn");
+        if (backBtn) {
+          const labelText = s.editing ? "Back to Details" : "Back";
+          // last text node update
+          const svg = backBtn.querySelector("svg");
+          backBtn.textContent = "";
+          if (svg) backBtn.appendChild(svg);
+          backBtn.appendChild(document.createTextNode(" " + labelText));
+        }
+
+        if (s.editing) {
+          root.innerHTML = renderEditForm(sc);
+          attachEditFormListeners();
+          return;
+        }
+
         root.innerHTML = `
           <div class="detail-body" data-comment="site-check-detail-body">
             <div class="section" data-comment="site-check-detail-section">
@@ -1279,6 +1414,29 @@
           </div>
           ${renderFooter(sc)}
         `;
+
+        // Sanitize comments: use textContent (avoid XSS) instead of innerHTML
+        const commentsEl = document.getElementById("site-check-detail-comments-value");
+        if (commentsEl && sc.comments) {
+          // strip tags for plain text rendering
+          const text = String(sc.comments).replace(/<[^>]+>/g, "");
+          commentsEl.textContent = text;
+        }
+      }
+
+      function attachEditFormListeners() {
+        const form = document.getElementById("site-check-detail-edit-form");
+        if (!form) return;
+        form.addEventListener("input", (e) => {
+          const t = e.target;
+          if (!t || !t.name) return;
+          const cur = store.get().editForm || {};
+          let value = t.value;
+          if (t.name === "assigned_to_id" || t.name === "estimate_id") {
+            value = value === "" ? null : Number(value);
+          }
+          store.set({ editForm: { ...cur, [t.name]: value }, editDirty: true });
+        });
       }
 
       // ───── Render: dialogs (visibility + label sync) ─────
@@ -1289,6 +1447,7 @@
         document.getElementById("site-check-detail-delete-overlay").classList.toggle("is-open", s.dialog.type === "delete");
         document.getElementById("site-check-detail-done-overlay").classList.toggle("is-open", s.dialog.type === "done");
         document.getElementById("site-check-detail-cancel-overlay").classList.toggle("is-open", s.dialog.type === "cancelled");
+        document.getElementById("site-check-detail-discard-overlay").classList.toggle("is-open", s.pendingDiscard !== null);
 
         const idText = `SC-${sc ? sc.id : s.selectedId}`;
         document.getElementById("site-check-detail-done-id-label").textContent = idText;
@@ -1341,20 +1500,65 @@
 
       // ───── Handlers: back ─────
       document.getElementById("site-check-detail-back-btn").addEventListener("click", () => {
+        const s = store.get();
+        if (s.editing) {
+          // exit edit mode (with discard confirm if dirty)
+          if (s.editDirty) store.set({ pendingDiscard: "exit" });
+          else store.set({ editing: false, editForm: null, editDirty: false });
+          return;
+        }
         window.location.href = "site-checks.html";
       });
+
+      function startEdit() {
+        const s = store.get();
+        const sc = getSiteCheck(s.selectedId);
+        if (!sc) return;
+        const form = {
+          type: sc.type || "site_check",
+          assigned_to_id: sc.assigned_to ? sc.assigned_to.id : null,
+          start_date_time: sc.start_date_time || "",
+          estimate_id: sc.estimate_id ?? null,
+          comments: (sc.comments || "").replace(/<[^>]+>/g, ""),
+          results_of_site_check: sc.results_of_site_check || "",
+        };
+        store.set({ editing: true, editForm: form, editDirty: false });
+      }
+
+      function saveEdit() {
+        const s = store.get();
+        const f = s.editForm || {};
+        const assigned = ASSIGNED_USERS.find((u) => u.id === Number(f.assigned_to_id)) || null;
+        store.set((cur) => ({
+          siteChecks: cur.siteChecks.map((sc) => sc.id === cur.selectedId ? {
+            ...sc,
+            type: f.type,
+            assigned_to: assigned,
+            start_date_time: f.start_date_time ? (f.start_date_time.length === 16 ? f.start_date_time + ":00" : f.start_date_time) : sc.start_date_time,
+            estimate_id: f.estimate_id ?? null,
+            comments: f.comments || "",
+            results_of_site_check: f.results_of_site_check || "",
+          } : sc),
+          editing: false, editForm: null, editDirty: false,
+        }));
+      }
 
       // ───── Handlers: action buttons ─────
       document.getElementById("site-check-detail-root").addEventListener("click", (e) => {
         const btn = e.target.closest("[data-action]");
         if (!btn) return;
         const action = btn.dataset.action;
-        const id = store.get().selectedId;
-        if (action === "open-delete")  store.set({ dialog: { type: "delete" } });
+        const s = store.get();
+        if (action === "open-delete")       store.set({ dialog: { type: "delete" } });
         else if (action === "open-done")    store.set({ dialog: { type: "done" }, doneResults: "" });
         else if (action === "open-cancel")  store.set({ dialog: { type: "cancelled" } });
-        else if (action === "edit")         window.location.href = `site-checks-edit.html?id=${id}`;
+        else if (action === "edit")         startEdit();
         else if (action === "print")        window.print();
+        else if (action === "edit-cancel") {
+          if (s.editDirty) store.set({ pendingDiscard: "exit" });
+          else store.set({ editing: false, editForm: null, editDirty: false });
+        }
+        else if (action === "edit-save")    saveEdit();
       });
 
       // ───── Handlers: dialogs ─────
@@ -1373,9 +1577,17 @@
       document.getElementById("site-check-detail-cancel-keep").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
       document.getElementById("site-check-detail-cancel-confirm").addEventListener("click", () => markCancelled(store.get().selectedId));
 
+      // Discard changes dialog
+      document.getElementById("site-check-detail-discard-cancel").addEventListener("click", () => store.set({ pendingDiscard: null }));
+      document.getElementById("site-check-detail-discard-confirm").addEventListener("click", () => {
+        store.set({ editing: false, editForm: null, editDirty: false, pendingDiscard: null });
+      });
+
       // ───── Handlers: dialog close (X / overlay / Esc) ─────
       function closeDialog() {
-        if (store.get().dialog.type !== "closed") store.set({ dialog: { type: "closed" } });
+        const s = store.get();
+        if (s.pendingDiscard !== null) { store.set({ pendingDiscard: null }); return; }
+        if (s.dialog.type !== "closed") store.set({ dialog: { type: "closed" } });
       }
       document.querySelectorAll(".dialog-overlay").forEach((overlay) => {
         overlay.addEventListener("click", (e) => { if (e.target === overlay) closeDialog(); });
@@ -1385,5 +1597,28 @@
       });
       document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDialog(); });
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

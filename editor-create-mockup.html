@@ -100,17 +100,17 @@
         border-bottom: 1px solid var(--border);
       }
       .library-brand-mark {
-        width: 18px; height: 18px;
+        width: 22px; height: 22px;
         background: var(--brand-navy);
         border-radius: 4px;
-        position: relative;
-      }
-      .library-brand-mark::before {
-        content: "";
-        position: absolute;
-        inset: 4px;
-        background: #fff;
-        clip-path: polygon(0 100%, 50% 0, 100% 100%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 0.04em;
       }
       .library-brand-name {
         font-family: var(--font-display);
@@ -596,7 +596,7 @@
         <aside class="library-panel" data-comment="editor-library-panel">
           <div class="library-cats" data-comment="editor-library-categories">
             <div class="library-brand" data-comment="editor-library-brand">
-              <div class="library-brand-mark" data-comment="editor-library-brand-mark"></div>
+              <div class="library-brand-mark" data-comment="editor-library-brand-mark">SP</div>
               <span class="library-brand-name" data-comment="editor-library-brand-name">Lapp Structures</span>
             </div>
             <nav class="library-nav" data-comment="editor-library-nav" id="library-nav"></nav>
@@ -607,10 +607,11 @@
             <div class="library-grid" data-comment="editor-library-grid" id="library-grid"></div>
             <div class="library-footer" data-comment="editor-library-footer">
               <span data-comment="editor-library-count" id="library-count">0 elements</span>
-              <button class="btn btn-ghost" data-comment="editor-library-upload-image" data-component="button" title="Upload image to canvas" onclick="showToast('Image upload mocked.', 'info')">
+              <button class="btn btn-ghost" data-comment="editor-library-upload-image" data-component="button" title="Upload image to canvas" onclick="document.getElementById('image-upload-input').click()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                 Upload image
               </button>
+              <input type="file" id="image-upload-input" data-comment="editor-image-upload-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)" />
             </div>
           </div>
         </aside>
@@ -663,10 +664,10 @@
                 </button>
               </div>
               <div class="tb-group" data-comment="editor-distribute-group">
-                <button class="tb-btn" data-comment="editor-distribute-h" data-component="button" data-distribute-btn="h" title="Distribute horizontally" onclick="showToast('Distribute horizontally (need 3+ elements).', 'info')" disabled>
+                <button class="tb-btn" data-comment="editor-distribute-h" data-component="button" data-distribute-btn="h" title="Distribute horizontally" onclick="distributeSelected('h')" disabled>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="4" height="14" rx="1"/><rect x="10" y="7" width="4" height="10" rx="1"/><rect x="16" y="5" width="4" height="14" rx="1"/></svg>
                 </button>
-                <button class="tb-btn" data-comment="editor-distribute-v" data-component="button" data-distribute-btn="v" title="Distribute vertically" onclick="showToast('Distribute vertically (need 3+ elements).', 'info')" disabled>
+                <button class="tb-btn" data-comment="editor-distribute-v" data-component="button" data-distribute-btn="v" title="Distribute vertically" onclick="distributeSelected('v')" disabled>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="4" rx="1"/><rect x="7" y="10" width="10" height="4" rx="1"/><rect x="5" y="16" width="14" height="4" rx="1"/></svg>
                 </button>
               </div>
@@ -802,6 +803,19 @@
                 <div class="popover is-hidden" data-comment="editor-stroke-popover" id="stroke-popover" style="bottom: 44px; left: 0;">
                   <div class="color-palette" data-comment="editor-stroke-palette" id="stroke-palette"></div>
                   <div class="popover-divider"></div>
+                  <div class="color-inputs" data-comment="editor-stroke-color-inputs" style="display:flex; flex-direction:column; gap:6px; margin-bottom:6px;">
+                    <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted-foreground);">
+                      <span style="width:24px;">Hex</span>
+                      <input type="text" class="form-input" data-comment="editor-stroke-hex" id="stroke-hex-input" style="height:26px; font-size:12px; padding:0 6px; width:88px;" maxlength="7" oninput="handleHexInput('stroke', this.value)" />
+                    </label>
+                    <div style="display:flex; gap:4px; align-items:center; font-size:11px; color:var(--muted-foreground);">
+                      <span style="width:24px;">RGB</span>
+                      <input type="number" class="form-input" data-comment="editor-stroke-r" id="stroke-r-input" min="0" max="255" style="height:26px; font-size:12px; padding:0 4px; width:46px;" oninput="handleRgbInput('stroke')" />
+                      <input type="number" class="form-input" data-comment="editor-stroke-g" id="stroke-g-input" min="0" max="255" style="height:26px; font-size:12px; padding:0 4px; width:46px;" oninput="handleRgbInput('stroke')" />
+                      <input type="number" class="form-input" data-comment="editor-stroke-b" id="stroke-b-input" min="0" max="255" style="height:26px; font-size:12px; padding:0 4px; width:46px;" oninput="handleRgbInput('stroke')" />
+                    </div>
+                  </div>
+                  <div class="popover-divider"></div>
                   <button class="popover-no-color" data-comment="editor-stroke-no-color" data-component="button" onclick="setStrokeColor('transparent')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>
                     No color
@@ -811,6 +825,19 @@
                 <!-- Fill color popover -->
                 <div class="popover is-hidden" data-comment="editor-fill-popover" id="fill-popover" style="bottom: 44px; left: 36px;">
                   <div class="color-palette" data-comment="editor-fill-palette" id="fill-palette"></div>
+                  <div class="popover-divider"></div>
+                  <div class="color-inputs" data-comment="editor-fill-color-inputs" style="display:flex; flex-direction:column; gap:6px; margin-bottom:6px;">
+                    <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted-foreground);">
+                      <span style="width:24px;">Hex</span>
+                      <input type="text" class="form-input" data-comment="editor-fill-hex" id="fill-hex-input" style="height:26px; font-size:12px; padding:0 6px; width:88px;" maxlength="7" oninput="handleHexInput('fill', this.value)" />
+                    </label>
+                    <div style="display:flex; gap:4px; align-items:center; font-size:11px; color:var(--muted-foreground);">
+                      <span style="width:24px;">RGB</span>
+                      <input type="number" class="form-input" data-comment="editor-fill-r" id="fill-r-input" min="0" max="255" style="height:26px; font-size:12px; padding:0 4px; width:46px;" oninput="handleRgbInput('fill')" />
+                      <input type="number" class="form-input" data-comment="editor-fill-g" id="fill-g-input" min="0" max="255" style="height:26px; font-size:12px; padding:0 4px; width:46px;" oninput="handleRgbInput('fill')" />
+                      <input type="number" class="form-input" data-comment="editor-fill-b" id="fill-b-input" min="0" max="255" style="height:26px; font-size:12px; padding:0 4px; width:46px;" oninput="handleRgbInput('fill')" />
+                    </div>
+                  </div>
                   <div class="popover-divider"></div>
                   <button class="popover-no-color is-active" data-comment="editor-fill-no-color" data-component="button" onclick="setFillColor('transparent')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>
@@ -1173,12 +1200,37 @@
         }));
       }
 
+      /* ───── Distribute ───── */
+      function distributeSelected(axis) {
+        const sel = getSelected();
+        if (sel.length < 3) return showToast("Select 3+ elements to distribute.", "info");
+        pushHistory();
+        const sorted = [...sel].sort((a, b) =>
+          axis === "h" ? (a.x + a.width / 2) - (b.x + b.width / 2)
+                       : (a.y + a.height / 2) - (b.y + b.height / 2)
+        );
+        const first = sorted[0], last = sorted[sorted.length - 1];
+        const startC = axis === "h" ? first.x + first.width / 2 : first.y + first.height / 2;
+        const endC   = axis === "h" ? last.x  + last.width  / 2 : last.y  + last.height  / 2;
+        const step = (endC - startC) / (sorted.length - 1);
+        sorted.forEach((e, i) => {
+          if (i === 0 || i === sorted.length - 1) return;
+          const target = startC + step * i;
+          if (axis === "h") updateElement(e.id, { x: target - e.width / 2 });
+          else updateElement(e.id, { y: target - e.height / 2 });
+        });
+      }
+
       /* ───── Page switching ───── */
       function setActivePage(page) {
         store.set({ activePage: page, selectedIds: [] });
         document.querySelectorAll('[data-comment^="editor-page-tab-"]').forEach((btn) => {
           btn.classList.toggle("active", btn.dataset.comment === `editor-page-tab-${page}`);
         });
+        renderSwatches();
+        renderTextToolbar();
+        renderDeleteButton();
+        render();
       }
 
       /* ───── Tool ───── */
@@ -1420,12 +1472,39 @@
         ctx.restore();
       }
 
+      const rasterImageCache = new Map();
+      function getRasterImage(src) {
+        if (rasterImageCache.has(src)) return rasterImageCache.get(src);
+        const img = new Image();
+        img.src = src;
+        img.onload = () => render();
+        rasterImageCache.set(src, img);
+        return img;
+      }
+      function drawImageEl(el) {
+        const img = getRasterImage(el.src);
+        const cx = el.x + el.width / 2;
+        const cy = el.y + el.height / 2;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(el.rotation || 0);
+        if (img.complete && img.naturalWidth > 0) {
+          ctx.drawImage(img, -el.width / 2, -el.height / 2, el.width, el.height);
+        } else {
+          ctx.strokeStyle = "#9ca3af";
+          ctx.setLineDash([4, 3]);
+          ctx.strokeRect(-el.width / 2, -el.height / 2, el.width, el.height);
+        }
+        ctx.restore();
+      }
+
       function drawElement(el) {
         if (el.type === "rectangle" || el.type === "circle") drawShape(el);
         else if (el.type === "text") drawText(el);
         else if (el.type === "line") drawLine(el);
         else if (el.type === "stroke") drawStroke(el);
         else if (el.type === "svg") drawSvgEl(el);
+        else if (el.type === "image") drawImageEl(el);
       }
 
       function drawSelection(el) {
@@ -1785,6 +1864,66 @@
         if (!insidePopover && !onTrigger) closeAllPopovers();
       });
 
+      /* ───── Hex/RGB helpers ───── */
+      function normalizeHex(v) {
+        if (!v) return null;
+        let h = v.trim();
+        if (!h.startsWith("#")) h = "#" + h;
+        if (/^#[0-9a-fA-F]{6}$/.test(h)) return h.toLowerCase();
+        if (/^#[0-9a-fA-F]{3}$/.test(h)) {
+          const s = h.slice(1);
+          return ("#" + s[0]+s[0]+s[1]+s[1]+s[2]+s[2]).toLowerCase();
+        }
+        return null;
+      }
+      function hexToRgb(hex) {
+        const h = normalizeHex(hex);
+        if (!h) return null;
+        return { r: parseInt(h.slice(1,3),16), g: parseInt(h.slice(3,5),16), b: parseInt(h.slice(5,7),16) };
+      }
+      function rgbToHex(r, g, b) {
+        const clamp = (n) => Math.max(0, Math.min(255, n|0));
+        const c = (n) => clamp(n).toString(16).padStart(2, "0");
+        return "#" + c(r) + c(g) + c(b);
+      }
+      function handleHexInput(which, value) {
+        const hex = normalizeHex(value);
+        if (!hex) return;
+        const rgb = hexToRgb(hex);
+        document.getElementById(`${which}-r-input`).value = rgb.r;
+        document.getElementById(`${which}-g-input`).value = rgb.g;
+        document.getElementById(`${which}-b-input`).value = rgb.b;
+        if (which === "stroke") setStrokeColor(hex);
+        else setFillColor(hex);
+      }
+      function handleRgbInput(which) {
+        const r = +document.getElementById(`${which}-r-input`).value;
+        const g = +document.getElementById(`${which}-g-input`).value;
+        const b = +document.getElementById(`${which}-b-input`).value;
+        const hex = rgbToHex(r, g, b);
+        document.getElementById(`${which}-hex-input`).value = hex;
+        if (which === "stroke") setStrokeColor(hex);
+        else setFillColor(hex);
+      }
+      function syncColorInputs() {
+        const c = store.get().activeColors;
+        ["stroke","fill"].forEach((which) => {
+          const val = which === "stroke" ? c.stroke : c.fill;
+          const hexEl = document.getElementById(`${which}-hex-input`);
+          const rEl = document.getElementById(`${which}-r-input`);
+          const gEl = document.getElementById(`${which}-g-input`);
+          const bEl = document.getElementById(`${which}-b-input`);
+          if (!hexEl) return;
+          if (val === "transparent") {
+            hexEl.value = ""; rEl.value = ""; gEl.value = ""; bEl.value = "";
+          } else {
+            hexEl.value = val;
+            const rgb = hexToRgb(val);
+            if (rgb) { rEl.value = rgb.r; gEl.value = rgb.g; bEl.value = rgb.b; }
+          }
+        });
+      }
+
       function renderSwatches() {
         const c = store.get().activeColors;
         const strokeSwatch = document.getElementById("stroke-swatch");
@@ -1803,6 +1942,39 @@
         renderColorPalette("stroke-palette", c.stroke, "setStrokeColor");
         renderColorPalette("fill-palette", c.fill, "setFillColor");
         renderStrokeWidthList();
+        syncColorInputs();
+      }
+
+      /* ───── Image upload ───── */
+      function handleImageUpload(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const src = e.target.result;
+          const probe = new Image();
+          probe.onload = () => {
+            const s = store.get();
+            const maxW = Math.min(400, s.canvas.width * 0.5);
+            const ratio = probe.naturalHeight / probe.naturalWidth || 1;
+            const W = Math.min(maxW, probe.naturalWidth);
+            const H = W * ratio;
+            addElement({
+              id: "el-img-" + Date.now(),
+              type: "image",
+              src,
+              x: (s.canvas.width - W) / 2,
+              y: (s.canvas.height - H) / 2,
+              width: W,
+              height: H,
+              rotation: 0,
+            });
+            showToast("Image inserted.", "success");
+          };
+          probe.src = src;
+        };
+        reader.readAsDataURL(file);
+        event.target.value = "";
       }
 
       /* ───── Text toolbar visibility ───── */
@@ -1856,27 +2028,65 @@
         document.getElementById("file-name-backdrop").classList.remove("is-open");
         fileNameAction = null;
       }
+      let isSaving = false;
+      function setSavingUI(busy) {
+        isSaving = busy;
+        const confirmBtn = document.getElementById("file-name-confirm");
+        const cancelBtn = document.querySelector('[data-comment="editor-file-name-cancel"]');
+        const saveTopBtn = document.getElementById("editor-save-btn");
+        const input = document.getElementById("file-name-input");
+        if (confirmBtn) {
+          confirmBtn.disabled = busy;
+          confirmBtn.textContent = busy
+            ? "Saving…"
+            : (fileNameAction === "save" ? "Save" : "Download");
+        }
+        if (cancelBtn) cancelBtn.disabled = busy;
+        if (saveTopBtn) saveTopBtn.disabled = busy;
+        if (input) input.disabled = busy;
+      }
       function confirmFileName(e) {
         e.preventDefault();
+        if (isSaving) return;
         const value = document.getElementById("file-name-input").value.trim();
         if (!value) return;
         const action = fileNameAction;
-        closeFileNameDialog();
         if (action === "save") {
+          setSavingUI(true);
           const target = estimateId ? `estimate #${estimateId}` : salesOrderId ? `sales order #${salesOrderId}` : "in-memory store";
-          showToast(`Saved "${value}" to ${target}.`, "success");
-        } else if (action === "pdf") {
-          showToast(`Downloaded "${value}.pdf" (mocked).`, "success");
+          // bundle both pages (mock)
+          const payload = {
+            name: value,
+            target: estimateId ? "estimate" : (salesOrderId ? "salesOrder" : "local"),
+            targetId: estimateId || salesOrderId || null,
+            pages: {
+              "1": store.get().pages["1"].elements,
+              "2": store.get().pages["2"].elements,
+            },
+          };
+          setTimeout(() => {
+            setSavingUI(false);
+            closeFileNameDialog();
+            showToast(`Saved "${value}" to ${target} (${payload.pages["1"].length}+${payload.pages["2"].length} elements).`, "success");
+          }, 700);
+          return;
+        }
+        closeFileNameDialog();
+        if (action === "pdf") {
+          showToast(`Downloaded "${value}.pdf" (mocked, both pages).`, "success");
         } else {
-          showToast(`Downloaded "${value}.jpeg" (mocked).`, "success");
+          showToast(`Downloaded "${value}.jpeg" (mocked, both pages).`, "success");
         }
       }
 
       /* ───── Exit ───── */
       function handleExit() {
+        if (window.history.length > 1) {
+          window.history.back();
+          return;
+        }
         if (estimateId) window.location.href = `estimate-detail.html?id=${estimateId}`;
         else if (salesOrderId) window.location.href = `order-detail.html?id=${salesOrderId}`;
-        else if (document.referrer) window.history.back();
         else window.location.href = "home.html";
       }
 

@@ -709,9 +709,81 @@
       .select[aria-disabled="true"] .select-trigger { opacity: 0.5; pointer-events: none; }
       .select.select-sm .select-trigger { height: 32px; padding: 2px 10px; }
       .select.select-inline { width: auto; min-width: 80px; }
-    </style>
+    
+      /* Right-side drawer (preview sheet) */
+      .drawer-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.5);
+        display: none;
+        z-index: 90;
+        animation: drawer-fade 0.15s ease;
+      }
+      .drawer-overlay.is-open { display: block; }
+      @keyframes drawer-fade { from { opacity: 0; } to { opacity: 1; } }
+      .drawer {
+        position: fixed; top: 0; right: 0; bottom: 0;
+        width: 100%; max-width: 560px;
+        background: var(--background-secondary);
+        box-shadow: -8px 0 24px rgba(0,0,0,0.12);
+        display: none;
+        flex-direction: column;
+        z-index: 95;
+        transform: translateX(100%);
+        transition: transform 0.25s ease;
+      }
+      .drawer.is-open { display: flex; transform: translateX(0); }
+      .drawer-header {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 8px; padding: 16px; border-bottom: 1px solid var(--border);
+        background: var(--card);
+      }
+      .drawer-title { font-size: 1.05rem; font-weight: 600; display:flex; align-items:center; gap:10px; }
+      .drawer-close {
+        width: 32px; height: 32px; border-radius: 6px;
+        display: inline-flex; align-items: center; justify-content: center;
+        color: var(--muted-foreground);
+      }
+      .drawer-close:hover { background: var(--secondary); color: var(--foreground); }
+      .drawer-close svg { width:18px; height:18px; }
+      .drawer-body { flex: 1; overflow-y: auto; padding: 16px; display:flex; flex-direction:column; gap:16px; }
+      .drawer-footer {
+        border-top: 1px solid var(--border);
+        padding: 12px 16px;
+        background: var(--card);
+        display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end;
+      }
+      .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+      .info-item { display:flex; flex-direction:column; gap:2px; min-width:0; }
+      .info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); font-weight:600; }
+      .info-value { font-size: 0.9rem; color: var(--foreground); overflow-wrap:anywhere; }
+      .drawer-section-title { font-size: 0.8rem; font-weight:600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; }
+      .btn-destructive { background: var(--destructive); color: white; }
+      .btn-destructive:hover { background: color-mix(in oklch, var(--destructive) 88%, black); }
+      .btn-success { background: var(--success); color: white; }
+      .btn-success:hover { background: color-mix(in oklch, var(--success) 88%, black); }
+
+      /* Mobile column hiding */
+      @media (max-width: 768px) {
+        .hide-mobile { display: none !important; }
+        .drawer { max-width: 100%; }
+      }
+
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="estimates-app-shell">
       <div class="app-frame" data-comment="estimates-app-frame">
         <!-- Sidebar -->
@@ -723,7 +795,7 @@
           <a
             class="sidebar-logo"
             data-comment="estimates-sidebar-logo"
-            href="home.html"
+            href="orders.html"
             aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="estimates-sidebar-logo-mark">
               <img
@@ -942,6 +1014,8 @@
                   class="btn btn-primary"
                   data-comment="estimates-add-btn"
                   data-component="button"
+                  data-role-hidden="sales"
+                  id="estimates-add-btn"
                   href="estimates-create.html">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1014,16 +1088,16 @@
                         <th data-comment="estimates-table-th-customer">
                           <span class="th-inner" data-comment="estimates-table-th-customer-inner">Customer</span>
                         </th>
-                        <th data-comment="estimates-table-th-location">
+                        <th class="hide-mobile" data-comment="estimates-table-th-location">
                           <span class="th-inner" data-comment="estimates-table-th-location-inner">Location</span>
                         </th>
                         <th data-comment="estimates-table-th-total">
                           <span class="th-inner" data-comment="estimates-table-th-total-inner">Total</span>
                         </th>
-                        <th data-comment="estimates-table-th-sales-rep">
+                        <th class="hide-mobile" data-comment="estimates-table-th-sales-rep">
                           <span class="th-inner" data-comment="estimates-table-th-sales-rep-inner">Sales Rep</span>
                         </th>
-                        <th data-comment="estimates-table-th-site-check">
+                        <th class="hide-mobile" data-role-hide-col="dealer" data-comment="estimates-table-th-site-check">
                           <span class="th-inner" data-comment="estimates-table-th-site-check-inner">Site Check</span>
                         </th>
                         <th data-comment="estimates-table-th-memo">
@@ -1117,6 +1191,36 @@
             </div>
           </div>
         </main>
+      </div>
+    </div>
+
+    <!-- Preview drawer -->
+    <div class="drawer-overlay" data-comment="estimates-drawer-overlay" id="estimates-drawer-overlay"></div>
+    <aside class="drawer" data-comment="estimates-drawer" id="estimates-drawer" aria-hidden="true" role="dialog" aria-modal="true">
+      <header class="drawer-header" data-comment="estimates-drawer-header">
+        <div class="drawer-title" data-comment="estimates-drawer-title">
+          <span id="estimates-drawer-title-text">Estimate</span>
+          <span id="estimates-drawer-status"></span>
+        </div>
+        <button type="button" class="drawer-close" id="estimates-drawer-close" aria-label="Close" data-comment="estimates-drawer-close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </header>
+      <div class="drawer-body" data-comment="estimates-drawer-body" id="estimates-drawer-body"></div>
+      <footer class="drawer-footer" data-comment="estimates-drawer-footer" id="estimates-drawer-footer"></footer>
+    </aside>
+
+    <!-- Generic confirm dialog (approve/reject/duplicate/cso) -->
+    <div class="dialog-overlay" data-comment="estimates-confirm-overlay" id="estimates-confirm-overlay">
+      <div class="dialog" data-comment="estimates-confirm-dialog" role="alertdialog" aria-modal="true">
+        <div>
+          <h2 class="dialog-title" id="estimates-confirm-title">Confirm</h2>
+          <p class="dialog-description" id="estimates-confirm-description" style="margin-top:8px"></p>
+        </div>
+        <div class="dialog-footer">
+          <button class="btn btn-outline" type="button" id="estimates-confirm-cancel">Cancel</button>
+          <button class="btn btn-primary" type="button" id="estimates-confirm-ok">Confirm</button>
+        </div>
       </div>
     </div>
 
@@ -1410,6 +1514,7 @@
         pageSize: 10,
 
         dialog: { type: "closed" },
+        drawer: { open: false, estimateId: null },
       });
 
       // ───── Sidebar (shared) ─────
@@ -1494,8 +1599,40 @@
         store.set((s) => ({
           estimates: s.estimates.filter((e) => e.id !== id),
           dialog: { type: "closed" },
+          drawer: { open: false, estimateId: null },
         }));
         toast("Estimate deleted");
+      }
+      function approveEstimate(id) {
+        store.set((s) => ({
+          estimates: s.estimates.map((e) => e.id === id ? { ...e, status: "accepted" } : e),
+          dialog: { type: "closed" },
+        }));
+        toast("Estimate approved");
+      }
+      function rejectEstimate(id) {
+        store.set((s) => ({
+          estimates: s.estimates.map((e) => e.id === id ? { ...e, status: "rejected" } : e),
+          dialog: { type: "closed" },
+        }));
+        toast("Estimate rejected");
+      }
+      function duplicateEstimate(id) {
+        const s = store.get();
+        const src = s.estimates.find((e) => e.id === id);
+        if (!src) return;
+        const newId = Math.max(...s.estimates.map((e) => e.id)) + 1;
+        const copy = { ...src, id: newId, name: (src.name || "") + " (copy)", status: "draft" };
+        store.set((st) => ({
+          estimates: [copy, ...st.estimates],
+          dialog: { type: "closed" },
+        }));
+        toast("Estimate duplicated");
+      }
+      function createSalesOrderFor(id) {
+        store.set({ dialog: { type: "closed" }, drawer: { open: false, estimateId: null } });
+        toast("Sales order created — redirecting…");
+        setTimeout(() => { window.location.href = "orders.html"; }, 700);
       }
 
       // ───── Filter / sort / paginate ─────
@@ -1613,13 +1750,13 @@
                   ? `<a class="customer-link" data-comment="${ctx}-customer-link" href="customer-detail.html?id=${e.customer_id}" onclick="event.stopPropagation()">${escapeHtml(customerName || "—")}</a>`
                   : "—"}
               </td>
-              <td data-comment="${ctx}-location">${escapeHtml(e.customer?.location || "—")}</td>
+              <td class="hide-mobile" data-comment="${ctx}-location">${escapeHtml(e.customer?.location || "—")}</td>
               <td data-comment="${ctx}-total">${e.total ? "$" + formatMoney(total) : "—"}</td>
-              <td data-comment="${ctx}-sales-rep">${escapeHtml(e.sales_rep_name || "—")}</td>
-              <td data-comment="${ctx}-site-check">${renderSiteCheckBadge(e.site_check_status || "not_required", ctx)}</td>
+              <td class="hide-mobile" data-comment="${ctx}-sales-rep">${escapeHtml(e.sales_rep_name || "—")}</td>
+              <td class="hide-mobile" data-role-hide-col="dealer" data-comment="${ctx}-site-check">${renderSiteCheckBadge(e.site_check_status || "not_required", ctx)}</td>
               <td data-comment="${ctx}-memo" title="${escapeHtml(e.memo || "")}">${escapeHtml(e.memo || "—")}</td>
               <td data-comment="${ctx}-actions">
-                <div class="row-actions" data-comment="${ctx}-actions-wrap" onclick="event.stopPropagation()">
+                <div class="row-actions" data-comment="${ctx}-actions-wrap" data-role-hidden="sales" onclick="event.stopPropagation()">
                   <button type="button" class="btn-icon-sm danger" data-comment="${ctx}-delete" data-component="button" data-action="delete" data-estimate-id="${e.id}" aria-label="Delete estimate">${ICONS.trash2}</button>
                 </div>
               </td>
@@ -1664,8 +1801,117 @@
 
       function renderDialog() {
         const s = store.get();
-        const overlay = document.getElementById("estimates-delete-overlay");
-        overlay.classList.toggle("is-open", s.dialog.type === "delete");
+        const delOverlay = document.getElementById("estimates-delete-overlay");
+        delOverlay.classList.toggle("is-open", s.dialog.type === "delete");
+
+        const confirmOverlay = document.getElementById("estimates-confirm-overlay");
+        const confirmTypes = ["approve","reject","duplicate","create_sales_order"];
+        const isConfirm = confirmTypes.includes(s.dialog.type);
+        confirmOverlay.classList.toggle("is-open", isConfirm);
+        if (isConfirm) {
+          const meta = {
+            approve:  { title: "Approve estimate?", desc: "This marks the estimate as approved.", ok: "Approve", okClass: "btn-success" },
+            reject:   { title: "Reject estimate?",  desc: "This marks the estimate as rejected.", ok: "Reject",  okClass: "btn-destructive" },
+            duplicate:{ title: "Duplicate estimate?", desc: "A copy will be created with \"(copy)\" appended to the name.", ok: "Duplicate", okClass: "btn-primary" },
+            create_sales_order: { title: "Create sales order?", desc: "This creates a sales order from this estimate.", ok: "Create", okClass: "btn-primary" },
+          }[s.dialog.type];
+          document.getElementById("estimates-confirm-title").textContent = meta.title;
+          document.getElementById("estimates-confirm-description").textContent = meta.desc;
+          const ok = document.getElementById("estimates-confirm-ok");
+          ok.textContent = meta.ok;
+          ok.className = "btn " + meta.okClass;
+        }
+      }
+
+      function renderDrawer() {
+        const s = store.get();
+        const overlay = document.getElementById("estimates-drawer-overlay");
+        const drawer = document.getElementById("estimates-drawer");
+        const open = !!s.drawer.open && s.drawer.estimateId != null;
+        overlay.classList.toggle("is-open", open);
+        drawer.classList.toggle("is-open", open);
+        drawer.setAttribute("aria-hidden", open ? "false" : "true");
+        if (!open) return;
+        const e = s.estimates.find((x) => x.id === s.drawer.estimateId);
+        if (!e) return;
+        const total = (e.total ?? 0) + (e.total_tax ?? 0);
+        const customerName = e.customer ? `${e.customer.first_name} ${e.customer.last_name}`.trim() : "—";
+        document.getElementById("estimates-drawer-title-text").textContent = `Estimate ${e.id}`;
+        document.getElementById("estimates-drawer-status").innerHTML = renderStatusBadge(e.status, "estimates-drawer");
+        document.getElementById("estimates-drawer-body").innerHTML = `
+          <div data-comment="estimates-drawer-info">
+            <div class="drawer-section-title" style="margin-bottom:8px" data-comment="estimates-drawer-section-overview">Overview</div>
+            <div class="info-grid" data-comment="estimates-drawer-info-grid">
+              <div class="info-item"><div class="info-label">Name</div><div class="info-value">${escapeHtml(e.name || "—")}</div></div>
+              <div class="info-item"><div class="info-label">Date</div><div class="info-value">${formatDate(e.order_date)}</div></div>
+              <div class="info-item"><div class="info-label">Customer</div><div class="info-value">${escapeHtml(customerName)}</div></div>
+              <div class="info-item"><div class="info-label">Location</div><div class="info-value">${escapeHtml(e.customer?.location || "—")}</div></div>
+              <div class="info-item"><div class="info-label">Sales Rep</div><div class="info-value">${escapeHtml(e.sales_rep_name || "—")}</div></div>
+              <div class="info-item"><div class="info-label">Site Check</div><div class="info-value">${renderSiteCheckBadge(e.site_check_status || "not_required", "estimates-drawer")}</div></div>
+              <div class="info-item" style="grid-column: 1 / -1;"><div class="info-label">Total</div><div class="info-value" style="font-size:1.1rem; font-weight:600;">${e.total ? "$" + formatMoney(total) : "—"}</div></div>
+              ${e.memo ? `<div class="info-item" style="grid-column: 1 / -1;"><div class="info-label">Memo</div><div class="info-value">${escapeHtml(e.memo)}</div></div>` : ""}
+            </div>
+          </div>
+          <div data-comment="estimates-drawer-line-items">
+            <div class="drawer-section-title" style="margin-bottom:8px">Line items</div>
+            <div class="info-value" style="color: var(--muted-foreground); font-size:0.85rem;">Open full estimate to view line items.</div>
+          </div>
+        `;
+        const isSales = currentRole() === "sales";
+        document.getElementById("estimates-drawer-footer").innerHTML = `
+          <a class="btn btn-outline" href="estimate-detail.html?id=${e.id}" data-comment="estimates-drawer-edit">Edit</a>
+          ${isSales ? "" : `
+            <button type="button" class="btn btn-outline" data-drawer-action="approve" data-comment="estimates-drawer-approve">Approve</button>
+            <button type="button" class="btn btn-outline" data-drawer-action="reject" data-comment="estimates-drawer-reject">Reject</button>
+            <button type="button" class="btn btn-outline" data-drawer-action="duplicate" data-comment="estimates-drawer-duplicate">Duplicate</button>
+            <button type="button" class="btn btn-primary" data-drawer-action="create_sales_order" data-comment="estimates-drawer-cso">Create Sales Order</button>
+            <button type="button" class="btn btn-destructive" data-drawer-action="delete" data-comment="estimates-drawer-delete">Delete</button>
+          `}
+        `;
+      }
+
+      function currentRole() {
+        try { return (JSON.parse(localStorage.getItem("currentUser") || "null") || {}).role || null; }
+        catch (e) { return null; }
+      }
+      function applyRoleVisibility() {
+        const role = currentRole();
+        document.querySelectorAll("[data-role-hidden]").forEach((el) => {
+          const hide = (el.dataset.roleHidden || "").split(",").map((x) => x.trim()).includes(role);
+          el.style.display = hide ? "none" : "";
+        });
+        document.querySelectorAll("[data-role-hide-col]").forEach((el) => {
+          const hide = (el.dataset.roleHideCol || "").split(",").map((x) => x.trim()).includes(role);
+          el.style.display = hide ? "none" : "";
+        });
+      }
+
+      // ───── URL sync ─────
+      function readUrlIntoStore() {
+        const p = new URLSearchParams(location.search);
+        const patch = {};
+        if (p.has("page")) { const n = parseInt(p.get("page"), 10); if (n > 0) patch.page = n; }
+        if (p.has("pageSize")) { const n = parseInt(p.get("pageSize"), 10); if (n > 0) patch.pageSize = n; }
+        if (p.has("search")) { patch.listSearchInput = p.get("search"); patch.listSearchTerm = p.get("search"); }
+        if (p.has("ordering")) {
+          const ord = p.get("ordering");
+          if (ord) {
+            const dir = ord.startsWith("-") ? "desc" : "asc";
+            const key = ord.replace(/^-/, "");
+            patch.sort = { key, dir };
+          } else patch.sort = { key: null, dir: null };
+        }
+        if (Object.keys(patch).length) store.set(patch);
+      }
+      function writeStoreToUrl() {
+        const s = store.get();
+        const p = new URLSearchParams();
+        if (s.page && s.page !== 1) p.set("page", String(s.page));
+        if (s.pageSize && s.pageSize !== 10) p.set("pageSize", String(s.pageSize));
+        if (s.listSearchTerm) p.set("search", s.listSearchTerm);
+        if (s.sort && s.sort.key && s.sort.dir) p.set("ordering", (s.sort.dir === "desc" ? "-" : "") + s.sort.key);
+        const qs = p.toString();
+        history.replaceState(null, "", qs ? "?" + qs : location.pathname);
       }
 
       // ───── Subscribe + initial render ─────
@@ -1677,7 +1923,11 @@
       store.subscribe(renderSortIcons);
       store.subscribe(renderSearchInput);
       store.subscribe(renderDialog);
+      store.subscribe(renderDrawer);
+      store.subscribe(() => { applyRoleVisibility(); });
+      store.subscribe(writeStoreToUrl);
 
+      readUrlIntoStore();
       renderSidebarNav();
       renderUser();
       renderCollapse();
@@ -1686,6 +1936,8 @@
       renderSortIcons();
       renderSearchInput();
       renderDialog();
+      renderDrawer();
+      applyRoleVisibility();
       initSelects();
 
       setTimeout(() => store.set({ estimatesLoading: false }), 250);
@@ -1761,8 +2013,36 @@
         }
         const row = e.target.closest("tr.clickable");
         if (row && row.dataset.estimateId) {
-          window.location.href = `estimate-detail.html?id=${row.dataset.estimateId}`;
+          store.set({ drawer: { open: true, estimateId: Number(row.dataset.estimateId) } });
         }
+      });
+
+      // ───── Handlers: drawer ─────
+      function closeDrawer() { store.set({ drawer: { open: false, estimateId: null } }); }
+      document.getElementById("estimates-drawer-close").addEventListener("click", closeDrawer);
+      document.getElementById("estimates-drawer-overlay").addEventListener("click", closeDrawer);
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") { const s = store.get(); if (s.drawer.open) closeDrawer(); } });
+      document.getElementById("estimates-drawer-footer").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-drawer-action]");
+        if (!btn) return;
+        const action = btn.dataset.drawerAction;
+        const id = store.get().drawer.estimateId;
+        const estimate = store.get().estimates.find((es) => es.id === id);
+        if (!estimate) return;
+        if (action === "delete") { store.set({ dialog: { type: "delete", estimate } }); return; }
+        store.set({ dialog: { type: action, estimate } });
+      });
+
+      // ───── Handlers: confirm dialog ─────
+      document.getElementById("estimates-confirm-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      document.getElementById("estimates-confirm-ok").addEventListener("click", () => {
+        const cur = store.get().dialog;
+        if (!cur || !cur.estimate) return;
+        const id = cur.estimate.id;
+        if (cur.type === "approve") approveEstimate(id);
+        else if (cur.type === "reject") rejectEstimate(id);
+        else if (cur.type === "duplicate") duplicateEstimate(id);
+        else if (cur.type === "create_sales_order") createSalesOrderFor(id);
       });
 
       // ───── Handlers: dialog ─────
@@ -1780,5 +2060,28 @@
         })[c]);
       }
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

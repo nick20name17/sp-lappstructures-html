@@ -1309,9 +1309,23 @@
       .toast.success { border-left: 3px solid var(--success, #16a34a); }
       .toast.error { border-left: 3px solid var(--destructive, #dc2626); }
       @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="order-detail-app-shell">
       <div class="app-frame" data-comment="order-detail-app-frame">
         <!-- ───── Sidebar ───── -->
@@ -1323,7 +1337,7 @@
           <a
             class="sidebar-logo"
             data-comment="order-detail-sidebar-logo"
-            href="home.html"
+            href="orders.html"
             aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="order-detail-sidebar-logo-mark">
               <img
@@ -1604,6 +1618,25 @@
         <div class="od-dialog-footer" data-comment="order-detail-delivery-dialog-footer">
           <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-delivery-dialog-cancel" data-component="button" data-dialog-cancel="delivery">Cancel</button>
           <button type="button" class="btn btn-primary btn-sm" data-comment="order-detail-delivery-dialog-save" data-component="button" data-dialog-save="delivery">Save Delivery Info</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm delete image dialog -->
+    <div class="od-dialog-overlay" data-comment="order-detail-confirm-delete-overlay" id="confirm-delete-overlay">
+      <div class="od-dialog" data-comment="order-detail-confirm-delete-dialog" data-component="dialog" role="dialog" aria-modal="true">
+        <div data-comment="order-detail-confirm-delete-header">
+          <div class="od-dialog-header-row" data-comment="order-detail-confirm-delete-header-row">
+            <span class="od-dialog-icon-badge" data-comment="order-detail-confirm-delete-icon" aria-hidden="true" style="background:color-mix(in oklch, var(--destructive) 12%, transparent);color:var(--destructive);">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6 17.5 20a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2L5 6"/></svg>
+            </span>
+            <h2 class="od-dialog-title" data-comment="order-detail-confirm-delete-title">Remove this image?</h2>
+          </div>
+          <p class="od-dialog-description" data-comment="order-detail-confirm-delete-description" id="confirm-delete-description">This attachment will be removed from the order. This action cannot be undone.</p>
+        </div>
+        <div class="od-dialog-footer" data-comment="order-detail-confirm-delete-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-confirm-delete-cancel" data-component="button" id="confirm-delete-cancel">Cancel</button>
+          <button type="button" class="btn btn-sm" style="background:var(--destructive);color:#fff;" data-comment="order-detail-confirm-delete-confirm" data-component="button" id="confirm-delete-confirm">Delete</button>
         </div>
       </div>
     </div>
@@ -2234,6 +2267,7 @@
         isLoading: true,
         paymentDialogOpen: false,
         deliveryDialogOpen: false,
+        confirmDeleteFile: null, // { id, name } | null
       });
 
       /* ───── Sidebar render ───── */
@@ -2353,28 +2387,22 @@
         ) || null;
       }
 
-      /* ───── Render: status badge in header ───── */
+      /* ───── Render: page title (status badge removed — mirrors React commented-out) ───── */
       function renderHeaderStatus() {
         const s = store.get();
         const slot = document.getElementById("order-detail-header-status-slot");
         const titleEl = document.getElementById("order-detail-page-title");
+        slot.innerHTML = "";
         if (s.isLoading) {
-          slot.innerHTML = `<span class="skeleton" data-comment="order-detail-header-status-skeleton" style="display:inline-block;width:120px;height:18px"></span>`;
           titleEl.textContent = "Sales Order";
           return;
         }
         const o = getActiveOrder();
         if (!o) {
-          slot.innerHTML = "";
           titleEl.textContent = "Order not found";
           return;
         }
         titleEl.textContent = `Sales Order ${o.invoice}`;
-        const color = statusColor(o.status);
-        const label = o.status ? STATUS_LABELS[o.status] : null;
-        slot.innerHTML = label
-          ? `<span class="status-badge ${color}" data-comment="order-detail-header-status-badge" data-component="badge">${esc(label)}</span>`
-          : "";
       }
 
       /* ───── Render: skeleton ───── */
@@ -2621,6 +2649,44 @@
                 </div>
               </div>
 
+              <!-- Product Configuration -->
+              <div class="od-card" data-comment="order-detail-card-product-config" data-component="card" style="grid-column: 1 / -1;">
+                <div class="od-card-header" data-comment="order-detail-card-product-config-header">
+                  <h3 class="od-card-title" data-comment="order-detail-card-product-config-title">Product Configuration</h3>
+                </div>
+                <div class="od-card-content" data-comment="order-detail-card-product-config-content">
+                  <div class="od-product-config-grid" data-comment="order-detail-card-product-config-grid" style="display:grid;grid-template-columns:1fr;gap:6px 24px;">
+                    ${[
+                      ["shed-style", "Shed Style", so?.shed_style ?? so?.attributes?.shed_style],
+                      ["shed-size", "Shed Size", so?.shed_size ?? o.dimension ?? so?.attributes?.shed_size],
+                      ["door-type", "Door Type", so?.door_type ?? so?.attributes?.door_type],
+                      ["door-color", "Door Color", so?.door_color ?? so?.attributes?.door_color],
+                      ["door-trim-color", "Door Trim Color", so?.door_trim_color ?? so?.attributes?.door_trim_color],
+                      ["siding-type", "Siding Type", so?.siding_type ?? so?.attributes?.siding_type],
+                      ["siding-style", "Siding Style", so?.siding_style ?? so?.attributes?.siding_style],
+                      ["siding-color", "Siding Color", so?.siding_color ?? so?.attributes?.siding_color],
+                      ["window-type", "Window Type", so?.window_type ?? so?.attributes?.window_type],
+                      ["window-color", "Window Color", so?.window_color ?? so?.attributes?.window_color],
+                      ["window-trim-color", "Window Trim Color", so?.window_trim_color ?? so?.attributes?.window_trim_color],
+                      ["roof-type", "Roof Type", so?.roof_type ?? so?.attributes?.roof_type],
+                      ["roof-sheeting", "Roof Sheeting", so?.roof_sheeting ?? so?.attributes?.roof_sheeting],
+                      ["roof-color", "Roof Color", so?.roof_color ?? so?.attributes?.roof_color],
+                      ["shutter-type", "Shutter Type", so?.shutter_type ?? so?.attributes?.shutter_type],
+                      ["shutter-color", "Shutter Color", so?.shutter_color ?? so?.attributes?.shutter_color],
+                      ["trim-type", "Trim Type", so?.trim_type ?? so?.attributes?.trim_type],
+                      ["trim-color", "Trim Color", so?.trim_color ?? so?.attributes?.trim_color],
+                      ["fascia", "Fascia", so?.fascia ?? so?.attributes?.fascia],
+                      ["corner-trim-color", "Corner Trim Color", so?.corner_trim_color ?? so?.attributes?.corner_trim_color],
+                    ].map(([id, label, value]) => `
+                      <div class="kv-row" data-comment="order-detail-product-config-row-${id}" style="display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid color-mix(in oklch, var(--border) 60%, transparent);padding:4px 0;">
+                        <span data-comment="order-detail-product-config-row-${id}-label" style="font-size:0.875rem;font-weight:500;color:var(--foreground);">${esc(label)}</span>
+                        <span data-comment="order-detail-product-config-row-${id}-value" style="font-size:0.875rem;color:var(--muted-foreground);text-align:right;">${value == null || value === "" ? "—" : esc(value)}</span>
+                      </div>
+                    `).join("")}
+                  </div>
+                </div>
+              </div>
+
               <!-- Contact & Shipping -->
               <div class="od-card" data-comment="order-detail-card-contact" data-component="card">
                 <div class="od-card-header" data-comment="order-detail-card-contact-header">
@@ -2699,7 +2765,7 @@
                     .map((f, i) => `
                       <div class="od-file-card" data-comment="order-detail-file-${i}">
                         ${ICONS.image.replace('<svg ', `<svg data-comment="order-detail-file-${i}-icon" `)}
-                        <button type="button" class="od-file-remove" data-comment="order-detail-file-${i}-remove" data-component="button" aria-label="Remove file">${ICONS.x}</button>
+                        <button type="button" class="od-file-remove" data-comment="order-detail-file-${i}-remove" data-component="button" aria-label="Remove file" data-confirm-delete-file="${esc(f.id)}" data-file-name="${esc(f.name)}">${ICONS.x}</button>
                         <span class="od-file-name" data-comment="order-detail-file-${i}-name">${esc(f.name)}</span>
                       </div>
                     `)
@@ -2833,6 +2899,13 @@
         const s = store.get();
         document.getElementById("payment-dialog-overlay").classList.toggle("is-open", s.paymentDialogOpen);
         document.getElementById("delivery-dialog-overlay").classList.toggle("is-open", s.deliveryDialogOpen);
+        const cdOverlay = document.getElementById("confirm-delete-overlay");
+        const cdDesc = document.getElementById("confirm-delete-description");
+        const isOpen = s.confirmDeleteFile != null;
+        cdOverlay.classList.toggle("is-open", isOpen);
+        if (isOpen) {
+          cdDesc.textContent = `Remove "${s.confirmDeleteFile.name}" from this order? This action cannot be undone.`;
+        }
       }
 
       /* ───── Subscriptions ───── */
@@ -2881,6 +2954,11 @@
 
       /* ───── Dialog handlers (event delegation) ───── */
       document.body.addEventListener("click", (e) => {
+        const fileDel = e.target.closest("[data-confirm-delete-file]");
+        if (fileDel) {
+          store.set({ confirmDeleteFile: { id: fileDel.dataset.confirmDeleteFile, name: fileDel.dataset.fileName } });
+          return;
+        }
         const opener = e.target.closest("[data-open-dialog]");
         if (opener) {
           const which = opener.dataset.openDialog;
@@ -2916,6 +2994,24 @@
       document.getElementById("delivery-dialog-overlay").addEventListener("click", (e) => {
         if (e.target === e.currentTarget) store.set({ deliveryDialogOpen: false });
       });
+      document.getElementById("confirm-delete-overlay").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) store.set({ confirmDeleteFile: null });
+      });
+      document.getElementById("confirm-delete-cancel").addEventListener("click", () => {
+        store.set({ confirmDeleteFile: null });
+      });
+      document.getElementById("confirm-delete-confirm").addEventListener("click", () => {
+        const s = store.get();
+        const target = s.confirmDeleteFile;
+        if (!target) return;
+        const orders = s.orders.map((o) => {
+          const so = o.sales_order;
+          if (!so || !Array.isArray(so.files)) return o;
+          return { ...o, sales_order: { ...so, files: so.files.filter((f) => String(f.id) !== String(target.id)) } };
+        });
+        store.set({ orders, confirmDeleteFile: null });
+        toast("Attachment removed.");
+      });
 
       // Close open dialog on Escape (only if no date-picker / select popover is open)
       document.addEventListener("keydown", (e) => {
@@ -2923,7 +3019,8 @@
         const openPopover = document.querySelector('.date-picker [aria-expanded="true"], .select .select-trigger[aria-expanded="true"]');
         if (openPopover) return;
         const s = store.get();
-        if (s.paymentDialogOpen) store.set({ paymentDialogOpen: false });
+        if (s.confirmDeleteFile) store.set({ confirmDeleteFile: null });
+        else if (s.paymentDialogOpen) store.set({ paymentDialogOpen: false });
         else if (s.deliveryDialogOpen) store.set({ deliveryDialogOpen: false });
       });
 
@@ -3091,5 +3188,28 @@
         initAll();
       })();
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

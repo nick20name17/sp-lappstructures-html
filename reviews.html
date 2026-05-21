@@ -746,6 +746,99 @@
         gap: 8px;
       }
 
+      /* ───── Sortable th ───── */
+      .table thead th[data-sort-key] { cursor: pointer; }
+      .table thead th[data-sort-key]:hover { color: var(--foreground); }
+      .th-sortable {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .th-sortable:hover { color: var(--foreground); }
+      .th-sort-icon { display: inline-flex; width: 14px; height: 14px; color: color-mix(in oklch, var(--muted-foreground) 70%, transparent); }
+      .th-sort-icon svg { width: 14px; height: 14px; }
+      .th-sort-icon.is-active { color: var(--primary); }
+
+      /* ───── Reviewer notes line ───── */
+      .reviewer-notes {
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        padding-left: 22px;
+        font-style: italic;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* ───── Drawer (Sheet) ───── */
+      .drawer-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 100;
+      }
+      .drawer-overlay.is-open { opacity: 1; pointer-events: auto; }
+      .drawer {
+        position: fixed; top: 0; right: 0; bottom: 0;
+        width: 100%; max-width: 720px;
+        background: var(--background-secondary);
+        box-shadow: -8px 0 24px rgba(0,0,0,0.08);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        z-index: 110;
+        display: flex; flex-direction: column;
+      }
+      .drawer.is-open { transform: translateX(0); }
+      .drawer-header {
+        flex-shrink: 0; padding: 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; gap: 12px;
+      }
+      .drawer-title {
+        font-size: 1.125rem; font-weight: 600;
+        flex: 1; min-width: 0;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .drawer-open-full {
+        margin-left: auto;
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 10px; height: 32px;
+        font-size: 0.875rem; font-weight: 500;
+        color: var(--muted-foreground);
+        border-radius: 6px;
+      }
+      .drawer-open-full:hover { background: var(--secondary); color: var(--foreground); }
+      .drawer-open-full svg { width: 16px; height: 16px; }
+      .drawer-close {
+        height: 32px; width: 32px; padding: 0;
+        border-radius: 6px; color: var(--muted-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .drawer-close:hover { background: var(--secondary); color: var(--foreground); }
+      .drawer-close svg { width: 18px; height: 18px; }
+      .drawer-body {
+        flex: 1; min-height: 0;
+        overflow-y: auto; padding: 16px;
+        display: flex; flex-direction: column; gap: 16px;
+      }
+      .drawer-card {
+        background: var(--card); border: 1px solid var(--border);
+        border-radius: 12px; padding: 16px;
+        display: flex; flex-direction: column; gap: 12px;
+      }
+      .drawer-card-title { font-size: 0.875rem; font-weight: 600; }
+      .drawer-detail-grid {
+        display: grid; grid-template-columns: repeat(2, 1fr);
+        gap: 12px 16px;
+      }
+      @media (min-width: 640px) { .drawer-detail-grid { grid-template-columns: repeat(3, 1fr); } }
+      .drawer-detail-row { display: flex; flex-direction: column; gap: 2px; }
+      .drawer-detail-label { font-size: 0.8125rem; font-weight: 500; }
+      .drawer-detail-value { font-size: 0.875rem; color: var(--muted-foreground); }
+
       /* Reveal */
       .reveal {
         opacity: 0;
@@ -835,14 +928,28 @@
       .select[aria-disabled="true"] .select-trigger { opacity: 0.5; pointer-events: none; }
       .select.select-sm .select-trigger { height: 32px; padding: 2px 10px; }
       .select.select-inline { width: auto; min-width: 80px; }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="app-shell">
       <div class="app-frame" data-comment="app-frame">
         <!-- ───── Sidebar ───── -->
         <aside class="sidebar" data-comment="sidebar" id="sidebar" aria-label="Primary navigation">
-          <a class="sidebar-logo" data-comment="sidebar-logo" href="home.html" aria-label="Go to home">
+          <a class="sidebar-logo" data-comment="sidebar-logo" href="orders.html" aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="sidebar-logo-mark">
               <img data-comment="sidebar-logo-img" src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png" alt="Lapp Structures" />
             </span>
@@ -950,7 +1057,12 @@
                       <th data-comment="reviews-th-dimension">Dimension</th>
                       <th data-comment="reviews-th-customer">Customer</th>
                       <th data-comment="reviews-th-created">Created</th>
-                      <th data-comment="reviews-th-total">Total</th>
+                      <th data-comment="reviews-th-total" data-sort-key="total" id="reviews-th-total">
+                        <span class="th-sortable" data-comment="reviews-th-total-sortable">
+                          Total
+                          <span class="th-sort-icon" data-comment="reviews-th-total-sort-icon" id="reviews-th-total-sort-icon"></span>
+                        </span>
+                      </th>
                       <th data-comment="reviews-th-stage">Stage</th>
                       <th data-comment="reviews-th-pricing">
                         <span class="col-header pricing" data-comment="reviews-th-pricing-label">
@@ -1048,6 +1160,22 @@
         </main>
       </div>
     </div>
+
+    <!-- ───── Order Detail Drawer (Sheet) ───── -->
+    <div class="drawer-overlay" data-comment="reviews-drawer-overlay" id="reviews-drawer-overlay"></div>
+    <aside class="drawer" data-comment="reviews-drawer" data-component="sheet" id="reviews-drawer" aria-hidden="true">
+      <header class="drawer-header" data-comment="reviews-drawer-header">
+        <h2 class="drawer-title" data-comment="reviews-drawer-title" id="reviews-drawer-title">Sales Order</h2>
+        <button type="button" class="drawer-open-full" data-comment="reviews-drawer-open-full" data-component="button" id="reviews-drawer-open-full">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>
+          Open full page
+        </button>
+        <button type="button" class="drawer-close" data-comment="reviews-drawer-close" data-component="button" id="reviews-drawer-close" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </header>
+      <div class="drawer-body" data-comment="reviews-drawer-body" id="reviews-drawer-body"></div>
+    </aside>
 
     <!-- ───── Approve Dialog ───── -->
     <div class="dialog-overlay" data-comment="reviews-approve-dialog" id="reviews-approve-dialog">
@@ -1237,6 +1365,10 @@
         lock: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
         dollar: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
         wrench: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+        checkCircle: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>',
+        sortUp: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>',
+        sortDown: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+        sortUnsorted: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>',
       };
 
       // ───── Status labels (mirrors order-workflow.ts) ─────
@@ -1514,17 +1646,48 @@
         approveDialog: null,    // { orderId, type: 'pricing' | 'shop' }
         approveComment: "",
         approvePending: false,
+
+        // Sort
+        sortBy: null,            // 'total' | null
+        sortDir: "asc",          // 'asc' | 'desc'
+
+        // Order detail drawer
+        previewOrderId: null,
+
+        // Mock review comments: { [orderId]: { pricing?: string, shop?: string } }
+        reviewComments: {},
       });
 
       // ───── Selectors / derived ─────
+      function deriveEffectiveStatus(order) {
+        // Returns effective stage label for a review-list row
+        const so = (order && order.sales_order) || {};
+        const status = so.status;
+        if (!status) return { key: null, label: "Order created", progress: 0 };
+        return { key: status, label: STATUS_LABELS[status] || status, progress: getOverallProgress(status) };
+      }
+
       function getPendingOrders(s) {
-        return s.orders.filter((o) => {
+        let list = s.orders.filter((o) => {
           const st = o.sales_order && o.sales_order.status;
           return st && REVIEW_STATUSES.includes(st);
         });
+        if (s.sortBy === "total") {
+          const dir = s.sortDir === "desc" ? -1 : 1;
+          list = [...list].sort((a, b) => (Number(a.total) - Number(b.total)) * dir);
+        }
+        return list;
       }
 
       // ───── Actions ─────
+      // Mocks createComment(...) API: stash review comment on order for "Reviewer notes" line
+      function createCommentMock(s, orderId, type, text) {
+        if (!text || !text.trim()) return s.reviewComments;
+        const existing = s.reviewComments[orderId] || {};
+        return { ...s.reviewComments, [orderId]: { ...existing, [type]: text.trim() } };
+      }
+
+      // Mocks updateSalesOrderReview(...) API + createComment(...) when comment non-empty
       function approveReview({ orderId, type, comment }) {
         store.set((s) => {
           const orders = s.orders.map((o) => {
@@ -1550,11 +1713,13 @@
           const not_shop_reviewed = orders.filter((o) =>
             o.sales_order && o.sales_order.status === "pricing_reviewed" && o.sales_order.is_pricing_reviewed && !o.sales_order.is_shop_reviewed
           ).length;
+          const reviewComments = createCommentMock(s, orderId, type, comment);
           return {
             orders,
             reviewBadges: { not_pricing_reviewed, not_shop_reviewed },
             approveDialog: null,
             approveComment: "",
+            reviewComments,
           };
         });
       }
@@ -1708,16 +1873,18 @@
       }
 
       function renderRow(order) {
+        const s = store.get();
         const so = order.sales_order || {};
-        const status = so.status;
-        const progress = status ? getOverallProgress(status) : 0;
-        const stageLabel = status ? STATUS_LABELS[status] : "Order created";
+        const eff = deriveEffectiveStatus(order);
+        const stageLabel = eff.label;
+        const progress = eff.progress;
         const cat = (so.category && so.category.name) || "—";
         const dim = (so.dimension && so.dimension.name) || "—";
         const invoice = order.invoice || order.autoid;
+        const notes = s.reviewComments[order.id] || {};
 
         const pricingCell = so.is_pricing_reviewed
-          ? renderApprovedCell(so.audit_logs, "is_pricing_reviewed", order.id, "pricing")
+          ? renderApprovedCell(so.audit_logs, "is_pricing_reviewed", order.id, "pricing", notes.pricing)
           : `<button type="button" class="btn btn-secondary btn-sm"
               data-comment="reviews-row-${order.id}-pricing-approve"
               data-component="button"
@@ -1726,7 +1893,7 @@
 
         let shopCell;
         if (so.is_shop_reviewed) {
-          shopCell = renderApprovedCell(so.audit_logs, "is_shop_reviewed", order.id, "shop");
+          shopCell = renderApprovedCell(so.audit_logs, "is_shop_reviewed", order.id, "shop", notes.shop);
         } else if (!so.is_pricing_reviewed) {
           shopCell = `<div class="locked-cell" data-comment="reviews-row-${order.id}-shop-locked" title="Pending pricing review">${ICONS.lock} Locked</div>`;
         } else {
@@ -1757,7 +1924,7 @@
         `;
       }
 
-      function renderApprovedCell(logs, field, orderId, kind) {
+      function renderApprovedCell(logs, field, orderId, kind, note) {
         const entry = (logs || []).filter((e) => e.model_field === field && e.new_data === "True").at(-1);
         const name = reviewerName(entry);
         return `
@@ -1767,8 +1934,16 @@
               Approved
             </span>
             ${name ? `<span class="approved-by" data-comment="reviews-row-${orderId}-${kind}-approved-by" title="${name}">by ${name}</span>` : ""}
+            ${note ? `<span class="reviewer-notes" data-comment="reviews-row-${orderId}-${kind}-reviewer-notes" title="${escapeAttr(note)}">Reviewer notes: ${escapeText(note)}</span>` : ""}
           </div>
         `;
+      }
+
+      function escapeText(s) {
+        return String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+      }
+      function escapeAttr(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
       }
 
       // Pagination
@@ -1796,12 +1971,97 @@
         const order = s.orders.find((o) => o.id === s.approveDialog.orderId);
         const type = s.approveDialog.type;
         const label = type === "pricing" ? "Pricing Review" : "Shop Review";
-        document.getElementById("reviews-approve-dialog-icon").innerHTML = type === "pricing" ? ICONS.dollar : ICONS.wrench;
-        document.getElementById("reviews-approve-dialog-title").textContent = `Approve ${label}`;
+        document.getElementById("reviews-approve-dialog-icon").innerHTML = ICONS.checkCircle;
+        document.getElementById("reviews-approve-dialog-title").textContent =
+          type === "pricing" ? "Approve Pricing Review" : "Approve Shop Review";
         document.getElementById("reviews-approve-dialog-desc").innerHTML =
           order ? `Approve ${label.toLowerCase()} for order <strong>${order.invoice || order.autoid}</strong>.` : "";
         const ta = document.getElementById("reviews-approve-comment");
         if (ta.value !== s.approveComment) ta.value = s.approveComment;
+      }
+
+      // Sort icon renderer
+      function renderSortIcons() {
+        const s = store.get();
+        const el = document.getElementById("reviews-th-total-sort-icon");
+        if (!el) return;
+        const active = s.sortBy === "total";
+        el.classList.toggle("is-active", active);
+        el.innerHTML = !active
+          ? ICONS.sortUnsorted
+          : (s.sortDir === "asc" ? ICONS.sortUp : ICONS.sortDown);
+      }
+
+      // Drawer renderer
+      function renderDrawer() {
+        const s = store.get();
+        const overlay = document.getElementById("reviews-drawer-overlay");
+        const drawer = document.getElementById("reviews-drawer");
+        const body = document.getElementById("reviews-drawer-body");
+        const open = s.previewOrderId !== null;
+        overlay.classList.toggle("is-open", open);
+        drawer.classList.toggle("is-open", open);
+        drawer.setAttribute("aria-hidden", String(!open));
+        if (!open) { body.innerHTML = ""; return; }
+        const o = s.orders.find((x) => x.id === s.previewOrderId);
+        if (!o) { body.innerHTML = ""; return; }
+        const so = o.sales_order || {};
+        const eff = deriveEffectiveStatus(o);
+        const cat = (so.category && so.category.name) || "—";
+        const dim = (so.dimension && so.dimension.name) || "—";
+        const invoice = o.invoice || o.autoid;
+        document.getElementById("reviews-drawer-title").textContent = `Sales Order ${invoice}`;
+        body.innerHTML = `
+          <section class="drawer-card" data-comment="reviews-drawer-summary-card" data-component="card">
+            <h3 class="drawer-card-title" data-comment="reviews-drawer-summary-title">Order Summary</h3>
+            <div class="drawer-detail-grid" data-comment="reviews-drawer-summary-grid">
+              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-invoice">
+                <span class="drawer-detail-label">Invoice</span>
+                <span class="drawer-detail-value">${escapeText(invoice)}</span>
+              </div>
+              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-created">
+                <span class="drawer-detail-label">Created</span>
+                <span class="drawer-detail-value">${escapeText(formatDate(o.crea_date))}</span>
+              </div>
+              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-customer">
+                <span class="drawer-detail-label">Customer</span>
+                <span class="drawer-detail-value">${escapeText(o.customer || "—")}</span>
+              </div>
+              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-category">
+                <span class="drawer-detail-label">Category</span>
+                <span class="drawer-detail-value">${escapeText(cat)}</span>
+              </div>
+              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-dimension">
+                <span class="drawer-detail-label">Dimension</span>
+                <span class="drawer-detail-value">${escapeText(dim)}</span>
+              </div>
+              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-total">
+                <span class="drawer-detail-label">Total</span>
+                <span class="drawer-detail-value">${escapeText(formatCurrency(o.total))}</span>
+              </div>
+            </div>
+          </section>
+          <section class="drawer-card" data-comment="reviews-drawer-stage-card" data-component="card">
+            <h3 class="drawer-card-title" data-comment="reviews-drawer-stage-title">Workflow Stage</h3>
+            <div class="stage-badge" data-comment="reviews-drawer-stage-badge" role="img" aria-label="Stage: ${escapeAttr(eff.label)} (${eff.progress}%)">
+              <div class="stage-badge-progress" style="width:${eff.progress}%"></div>
+              <span class="stage-badge-label">${escapeText(eff.label)}</span>
+            </div>
+          </section>
+          <section class="drawer-card" data-comment="reviews-drawer-review-card" data-component="card">
+            <h3 class="drawer-card-title" data-comment="reviews-drawer-review-title">Review Status</h3>
+            <div class="drawer-detail-grid">
+              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-pricing-status">
+                <span class="drawer-detail-label">Pricing</span>
+                <span class="drawer-detail-value">${so.is_pricing_reviewed ? "Approved" : "Pending"}</span>
+              </div>
+              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-shop-status">
+                <span class="drawer-detail-label">Shop</span>
+                <span class="drawer-detail-value">${so.is_shop_reviewed ? "Approved" : (so.is_pricing_reviewed ? "Pending" : "Locked")}</span>
+              </div>
+            </div>
+          </section>
+        `;
       }
 
       // Subscribe
@@ -1812,6 +2072,8 @@
       store.subscribe(renderTableBody);
       store.subscribe(renderPagination);
       store.subscribe(renderDialog);
+      store.subscribe(renderSortIcons);
+      store.subscribe(renderDrawer);
 
       // Initial render
       renderSidebarNav();
@@ -1821,6 +2083,8 @@
       renderTableBody();
       renderPagination();
       renderDialog();
+      renderSortIcons();
+      renderDrawer();
       initSelects();
 
       // Simulate loading
@@ -1857,11 +2121,37 @@
           store.set({ approveDialog: { orderId, type }, approveComment: "" });
           return;
         }
-        // Row click — quick view (mock: noop / open detail page)
+        // Row click — open quick-view drawer
         const row = e.target.closest("[data-order-id]");
         if (row) {
-          const id = row.dataset.orderId;
-          window.location.href = `order-detail.html?id=${id}`;
+          const id = Number(row.dataset.orderId);
+          store.set({ previewOrderId: id });
+        }
+      });
+
+      // Sort: Total column
+      document.getElementById("reviews-th-total").addEventListener("click", () => {
+        store.set((s) => {
+          if (s.sortBy !== "total") return { sortBy: "total", sortDir: "asc", page: 1 };
+          if (s.sortDir === "asc") return { sortDir: "desc" };
+          return { sortBy: null, sortDir: "asc" };
+        });
+      });
+
+      // Drawer handlers
+      document.getElementById("reviews-drawer-close").addEventListener("click", () => {
+        store.set({ previewOrderId: null });
+      });
+      document.getElementById("reviews-drawer-overlay").addEventListener("click", () => {
+        store.set({ previewOrderId: null });
+      });
+      document.getElementById("reviews-drawer-open-full").addEventListener("click", () => {
+        const s = store.get();
+        if (s.previewOrderId != null) window.location.href = `order-detail.html?id=${s.previewOrderId}`;
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && store.get().previewOrderId !== null) {
+          store.set({ previewOrderId: null });
         }
       });
 
@@ -1916,5 +2206,28 @@
       );
       document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

@@ -373,7 +373,7 @@
       .field-hint { font-size: 0.75rem; color: var(--muted-foreground); }
       .field-error { font-size: 0.75rem; color: var(--destructive); }
 
-      .input, .select, .textarea {
+      .input, select.select, .textarea {
         width: 100%; min-width: 0;
         font-size: 0.875rem; font-family: inherit;
         color: var(--foreground);
@@ -384,18 +384,18 @@
         outline: none;
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
       }
-      .input, .select { height: 36px; padding: 4px 12px; }
+      .input, select.select { height: 36px; padding: 4px 12px; }
       .textarea { padding: 8px 12px; min-height: 80px; resize: vertical; line-height: 1.4; }
       .input::placeholder, .textarea::placeholder { color: var(--muted-foreground); }
-      .input:focus-visible, .select:focus-visible, .textarea:focus-visible {
+      .input:focus-visible, select.select:focus-visible, .textarea:focus-visible {
         border-color: var(--ring);
         box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
       }
-      .input[aria-invalid="true"], .select[aria-invalid="true"], .textarea[aria-invalid="true"] {
+      .input[aria-invalid="true"], select.select[aria-invalid="true"], .textarea[aria-invalid="true"] {
         border-color: var(--destructive);
         box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
       }
-      .input:disabled, .select:disabled, .textarea:disabled {
+      .input:disabled, select.select:disabled, .textarea:disabled {
         background: color-mix(in oklch, var(--muted) 50%, transparent);
         cursor: not-allowed; opacity: 0.65;
       }
@@ -967,14 +967,28 @@
       .select[aria-disabled="true"] .select-trigger { opacity: 0.5; pointer-events: none; }
       .select.select-sm .select-trigger { height: 32px; padding: 2px 10px; }
       .select.select-inline { width: auto; min-width: 80px; }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="estimates-create-app-shell">
       <div class="app-frame" data-comment="estimates-create-app-frame">
         <!-- Sidebar -->
         <aside class="sidebar" data-comment="estimates-create-sidebar" id="sidebar" aria-label="Primary navigation">
-          <a class="sidebar-logo" data-comment="estimates-create-sidebar-logo" href="home.html" aria-label="Go to home">
+          <a class="sidebar-logo" data-comment="estimates-create-sidebar-logo" href="orders.html" aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="estimates-create-sidebar-logo-mark">
               <img data-comment="estimates-create-sidebar-logo-img" src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png" alt="Lapp Structures" />
             </span>
@@ -1062,7 +1076,7 @@
                     </div>
                     <div class="card-content" data-comment="estimates-create-block-customer-content">
                       <div class="card-grid" data-comment="estimates-create-block-customer-grid">
-                        <div class="field" data-comment="estimates-create-field-customer">
+                        <div class="field" data-comment="estimates-create-field-customer" data-role-hidden="dealer" id="estimates-create-field-customer">
                           <label class="field-label" data-comment="estimates-create-field-customer-label" for="estimates-create-customer-trigger">
                             Customer<span class="required" data-comment="estimates-create-field-customer-required">*</span>
                           </label>
@@ -1091,14 +1105,15 @@
                           <p class="field-error" data-comment="estimates-create-field-customer-error" id="estimates-create-field-customer-error" style="display:none">Customer is required.</p>
                         </div>
 
-                        <div class="field" data-comment="estimates-create-field-ebms-id">
+                        <div class="field" data-comment="estimates-create-field-ebms-id" data-role-hidden="dealer" id="estimates-create-field-ebms-id">
                           <label class="field-label" data-comment="estimates-create-field-ebms-id-label" for="estimates-create-ebms-id">Name in EBMS</label>
                           <input type="text" class="input" data-comment="estimates-create-input-ebms-id" data-component="input" id="estimates-create-ebms-id" name="ebms_id" placeholder="Selected from customer" disabled />
                         </div>
 
-                        <div class="field" data-comment="estimates-create-field-po-number">
-                          <label class="field-label" data-comment="estimates-create-field-po-number-label" for="estimates-create-po-number">P.O. Number</label>
+                        <div class="field" data-comment="estimates-create-field-po-number" data-role-required="dealer" id="estimates-create-field-po-number">
+                          <label class="field-label" data-comment="estimates-create-field-po-number-label" for="estimates-create-po-number">P.O. Number<span class="required" data-comment="estimates-create-field-po-number-required" id="estimates-create-field-po-number-required" style="display:none">*</span></label>
                           <input type="text" class="input" data-comment="estimates-create-input-po-number" data-component="input" id="estimates-create-po-number" name="po_number" placeholder="Enter P.O. number" />
+                          <p class="field-error" data-comment="estimates-create-field-po-number-error" id="estimates-create-field-po-number-error" style="display:none">P.O. Number is required.</p>
                         </div>
                       </div>
                     </div>
@@ -1156,7 +1171,7 @@
                           <input type="checkbox" class="checkbox" data-comment="estimates-create-checkbox-built-onsite" data-component="checkbox" id="estimates-create-checkbox-built-onsite" name="built_onsite" />
                           <label class="checkbox-label" data-comment="estimates-create-checkbox-built-onsite-label" for="estimates-create-checkbox-built-onsite">Build onsite</label>
                         </div>
-                        <div class="checkbox-row" data-comment="estimates-create-checkbox-site-check-row">
+                        <div class="checkbox-row" data-comment="estimates-create-checkbox-site-check-row" data-role-hidden="dealer" id="estimates-create-field-site-check">
                           <input type="checkbox" class="checkbox" data-comment="estimates-create-checkbox-site-check" data-component="checkbox" id="estimates-create-checkbox-site-check" name="site_check" />
                           <label class="checkbox-label" data-comment="estimates-create-checkbox-site-check-label" for="estimates-create-checkbox-site-check">Site Check</label>
                         </div>
@@ -1240,6 +1255,7 @@
                               <input type="hidden" id="estimates-create-expiration-date" name="expiration_date" value="" />
                               <div class="date-picker-popover" style="display:none"></div>
                             </div>
+                            <p class="field-error" data-comment="estimates-create-field-expiration-date-error" id="estimates-create-field-expiration-date-error" style="display:none">Expiration date must be on or after order date.</p>
                           </div>
                         </div>
                       </div>
@@ -1270,8 +1286,8 @@
                           <div class="tag-list" data-comment="estimates-create-tags-list" id="estimates-create-tags-list"></div>
                         </div>
 
-                        <div class="field" data-comment="estimates-create-field-location">
-                          <label class="field-label" data-comment="estimates-create-field-location-label" for="estimates-create-location">Location (Class)</label>
+                        <div class="field" data-comment="estimates-create-field-location" data-role-required="retail_location" id="estimates-create-field-location">
+                          <label class="field-label" data-comment="estimates-create-field-location-label" for="estimates-create-location">Location (Class)<span class="required" data-comment="estimates-create-field-location-required" id="estimates-create-field-location-required" style="display:none">*</span></label>
                           <div class="select" data-comment="estimates-create-select-location" data-component="select" data-placeholder="Choose..." id="estimates-create-location">
                             <button type="button" class="select-trigger" aria-expanded="false" data-comment="estimates-create-select-location-trigger">
                               <span class="select-trigger-label"></span>
@@ -1280,6 +1296,7 @@
                             <input type="hidden" name="location" value="" />
                             <div class="select-popover" style="display:none" role="listbox"></div>
                           </div>
+                          <p class="field-error" data-comment="estimates-create-field-location-error" id="estimates-create-field-location-error" style="display:none">Location is required.</p>
                         </div>
 
                         <div class="field" data-comment="estimates-create-field-terms">
@@ -1306,6 +1323,16 @@
                           </div>
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                  <!-- Product Configuration block -->
+                  <div class="card" data-comment="estimates-create-block-product-config" data-component="card" id="estimates-create-block-product-config">
+                    <div class="card-header" data-comment="estimates-create-block-product-config-header">
+                      <div class="card-title" data-comment="estimates-create-block-product-config-title">Product Configuration</div>
+                    </div>
+                    <div class="card-content" data-comment="estimates-create-block-product-config-content">
+                      <div class="card-grid cols-2" data-comment="estimates-create-block-product-config-grid" id="estimates-create-product-config-grid"></div>
                     </div>
                   </div>
 
@@ -1402,7 +1429,6 @@
               <div class="actions-row" data-comment="estimates-create-actions-row">
                 <div class="actions-row-end" data-comment="estimates-create-actions-row-end">
                   <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-action-cancel" data-component="button" id="estimates-create-action-cancel">Cancel</button>
-                  <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-action-save-draft" data-component="button" id="estimates-create-action-save-draft">Save as Draft</button>
                   <button type="submit" form="estimates-create-form" class="btn btn-primary btn-sm" data-comment="estimates-create-action-submit" data-component="button" id="estimates-create-action-submit">Save</button>
                 </div>
               </div>
@@ -1618,10 +1644,24 @@
         { id: 4, name: "Cabins" },
       ];
       const SEED_DELIVERY_METHODS = ["Delivery", "Customer Pickup", "Build Onsite"];
-      const SEED_SALES_REPS = ["Tom Bradley", "Linda Park", "Marcus Yu", "Sophia Martinez", "Lucas White"];
+      const SEED_SALES_REPS = ["Tom Bradley", "Linda Park", "Marcus Yu", "Sarah Chen", "James Wright"];
       const SEED_LOCATIONS = ["Lancaster, PA", "York, PA", "Harrisburg, PA", "Reading, PA", "Allentown, PA"];
-      const SEED_TERMS = ["Net 15", "Net 30", "Net 60", "Due on Receipt"];
-      const SEED_CAMPAIGNS = ["Spring 2025", "Summer 2025", "Fall 2025", "None"];
+      const SEED_TERMS = ["Net 30", "Net 60", "Net 90", "Due on receipt", "COD", "50% deposit"];
+      const SEED_CAMPAIGNS = ["Spring 2026", "Summer Sale", "Referral Program", "Trade Show 2026", "Direct Outreach"];
+      const SEED_PRODUCT_CONFIG = {
+        shed_style: ["Barn", "Lofted Barn", "Garden", "Utility", "Cabin", "A-Frame"],
+        shed_size: ["8x10", "8x12", "10x12", "10x16", "12x16", "12x20", "14x24"],
+        door_type: ["Single", "Double", "Roll-up", "Sliding"],
+        siding_type: ["T1-11", "LP SmartSide", "Vinyl", "Metal"],
+        siding_style: ["Lap", "Board & Batten", "Panel", "Shake"],
+        window_type: ["Single-hung", "Double-hung", "None", "Slider"],
+        roof_type: ["Gable", "Gambrel", "Lean-to"],
+        roof_sheeting: ["Metal", "Shingles"],
+        shutter_type: ["None", "Standard", "Decorative"],
+        trim_type: ["Standard", "Premium", "None"],
+        fascia: ["Standard", "Wrapped", "None"],
+        colors: ["Red", "Blue", "Green", "White", "Black", "Brown", "Gray", "Tan", "Cream", "Navy"],
+      };
       const SEED_TAGS = [
         { id: 1, name: "VIP",       hex_color: "#7c3aed" },
         { id: 2, name: "Dealer",    hex_color: "#2563eb" },
@@ -1834,6 +1874,69 @@
         populateOptions("estimates-create-location",       SEED_LOCATIONS,         (x) => x,    (x) => x);
         populateOptions("estimates-create-terms",          SEED_TERMS,             (x) => x,    (x) => x);
         populateOptions("estimates-create-campaign",       SEED_CAMPAIGNS,         (x) => x,    (x) => x);
+      }
+
+      /* ───── Product Configuration block ───── */
+      const PRODUCT_CONFIG_FIELDS = [
+        { id: "shed-style",         label: "Shed Style",        opts: SEED_PRODUCT_CONFIG.shed_style },
+        { id: "shed-size",          label: "Shed Size",         opts: SEED_PRODUCT_CONFIG.shed_size },
+        { id: "door-type",          label: "Door Type",         opts: SEED_PRODUCT_CONFIG.door_type },
+        { id: "door-color",         label: "Door Color",        opts: SEED_PRODUCT_CONFIG.colors },
+        { id: "door-trim-color",    label: "Door Trim Color",   opts: SEED_PRODUCT_CONFIG.colors },
+        { id: "siding-type",        label: "Siding Type",       opts: SEED_PRODUCT_CONFIG.siding_type },
+        { id: "siding-style",       label: "Siding Style",      opts: SEED_PRODUCT_CONFIG.siding_style },
+        { id: "siding-color",       label: "Siding Color",      opts: SEED_PRODUCT_CONFIG.colors },
+        { id: "window-type",        label: "Window Type",       opts: SEED_PRODUCT_CONFIG.window_type },
+        { id: "window-color",       label: "Window Color",      opts: SEED_PRODUCT_CONFIG.colors },
+        { id: "window-trim-color",  label: "Window Trim Color", opts: SEED_PRODUCT_CONFIG.colors },
+        { id: "roof-type",          label: "Roof Type",         opts: SEED_PRODUCT_CONFIG.roof_type },
+        { id: "roof-sheeting",      label: "Roof Sheeting",     opts: SEED_PRODUCT_CONFIG.roof_sheeting },
+        { id: "roof-color",         label: "Roof Color",        opts: SEED_PRODUCT_CONFIG.colors },
+        { id: "shutter-type",       label: "Shutter Type",      opts: SEED_PRODUCT_CONFIG.shutter_type },
+        { id: "shutter-color",      label: "Shutter Color",     opts: SEED_PRODUCT_CONFIG.colors },
+        { id: "trim-type",          label: "Trim Type",         opts: SEED_PRODUCT_CONFIG.trim_type },
+        { id: "trim-color",         label: "Trim Color",        opts: SEED_PRODUCT_CONFIG.colors },
+        { id: "fascia",             label: "Fascia",            opts: SEED_PRODUCT_CONFIG.fascia },
+        { id: "corner-trim-color",  label: "Corner Trim Color", opts: SEED_PRODUCT_CONFIG.colors },
+      ];
+      function renderProductConfig() {
+        const grid = document.getElementById("estimates-create-product-config-grid");
+        if (!grid || grid.dataset.rendered) return;
+        grid.dataset.rendered = "1";
+        grid.innerHTML = PRODUCT_CONFIG_FIELDS.map((f) => {
+          const elId = "estimates-create-pc-" + f.id;
+          return `
+            <div class="field" data-comment="${elId}-field">
+              <label class="field-label" data-comment="${elId}-label" for="${elId}">${f.label}</label>
+              <div class="select" data-comment="${elId}" data-component="select" data-placeholder="Choose..." id="${elId}">
+                <button type="button" class="select-trigger" aria-expanded="false" data-comment="${elId}-trigger">
+                  <span class="select-trigger-label"></span>
+                  <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <input type="hidden" name="pc_${f.id.replace(/-/g, '_')}" value="" />
+                <div class="select-popover" style="display:none" role="listbox"></div>
+              </div>
+            </div>`;
+        }).join("");
+        PRODUCT_CONFIG_FIELDS.forEach((f) => {
+          populateOptions("estimates-create-pc-" + f.id, f.opts, (x) => x, (x) => x);
+        });
+        initSelects(grid);
+      }
+
+      /* ───── Role-based visibility ───── */
+      function applyRoleVisibility() {
+        const role = getCurrentRole();
+        document.querySelectorAll("[data-role-hidden]").forEach((el) => {
+          const hideFor = el.getAttribute("data-role-hidden").split(",").map((s) => s.trim());
+          el.style.display = hideFor.includes(role) ? "none" : "";
+        });
+        document.querySelectorAll("[data-role-required]").forEach((el) => {
+          const reqFor = el.getAttribute("data-role-required").split(",").map((s) => s.trim());
+          const isReq = reqFor.includes(role);
+          const star = el.querySelector(".required");
+          if (star) star.style.display = isReq ? "inline" : "none";
+        });
       }
 
       /* ───── Tag chips ───── */
@@ -2143,6 +2246,8 @@
 
       /* ───── Initial render ───── */
       populateLookups();
+      renderProductConfig();
+      applyRoleVisibility();
       initSelects();
       renderSidebarNav();
       renderUser();
@@ -2215,31 +2320,63 @@
         });
       }
 
+      function getCurrentRole() {
+        try { return localStorage.getItem("current_user_role") || "admin"; } catch (e) { return "admin"; }
+      }
       function validate() {
         const { draft } = store.get();
+        const role = getCurrentRole();
         const errors = {};
-        if (!draft.customer_id) errors.customer = true;
+        if (role !== "dealer" && !draft.customer_id) errors.customer = true;
         if (!String(draft.name || "").trim()) errors.name = true;
         if (!String(draft.category_id || "").trim()) errors.category = true;
         if (draft.lineItems.length === 0) errors.lineItems_required = true;
+        if (role === "dealer" && !String(draft.po_number || "").trim()) errors.po_number = true;
+        if (role === "retail_location" && !String(draft.location || "").trim()) errors.location = true;
+        if (draft.order_date && draft.expiration_date && draft.expiration_date < draft.order_date) {
+          errors.expiration_date = true;
+        }
         return errors;
       }
+      function renderConditionalErrors() {
+        const { errors } = store.get();
+        const setErr = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? "block" : "none"; };
+        setErr("estimates-create-field-po-number-error", !!errors.po_number);
+        setErr("estimates-create-field-location-error", !!errors.location);
+        setErr("estimates-create-field-expiration-date-error", !!errors.expiration_date);
+      }
+      store.subscribe(renderConditionalErrors);
       function saveEstimate(status) {
         store.set((s) => ({ submitAttempted: true }));
         const errors = validate();
         store.set({ errors });
+        renderConditionalErrors();
         if (Object.keys(errors).length > 0) {
           showToast("Please fix errors before saving");
           return false;
         }
+        const draft = store.get().draft;
         store.set((s) => {
           const id = 10000 + s.estimates.length + 1;
           return {
             estimates: [...s.estimates, { ...s.draft, id, status }],
           };
         });
+        const newEstId = 10000 + store.get().estimates.length;
         showToast(status === "draft" ? "Draft saved" : "Estimate saved");
-        setTimeout(() => { window.location.href = "estimates.html"; }, 700);
+        // Site-check proposal
+        if (!draft.site_check) {
+          setTimeout(() => {
+            if (window.confirm("Create a site check for this estimate?")) {
+              window.location.href = "site-checks-create.html?estimateId=" + newEstId;
+              return;
+            } else {
+              window.location.href = "estimates.html";
+            }
+          }, 400);
+        } else {
+          setTimeout(() => { window.location.href = "estimates.html"; }, 700);
+        }
         return true;
       }
 
@@ -2393,9 +2530,6 @@
       });
       document.getElementById("estimates-create-action-submit").addEventListener("click", () => {
         store.set({ submitAttempted: true });
-      });
-      document.getElementById("estimates-create-action-save-draft").addEventListener("click", () => {
-        saveEstimate("draft");
       });
       document.getElementById("estimates-create-action-cancel").addEventListener("click", () => {
         const target = initialCustomer ? `customer-detail.html?id=${initialCustomer.id}` : "estimates.html";
@@ -2605,5 +2739,10 @@
         initAll();
       })();
     </script>
-  </body>
+      <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

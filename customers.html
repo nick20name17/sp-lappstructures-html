@@ -1373,15 +1373,37 @@
       .select.select-sm .select-trigger { height: 32px; padding: 2px 10px; }
       .select.select-inline { width: auto; min-width: 80px; }
 
+      /* ───── Multi-checkbox group ───── */
+      .form-checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; padding: 6px 0; }
+      .form-hint { font-size: 0.6875rem; color: var(--muted-foreground); margin-top: 2px; }
+      .form-row.form-row-checkboxes { gap: 6px; }
+
+      /* ───── Role-hidden ───── */
+      [data-role-hidden].is-role-hidden { display: none !important; }
+
       /* ───── Toast ───── */
       .toast-container { position: fixed; bottom: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 999; pointer-events: none; }
       .toast { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); font-size: 0.875rem; min-width: 240px; animation: toast-in 0.2s ease; pointer-events: auto; color: var(--foreground); }
       .toast.success { border-left: 3px solid var(--success, #16a34a); }
       .toast.error { border-left: 3px solid var(--destructive, #dc2626); }
       @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="app-shell">
       <div class="app-frame" data-comment="app-frame">
         <!-- ───── Sidebar ───── -->
@@ -1393,7 +1415,7 @@
           <a
             class="sidebar-logo"
             data-comment="sidebar-logo"
-            href="home.html"
+            href="orders.html"
             aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="sidebar-logo-mark">
               <img
@@ -1636,6 +1658,7 @@
                   class="btn btn-primary"
                   data-comment="customers-action-add"
                   data-component="button"
+                  data-role-hidden="sales,view"
                   id="customers-action-add"
                   type="button">
                   <svg
@@ -1707,7 +1730,7 @@
                         <th data-comment="customers-th-sales-rep">
                           <span class="th-inner"><span>Sales Rep</span></span>
                         </th>
-                        <th data-comment="customers-th-actions">
+                        <th data-comment="customers-th-actions" data-role-hidden="sales,view" data-col-actions>
                           <span class="th-inner"></span>
                         </th>
                       </tr>
@@ -1935,7 +1958,7 @@
               </div>
               <div class="form-row" data-comment="customers-form-phone">
                 <label data-comment="customers-form-phone-label" for="customer-phone"
-                  >Primary phone</label
+                  >Primary phone<span class="req">*</span></label
                 >
                 <input
                   type="tel"
@@ -1943,6 +1966,13 @@
                   data-component="input"
                   id="customer-phone"
                   placeholder="(555) 555-1234" />
+                <span
+                  class="form-error"
+                  data-comment="customers-form-phone-error"
+                  id="customer-phone-error"
+                  style="display: none"
+                  >Primary phone is required.</span
+                >
               </div>
               <div class="form-row" data-comment="customers-form-secondary-phone">
                 <label data-comment="customers-form-secondary-phone-label" for="customer-secondary-phone"
@@ -1995,17 +2025,6 @@
                   id="customer-position"
                   placeholder="Owner" />
               </div>
-              <div class="form-row" data-comment="customers-form-location">
-                <label data-comment="customers-form-location-label" for="customer-location"
-                  >Location</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-location-input"
-                  data-component="input"
-                  id="customer-location"
-                  placeholder="Lancaster, PA" />
-              </div>
               <div class="form-row" data-comment="customers-form-ebms-id">
                 <label data-comment="customers-form-ebms-id-label" for="customer-ebms-id"
                   >EBMS ID</label
@@ -2016,29 +2035,7 @@
                   data-component="input"
                   id="customer-ebms-id"
                   placeholder="EBMS-001" />
-              </div>
-              <div class="form-row" data-comment="customers-form-sales-rep">
-                <label data-comment="customers-form-sales-rep-label" for="customer-sales-rep"
-                  >Sales Rep</label
-                >
-                <div
-                  class="select"
-                  data-comment="customers-form-sales-rep-select"
-                  data-component="select"
-                  data-placeholder="Choose..."
-                  id="customer-sales-rep">
-                  <button type="button" class="select-trigger" aria-expanded="false" data-comment="customers-form-sales-rep-trigger">
-                    <span class="select-trigger-label"></span>
-                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </button>
-                  <input type="hidden" value="" />
-                  <div class="select-popover" style="display:none" role="listbox">
-                    <div class="select-item" data-value="" data-comment="customers-form-sales-rep-opt-none">—</div>
-                    <div class="select-item" data-value="Tom Bradley" data-comment="customers-form-sales-rep-opt-tom">Tom Bradley</div>
-                    <div class="select-item" data-value="Linda Park" data-comment="customers-form-sales-rep-opt-linda">Linda Park</div>
-                    <div class="select-item" data-value="Marcus Yu" data-comment="customers-form-sales-rep-opt-marcus">Marcus Yu</div>
-                  </div>
-                </div>
+                <span class="form-hint" data-comment="customers-form-ebms-id-hint">Format: ABC-1234</span>
               </div>
               <div class="form-row col-span-2" data-comment="customers-form-note">
                 <label data-comment="customers-form-note-label" for="customer-note"
@@ -2053,64 +2050,198 @@
             </div>
           </section>
 
+          <!-- Sales Details -->
+          <section class="form-section" data-comment="customers-form-section-sales">
+            <h3 class="form-section-title" data-comment="customers-form-section-sales-title">Sales Details</h3>
+            <div class="form-grid" data-comment="customers-form-sales-grid">
+              <div class="form-row" data-comment="customers-form-tags">
+                <label data-comment="customers-form-tags-label" for="customer-tags">Tags</label>
+                <div class="form-checkbox-group" data-comment="customers-form-tags-group" id="customer-tags">
+                  <label class="form-checkbox" data-comment="customers-form-tag-vip"><input type="checkbox" data-tag-value="VIP" />VIP</label>
+                  <label class="form-checkbox" data-comment="customers-form-tag-dealer"><input type="checkbox" data-tag-value="Dealer" />Dealer</label>
+                  <label class="form-checkbox" data-comment="customers-form-tag-repeat"><input type="checkbox" data-tag-value="Repeat" />Repeat</label>
+                  <label class="form-checkbox" data-comment="customers-form-tag-builder"><input type="checkbox" data-tag-value="Builder" />Builder</label>
+                  <label class="form-checkbox" data-comment="customers-form-tag-rush"><input type="checkbox" data-tag-value="Rush" />Rush</label>
+                  <label class="form-checkbox" data-comment="customers-form-tag-new"><input type="checkbox" data-tag-value="New" />New</label>
+                </div>
+              </div>
+              <div class="form-row" data-comment="customers-form-sales-rep">
+                <label data-comment="customers-form-sales-rep-label" for="customer-sales-rep">Sales Rep</label>
+                <div class="select" data-comment="customers-form-sales-rep-select" data-component="select" data-placeholder="Choose..." id="customer-sales-rep">
+                  <button type="button" class="select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <input type="hidden" value="" />
+                  <div class="select-popover" style="display:none" role="listbox">
+                    <div class="select-item" data-value="">—</div>
+                    <div class="select-item" data-value="Tom Bradley">Tom Bradley</div>
+                    <div class="select-item" data-value="Linda Park">Linda Park</div>
+                    <div class="select-item" data-value="Marcus Yu">Marcus Yu</div>
+                    <div class="select-item" data-value="Sarah Chen">Sarah Chen</div>
+                    <div class="select-item" data-value="James Wright">James Wright</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row" data-comment="customers-form-location" data-role-required="admin,retail_location">
+                <label data-comment="customers-form-location-label" for="customer-location">Location<span class="req" data-role-asterisk style="display:none">*</span></label>
+                <input type="text" data-component="input" id="customer-location" placeholder="Lancaster, PA" />
+                <span class="form-error" id="customer-location-error" style="display: none">Location is required.</span>
+              </div>
+              <div class="form-row" data-comment="customers-form-terms">
+                <label for="customer-terms">Terms</label>
+                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-terms">
+                  <button type="button" class="select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <input type="hidden" value="" />
+                  <div class="select-popover" style="display:none" role="listbox">
+                    <div class="select-item" data-value="">—</div>
+                    <div class="select-item" data-value="Net 30">Net 30</div>
+                    <div class="select-item" data-value="Net 60">Net 60</div>
+                    <div class="select-item" data-value="Net 90">Net 90</div>
+                    <div class="select-item" data-value="Due on receipt">Due on receipt</div>
+                    <div class="select-item" data-value="COD">COD</div>
+                    <div class="select-item" data-value="50% deposit">50% deposit</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row" data-comment="customers-form-customer-type">
+                <label for="customer-type-sel">Customer Type</label>
+                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-customer-type">
+                  <button type="button" class="select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <input type="hidden" value="" />
+                  <div class="select-popover" style="display:none" role="listbox">
+                    <div class="select-item" data-value="">—</div>
+                    <div class="select-item" data-value="Residential">Residential</div>
+                    <div class="select-item" data-value="Commercial">Commercial</div>
+                    <div class="select-item" data-value="Builder">Builder</div>
+                    <div class="select-item" data-value="Dealer">Dealer</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row" data-comment="customers-form-lead-origin">
+                <label>Lead Origin</label>
+                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-origin">
+                  <button type="button" class="select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <input type="hidden" value="" />
+                  <div class="select-popover" style="display:none" role="listbox">
+                    <div class="select-item" data-value="">—</div>
+                    <div class="select-item" data-value="Web">Web</div>
+                    <div class="select-item" data-value="Referral">Referral</div>
+                    <div class="select-item" data-value="Trade Show">Trade Show</div>
+                    <div class="select-item" data-value="Cold Outreach">Cold Outreach</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row" data-comment="customers-form-lead-status">
+                <label>Lead Status</label>
+                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-status">
+                  <button type="button" class="select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <input type="hidden" value="" />
+                  <div class="select-popover" style="display:none" role="listbox">
+                    <div class="select-item" data-value="">—</div>
+                    <div class="select-item" data-value="New">New</div>
+                    <div class="select-item" data-value="Contacted">Contacted</div>
+                    <div class="select-item" data-value="Qualified">Qualified</div>
+                    <div class="select-item" data-value="Lost">Lost</div>
+                    <div class="select-item" data-value="Customer">Customer</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row" data-comment="customers-form-lead-rating">
+                <label>Lead Rating</label>
+                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-rating">
+                  <button type="button" class="select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <input type="hidden" value="" />
+                  <div class="select-popover" style="display:none" role="listbox">
+                    <div class="select-item" data-value="">—</div>
+                    <div class="select-item" data-value="Hot">Hot</div>
+                    <div class="select-item" data-value="Warm">Warm</div>
+                    <div class="select-item" data-value="Cold">Cold</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row" data-comment="customers-form-lead-source">
+                <label>Lead Source</label>
+                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-source">
+                  <button type="button" class="select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <input type="hidden" value="" />
+                  <div class="select-popover" style="display:none" role="listbox">
+                    <div class="select-item" data-value="">—</div>
+                    <div class="select-item" data-value="Google">Google</div>
+                    <div class="select-item" data-value="Facebook">Facebook</div>
+                    <div class="select-item" data-value="Instagram">Instagram</div>
+                    <div class="select-item" data-value="Word of Mouth">Word of Mouth</div>
+                    <div class="select-item" data-value="Other">Other</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Positioning -->
+          <section class="form-section" data-comment="customers-form-section-positioning">
+            <h3 class="form-section-title">Positioning</h3>
+            <div class="form-grid" data-comment="customers-form-positioning-grid">
+              <div class="form-row form-row-checkboxes col-span-2" data-comment="customers-form-available-times">
+                <label>Available times</label>
+                <div class="form-checkbox-group" id="customer-available-times">
+                  <label class="form-checkbox"><input type="checkbox" data-time-value="Morning" />Morning</label>
+                  <label class="form-checkbox"><input type="checkbox" data-time-value="Afternoon" />Afternoon</label>
+                  <label class="form-checkbox"><input type="checkbox" data-time-value="Evening" />Evening</label>
+                  <label class="form-checkbox"><input type="checkbox" data-time-value="Weekends" />Weekends</label>
+                </div>
+              </div>
+              <label class="form-checkbox" data-comment="customers-form-opt-marketing">
+                <input type="checkbox" id="customer-opt-out-marketing" />
+                Opt Out of Marketing Emails
+              </label>
+              <label class="form-checkbox" data-comment="customers-form-opt-billing">
+                <input type="checkbox" id="customer-opt-out-billing" />
+                Opt Out of Billing Emails
+              </label>
+            </div>
+          </section>
+
           <!-- Billing address -->
           <section class="form-section" data-comment="customers-form-section-billing">
             <h3 class="form-section-title" data-comment="customers-form-section-billing-title">Billing address</h3>
             <div class="form-grid-3" data-comment="customers-form-billing-grid">
               <div class="form-row col-span-3" data-comment="customers-form-billing-street">
-                <label data-comment="customers-form-billing-street-label" for="customer-billing-street"
-                  >Street</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-billing-street-input"
-                  data-component="input"
-                  id="customer-billing-street"
-                  placeholder="123 Main St" />
+                <label for="customer-billing-street">Street<span class="req">*</span></label>
+                <input type="text" data-component="input" id="customer-billing-street" placeholder="123 Main St" />
+                <span class="form-error" id="customer-billing-street-error" style="display:none">Street is required.</span>
               </div>
               <div class="form-row" data-comment="customers-form-billing-city">
-                <label data-comment="customers-form-billing-city-label" for="customer-billing-city"
-                  >City</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-billing-city-input"
-                  data-component="input"
-                  id="customer-billing-city"
-                  placeholder="Lancaster" />
+                <label for="customer-billing-city">City<span class="req">*</span></label>
+                <input type="text" data-component="input" id="customer-billing-city" placeholder="Lancaster" />
+                <span class="form-error" id="customer-billing-city-error" style="display:none">City is required.</span>
               </div>
               <div class="form-row" data-comment="customers-form-billing-state">
-                <label data-comment="customers-form-billing-state-label" for="customer-billing-state"
-                  >State</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-billing-state-input"
-                  data-component="input"
-                  id="customer-billing-state"
-                  maxlength="2"
-                  placeholder="PA" />
+                <label for="customer-billing-state">State<span class="req">*</span></label>
+                <input type="text" data-component="input" id="customer-billing-state" placeholder="Pennsylvania" />
+                <span class="form-error" id="customer-billing-state-error" style="display:none">State is required.</span>
               </div>
               <div class="form-row" data-comment="customers-form-billing-zip">
-                <label data-comment="customers-form-billing-zip-label" for="customer-billing-zip"
-                  >ZIP</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-billing-zip-input"
-                  data-component="input"
-                  id="customer-billing-zip"
-                  placeholder="17601" />
+                <label for="customer-billing-zip">Postal Code<span class="req">*</span></label>
+                <input type="text" data-component="input" id="customer-billing-zip" placeholder="17601" />
+                <span class="form-error" id="customer-billing-zip-error" style="display:none">Postal code is required.</span>
+              </div>
+              <div class="form-row col-span-3" data-comment="customers-form-billing-country">
+                <label for="customer-billing-country">Country</label>
+                <input type="text" data-component="input" id="customer-billing-country" placeholder="United States" />
               </div>
             </div>
-            <label class="form-checkbox" data-comment="customers-form-use-billing">
-              <input
-                type="checkbox"
-                data-comment="customers-form-use-billing-input"
-                data-component="checkbox"
-                id="customer-use-billing" />
-              <span data-comment="customers-form-use-billing-label">Use billing address as shipping</span>
-            </label>
           </section>
 
           <!-- Shipping address -->
@@ -2118,49 +2249,28 @@
             <h3 class="form-section-title" data-comment="customers-form-section-shipping-title">Shipping address</h3>
             <div class="form-grid-3" data-comment="customers-form-shipping-grid">
               <div class="form-row col-span-3" data-comment="customers-form-shipping-street">
-                <label data-comment="customers-form-shipping-street-label" for="customer-shipping-street"
-                  >Street</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-shipping-street-input"
-                  data-component="input"
-                  id="customer-shipping-street"
-                  placeholder="123 Main St" />
+                <label for="customer-shipping-street">Street<span class="req">*</span></label>
+                <input type="text" data-component="input" id="customer-shipping-street" placeholder="123 Main St" />
+                <span class="form-error" id="customer-shipping-street-error" style="display:none">Street is required.</span>
               </div>
               <div class="form-row" data-comment="customers-form-shipping-city">
-                <label data-comment="customers-form-shipping-city-label" for="customer-shipping-city"
-                  >City</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-shipping-city-input"
-                  data-component="input"
-                  id="customer-shipping-city"
-                  placeholder="Lancaster" />
+                <label for="customer-shipping-city">City<span class="req">*</span></label>
+                <input type="text" data-component="input" id="customer-shipping-city" placeholder="Lancaster" />
+                <span class="form-error" id="customer-shipping-city-error" style="display:none">City is required.</span>
               </div>
               <div class="form-row" data-comment="customers-form-shipping-state">
-                <label data-comment="customers-form-shipping-state-label" for="customer-shipping-state"
-                  >State</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-shipping-state-input"
-                  data-component="input"
-                  id="customer-shipping-state"
-                  maxlength="2"
-                  placeholder="PA" />
+                <label for="customer-shipping-state">State<span class="req">*</span></label>
+                <input type="text" data-component="input" id="customer-shipping-state" placeholder="Pennsylvania" />
+                <span class="form-error" id="customer-shipping-state-error" style="display:none">State is required.</span>
               </div>
               <div class="form-row" data-comment="customers-form-shipping-zip">
-                <label data-comment="customers-form-shipping-zip-label" for="customer-shipping-zip"
-                  >ZIP</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-shipping-zip-input"
-                  data-component="input"
-                  id="customer-shipping-zip"
-                  placeholder="17601" />
+                <label for="customer-shipping-zip">Postal Code<span class="req">*</span></label>
+                <input type="text" data-component="input" id="customer-shipping-zip" placeholder="17601" />
+                <span class="form-error" id="customer-shipping-zip-error" style="display:none">Postal code is required.</span>
+              </div>
+              <div class="form-row col-span-3" data-comment="customers-form-shipping-country">
+                <label for="customer-shipping-country">Country</label>
+                <input type="text" data-component="input" id="customer-shipping-country" placeholder="United States" />
               </div>
             </div>
           </section>
@@ -2948,25 +3058,28 @@
         document.getElementById("customer-shipping-state").value = ship.state || "";
         document.getElementById("customer-shipping-zip").value = ship.zip || "";
 
-        const sameAddr =
-          !!c?.shipping_address &&
-          !!c?.billing_address &&
-          c.billing_address.street === c.shipping_address.street &&
-          c.billing_address.city === c.shipping_address.city &&
-          c.billing_address.state === c.shipping_address.state &&
-          c.billing_address.zip === c.shipping_address.zip;
-        document.getElementById("customer-use-billing").checked = sameAddr;
-        toggleShippingSection(sameAddr);
+        document.getElementById("customer-billing-country").value = b.country || "";
+        document.getElementById("customer-shipping-country").value = ship.country || "";
 
-        setSelectValue(
-          document.getElementById("customer-sales-rep"),
-          c?.sales_rep || "",
-        );
-      }
+        setSelectValue(document.getElementById("customer-sales-rep"), c?.sales_rep || "");
+        setSelectValue(document.getElementById("customer-terms"), c?.terms || "");
+        setSelectValue(document.getElementById("customer-customer-type"), c?.customer_type || "");
+        setSelectValue(document.getElementById("customer-lead-origin"), c?.lead_origin || "");
+        setSelectValue(document.getElementById("customer-lead-status"), c?.lead_status || "");
+        setSelectValue(document.getElementById("customer-lead-rating"), c?.lead_rating || "");
+        setSelectValue(document.getElementById("customer-lead-source"), c?.lead_source || "");
 
-      function toggleShippingSection(useBilling) {
-        const sec = document.getElementById("customer-shipping-section");
-        sec.style.display = useBilling ? "none" : "";
+        // Multi-checkboxes
+        const tagNames = (c?.tags || []).map((t) => t.name || t);
+        document.querySelectorAll("#customer-tags input[data-tag-value]").forEach((cb) => {
+          cb.checked = tagNames.includes(cb.dataset.tagValue);
+        });
+        const times = c?.available_times || [];
+        document.querySelectorAll("#customer-available-times input[data-time-value]").forEach((cb) => {
+          cb.checked = times.includes(cb.dataset.timeValue);
+        });
+        document.getElementById("customer-opt-out-marketing").checked = !!c?.opt_out_marketing;
+        document.getElementById("customer-opt-out-billing").checked = !!c?.opt_out_billing;
       }
 
       function renderDialog() {
@@ -2992,9 +3105,12 @@
 
         // Field errors
         const errors = s.formErrors || {};
-        ["first-name", "last-name", "email"].forEach((field) => {
+        ["first-name", "last-name", "email", "phone", "location",
+         "billing-street", "billing-city", "billing-state", "billing-zip",
+         "shipping-street", "shipping-city", "shipping-state", "shipping-zip"].forEach((field) => {
           const el = document.getElementById(`customer-${field}-error`);
           const input = document.getElementById(`customer-${field}`);
+          if (!el) return;
           if (errors[field]) {
             el.style.display = "block";
             el.textContent = errors[field];
@@ -3025,27 +3141,27 @@
       function handleFormSubmit() {
         const v = (id) => document.getElementById(id).value.trim();
         const phoneDigits = (id) => document.getElementById(id).value.replace(/\D/g, "");
-        const useBilling = document.getElementById("customer-use-billing").checked;
+        const selVal = (id) => {
+          const h = document.getElementById(id)?.querySelector('input[type="hidden"]');
+          return h ? h.value : "";
+        };
         const billing_address = {
           street: v("customer-billing-street"),
           city: v("customer-billing-city"),
           state: v("customer-billing-state"),
           zip: v("customer-billing-zip"),
+          country: v("customer-billing-country"),
         };
-        const shipping_address = useBilling
-          ? { ...billing_address }
-          : {
-              street: v("customer-shipping-street"),
-              city: v("customer-shipping-city"),
-              state: v("customer-shipping-state"),
-              zip: v("customer-shipping-zip"),
-            };
-        const hasBilling = Object.values(billing_address).some(Boolean);
-        const hasShipping = Object.values(shipping_address).some(Boolean);
+        const shipping_address = {
+          street: v("customer-shipping-street"),
+          city: v("customer-shipping-city"),
+          state: v("customer-shipping-state"),
+          zip: v("customer-shipping-zip"),
+          country: v("customer-shipping-country"),
+        };
 
-        const salesRepHidden = document
-          .getElementById("customer-sales-rep")
-          .querySelector('input[type="hidden"]');
+        const tags = Array.from(document.querySelectorAll("#customer-tags input[data-tag-value]:checked")).map((cb) => ({ name: cb.dataset.tagValue }));
+        const available_times = Array.from(document.querySelectorAll("#customer-available-times input[data-time-value]:checked")).map((cb) => cb.dataset.timeValue);
 
         const data = {
           first_name: v("customer-first-name"),
@@ -3059,17 +3175,40 @@
           location: v("customer-location"),
           ebms_id: v("customer-ebms-id"),
           note: v("customer-note"),
-          sales_rep: salesRepHidden ? salesRepHidden.value : "",
-          billing_address: hasBilling ? billing_address : null,
-          shipping_address: hasShipping ? shipping_address : null,
+          sales_rep: selVal("customer-sales-rep"),
+          terms: selVal("customer-terms"),
+          customer_type: selVal("customer-customer-type"),
+          lead_origin: selVal("customer-lead-origin"),
+          lead_status: selVal("customer-lead-status"),
+          lead_rating: selVal("customer-lead-rating"),
+          lead_source: selVal("customer-lead-source"),
+          tags,
+          available_times,
+          opt_out_marketing: document.getElementById("customer-opt-out-marketing").checked,
+          opt_out_billing: document.getElementById("customer-opt-out-billing").checked,
+          billing_address,
+          shipping_address,
         };
 
         const errors = {};
         if (!data.first_name) errors["first-name"] = "First name is required.";
         if (!data.last_name) errors["last-name"] = "Last name is required.";
         if (!data.email) errors.email = "Email is required.";
-        else if (!EMAIL_RE.test(data.email))
-          errors.email = "Enter a valid email address.";
+        else if (!EMAIL_RE.test(data.email)) errors.email = "Enter a valid email address.";
+        if (!data.primary_phone) errors["phone"] = "Primary phone is required.";
+        if (!billing_address.street) errors["billing-street"] = "Street is required.";
+        if (!billing_address.city) errors["billing-city"] = "City is required.";
+        if (!billing_address.state) errors["billing-state"] = "State is required.";
+        if (!billing_address.zip) errors["billing-zip"] = "Postal code is required.";
+        if (!shipping_address.street) errors["shipping-street"] = "Street is required.";
+        if (!shipping_address.city) errors["shipping-city"] = "City is required.";
+        if (!shipping_address.state) errors["shipping-state"] = "State is required.";
+        if (!shipping_address.zip) errors["shipping-zip"] = "Postal code is required.";
+
+        const role = getCurrentUserRole();
+        if ((role === "admin" || role === "retail_location") && !data.location) {
+          errors["location"] = "Location is required.";
+        }
 
         if (Object.keys(errors).length > 0) {
           store.set({ formErrors: errors });
@@ -3083,6 +3222,40 @@
           addCustomer(data);
         }
         closeDialog();
+      }
+
+      /* ───── Role visibility ───── */
+      function getCurrentUserRole() {
+        try {
+          return (
+            (window.currentUserRole) ||
+            localStorage.getItem("currentUserRole") ||
+            "admin"
+          );
+        } catch (e) {
+          return "admin";
+        }
+      }
+      function applyRoleVisibility() {
+        const role = getCurrentUserRole();
+        const VIEW_ONLY = ["sales", "view"];
+        const isViewOnly = VIEW_ONLY.includes(role);
+        document.querySelectorAll("[data-role-hidden]").forEach((el) => {
+          const hideRoles = (el.dataset.roleHidden || "").split(",").map((r) => r.trim());
+          const hide = hideRoles.includes(role) || (isViewOnly && hideRoles.some((r) => VIEW_ONLY.includes(r)));
+          el.classList.toggle("is-role-hidden", hide);
+        });
+        // Row action cells
+        document.querySelectorAll("td[data-comment$='-actions']").forEach((el) => {
+          el.classList.toggle("is-role-hidden", isViewOnly);
+        });
+        // Role-required asterisks
+        document.querySelectorAll("[data-role-required]").forEach((el) => {
+          const roles = (el.dataset.roleRequired || "").split(",").map((r) => r.trim());
+          const required = roles.includes(role);
+          const ast = el.querySelector("[data-role-asterisk]");
+          if (ast) ast.style.display = required ? "" : "none";
+        });
       }
 
       /* ───── Subscribe ───── */
@@ -3106,6 +3279,8 @@
       renderSortIcons();
       renderDialog();
       initSelects();
+      applyRoleVisibility();
+      store.subscribe(applyRoleVisibility);
 
       /* ───── Initial loading simulation ───── */
       setTimeout(() => store.set({ isLoading: false }), 300);
@@ -3239,10 +3414,6 @@
         });
 
       document
-        .getElementById("customer-use-billing")
-        .addEventListener("change", (e) => toggleShippingSection(e.target.checked));
-
-      document
         .getElementById("customers-delete-cancel")
         .addEventListener("click", () => closeDialog());
       document
@@ -3275,5 +3446,28 @@
       );
       document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
     </script>
-  </body>
+      <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
+    <script>
+      window.showToast = window.showToast || function (msg, kind) {
+        const el = document.createElement("div");
+        el.textContent = msg;
+        el.style.cssText = "pointer-events:auto;background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:10px 14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-size:0.875rem;min-width:200px;animation:toast-in 0.2s ease;";
+        if (kind === "error") el.style.borderColor = "#ef4444";
+        if (kind === "success") el.style.borderColor = "#10b981";
+        document.getElementById("global-toaster").appendChild(el);
+        setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity 0.2s"; setTimeout(function(){ el.remove(); },200); }, 3000);
+      };
+      if (!document.getElementById("toast-animation-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-animation-style";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        document.head.appendChild(s);
+      }
+    </script>
+    <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>

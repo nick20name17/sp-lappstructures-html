@@ -913,14 +913,28 @@
       .dp-year { padding: 8px 4px; text-align: center; font-size: 13px; border-radius: 4px; cursor: pointer; background: transparent; border: 0; color: var(--foreground); font-family: inherit; }
       .dp-year:hover { background: var(--accent); }
       .dp-year.is-selected { background: var(--primary); color: var(--primary-foreground); }
-    </style>
+    
+      /* Mobile menu */
+      .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
+      .mobile-menu-btn svg { width:20px; height:20px; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      @media (max-width: 768px) {
+        .mobile-menu-btn { display:flex; }
+        .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
+        body.sidebar-open .app-sidebar, body.sidebar-open .sidebar { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,0.15); }
+        body.sidebar-open .sidebar-backdrop { display:block; }
+        .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
+      }
+</style>
   </head>
   <body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="site-checks-edit-app-shell">
       <div class="app-frame" data-comment="site-checks-edit-app-frame">
         <!-- Sidebar -->
         <aside class="sidebar" data-comment="site-checks-edit-sidebar" id="sidebar" aria-label="Primary navigation">
-          <a class="sidebar-logo" data-comment="site-checks-edit-sidebar-logo" href="home.html" aria-label="Go to home">
+          <a class="sidebar-logo" data-comment="site-checks-edit-sidebar-logo" href="orders.html" aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="site-checks-edit-sidebar-logo-mark">
               <img data-comment="site-checks-edit-sidebar-logo-img" src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png" alt="Lapp Structures" />
             </span>
@@ -1016,6 +1030,22 @@
         <div class="dialog-footer" data-comment="site-checks-edit-delete-footer">
           <button class="btn btn-outline btn-sm" data-comment="site-checks-edit-delete-cancel" data-component="button" type="button" id="delete-cancel">Cancel</button>
           <button class="btn btn-destructive btn-sm" data-comment="site-checks-edit-delete-confirm" data-component="button" type="button" id="delete-confirm">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discard changes dialog -->
+    <div class="dialog-overlay" data-comment="site-checks-edit-discard-overlay" id="discard-overlay">
+      <div class="dialog" data-comment="site-checks-edit-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div data-comment="site-checks-edit-discard-header">
+          <h2 class="dialog-title" data-comment="site-checks-edit-discard-title">Discard changes?</h2>
+          <p class="dialog-description" data-comment="site-checks-edit-discard-description" style="margin-top: 8px">
+            Your unsaved changes will be lost.
+          </p>
+        </div>
+        <div class="dialog-footer" data-comment="site-checks-edit-discard-footer">
+          <button class="btn btn-outline btn-sm" data-comment="site-checks-edit-discard-keep" data-component="button" type="button" id="discard-keep">Keep editing</button>
+          <button class="btn btn-primary btn-sm" data-comment="site-checks-edit-discard-confirm" data-component="button" type="button" id="discard-confirm">Discard</button>
         </div>
       </div>
     </div>
@@ -1317,12 +1347,8 @@
         assigned_to_id: existingRecord.assigned_to_id,
         estimate_id: existingRecord.estimate_id,
         start_date: toLocalDateString(existingRecord.start_date_time),
-        date_completed: existingRecord.date_completed || "",
-        type: existingRecord.type || "site_check",
-        status: existingRecord.status || "pending",
         notify_assigned_to: existingRecord.notify_assigned_to ?? true,
         comments: existingRecord.comments || "",
-        results_of_site_check: existingRecord.results_of_site_check || "",
       } : null;
 
       // ───── App state ─────
@@ -1347,19 +1373,17 @@
           assigned_to_id: null,
           estimate_id: null,
           start_date: "",
-          date_completed: "",
-          type: "site_check",
-          status: "pending",
           notify_assigned_to: true,
           comments: "",
-          results_of_site_check: "",
         },
+        dirty: false,
         existingFiles: existingRecord?.files ? existingRecord.files.map((f) => ({ ...f })) : [],
         attachments: [],
         errors: {},
         submitAttempted: false,
         isSaving: false,
         deleteDialogOpen: false,
+        discardDialogOpen: false,
 
         openPopover: null,
         contactSearch: "",
@@ -1456,38 +1480,6 @@
                     </div>
                   </div>
 
-                  <div class="form-field" data-comment="site-checks-edit-field-type">
-                    <label class="form-label" for="type-select" data-comment="site-checks-edit-field-type-label">Type</label>
-                    <div class="select" id="type-select" data-comment="site-checks-edit-field-type-select" data-component="select" data-placeholder="Choose...">
-                      <button type="button" class="select-trigger" aria-expanded="false" data-comment="site-checks-edit-field-type-select-trigger">
-                        <span class="select-trigger-label"></span>
-                        <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                      </button>
-                      <input type="hidden" value="site_check" />
-                      <div class="select-popover" style="display:none" role="listbox">
-                        <div class="select-item is-selected" data-value="site_check" data-comment="site-checks-edit-field-type-option-site_check">Site Check</div>
-                        <div class="select-item" data-value="follow_up" data-comment="site-checks-edit-field-type-option-follow_up">Follow Up</div>
-                        <div class="select-item" data-value="phone_call" data-comment="site-checks-edit-field-type-option-phone_call">Phone Call</div>
-                        <div class="select-item" data-value="other" data-comment="site-checks-edit-field-type-option-other">Other</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-field" data-comment="site-checks-edit-field-status">
-                    <label class="form-label" data-comment="site-checks-edit-field-status-label">Status</label>
-                    <div class="status-segmented" id="status-segmented" data-comment="site-checks-edit-field-status-segmented">
-                      <button type="button" data-value="pending" data-comment="site-checks-edit-field-status-pending">Pending</button>
-                      <button type="button" data-value="in_progress" data-comment="site-checks-edit-field-status-in_progress">In Progress</button>
-                      <button type="button" data-value="completed" data-comment="site-checks-edit-field-status-completed">Completed</button>
-                      <button type="button" data-value="cancelled" data-comment="site-checks-edit-field-status-cancelled">Cancelled</button>
-                    </div>
-                  </div>
-
-                  <div class="form-field" data-comment="site-checks-edit-field-date-completed" id="date-completed-field" style="display: none">
-                    <label class="form-label" data-comment="site-checks-edit-field-date-completed-label">Date Completed</label>
-                    <div class="date-completed-display" id="date-completed-display" data-comment="site-checks-edit-field-date-completed-value">—</div>
-                  </div>
-
                   <div class="form-field full" data-comment="site-checks-edit-field-notify">
                     <label class="checkbox-row" data-comment="site-checks-edit-field-notify-row">
                       <input type="checkbox" class="checkbox-input" id="notify-checkbox" data-comment="site-checks-edit-field-notify-input" data-component="checkbox" />
@@ -1518,11 +1510,6 @@
                     <div class="rte" id="comments-rte" data-comment="site-checks-edit-field-comments-editor" data-component="textarea" contenteditable="true" data-placeholder="Add comments…"></div>
                   </div>
 
-                  <div class="form-field full" data-comment="site-checks-edit-field-results" id="results-field" style="display: none">
-                    <label class="form-label" for="results-textarea" data-comment="site-checks-edit-field-results-label">Results of Site Check</label>
-                    <textarea class="textarea" id="results-textarea" rows="3" placeholder="Enter results…" data-comment="site-checks-edit-field-results-input" data-component="textarea"></textarea>
-                  </div>
-
                   <div class="form-field full" data-comment="site-checks-edit-field-attachments">
                     <label class="form-label" data-comment="site-checks-edit-field-attachments-label">Attachments</label>
                     <div class="upload-zone" id="upload-zone" data-comment="site-checks-edit-field-attachments-zone">
@@ -1545,7 +1532,7 @@
               ${ICONS.trash2} Delete
             </button>
             <div class="footer-actions-end" data-comment="site-checks-edit-form-footer-actions">
-              <a class="btn btn-outline btn-sm" data-comment="site-checks-edit-cancel-btn" data-component="button" href="site-checks.html">Cancel</a>
+              <button type="button" class="btn btn-outline btn-sm" data-comment="site-checks-edit-cancel-btn" data-component="button" id="cancel-btn">Cancel</button>
               <button type="submit" form="site-check-form" class="btn btn-primary btn-sm" data-comment="site-checks-edit-save-btn" data-component="button" id="save-btn">Update</button>
             </div>
           </div>
@@ -1650,10 +1637,11 @@
         const badgeEl = document.getElementById("header-status-badge");
         if (s.record) {
           titleEl.textContent = `Edit Site Check SC-${s.record.id}`;
-          const label = SC_LABELS[s.form.status] || s.form.status;
-          const isCompleted = s.form.status === "completed";
+          const status = s.record.status || "pending";
+          const label = SC_LABELS[status] || status;
+          const isCompleted = status === "completed";
           badgeEl.innerHTML = `
-            <span class="sc-badge ${s.form.status}" data-comment="site-checks-edit-header-status-badge" data-component="badge">
+            <span class="sc-badge ${status}" data-comment="site-checks-edit-header-status-badge" data-component="badge">
               ${isCompleted ? `<span data-comment="site-checks-edit-header-status-icon">${ICONS.check}</span>` : `<span class="dot" data-comment="site-checks-edit-header-status-dot"></span>`}
               ${escapeHtml(label)}
             </span>`;
@@ -1801,30 +1789,6 @@
         });
       }
 
-      function renderStatus() {
-        const s = store.get();
-        if (s.isLoading || s.notFound) return;
-        document.querySelectorAll("#status-segmented button").forEach((btn) => {
-          btn.classList.toggle("is-active", btn.dataset.value === s.form.status);
-        });
-        // Toggle results field visibility on completed
-        const isCompleted = s.form.status === "completed";
-        const resultsField = document.getElementById("results-field");
-        if (resultsField) {
-          resultsField.style.display = isCompleted ? "" : "none";
-        }
-        // Toggle Date Completed field visibility on completed
-        const dateCompletedField = document.getElementById("date-completed-field");
-        if (dateCompletedField) {
-          dateCompletedField.style.display = isCompleted ? "" : "none";
-        }
-        // Date completed display
-        const display = document.getElementById("date-completed-display");
-        if (display) {
-          display.textContent = formatDate(s.form.date_completed);
-        }
-      }
-
       function renderAttachments() {
         const s = store.get();
         if (s.isLoading || s.notFound) return;
@@ -1860,6 +1824,8 @@
         const s = store.get();
         const overlay = document.getElementById("delete-overlay");
         overlay.classList.toggle("is-open", s.deleteDialogOpen);
+        const discardOverlay = document.getElementById("discard-overlay");
+        if (discardOverlay) discardOverlay.classList.toggle("is-open", s.discardDialogOpen);
       }
 
       function renderToasts() {
@@ -1899,12 +1865,12 @@
             const est = findEstimate(next.estimate_id);
             if (est && id != null && est.customer_id !== id) next.estimate_id = null;
           }
-          return { form: next };
+          return { form: next, dirty: true };
         });
         revalidateIfSubmitted();
       }
       function setAssigned(id) {
-        store.set((s) => ({ form: { ...s.form, assigned_to_id: id } }));
+        store.set((s) => ({ form: { ...s.form, assigned_to_id: id }, dirty: true }));
         revalidateIfSubmitted();
       }
       function setEstimate(id) {
@@ -1914,18 +1880,9 @@
             const est = findEstimate(id);
             if (est && !next.contact_id) next.contact_id = est.customer_id;
           }
-          return { form: next };
+          return { form: next, dirty: true };
         });
         revalidateIfSubmitted();
-      }
-      function setStatus(value) {
-        store.set((s) => {
-          const next = { ...s.form, status: value };
-          if (value === "completed" && !next.date_completed) {
-            next.date_completed = new Date().toISOString();
-          }
-          return { form: next };
-        });
       }
       function setOpenPopover(name) { store.set({ openPopover: name }); }
       function addAttachments(files) {
@@ -1934,13 +1891,13 @@
           name: f.name,
           size: f.size,
         }));
-        store.set((s) => ({ attachments: [...s.attachments, ...list] }));
+        store.set((s) => ({ attachments: [...s.attachments, ...list], dirty: true }));
       }
       function removeAttachment(id) {
-        store.set((s) => ({ attachments: s.attachments.filter((f) => f.id !== id) }));
+        store.set((s) => ({ attachments: s.attachments.filter((f) => f.id !== id), dirty: true }));
       }
       function removeExistingFile(id) {
-        store.set((s) => ({ existingFiles: s.existingFiles.filter((f) => f.id !== id) }));
+        store.set((s) => ({ existingFiles: s.existingFiles.filter((f) => f.id !== id), dirty: true }));
         showToast("success", "File removed.");
       }
 
@@ -1951,7 +1908,6 @@
         const errors = validate(s.form);
         store.set({ submitAttempted: true, errors });
         if (Object.keys(errors).length > 0) {
-          showToast("error", "Please complete required fields.");
           return;
         }
         store.set({ isSaving: true });
@@ -1969,12 +1925,8 @@
             assigned_to_id: s.form.assigned_to_id,
             assigned_to: findUser(s.form.assigned_to_id) || prev.assigned_to,
             estimate_id: s.form.estimate_id,
-            type: s.form.type,
-            status: s.form.status,
             start_date_time: startISO,
-            date_completed: s.form.status === "completed" ? (s.form.date_completed || new Date().toISOString()) : null,
             comments: s.form.comments,
-            results_of_site_check: s.form.results_of_site_check,
             notify_assigned_to: s.form.notify_assigned_to,
             files: s.existingFiles,
           };
@@ -1984,6 +1936,10 @@
           window.location.href = "site-checks.html";
         }, 500);
       }
+
+      // ───── Discard dialog ─────
+      function openDiscardDialog() { store.set({ discardDialogOpen: true }); }
+      function closeDiscardDialog() { store.set({ discardDialogOpen: false }); }
 
       // ───── Delete ─────
       function openDeleteDialog() { store.set({ deleteDialogOpen: true }); }
@@ -2018,17 +1974,13 @@
 
         // Hydrate form values
         document.getElementById("start-date").value = s.form.start_date || "";
-        document.getElementById("type-select").value = s.form.type || "site_check";
         document.getElementById("notify-checkbox").checked = !!s.form.notify_assigned_to;
         document.getElementById("comments-rte").innerHTML = s.form.comments || "";
-        const resultsEl = document.getElementById("results-textarea");
-        if (resultsEl) resultsEl.value = s.form.results_of_site_check || "";
 
         renderTriggerValues();
         renderContactOptions();
         renderAssignedOptions();
         renderEstimateOptions();
-        renderStatus();
         renderErrors();
         renderAttachments();
         renderSaveBtn();
@@ -2085,23 +2037,15 @@
         });
 
         document.getElementById("start-date").addEventListener("input", (e) => {
-          store.set((s) => ({ form: { ...s.form, start_date: e.target.value } }));
-        });
-        document.getElementById("type-select").addEventListener("change", (e) => {
-          store.set((s) => ({ form: { ...s.form, type: e.target.value } }));
-        });
-        document.getElementById("status-segmented").addEventListener("click", (e) => {
-          const btn = e.target.closest("[data-value]");
-          if (!btn) return;
-          setStatus(btn.dataset.value);
+          store.set((s) => ({ form: { ...s.form, start_date: e.target.value }, dirty: true }));
         });
         document.getElementById("notify-checkbox").addEventListener("change", (e) => {
-          store.set((s) => ({ form: { ...s.form, notify_assigned_to: e.target.checked } }));
+          store.set((s) => ({ form: { ...s.form, notify_assigned_to: e.target.checked }, dirty: true }));
         });
 
         const rte = document.getElementById("comments-rte");
         rte.addEventListener("input", () => {
-          store.set((s) => ({ form: { ...s.form, comments: rte.innerHTML } }));
+          store.set((s) => ({ form: { ...s.form, comments: rte.innerHTML }, dirty: true }));
         });
         document.querySelectorAll(".rte-toolbar button").forEach((btn) => {
           btn.addEventListener("mousedown", (e) => {
@@ -2111,13 +2055,6 @@
             rte.focus();
           });
         });
-
-        const results = document.getElementById("results-textarea");
-        if (results) {
-          results.addEventListener("input", (e) => {
-            store.set((s) => ({ form: { ...s.form, results_of_site_check: e.target.value } }));
-          });
-        }
 
         const uploadZone = document.getElementById("upload-zone");
         const uploadInput = document.getElementById("upload-input");
@@ -2140,6 +2077,10 @@
 
         document.getElementById("delete-btn").addEventListener("click", openDeleteDialog);
         document.getElementById("site-check-form").addEventListener("submit", handleSubmit);
+        document.getElementById("cancel-btn").addEventListener("click", () => {
+          if (store.get().dirty) openDiscardDialog();
+          else window.location.href = "site-checks.html";
+        });
       }
 
       // ───── Subscriptions ─────
@@ -2153,7 +2094,6 @@
       store.subscribe(renderAssignedOptions);
       store.subscribe(renderEstimateOptions);
       store.subscribe(renderErrors);
-      store.subscribe(renderStatus);
       store.subscribe(renderAttachments);
       store.subscribe(renderSaveBtn);
       store.subscribe(renderDialog);
@@ -2198,6 +2138,11 @@
       // Delete dialog handlers
       document.getElementById("delete-cancel").addEventListener("click", closeDeleteDialog);
       document.getElementById("delete-confirm").addEventListener("click", confirmDelete);
+      document.getElementById("discard-keep").addEventListener("click", closeDiscardDialog);
+      document.getElementById("discard-confirm").addEventListener("click", () => {
+        store.set({ dirty: false, discardDialogOpen: false });
+        window.location.href = "site-checks.html";
+      });
 
       /* ───── Date picker (shadcn-style) ───── */
       (function () {
@@ -2363,5 +2308,10 @@
         initAll();
       })();
     </script>
-  </body>
+      <script>
+      document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
+      document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
+      document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+</body>
 </html>
