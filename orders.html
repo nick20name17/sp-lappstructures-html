@@ -3042,7 +3042,7 @@
         `;
 
         // Wire footer/edit handlers
-        const goToDetail = () => { window.location.href = `order-detail.html?id=${o.autoid}`; };
+        const goToDetail = () => { window.location.href = `order-detail.html?id=${encodeURIComponent(o.invoice)}`; };
         const editBtn = document.getElementById("orders-drawer-delivery-edit");
         if (editBtn) editBtn.addEventListener("click", goToDetail);
         const estBtn = document.getElementById("orders-drawer-action-estimate");
@@ -3242,7 +3242,7 @@
         .getElementById("orders-drawer-open-full")
         .addEventListener("click", () => {
           const o = store.get().previewOrder;
-          if (o) window.location.href = `order-detail.html?id=${o.autoid}`;
+          if (o) window.location.href = `order-detail.html?id=${encodeURIComponent(o.invoice)}`;
         });
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && store.get().previewOrder) closePreview();

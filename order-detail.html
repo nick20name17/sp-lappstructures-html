@@ -2228,6 +2228,45 @@
         },
       ];
 
+      /* ───── Synthesize missing orders so every list row opens ───── */
+      (function extendOrders() {
+        const template = SEED_ORDERS[5]; // SO-1006 as base
+        const extras = [
+          { invoice: "SO-1007", customer: "Olivia Brown", category: "Sheds", dimension: "12x16", total: 8420.50, status: "pricing_review", po_no: "PO-77123" },
+          { invoice: "SO-1008", customer: "Daniel Kim", category: "Garages", dimension: "16x24", total: 14250.00, status: "shop_review", po_no: null },
+          { invoice: "SO-1009", customer: "Sophia Martinez", category: "Sheds", dimension: "8x12", total: 4380.00, status: "down_payment_received", po_no: "PO-77124" },
+          { invoice: "SO-1010", customer: "Liam Johnson", category: "Sheds", dimension: "10x12", total: 5920.00, status: "complete", po_no: null },
+          { invoice: "SO-1011", customer: "Emma Davis", category: "Cabins", dimension: "12x20", total: 18200.00, status: "in_production", po_no: "PO-77125" },
+          { invoice: "SO-1012", customer: "Noah Garcia", category: "Sheds", dimension: "10x16", total: 7320.00, status: "scheduled_delivery", po_no: null },
+          { invoice: "SO-1013", customer: "Ava Rodriguez", category: "Sheds", dimension: "8x10", total: 3580.00, status: "delivered", po_no: "PO-77126" },
+          { invoice: "SO-1014", customer: "William Lee", category: "Garages", dimension: "20x24", total: 16800.00, status: "awaiting_signature", po_no: null },
+          { invoice: "SO-1015", customer: "Isabella Lopez", category: "Sheds", dimension: "10x14", total: 6450.00, status: "pricing_review", po_no: "PO-77127" },
+        ];
+        extras.forEach((x, i) => {
+          const base = JSON.parse(JSON.stringify(template));
+          base.autoid = "ORD-" + (1007 + i);
+          base.invoice = x.invoice;
+          base.customer = x.customer;
+          base.customer_id = 7 + i;
+          base.category = x.category;
+          base.dimension = x.dimension;
+          base.descr = `${x.dimension} ${x.category.toLowerCase().slice(0,-1)} build.`;
+          base.memo = base.descr;
+          base.total = x.total;
+          base.subtotal = +(x.total / 1.06).toFixed(2);
+          base.status = x.status;
+          base.po_no = x.po_no;
+          if (base.sales_order) {
+            base.sales_order.id = 7 + i;
+            base.sales_order.memo = base.descr;
+            base.sales_order.category = { name: x.category };
+            base.sales_order.customer.email = (x.customer.split(" ")[0] || "user").toLowerCase() + "@example.com";
+          }
+          base.details = [{ quan: 1, inven: `${x.category.slice(0,4).toUpperCase()}-${x.dimension}`, descr: base.descr, price: base.subtotal, so_amount: base.subtotal, tax_group: "Taxable" }];
+          SEED_ORDERS.push(base);
+        });
+      })();
+
       /* ───── Format helpers ───── */
       function formatDate(value) {
         if (!value) return "—";
