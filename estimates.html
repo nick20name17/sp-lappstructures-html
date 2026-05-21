@@ -602,6 +602,85 @@
       .dialog-title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; color: var(--foreground); }
       .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
       .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
+    
+      /* shadcn-style select */
+      .select { position: relative; display: inline-block; width: 100%; }
+      .select .select-trigger {
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        height: 36px;
+        padding: 4px 12px;
+        font-size: 0.875rem;
+        font-family: inherit;
+        color: var(--foreground);
+        background: white;
+        border: 1px solid var(--input);
+        border-radius: 6px;
+        box-shadow: 0 1px 2px 0 rgba(0,0,0,0.04);
+        cursor: pointer;
+        text-align: left;
+      }
+      .select .select-trigger:focus-visible {
+        outline: none;
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+      }
+      .select .select-trigger[aria-expanded="true"] { border-color: var(--ring); }
+      .select .select-trigger[data-placeholder="true"] { color: var(--muted-foreground); }
+      .select .select-trigger-chevron {
+        width: 14px;
+        height: 14px;
+        color: var(--muted-foreground);
+        flex-shrink: 0;
+        transition: transform 0.15s ease;
+      }
+      .select .select-trigger[aria-expanded="true"] .select-trigger-chevron { transform: rotate(180deg); }
+      .select .select-trigger-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .select > .select-popover {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        min-width: 100%;
+        background: var(--popover, #fff);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.04);
+        padding: 4px;
+        max-height: 240px;
+        overflow-y: auto;
+        z-index: 1000;
+        animation: select-pop 0.15s ease;
+      }
+      @keyframes select-pop { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: translateY(0); } }
+      .select .select-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px 6px 28px;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        position: relative;
+        white-space: nowrap;
+      }
+      .select .select-item:hover, .select .select-item.is-highlighted { background: var(--accent); }
+      .select .select-item.is-selected::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        width: 14px;
+        height: 14px;
+        margin-top: -7px;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233662e3' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6 9 17l-5-5'/></svg>");
+        background-repeat: no-repeat;
+      }
+      .select[aria-disabled="true"] .select-trigger { opacity: 0.5; pointer-events: none; }
+      .select.select-sm .select-trigger { height: 32px; padding: 2px 10px; }
+      .select.select-inline { width: auto; min-width: 80px; }
     </style>
   </head>
   <body>
@@ -937,17 +1016,25 @@
               <div class="pagination-bar" data-comment="estimates-pagination">
                 <div class="pagination-size" data-comment="estimates-pagination-size">
                   <span data-comment="estimates-pagination-size-label">Rows per page</span>
-                  <select
-                    class="page-size-select"
+                  <div
+                    class="select select-sm select-inline"
                     data-comment="estimates-pagination-size-select"
                     data-component="select"
+                    data-placeholder="10"
                     id="estimates-page-size">
-                    <option value="10">10</option>
-                    <option value="15">15</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                  </select>
+                    <button type="button" class="select-trigger" aria-expanded="false" data-comment="estimates-pagination-size-select-trigger">
+                      <span class="select-trigger-label"></span>
+                      <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    <input type="hidden" value="10" />
+                    <div class="select-popover" style="display:none" role="listbox">
+                      <div class="select-item" data-value="10" data-comment="estimates-pagination-size-opt-10">10</div>
+                      <div class="select-item" data-value="15" data-comment="estimates-pagination-size-opt-15">15</div>
+                      <div class="select-item" data-value="25" data-comment="estimates-pagination-size-opt-25">25</div>
+                      <div class="select-item" data-value="50" data-comment="estimates-pagination-size-opt-50">50</div>
+                      <div class="select-item" data-value="100" data-comment="estimates-pagination-size-opt-100">100</div>
+                    </div>
+                  </div>
                 </div>
                 <div class="pagination-controls" data-comment="estimates-pagination-controls">
                   <span
@@ -1051,13 +1138,135 @@
     </div>
 
     <script>
+      /* ───── Shadcn-style custom <select> polyfill ───── */
+      function initSelects(root) {
+        (root || document).querySelectorAll('.select:not([data-initialized])').forEach((el) => {
+          el.setAttribute('data-initialized', '');
+          const trigger = el.querySelector('.select-trigger');
+          const popover = el.querySelector('.select-popover');
+          const hidden  = el.querySelector('input[type="hidden"]');
+          const labelEl = el.querySelector('.select-trigger-label');
+          if (!trigger || !popover) return;
+
+          function close() {
+            trigger.setAttribute('aria-expanded', 'false');
+            popover.style.display = 'none';
+          }
+          function open() {
+            trigger.setAttribute('aria-expanded', 'true');
+            popover.style.display = 'block';
+            const sel = popover.querySelector('.select-item.is-selected') || popover.querySelector('.select-item');
+            if (sel) sel.scrollIntoView({ block: 'nearest' });
+          }
+          function syncLabel() {
+            const sel = popover.querySelector('.select-item.is-selected');
+            if (sel) {
+              labelEl.textContent = sel.textContent.trim();
+              trigger.removeAttribute('data-placeholder');
+            } else {
+              labelEl.textContent = el.dataset.placeholder || 'Choose...';
+              trigger.setAttribute('data-placeholder', 'true');
+            }
+          }
+          function selectValue(value, silent) {
+            const v = String(value == null ? '' : value);
+            popover.querySelectorAll('.select-item').forEach((it) => {
+              it.classList.toggle('is-selected', it.dataset.value === v);
+            });
+            if (hidden) hidden.value = v;
+            syncLabel();
+            if (!silent) {
+              el.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          }
+          el._selectSet = (v) => selectValue(v, true);
+          if (!Object.getOwnPropertyDescriptor(el, 'value')) {
+            Object.defineProperty(el, 'value', {
+              get() { return hidden ? hidden.value : ''; },
+              set(v) { selectValue(v, true); },
+              configurable: true,
+            });
+          }
+
+          trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+            document.querySelectorAll('.select .select-trigger[aria-expanded="true"]').forEach((t) => {
+              t.setAttribute('aria-expanded', 'false');
+              const pop = t.parentElement.querySelector('.select-popover');
+              if (pop) pop.style.display = 'none';
+            });
+            if (!isOpen) open();
+          });
+          trigger.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+              e.preventDefault();
+              if (trigger.getAttribute('aria-expanded') !== 'true') open();
+              const items = Array.from(popover.querySelectorAll('.select-item'));
+              const cur = popover.querySelector('.select-item.is-highlighted') || popover.querySelector('.select-item.is-selected') || items[0];
+              if (cur) {
+                items.forEach((i) => i.classList.remove('is-highlighted'));
+                cur.classList.add('is-highlighted');
+              }
+            } else if (e.key === 'Escape') {
+              close();
+            }
+          });
+          popover.addEventListener('click', (e) => {
+            const item = e.target.closest('.select-item');
+            if (!item) return;
+            selectValue(item.dataset.value);
+            close();
+            trigger.focus();
+          });
+          popover.addEventListener('keydown', (e) => {
+            const items = Array.from(popover.querySelectorAll('.select-item'));
+            const curIdx = items.findIndex((i) => i.classList.contains('is-highlighted'));
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              const next = items[(curIdx + 1 + items.length) % items.length];
+              items.forEach((i) => i.classList.remove('is-highlighted'));
+              if (next) { next.classList.add('is-highlighted'); next.scrollIntoView({ block: 'nearest' }); }
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              const prev = items[(curIdx - 1 + items.length) % items.length];
+              items.forEach((i) => i.classList.remove('is-highlighted'));
+              if (prev) { prev.classList.add('is-highlighted'); prev.scrollIntoView({ block: 'nearest' }); }
+            } else if (e.key === 'Enter') {
+              e.preventDefault();
+              const cur = items[curIdx];
+              if (cur) { selectValue(cur.dataset.value); close(); trigger.focus(); }
+            } else if (e.key === 'Escape') {
+              close();
+              trigger.focus();
+            }
+          });
+
+          // Initial sync from hidden input (if any) or first option marked is-selected
+          if (hidden && hidden.value) {
+            selectValue(hidden.value, true);
+          } else {
+            syncLabel();
+          }
+        });
+      }
+      document.addEventListener('click', (e) => {
+        document.querySelectorAll('.select .select-trigger[aria-expanded="true"]').forEach((trigger) => {
+          if (!trigger.closest('.select').contains(e.target)) {
+            trigger.setAttribute('aria-expanded', 'false');
+            const pop = trigger.parentElement.querySelector('.select-popover');
+            if (pop) pop.style.display = 'none';
+          }
+        });
+      });
+
       function createStore(initialState) {
         let state = structuredClone(initialState);
         const listeners = new Set();
         return {
           get: () => state,
           set(updater) {
-            state = typeof updater === "function" ? updater(state) : { ...state, ...updater };
+            state = { ...state, ...(typeof updater === "function" ? updater(state) : updater) };
             listeners.forEach((fn) => fn(state));
           },
           subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
@@ -1432,6 +1641,7 @@
       renderSortIcons();
       renderSearchInput();
       renderDialog();
+      initSelects();
 
       setTimeout(() => store.set({ estimatesLoading: false }), 250);
 

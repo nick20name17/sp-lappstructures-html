@@ -877,6 +877,13 @@
       .cd-empty svg { width: 48px; height: 48px; opacity: 0.4; }
       .cd-empty-heading { font-size: 1.05rem; font-weight: 500; color: var(--foreground); }
       .cd-empty-text { font-size: 0.875rem; }
+
+      /* ───── Toast ───── */
+      .toast-container { position: fixed; bottom: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 999; pointer-events: none; }
+      .toast { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); font-size: 0.875rem; min-width: 240px; animation: toast-in 0.2s ease; pointer-events: auto; color: var(--foreground); }
+      .toast.success { border-left: 3px solid var(--success, #16a34a); }
+      .toast.error { border-left: 3px solid var(--destructive, #dc2626); }
+      @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     </style>
   </head>
   <body>
@@ -1106,10 +1113,7 @@
         return {
           get: () => state,
           set(updater) {
-            state =
-              typeof updater === "function"
-                ? updater(state)
-                : { ...state, ...updater };
+            state = { ...state, ...(typeof updater === "function" ? updater(state) : updater) };
             listeners.forEach((fn) => fn(state));
           },
           subscribe(fn) {
@@ -1117,6 +1121,23 @@
             return () => listeners.delete(fn);
           },
         };
+      }
+
+      /* ───── Toast ───── */
+      function toast(msg, variant = "success") {
+        let c = document.querySelector(".toast-container");
+        if (!c) {
+          c = document.createElement("div");
+          c.className = "toast-container";
+          c.setAttribute("data-comment", "toast-container");
+          document.body.appendChild(c);
+        }
+        const el = document.createElement("div");
+        el.className = `toast ${variant}`;
+        el.setAttribute("data-comment", `toast-${Date.now()}`);
+        el.textContent = msg;
+        c.appendChild(el);
+        setTimeout(() => el.remove(), 2500);
       }
 
       /* ───── Icons ───── */
@@ -1952,10 +1973,16 @@
                 primary_phone: document.getElementById("cd-edit-phone").value.replace(/\D/g, ""),
                 note: document.getElementById("cd-edit-note").value.trim(),
               };
+              // Minimal validation
+              if (!updates.first_name || !updates.last_name || !updates.email || !updates.email.includes("@")) {
+                if (typeof toast === "function") toast("Please fill in name and a valid email", "error");
+                return;
+              }
               store.set((s) => ({
                 customers: s.customers.map((cc) => (cc.id === c.id ? { ...cc, ...updates } : cc)),
                 editDialogOpen: false,
               }));
+              if (typeof toast === "function") toast("Customer updated");
             }
           }
           return;

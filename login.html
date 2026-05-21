@@ -520,10 +520,7 @@
         return {
           get: () => state,
           set(updater) {
-            state =
-              typeof updater === "function"
-                ? updater(state)
-                : { ...state, ...updater };
+            state = { ...state, ...(typeof updater === "function" ? updater(state) : updater) };
             listeners.forEach((fn) => fn(state));
           },
           subscribe(fn) {
