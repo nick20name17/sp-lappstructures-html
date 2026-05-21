@@ -1,0 +1,2095 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapp Structures — Options List</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      /* ───── Reset ───── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ───── Design tokens ───── */
+      :root {
+        --radius: 0.5rem;
+        --background: oklch(0.93 0.011 257);
+        --background-secondary: oklch(98.837% 0.00143 285.197);
+        --foreground: oklch(0.14 0.033 262);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.22 0.03 255);
+        --popover: oklch(1 0 0);
+        --primary: oklch(0.53 0.18 260);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.97 0.005 250);
+        --secondary-foreground: oklch(0.14 0.033 262);
+        --secondary-hover: oklch(0.93 0.011 257);
+        --muted: oklch(0.97 0.005 250);
+        --muted-foreground: oklch(0.56 0.023 255);
+        --accent: oklch(0.96 0.03 260);
+        --accent-foreground: oklch(0.53 0.18 260);
+        --destructive: oklch(0.50 0.19 25);
+        --success: oklch(0.58 0.16 150);
+        --border: oklch(0.93 0.011 257);
+        --input: oklch(0.92 0.01 250);
+        --ring: oklch(0.53 0.18 260);
+
+        --sidebar: oklch(1 0 0);
+        --sidebar-foreground: oklch(0.55 0.02 255);
+        --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-accent: oklch(0.97 0.005 250);
+        --sidebar-accent-foreground: oklch(0.14 0.033 262);
+        --sidebar-border: oklch(0.92 0.01 250);
+
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--background);
+        color: var(--foreground);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        overflow: hidden;
+      }
+
+      button {
+        cursor: pointer;
+        font-family: inherit;
+        border: 0;
+        background: transparent;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      /* ───── Scrollbar ───── */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+      }
+
+      /* ───── App layout ───── */
+      .app-shell {
+        background: var(--background);
+        padding: 16px;
+        height: 100vh;
+      }
+
+      .app-frame {
+        display: flex;
+        height: calc(100vh - 32px);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      /* ───── Sidebar (verbatim from home.html) ───── */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        background: var(--sidebar);
+        border-right: 1px solid var(--border);
+        flex-shrink: 0;
+        overflow: hidden;
+        width: 240px;
+        transition: width 0.2s ease;
+      }
+      .sidebar.collapsed { width: 56px; }
+      .sidebar-logo {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        padding: 0 16px 16px;
+        height: 64px;
+        flex-shrink: 0;
+        transition: opacity 0.15s ease;
+      }
+      .sidebar-logo:hover { opacity: 0.9; }
+      .sidebar.collapsed .sidebar-logo {
+        justify-content: center;
+        padding: 0 0 16px;
+        gap: 0;
+      }
+      .sidebar-logo-mark {
+        display: flex;
+        width: 32px;
+        height: 32px;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-logo-mark img { width: 24px; height: 24px; }
+      .sidebar-logo-text {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        line-height: 1.2;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+        color: var(--brand-navy);
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-logo-text { width: 0; opacity: 0; }
+      .sidebar-search {
+        position: relative;
+        padding: 0 8px 4px;
+      }
+      .sidebar-search-input-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        padding: 6px 10px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .sidebar-search-input-wrap:hover,
+      .sidebar-search-input-wrap.is-open {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-search-input-wrap.is-open {
+        border-color: color-mix(in oklch, var(--sidebar-foreground) 20%, transparent);
+      }
+      .sidebar-search-icon {
+        width: 14px;
+        height: 14px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        flex-shrink: 0;
+      }
+      .sidebar-search-input {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        font-size: 0.875rem;
+        font-family: inherit;
+        color: var(--sidebar-foreground);
+        border: 0;
+        outline: none;
+      }
+      .sidebar-search-input::placeholder {
+        color: color-mix(in oklch, var(--sidebar-foreground) 40%, transparent);
+      }
+      .sidebar-search-dropdown {
+        position: absolute;
+        bottom: 100%;
+        left: 4px;
+        right: 4px;
+        margin-bottom: 4px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--popover);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        z-index: 50;
+      }
+      .sidebar-search-dropdown-empty {
+        padding: 16px 12px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+      }
+      .sidebar-search-dropdown ul {
+        list-style: none;
+        max-height: 224px;
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+      .sidebar-search-dropdown-item {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        text-align: left;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .sidebar-search-dropdown-item:hover { background: var(--accent); }
+      .sidebar-search-dropdown-item-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.2;
+      }
+      .sidebar-search-dropdown-item-email {
+        margin-top: 2px;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        line-height: 1.2;
+      }
+      .sidebar.collapsed .sidebar-search { padding: 0 8px 4px; }
+      .sidebar.collapsed .sidebar-search-collapsed {
+        height: 34px;
+        padding-bottom: 4px;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        margin: 0 8px;
+        display: flex;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        justify-content: center;
+        align-items: center;
+      }
+      .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .sidebar-section-title {
+        padding: 0 12px;
+        margin-bottom: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, height 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-section-title { opacity: 0; height: 0; margin-bottom: 0; }
+      .sidebar-section { display: flex; flex-direction: column; gap: 4px; }
+      .sidebar-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 10px 6px 6px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-nav-link:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-nav-link.active {
+        background: var(--sidebar-accent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-nav-link-icon {
+        padding: 4px;
+        border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.15s ease;
+      }
+      .sidebar-nav-link.active .sidebar-nav-link-icon { background: var(--sidebar); }
+      .sidebar-nav-link-icon svg { width: 16px; height: 16px; }
+      .sidebar-nav-link-label {
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-nav-link-label { width: 0; opacity: 0; }
+      .sidebar-nav-link-badge { margin-left: auto; display: inline-flex; gap: 4px; }
+      .sidebar.collapsed .sidebar-nav-link-badge { display: none; }
+      .sidebar-badge {
+        display: inline-flex;
+        width: 20px;
+        height: 20px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        padding: 0 4px;
+      }
+      .sidebar-badge.amber { background: rgba(245, 158, 11, 0.2); color: rgb(180, 83, 9); }
+      .sidebar-badge.blue { background: rgba(59, 130, 246, 0.2); color: rgb(29, 78, 216); }
+      .sidebar-bottom {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 0 8px 16px;
+        flex-shrink: 0;
+      }
+      .sidebar-collapse-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 6px 10px 6px 6px;
+        border-radius: 6px;
+        color: var(--sidebar-foreground);
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-collapse-btn:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-collapse-btn-icon {
+        padding: 4px;
+        border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-collapse-btn:hover .sidebar-collapse-btn-icon { background: var(--sidebar); }
+      .sidebar-collapse-btn-icon svg { width: 16px; height: 16px; }
+      .sidebar-collapse-btn-label {
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-collapse-btn-label { width: 0; opacity: 0; }
+      .sidebar-user {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 6px;
+        border-radius: 6px;
+      }
+      .sidebar.collapsed .sidebar-user { justify-content: center; }
+      .sidebar-user-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 9999px;
+        background: var(--primary);
+        color: var(--primary-foreground);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      .sidebar-user-text { display: flex; flex-direction: column; min-width: 0; }
+      .sidebar.collapsed .sidebar-user-text,
+      .sidebar.collapsed .sidebar-user-logout { display: none; }
+      .sidebar-user-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-user-email {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-user-logout {
+        flex-shrink: 0;
+        padding: 4px;
+        border-radius: 6px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        transition: background 0.15s ease, color 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sidebar-user-logout:hover {
+        color: var(--sidebar-foreground);
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-user-logout svg { width: 16px; height: 16px; }
+
+      /* ───── Main ───── */
+      .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: var(--background-secondary);
+        min-width: 0;
+      }
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      /* ───── Page header ───── */
+      .page-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 16px;
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) { .page-header { padding: 16px; } }
+      .page-header-title-wrap { min-width: 0; }
+      .page-header-title {
+        font-size: 1.125rem;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
+      }
+      @media (min-width: 640px) { .page-header-title { font-size: 1.25rem; } }
+      .page-header-description {
+        margin-top: 2px;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+
+      /* ───── Buttons ───── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        white-space: nowrap;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        font-family: inherit;
+        height: 36px;
+        padding: 8px 12px;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+      .btn:disabled { pointer-events: none; opacity: 0.5; }
+      .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+      .btn-primary:hover { background: color-mix(in oklch, var(--primary) 90%, black); }
+      .btn-outline {
+        background: white;
+        color: var(--foreground);
+        border: 1px solid var(--border);
+      }
+      .btn-outline:hover { background: var(--secondary); }
+      .btn-sm { height: 28px; padding: 4px 10px; font-size: 0.75rem; gap: 4px; }
+      .btn svg { width: 14px; height: 14px; }
+
+      /* ───── Tabs (top: Users / Products) ───── */
+      .tabs-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border);
+        padding: 12px 24px;
+        flex-shrink: 0;
+      }
+      .tabs-list {
+        display: inline-flex;
+        gap: 4px;
+        background: color-mix(in oklch, var(--muted) 70%, transparent);
+        border-radius: 12px;
+        padding: 4px;
+        height: 36px;
+      }
+      .tabs-trigger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 16px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 400;
+        color: var(--muted-foreground);
+        transition: background 0.15s ease, color 0.15s ease, font-weight 0.15s ease;
+      }
+      .tabs-trigger.active {
+        background: var(--card);
+        color: var(--foreground);
+        font-weight: 600;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      }
+
+      /* ───── Attributes layout ───── */
+      .attributes-layout {
+        display: flex;
+        gap: 24px;
+        padding-left: 24px;
+        padding-top: 4px;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .tab-sidebar {
+        width: 240px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        flex-shrink: 0;
+        align-self: flex-start;
+        position: sticky;
+        top: 16px;
+      }
+      .tab-sidebar-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .tab-sidebar-btn {
+        width: 100%;
+        text-align: left;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+        transition: background 0.15s ease, color 0.15s ease, font-weight 0.15s ease;
+      }
+      .tab-sidebar-btn:hover {
+        background: color-mix(in oklch, var(--muted) 60%, transparent);
+        color: var(--foreground);
+      }
+      .tab-sidebar-btn.active {
+        background: var(--muted);
+        color: var(--foreground);
+        font-weight: 600;
+      }
+
+      .tab-body {
+        flex: 1;
+        min-width: 0;
+        max-width: 640px;
+        padding: 24px 24px 24px 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      /* Tab header (count + toolbar + add form) */
+      .tab-toolbar {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .tab-count-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .tab-count {
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+
+      /* Inputs */
+      .input {
+        height: 36px;
+        width: 100%;
+        border-radius: 6px;
+        border: 1px solid var(--input);
+        background: var(--card);
+        padding: 0 12px;
+        font-size: 0.875rem;
+        font-family: inherit;
+        color: var(--foreground);
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .input:focus {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 20%, transparent);
+      }
+      .input-sm { height: 32px; font-size: 0.875rem; }
+      .input::placeholder { color: var(--muted-foreground); }
+
+      .search-wrap { position: relative; }
+      .search-wrap .input { padding-left: 36px; }
+      .search-wrap svg {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        color: var(--muted-foreground);
+        pointer-events: none;
+      }
+
+      /* Add-select card */
+      .add-form-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card);
+        padding: 16px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .add-form-title { font-size: 0.875rem; font-weight: 500; }
+      .add-form { display: flex; flex-direction: column; gap: 12px; }
+      .checkbox-row { display: flex; align-items: center; gap: 8px; }
+      .checkbox {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border: 1px solid var(--input);
+        border-radius: 4px;
+        background: var(--card);
+        cursor: pointer;
+        position: relative;
+        flex-shrink: 0;
+      }
+      .checkbox:checked {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+      .checkbox:checked::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--primary-foreground);
+        -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='currentColor'><path d='M13.78 4.22a.75.75 0 0 1 0 1.06L6.53 12.53a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'/></svg>") center/contain no-repeat;
+                mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='currentColor'><path d='M13.78 4.22a.75.75 0 0 1 0 1.06L6.53 12.53a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'/></svg>") center/contain no-repeat;
+      }
+      .checkbox-label {
+        font-size: 0.875rem;
+        color: var(--foreground);
+        cursor: pointer;
+      }
+      .form-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+      /* Scroll body */
+      .tab-body-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      /* Attribute row */
+      .attr-list { display: flex; flex-direction: column; gap: 8px; }
+      .attr-row {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card);
+        overflow: hidden;
+        transition: box-shadow 0.15s ease;
+      }
+      .attr-row:hover { box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+      .attr-row-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+      .attr-row-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+        text-align: left;
+      }
+      .attr-row-chev {
+        width: 16px;
+        height: 16px;
+        color: var(--muted-foreground);
+        transition: transform 0.15s ease;
+        flex-shrink: 0;
+      }
+      .attr-row.expanded .attr-row-chev { transform: rotate(90deg); }
+      .attr-row-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .attr-row-count {
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: var(--muted);
+        color: var(--muted-foreground);
+        border-radius: 9999px;
+        padding: 2px 8px;
+        flex-shrink: 0;
+      }
+
+      .attr-row-body {
+        border-top: 1px solid var(--border);
+        background: color-mix(in oklch, var(--muted) 30%, transparent);
+        padding: 12px 16px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .attr-values {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--card);
+        overflow: hidden;
+      }
+      .attr-value-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        font-size: 0.875rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .attr-value-row:last-child { border-bottom: 0; }
+      .attr-value-left { display: flex; align-items: center; gap: 8px; }
+      .color-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 9999px;
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .attr-value-delete {
+        padding: 4px;
+        border-radius: 4px;
+        color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .attr-value-delete:hover {
+        color: var(--destructive);
+        background: color-mix(in oklch, var(--destructive) 10%, transparent);
+      }
+      .attr-value-delete svg { width: 14px; height: 14px; }
+
+      .attr-empty-line {
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+      }
+
+      .inline-add {
+        display: flex;
+        gap: 8px;
+      }
+      .inline-add .input { flex: 1; height: 32px; }
+
+      /* Empty state */
+      .empty-state {
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 56px 24px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .empty-state-title {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted-foreground);
+      }
+      .empty-state-sub {
+        font-size: 0.75rem;
+        color: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+      }
+
+      /* Skeleton */
+      .skeleton {
+        background: linear-gradient(90deg, var(--border) 25%, transparent 50%, var(--border) 75%);
+        background-size: 200% 100%;
+        animation: skeleton-pulse 1.5s ease-in-out infinite;
+        border-radius: 4px;
+      }
+      @keyframes skeleton-pulse {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+      .skel-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card);
+        margin-bottom: 8px;
+      }
+
+      /* Dimensions / Categories rows */
+      .list-card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--card);
+        overflow: hidden;
+      }
+      .list-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        font-size: 0.875rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .list-row:last-child { border-bottom: 0; }
+      .list-row-name { font-weight: 500; }
+      .list-row-meta { color: var(--muted-foreground); }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        background: var(--muted);
+        color: var(--muted-foreground);
+        font-size: 0.75rem;
+        padding: 2px 10px;
+        border-radius: 9999px;
+      }
+
+      /* Toolbar row for dimensions/categories */
+      .toolbar-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .toolbar-row .search-wrap { max-width: 256px; flex: 1; }
+
+      .inline-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .inline-form .input { height: 32px; }
+      .inline-form .input-width { width: 112px; }
+
+      /* Error message */
+      .error-message {
+        padding: 12px;
+        font-size: 0.875rem;
+        color: var(--destructive);
+      }
+
+      /* Reveal */
+      .reveal {
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 400ms ease, transform 400ms ease;
+      }
+      .reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-comment="app-shell">
+      <div class="app-frame" data-comment="app-frame">
+        <!-- ───── Sidebar ───── -->
+        <aside
+          class="sidebar"
+          data-comment="sidebar"
+          id="sidebar"
+          aria-label="Primary navigation">
+          <a
+            class="sidebar-logo"
+            data-comment="sidebar-logo"
+            href="home.html"
+            aria-label="Go to home">
+            <span class="sidebar-logo-mark" data-comment="sidebar-logo-mark">
+              <img
+                data-comment="sidebar-logo-img"
+                src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png"
+                alt="Lapp Structures" />
+            </span>
+            <span class="sidebar-logo-text" data-comment="sidebar-logo-text"
+              >Lapp Structures</span>
+          </a>
+
+          <div class="sidebar-search" data-comment="sidebar-search" id="sidebar-search-wrap">
+            <div class="sidebar-search-input-wrap" data-comment="sidebar-search-input-wrap" id="sidebar-search-input-wrap">
+              <svg class="sidebar-search-icon" data-comment="sidebar-search-icon"
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input type="text" class="sidebar-search-input"
+                data-comment="sidebar-search-input" id="sidebar-search-input"
+                placeholder="Find customer..." />
+            </div>
+            <div class="sidebar-search-dropdown" data-comment="sidebar-search-dropdown" id="sidebar-search-dropdown" style="display: none">
+              <div class="sidebar-search-dropdown-empty" data-comment="sidebar-search-dropdown-empty" id="sidebar-search-empty">
+                No customers found.
+              </div>
+              <ul data-comment="sidebar-search-dropdown-list" id="sidebar-search-list" style="display: none"></ul>
+            </div>
+          </div>
+
+          <div class="sidebar-search-collapsed" data-comment="sidebar-search-collapsed" id="sidebar-search-collapsed" style="display: none">
+            <svg class="sidebar-search-icon" data-comment="sidebar-search-collapsed-icon"
+              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          <nav class="sidebar-nav" data-comment="sidebar-nav" id="sidebar-nav"></nav>
+
+          <div class="sidebar-bottom" data-comment="sidebar-bottom">
+            <button class="sidebar-collapse-btn" data-comment="sidebar-collapse-btn" id="sidebar-collapse-btn" type="button">
+              <span class="sidebar-collapse-btn-icon" data-comment="sidebar-collapse-btn-icon">
+                <svg id="icon-collapse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m16 15-3-3 3-3" />
+                </svg>
+                <svg id="icon-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m14 9 3 3-3 3" />
+                </svg>
+              </span>
+              <span class="sidebar-collapse-btn-label" data-comment="sidebar-collapse-btn-label">Minimize bar</span>
+            </button>
+
+            <div class="sidebar-user" data-comment="sidebar-user">
+              <div class="sidebar-user-info" data-comment="sidebar-user-info">
+                <span class="avatar" data-comment="sidebar-user-avatar" data-component="avatar" id="sidebar-user-avatar">AL</span>
+                <div class="sidebar-user-text" data-comment="sidebar-user-text">
+                  <span class="sidebar-user-name" data-comment="sidebar-user-name" id="sidebar-user-name">Anna Lee</span>
+                  <span class="sidebar-user-email" data-comment="sidebar-user-email" id="sidebar-user-email">anna@lapp.com</span>
+                </div>
+              </div>
+              <button class="sidebar-user-logout" data-comment="sidebar-user-logout" id="sidebar-user-logout" title="Log out" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ───── Main ───── -->
+        <main class="main" data-comment="main">
+          <div class="main-content" data-comment="main-content">
+            <!-- Page header -->
+            <header class="page-header" data-comment="attributes-page-header">
+              <div class="page-header-title-wrap" data-comment="attributes-page-header-title-wrap">
+                <h1 class="page-header-title" data-comment="attributes-page-header-title">All CRUDs</h1>
+                <p class="page-header-description" data-comment="attributes-page-header-description">
+                  Manage shared select options used across the application.
+                </p>
+              </div>
+            </header>
+
+            <!-- Top tabs: Users / Products -->
+            <div class="tabs-bar" data-comment="attributes-tabs-bar">
+              <div class="tabs-list" data-comment="attributes-tabs-list" data-component="tabs">
+                <button type="button" class="tabs-trigger" data-comment="attributes-tab-users" data-toptab="users">Users</button>
+                <button type="button" class="tabs-trigger active" data-comment="attributes-tab-products" data-toptab="products">Products</button>
+              </div>
+            </div>
+
+            <!-- Body: sub-sidebar + tab content -->
+            <div class="attributes-layout" data-comment="attributes-layout">
+              <!-- Sub-tabs sidebar -->
+              <aside class="tab-sidebar reveal" data-comment="attributes-tab-sidebar" data-component="card">
+                <ul class="tab-sidebar-list" data-comment="attributes-tab-sidebar-list" id="attributes-sub-tabs">
+                  <!-- rendered by JS -->
+                </ul>
+              </aside>
+
+              <!-- Tab body -->
+              <section class="tab-body" data-comment="attributes-tab-body" id="attributes-tab-body">
+                <!-- rendered by JS -->
+              </section>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // ───── Store ─────
+      function createStore(initialState) {
+        let state = structuredClone(initialState);
+        const listeners = new Set();
+        return {
+          get: () => state,
+          set(updater) {
+            state = typeof updater === "function" ? updater(state) : { ...state, ...updater };
+            listeners.forEach((fn) => fn(state));
+          },
+          subscribe(fn) {
+            listeners.add(fn);
+            return () => listeners.delete(fn);
+          },
+        };
+      }
+
+      // ───── Icons (lucide-aligned) ─────
+      const ICONS = {
+        list: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>',
+        userRound: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+        clipboardList: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>',
+        mapPin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+        users: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        clipboardCheck: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+        layers2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>',
+        chevRight: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+        plus: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+        trash: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+        search: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+      };
+
+      // ───── Sidebar nav config ─────
+      const NAV_ADMIN = [
+        { label: "Customers", path: "customers.html", icon: "userRound" },
+        { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+        { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+        { label: "Sales Orders", path: "orders.html", icon: "list" },
+        { label: "Users", path: "users.html", icon: "users" },
+        { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
+        { label: "Options List", path: "attributes.html", icon: "layers2" },
+      ];
+
+      // ───── Seed data ─────
+      const SEED_CUSTOMERS = [
+        { id: 1, first_name: "Anna", last_name: "Lee", email: "anna@example.com" },
+        { id: 2, first_name: "Mark", last_name: "Chen", email: "mark@example.com" },
+        { id: 3, first_name: "Sarah", last_name: "Johnson", email: "sarah.j@example.com" },
+        { id: 4, first_name: "David", last_name: "Smith", email: "david.smith@example.com" },
+        { id: 5, first_name: "Emma", last_name: "Garcia", email: "emma.g@example.com" },
+        { id: 6, first_name: "James", last_name: "Wilson", email: "jwilson@example.com" },
+      ];
+
+      // Attribute mock data (per type: user / estimates / delivery)
+      // Each attribute: { id, name, hex_color (null or "#fff"), type, values: [{id, name, hex_color}] }
+      const SEED_ATTRIBUTES = {
+        user: [
+          { id: 1, name: "User Type", hex_color: "#fff", type: "user", values: [
+            { id: 11, name: "Customer", hex_color: "#2563EB" },
+            { id: 12, name: "Lead", hex_color: "#16A34A" },
+            { id: 13, name: "Vendor", hex_color: "#059669" },
+            { id: 14, name: "Contractor", hex_color: "#7C3AED" },
+          ]},
+          { id: 2, name: "Lead Source", hex_color: null, type: "user", values: [
+            { id: 21, name: "Website", hex_color: null },
+            { id: 22, name: "Referral", hex_color: null },
+            { id: 23, name: "Trade Show", hex_color: null },
+            { id: 24, name: "Google Ads", hex_color: null },
+            { id: 25, name: "Walk-in", hex_color: null },
+          ]},
+          { id: 3, name: "Region", hex_color: null, type: "user", values: [
+            { id: 31, name: "Northeast", hex_color: null },
+            { id: 32, name: "Southeast", hex_color: null },
+            { id: 33, name: "Midwest", hex_color: null },
+            { id: 34, name: "West", hex_color: null },
+          ]},
+        ],
+        estimates: [
+          { id: 101, name: "Color", hex_color: "#fff", type: "estimates", values: [
+            { id: 1011, name: "Barn Red", hex_color: "#DB2777" },
+            { id: 1012, name: "Forest Green", hex_color: "#16A34A" },
+            { id: 1013, name: "Slate Gray", hex_color: "#475569" },
+            { id: 1014, name: "Navy Blue", hex_color: "#2563EB" },
+            { id: 1015, name: "Charcoal", hex_color: "#0891B2" },
+            { id: 1016, name: "Cream", hex_color: "#D97706" },
+          ]},
+          { id: 102, name: "Roof Style", hex_color: null, type: "estimates", values: [
+            { id: 1021, name: "A-Frame", hex_color: null },
+            { id: 1022, name: "Gable", hex_color: null },
+            { id: 1023, name: "Hip", hex_color: null },
+            { id: 1024, name: "Lean-To", hex_color: null },
+          ]},
+          { id: 103, name: "Material", hex_color: null, type: "estimates", values: [
+            { id: 1031, name: "Pine", hex_color: null },
+            { id: 1032, name: "Oak", hex_color: null },
+            { id: 1033, name: "Cedar", hex_color: null },
+            { id: 1034, name: "Treated Lumber", hex_color: null },
+            { id: 1035, name: "Metal", hex_color: null },
+          ]},
+          { id: 104, name: "Door Style", hex_color: null, type: "estimates", values: [
+            { id: 1041, name: "Single", hex_color: null },
+            { id: 1042, name: "Double", hex_color: null },
+            { id: 1043, name: "Sliding", hex_color: null },
+            { id: 1044, name: "Garage", hex_color: null },
+          ]},
+          { id: 105, name: "Window Type", hex_color: null, type: "estimates", values: [
+            { id: 1051, name: "Standard", hex_color: null },
+            { id: 1052, name: "Bay", hex_color: null },
+            { id: 1053, name: "Skylight", hex_color: null },
+          ]},
+          { id: 106, name: "Foundation", hex_color: null, type: "estimates", values: [
+            { id: 1061, name: "Concrete Slab", hex_color: null },
+            { id: 1062, name: "Skids", hex_color: null },
+            { id: 1063, name: "Piers", hex_color: null },
+          ]},
+        ],
+        delivery: [
+          { id: 201, name: "Delivery Method", hex_color: null, type: "delivery", values: [
+            { id: 2011, name: "Flatbed Truck", hex_color: null },
+            { id: 2012, name: "Mule Lift", hex_color: null },
+            { id: 2013, name: "Crane", hex_color: null },
+            { id: 2014, name: "Customer Pickup", hex_color: null },
+          ]},
+          { id: 202, name: "Site Access", hex_color: null, type: "delivery", values: [
+            { id: 2021, name: "Open Yard", hex_color: null },
+            { id: 2022, name: "Narrow Gate", hex_color: null },
+            { id: 2023, name: "Steep Grade", hex_color: null },
+          ]},
+        ],
+      };
+
+      // Dimensions seed (10 items)
+      const SEED_DIMENSIONS = [
+        { id: 1, name: "8x12 Shed", length: 12, width: 8 },
+        { id: 2, name: "10x12 Garden", length: 12, width: 10 },
+        { id: 3, name: "10x16 Lofted", length: 16, width: 10 },
+        { id: 4, name: "12x16 Cabin", length: 16, width: 12 },
+        { id: 5, name: "12x20 Garage", length: 20, width: 12 },
+        { id: 6, name: "12x24 Studio", length: 24, width: 12 },
+        { id: 7, name: "14x28 Workshop", length: 28, width: 14 },
+        { id: 8, name: "16x32 Two-Car", length: 32, width: 16 },
+        { id: 9, name: "10x10 Mini", length: 10, width: 10 },
+        { id: 10, name: "8x10 Compact", length: 10, width: 8 },
+      ];
+
+      // Production Categories seed (12 items)
+      const SEED_CATEGORIES = [
+        { id: 1, name: "Storage Sheds", with_attribute_values: true },
+        { id: 2, name: "Lofted Barns", with_attribute_values: true },
+        { id: 3, name: "Garages", with_attribute_values: true },
+        { id: 4, name: "Cabins", with_attribute_values: true },
+        { id: 5, name: "Garden Sheds", with_attribute_values: false },
+        { id: 6, name: "Workshops", with_attribute_values: true },
+        { id: 7, name: "Studios", with_attribute_values: false },
+        { id: 8, name: "Chicken Coops", with_attribute_values: false },
+        { id: 9, name: "Playhouses", with_attribute_values: false },
+        { id: 10, name: "Greenhouses", with_attribute_values: false },
+        { id: 11, name: "Animal Shelters", with_attribute_values: true },
+        { id: 12, name: "Carports", with_attribute_values: false },
+      ];
+
+      // ───── Store ─────
+      const store = createStore({
+        user: { id: 1, name: "Anna Lee", email: "anna@lapp.com", role: "admin" },
+        collapsed: false,
+        searchOpen: false,
+        searchTerm: "",
+        customers: SEED_CUSTOMERS,
+        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        currentPath: "attributes.html",
+
+        // Page state
+        topTab: "products",         // 'users' | 'products'
+        productSubTab: "estimates", // 'estimates' | 'dimensions' | 'production-categories' | 'delivery'
+
+        // Attribute lists by type
+        attributes: SEED_ATTRIBUTES,
+        dimensions: SEED_DIMENSIONS,
+        categories: SEED_CATEGORIES,
+
+        // Add-select form state
+        addingSelect: false,
+        selectName: "",
+        hasColor: false,
+
+        // Per-row state
+        expandedRow: null,        // id of expanded attribute row
+        addingOptionFor: null,    // id of row currently adding option
+        optionName: "",
+
+        // Dimensions tab state
+        dimAdding: false,
+        dimName: "",
+        dimLength: "",
+        dimWidth: "",
+        dimSearch: "",
+
+        // Categories tab state
+        catAdding: false,
+        catName: "",
+        catWithValues: false,
+        catSearch: "",
+
+        // Attribute tab search
+        attrSearch: "",
+
+        // Loading flag
+        isLoading: true,
+      });
+
+      // ───── Sub-tab config ─────
+      const PRODUCT_SUB_TABS = [
+        { label: "Product Configuration", type: "estimates" },
+        { label: "Dimensions", type: "dimensions" },
+        { label: "Product Category", type: "production-categories" },
+        { label: "Product Delivery", type: "delivery" },
+      ];
+      const USER_SUB_TABS = [
+        { label: "Users", type: "user" },
+      ];
+
+      // ───── Actions: attributes ─────
+      function addAttribute({ name, has_color, type }) {
+        store.set((s) => {
+          const list = s.attributes[type] || [];
+          return {
+            attributes: {
+              ...s.attributes,
+              [type]: [...list, {
+                id: Date.now(),
+                name,
+                hex_color: has_color ? "#fff" : null,
+                type,
+                values: [],
+              }],
+            },
+            addingSelect: false,
+            selectName: "",
+            hasColor: false,
+          };
+        });
+      }
+
+      function addAttributeValue(type, attrId, name) {
+        store.set((s) => ({
+          attributes: {
+            ...s.attributes,
+            [type]: (s.attributes[type] || []).map((a) =>
+              a.id === attrId
+                ? { ...a, values: [...a.values, { id: Date.now(), name, hex_color: null }] }
+                : a,
+            ),
+          },
+          addingOptionFor: null,
+          optionName: "",
+        }));
+      }
+
+      function deleteAttributeValue(type, attrId, valueId) {
+        store.set((s) => ({
+          attributes: {
+            ...s.attributes,
+            [type]: (s.attributes[type] || []).map((a) =>
+              a.id === attrId
+                ? { ...a, values: a.values.filter((v) => v.id !== valueId) }
+                : a,
+            ),
+          },
+        }));
+      }
+
+      // ───── Actions: dimensions ─────
+      function addDimension({ name, length, width }) {
+        store.set((s) => ({
+          dimensions: [...s.dimensions, { id: Date.now(), name, length: Number(length), width: Number(width) }],
+          dimAdding: false,
+          dimName: "", dimLength: "", dimWidth: "",
+        }));
+      }
+      function deleteDimension(id) {
+        store.set((s) => ({ dimensions: s.dimensions.filter((d) => d.id !== id) }));
+      }
+
+      // ───── Actions: categories ─────
+      function addCategory({ name, with_attribute_values }) {
+        store.set((s) => ({
+          categories: [...s.categories, { id: Date.now(), name, with_attribute_values }],
+          catAdding: false,
+          catName: "", catWithValues: false,
+        }));
+      }
+      function deleteCategory(id) {
+        store.set((s) => ({ categories: s.categories.filter((c) => c.id !== id) }));
+      }
+
+      // ───── Render: sidebar nav ─────
+      function renderSidebarNav() {
+        const s = store.get();
+        const nav = document.getElementById("sidebar-nav");
+        nav.innerHTML = `
+          <div class="sidebar-section" data-comment="sidebar-section-0">
+            ${NAV_ADMIN.map((item) => {
+              const isActive = item.path === s.currentPath;
+              const slug = item.label.toLowerCase().replace(/\s+/g, "-");
+              const badges = item.badge && !s.collapsed
+                ? `<span class="sidebar-nav-link-badge" data-comment="sidebar-nav-link-${slug}-badges">
+                    ${s.reviewBadges.not_pricing_reviewed > 0
+                      ? `<span class="sidebar-badge amber" data-comment="sidebar-nav-link-${slug}-badge-pricing" title="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
+                      : ""}
+                    ${s.reviewBadges.not_shop_reviewed > 0
+                      ? `<span class="sidebar-badge blue" data-comment="sidebar-nav-link-${slug}-badge-shop" title="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
+                      : ""}
+                  </span>`
+                : "";
+              return `
+                <a class="sidebar-nav-link ${isActive ? "active" : ""}" data-comment="sidebar-nav-link-${slug}" href="${item.path}" title="${item.label}">
+                  <span class="sidebar-nav-link-icon" data-comment="sidebar-nav-link-${slug}-icon">${ICONS[item.icon] || ""}</span>
+                  <span class="sidebar-nav-link-label" data-comment="sidebar-nav-link-${slug}-label">${item.label}</span>
+                  ${badges}
+                </a>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }
+
+      function renderUser() {
+        const { user } = store.get();
+        document.getElementById("sidebar-user-name").textContent = user.name;
+        document.getElementById("sidebar-user-email").textContent = user.email;
+        document.getElementById("sidebar-user-avatar").textContent = user.name
+          .split(" ").slice(0, 2).map((w) => (w[0] || "").toUpperCase()).join("");
+      }
+
+      function renderCollapse() {
+        const s = store.get();
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("collapsed", s.collapsed);
+        document.getElementById("icon-collapse").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("icon-expand").style.display = s.collapsed ? "block" : "none";
+        document.getElementById("sidebar-search-wrap").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("sidebar-search-collapsed").style.display = s.collapsed ? "flex" : "none";
+      }
+
+      function renderSearch() {
+        const s = store.get();
+        const wrap = document.getElementById("sidebar-search-input-wrap");
+        wrap.classList.toggle("is-open", s.searchOpen);
+        const showDropdown = s.searchOpen && s.searchTerm.trim().length > 0;
+        const dropdown = document.getElementById("sidebar-search-dropdown");
+        dropdown.style.display = showDropdown ? "block" : "none";
+        if (!showDropdown) return;
+        const filtered = s.customers.filter((c) => {
+          const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+          const term = s.searchTerm.trim().toLowerCase();
+          return fullName.includes(term) || (c.email && c.email.toLowerCase().includes(term));
+        });
+        const empty = document.getElementById("sidebar-search-empty");
+        const list = document.getElementById("sidebar-search-list");
+        if (filtered.length === 0) {
+          empty.style.display = "block";
+          list.style.display = "none";
+        } else {
+          empty.style.display = "none";
+          list.style.display = "block";
+          list.innerHTML = filtered.slice(0, 8).map((c) => `
+            <li data-comment="sidebar-search-item-${c.id}">
+              <button type="button" class="sidebar-search-dropdown-item"
+                data-comment="sidebar-search-item-${c.id}-button" data-customer-id="${c.id}">
+                <div class="sidebar-search-dropdown-item-name" data-comment="sidebar-search-item-${c.id}-name">${c.first_name} ${c.last_name}</div>
+                ${c.email ? `<div class="sidebar-search-dropdown-item-email" data-comment="sidebar-search-item-${c.id}-email">${c.email}</div>` : ""}
+              </button>
+            </li>
+          `).join("");
+        }
+      }
+
+      // ───── Render: top tabs ─────
+      function renderTopTabs() {
+        const s = store.get();
+        document.querySelectorAll("[data-toptab]").forEach((el) => {
+          el.classList.toggle("active", el.dataset.toptab === s.topTab);
+        });
+      }
+
+      // ───── Render: sub-tabs sidebar ─────
+      function renderSubTabs() {
+        const s = store.get();
+        const items = s.topTab === "users" ? USER_SUB_TABS : PRODUCT_SUB_TABS;
+        const active = s.topTab === "users" ? "user" : s.productSubTab;
+        const list = document.getElementById("attributes-sub-tabs");
+        list.innerHTML = items.map((it) => `
+          <li data-comment="attributes-sub-tab-${it.type}-item">
+            <button type="button"
+              class="tab-sidebar-btn ${it.type === active ? "active" : ""}"
+              data-comment="attributes-sub-tab-${it.type}"
+              data-subtab="${it.type}">
+              ${it.label}
+            </button>
+          </li>
+        `).join("");
+      }
+
+      // ───── Render: tab body ─────
+      function renderTabBody() {
+        const s = store.get();
+        const body = document.getElementById("attributes-tab-body");
+        const activeType = s.topTab === "users" ? "user" : s.productSubTab;
+
+        if (s.isLoading) {
+          body.innerHTML = renderSkeleton();
+          return;
+        }
+
+        if (activeType === "dimensions") {
+          body.innerHTML = renderDimensionsTab();
+        } else if (activeType === "production-categories") {
+          body.innerHTML = renderCategoriesTab();
+        } else {
+          body.innerHTML = renderAttributeTab(activeType);
+        }
+      }
+
+      function renderSkeleton() {
+        return `
+          <div data-comment="attributes-skeleton" style="display:flex;flex-direction:column;gap:8px;">
+            ${Array.from({ length: 4 }).map((_, i) => `
+              <div class="skel-row" data-comment="attributes-skeleton-row-${i + 1}">
+                <div class="skeleton" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;"></div>
+                <div class="skeleton" style="width:128px;height:16px;"></div>
+                <div class="skeleton" style="width:32px;height:20px;border-radius:9999px;"></div>
+                <div class="skeleton" style="width:96px;height:28px;border-radius:6px;margin-left:auto;"></div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+      }
+
+      // Attribute tab (user / estimates / delivery)
+      function renderAttributeTab(type) {
+        const s = store.get();
+        const list = s.attributes[type] || [];
+        const search = s.attrSearch.trim().toLowerCase();
+        const filtered = list.filter((a) => a.name.toLowerCase().includes(search));
+        const count = list.length;
+        const hasData = list.length > 0;
+
+        return `
+          <div class="tab-toolbar" data-comment="attributes-toolbar">
+            <div class="tab-count-row" data-comment="attributes-count-row">
+              <p class="tab-count" data-comment="attributes-count">${count} select${count !== 1 ? "s" : ""}</p>
+            </div>
+
+            ${s.addingSelect ? renderAddSelectForm() : ""}
+
+            ${hasData ? `
+              <div class="search-wrap" data-comment="attributes-search">
+                ${ICONS.search}
+                <input type="text" class="input"
+                  data-comment="attributes-search-input"
+                  data-component="input"
+                  id="attributes-search-input"
+                  placeholder="Search..."
+                  value="${s.attrSearch}" />
+              </div>
+            ` : ""}
+          </div>
+
+          <div class="tab-body-scroll" data-comment="attributes-scroll">
+            ${list.length === 0 ? `
+              <div class="empty-state" data-comment="attributes-empty" data-component="card">
+                <p class="empty-state-title" data-comment="attributes-empty-title">No selects yet</p>
+                <p class="empty-state-sub" data-comment="attributes-empty-sub">Click "New select" to add the first one.</p>
+              </div>
+            ` : (filtered.length > 0 ? `
+              <div class="attr-list" data-comment="attributes-list">
+                ${filtered.map((a) => renderAttributeRow(a, type)).join("")}
+              </div>
+            ` : `
+              <p class="attr-empty-line" data-comment="attributes-no-results" style="padding:16px 0;">No results for "${s.attrSearch}".</p>
+            `)}
+          </div>
+        `;
+      }
+
+      function renderAddSelectForm() {
+        const s = store.get();
+        return `
+          <div class="add-form-card" data-comment="attributes-add-form" data-component="card">
+            <p class="add-form-title" data-comment="attributes-add-form-title">New select</p>
+            <form class="add-form" data-comment="attributes-add-form-form" id="attributes-add-form">
+              <input type="text" class="input"
+                data-comment="attributes-add-form-name"
+                data-component="input"
+                id="attributes-add-form-name"
+                placeholder="Select name"
+                value="${s.selectName}" />
+              <div class="checkbox-row" data-comment="attributes-add-form-color-row">
+                <input type="checkbox" class="checkbox"
+                  data-comment="attributes-add-form-has-color"
+                  data-component="checkbox"
+                  id="attributes-add-form-has-color"
+                  ${s.hasColor ? "checked" : ""} />
+                <label class="checkbox-label" for="attributes-add-form-has-color"
+                  data-comment="attributes-add-form-has-color-label">
+                  Options have colors
+                </label>
+              </div>
+              <div class="form-actions" data-comment="attributes-add-form-actions">
+                <button type="button" class="btn btn-outline btn-sm"
+                  data-comment="attributes-add-form-cancel"
+                  data-component="button"
+                  id="attributes-add-form-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm"
+                  data-comment="attributes-add-form-save"
+                  data-component="button"
+                  id="attributes-add-form-save"
+                  ${!s.selectName.trim() ? "disabled" : ""}>Save</button>
+              </div>
+            </form>
+          </div>
+        `;
+      }
+
+      function renderAttributeRow(attr, type) {
+        const s = store.get();
+        const expanded = s.expandedRow === attr.id;
+        const adding = s.addingOptionFor === attr.id;
+        const values = attr.values || [];
+        return `
+          <div class="attr-row ${expanded ? "expanded" : ""}" data-comment="attributes-row-${attr.id}" data-component="card">
+            <div class="attr-row-header" data-comment="attributes-row-${attr.id}-header">
+              <button type="button" class="attr-row-toggle"
+                data-comment="attributes-row-${attr.id}-toggle"
+                data-toggle-row="${attr.id}">
+                <span class="attr-row-chev" data-comment="attributes-row-${attr.id}-chev">${ICONS.chevRight}</span>
+                <span class="attr-row-name" data-comment="attributes-row-${attr.id}-name">${attr.name}</span>
+                ${values.length > 0 ? `<span class="attr-row-count" data-comment="attributes-row-${attr.id}-count">${values.length}</span>` : ""}
+              </button>
+              <button type="button" class="btn btn-outline btn-sm"
+                data-comment="attributes-row-${attr.id}-add-option"
+                data-component="button"
+                data-add-option-for="${attr.id}">
+                ${ICONS.plus}
+                Add option
+              </button>
+            </div>
+            ${expanded ? `
+              <div class="attr-row-body" data-comment="attributes-row-${attr.id}-body">
+                ${values.length > 0 ? `
+                  <div class="attr-values" data-comment="attributes-row-${attr.id}-values">
+                    ${values.map((v) => renderAttributeValue(attr, v, type)).join("")}
+                  </div>
+                ` : (!adding ? `
+                  <p class="attr-empty-line" data-comment="attributes-row-${attr.id}-empty">No options yet. Add the first one.</p>
+                ` : "")}
+                ${adding ? `
+                  <form class="inline-add" data-comment="attributes-row-${attr.id}-inline-add" data-row-id="${attr.id}">
+                    <input type="text" class="input input-sm"
+                      data-comment="attributes-row-${attr.id}-option-input"
+                      data-component="input"
+                      id="attributes-option-input"
+                      placeholder="Option name"
+                      value="${s.optionName}" />
+                    <button type="submit" class="btn btn-primary btn-sm"
+                      data-comment="attributes-row-${attr.id}-option-save"
+                      data-component="button"
+                      ${!s.optionName.trim() ? "disabled" : ""}>Save</button>
+                    <button type="button" class="btn btn-outline btn-sm"
+                      data-comment="attributes-row-${attr.id}-option-cancel"
+                      data-component="button"
+                      data-cancel-option>Cancel</button>
+                  </form>
+                ` : ""}
+              </div>
+            ` : ""}
+          </div>
+        `;
+      }
+
+      function renderAttributeValue(attr, v, type) {
+        return `
+          <div class="attr-value-row" data-comment="attributes-value-${v.id}">
+            <div class="attr-value-left" data-comment="attributes-value-${v.id}-left">
+              ${attr.hex_color ? `
+                <button type="button" class="color-dot"
+                  data-comment="attributes-value-${v.id}-color"
+                  style="background:${v.hex_color || "#e2e8f0"};"
+                  title="Change color"></button>
+              ` : ""}
+              <span data-comment="attributes-value-${v.id}-name">${v.name}</span>
+            </div>
+            <button type="button" class="attr-value-delete"
+              data-comment="attributes-value-${v.id}-delete"
+              data-component="button"
+              data-delete-value="${v.id}"
+              data-attr-id="${attr.id}"
+              data-attr-type="${type}"
+              title="Delete option">
+              ${ICONS.trash}
+            </button>
+          </div>
+        `;
+      }
+
+      // Dimensions tab
+      function renderDimensionsTab() {
+        const s = store.get();
+        const term = s.dimSearch.trim().toLowerCase();
+        const filtered = s.dimensions.filter((d) => d.name.toLowerCase().includes(term));
+        return `
+          <div class="tab-toolbar" data-comment="dimensions-toolbar">
+            <div class="toolbar-row" data-comment="dimensions-toolbar-row">
+              <div class="search-wrap" data-comment="dimensions-search">
+                ${ICONS.search}
+                <input type="text" class="input"
+                  data-comment="dimensions-search-input"
+                  data-component="input"
+                  id="dimensions-search-input"
+                  placeholder="Search…"
+                  value="${s.dimSearch}" />
+              </div>
+              ${!s.dimAdding ? `
+                <button type="button" class="btn btn-primary btn-sm"
+                  data-comment="dimensions-add-btn"
+                  data-component="button"
+                  id="dimensions-add-btn">
+                  ${ICONS.plus} Add dimension
+                </button>
+              ` : ""}
+            </div>
+            ${s.dimAdding ? `
+              <form class="inline-form" data-comment="dimensions-add-form" id="dimensions-add-form">
+                <input type="text" class="input input-sm"
+                  data-comment="dimensions-add-name"
+                  data-component="input"
+                  id="dimensions-add-name-input"
+                  placeholder="Name"
+                  value="${s.dimName}" />
+                <input type="number" class="input input-sm input-width"
+                  data-comment="dimensions-add-length"
+                  data-component="input"
+                  id="dimensions-add-length-input"
+                  placeholder="Length"
+                  value="${s.dimLength}" />
+                <input type="number" class="input input-sm input-width"
+                  data-comment="dimensions-add-width"
+                  data-component="input"
+                  id="dimensions-add-width-input"
+                  placeholder="Width"
+                  value="${s.dimWidth}" />
+                <button type="submit" class="btn btn-primary btn-sm"
+                  data-comment="dimensions-add-save"
+                  data-component="button"
+                  ${(!s.dimName.trim() || !s.dimLength || !s.dimWidth) ? "disabled" : ""}>Save</button>
+                <button type="button" class="btn btn-outline btn-sm"
+                  data-comment="dimensions-add-cancel"
+                  data-component="button"
+                  id="dimensions-add-cancel">Cancel</button>
+              </form>
+            ` : ""}
+          </div>
+          <div class="tab-body-scroll" data-comment="dimensions-scroll">
+            ${filtered.length > 0 ? `
+              <div class="list-card" data-comment="dimensions-list" data-component="table">
+                ${filtered.map((d) => `
+                  <div class="list-row" data-comment="dimensions-row-${d.id}">
+                    <div class="attr-value-left" data-comment="dimensions-row-${d.id}-left">
+                      <span class="list-row-name" data-comment="dimensions-row-${d.id}-name">${d.name}</span>
+                      <span class="list-row-meta" data-comment="dimensions-row-${d.id}-meta">${d.length} × ${d.width}</span>
+                    </div>
+                    <button type="button" class="attr-value-delete"
+                      data-comment="dimensions-row-${d.id}-delete"
+                      data-component="button"
+                      data-delete-dim="${d.id}"
+                      title="Delete dimension">${ICONS.trash}</button>
+                  </div>
+                `).join("")}
+              </div>
+            ` : `
+              <p class="attr-empty-line" data-comment="dimensions-empty" style="padding:16px 0;">${s.dimSearch.trim()
+                ? `No results for "${s.dimSearch}".`
+                : "No dimensions yet. Add the first one above."}</p>
+            `}
+          </div>
+        `;
+      }
+
+      // Categories tab
+      function renderCategoriesTab() {
+        const s = store.get();
+        const term = s.catSearch.trim().toLowerCase();
+        const filtered = s.categories.filter((c) => c.name.toLowerCase().includes(term));
+        return `
+          <div class="tab-toolbar" data-comment="categories-toolbar">
+            <div class="toolbar-row" data-comment="categories-toolbar-row">
+              <div class="search-wrap" data-comment="categories-search">
+                ${ICONS.search}
+                <input type="text" class="input"
+                  data-comment="categories-search-input"
+                  data-component="input"
+                  id="categories-search-input"
+                  placeholder="Search…"
+                  value="${s.catSearch}" />
+              </div>
+              ${!s.catAdding ? `
+                <button type="button" class="btn btn-primary btn-sm"
+                  data-comment="categories-add-btn"
+                  data-component="button"
+                  id="categories-add-btn">
+                  ${ICONS.plus} Add category
+                </button>
+              ` : ""}
+            </div>
+            ${s.catAdding ? `
+              <form class="inline-form" data-comment="categories-add-form" id="categories-add-form">
+                <input type="text" class="input input-sm"
+                  data-comment="categories-add-name"
+                  data-component="input"
+                  id="categories-add-name-input"
+                  placeholder="Category name"
+                  value="${s.catName}" />
+                <div class="checkbox-row" data-comment="categories-add-with-values-row">
+                  <input type="checkbox" class="checkbox"
+                    data-comment="categories-add-with-values"
+                    data-component="checkbox"
+                    id="categories-add-with-values"
+                    ${s.catWithValues ? "checked" : ""} />
+                  <label class="checkbox-label" for="categories-add-with-values"
+                    data-comment="categories-add-with-values-label">
+                    Show building options
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm"
+                  data-comment="categories-add-save"
+                  data-component="button"
+                  ${!s.catName.trim() ? "disabled" : ""}>Save</button>
+                <button type="button" class="btn btn-outline btn-sm"
+                  data-comment="categories-add-cancel"
+                  data-component="button"
+                  id="categories-add-cancel">Cancel</button>
+              </form>
+            ` : ""}
+          </div>
+          <div class="tab-body-scroll" data-comment="categories-scroll">
+            ${filtered.length > 0 ? `
+              <div class="list-card" data-comment="categories-list" data-component="table">
+                ${filtered.map((c) => `
+                  <div class="list-row" data-comment="categories-row-${c.id}">
+                    <div class="attr-value-left" data-comment="categories-row-${c.id}-left">
+                      <span class="list-row-name" data-comment="categories-row-${c.id}-name">${c.name}</span>
+                      ${c.with_attribute_values
+                        ? `<span class="pill" data-comment="categories-row-${c.id}-pill" data-component="badge">Building options</span>`
+                        : ""}
+                    </div>
+                    <button type="button" class="attr-value-delete"
+                      data-comment="categories-row-${c.id}-delete"
+                      data-component="button"
+                      data-delete-cat="${c.id}"
+                      title="Delete category">${ICONS.trash}</button>
+                  </div>
+                `).join("")}
+              </div>
+            ` : `
+              <p class="attr-empty-line" data-comment="categories-empty" style="padding:16px 0;">${s.catSearch.trim()
+                ? `No results for "${s.catSearch}".`
+                : "No production categories yet. Add the first one above."}</p>
+            `}
+          </div>
+        `;
+      }
+
+      // ───── Subscriptions ─────
+      store.subscribe(renderSidebarNav);
+      store.subscribe(renderUser);
+      store.subscribe(renderCollapse);
+      store.subscribe(renderSearch);
+      store.subscribe(renderTopTabs);
+      store.subscribe(renderSubTabs);
+      store.subscribe(renderTabBody);
+
+      // ───── Initial render ─────
+      renderSidebarNav();
+      renderUser();
+      renderCollapse();
+      renderSearch();
+      renderTopTabs();
+      renderSubTabs();
+      renderTabBody();
+
+      // Simulate loading
+      setTimeout(() => store.set({ isLoading: false }), 350);
+
+      // ───── Handlers: sidebar ─────
+      document.getElementById("sidebar-collapse-btn").addEventListener("click", () => {
+        store.set((s) => ({ collapsed: !s.collapsed }));
+      });
+      const sidebarSearchInput = document.getElementById("sidebar-search-input");
+      sidebarSearchInput.addEventListener("focus", () => store.set({ searchOpen: true }));
+      sidebarSearchInput.addEventListener("blur", () => setTimeout(() => store.set({ searchOpen: false }), 150));
+      sidebarSearchInput.addEventListener("input", (e) => store.set({ searchTerm: e.target.value }));
+      document.getElementById("sidebar-search-list").addEventListener("mousedown", (e) => {
+        const btn = e.target.closest("[data-customer-id]");
+        if (!btn) return;
+        const id = btn.dataset.customerId;
+        sidebarSearchInput.value = "";
+        store.set({ searchOpen: false, searchTerm: "" });
+        window.location.href = `customer-detail.html?id=${id}`;
+      });
+      document.getElementById("sidebar-user-logout").addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+
+      // ───── Handlers: top tabs ─────
+      document.querySelector(".tabs-list").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-toptab]");
+        if (!btn) return;
+        store.set({
+          topTab: btn.dataset.toptab,
+          addingSelect: false,
+          selectName: "",
+          hasColor: false,
+          expandedRow: null,
+          addingOptionFor: null,
+          optionName: "",
+          attrSearch: "",
+        });
+      });
+
+      // ───── Handlers: tab body (delegated) ─────
+      const tabBody = document.getElementById("attributes-tab-body");
+
+      tabBody.addEventListener("click", (e) => {
+        const s = store.get();
+
+        // Sub-tab switching delegated on outer (handled below)
+        // Toggle attribute row
+        const toggleBtn = e.target.closest("[data-toggle-row]");
+        if (toggleBtn) {
+          const id = Number(toggleBtn.dataset.toggleRow);
+          store.set({ expandedRow: s.expandedRow === id ? null : id, addingOptionFor: null, optionName: "" });
+          return;
+        }
+
+        // Open "Add option" inline form
+        const addOptionBtn = e.target.closest("[data-add-option-for]");
+        if (addOptionBtn) {
+          const id = Number(addOptionBtn.dataset.addOptionFor);
+          store.set({ expandedRow: id, addingOptionFor: id, optionName: "" });
+          return;
+        }
+
+        // Cancel add option
+        if (e.target.closest("[data-cancel-option]")) {
+          store.set({ addingOptionFor: null, optionName: "" });
+          return;
+        }
+
+        // Delete attribute value
+        const delValueBtn = e.target.closest("[data-delete-value]");
+        if (delValueBtn) {
+          deleteAttributeValue(
+            delValueBtn.dataset.attrType,
+            Number(delValueBtn.dataset.attrId),
+            Number(delValueBtn.dataset.deleteValue),
+          );
+          return;
+        }
+
+        // Dimensions add button
+        if (e.target.closest("#dimensions-add-btn")) {
+          store.set({ dimAdding: true });
+          return;
+        }
+        if (e.target.closest("#dimensions-add-cancel")) {
+          store.set({ dimAdding: false, dimName: "", dimLength: "", dimWidth: "" });
+          return;
+        }
+        const delDim = e.target.closest("[data-delete-dim]");
+        if (delDim) {
+          deleteDimension(Number(delDim.dataset.deleteDim));
+          return;
+        }
+
+        // Categories add button
+        if (e.target.closest("#categories-add-btn")) {
+          store.set({ catAdding: true });
+          return;
+        }
+        if (e.target.closest("#categories-add-cancel")) {
+          store.set({ catAdding: false, catName: "", catWithValues: false });
+          return;
+        }
+        const delCat = e.target.closest("[data-delete-cat]");
+        if (delCat) {
+          deleteCategory(Number(delCat.dataset.deleteCat));
+          return;
+        }
+
+        // Add-select form cancel
+        if (e.target.closest("#attributes-add-form-cancel")) {
+          store.set({ addingSelect: false, selectName: "", hasColor: false });
+          return;
+        }
+      });
+
+      // Inputs (delegated via input event)
+      tabBody.addEventListener("input", (e) => {
+        const t = e.target;
+        if (t.id === "attributes-search-input") {
+          // mutate without full re-render — keep focus
+          store.get().attrSearch = t.value;
+          // For simple re-render skip; instead schedule render but preserve focus
+          const cursor = t.selectionStart;
+          store.set({ attrSearch: t.value });
+          const refreshed = document.getElementById("attributes-search-input");
+          if (refreshed) { refreshed.focus(); refreshed.setSelectionRange(cursor, cursor); }
+          return;
+        }
+        if (t.id === "attributes-add-form-name") {
+          const cursor = t.selectionStart;
+          store.set({ selectName: t.value });
+          const refreshed = document.getElementById("attributes-add-form-name");
+          if (refreshed) { refreshed.focus(); refreshed.setSelectionRange(cursor, cursor); }
+          return;
+        }
+        if (t.id === "attributes-option-input") {
+          const cursor = t.selectionStart;
+          store.set({ optionName: t.value });
+          const refreshed = document.getElementById("attributes-option-input");
+          if (refreshed) { refreshed.focus(); refreshed.setSelectionRange(cursor, cursor); }
+          return;
+        }
+        if (t.id === "dimensions-search-input") {
+          const cursor = t.selectionStart;
+          store.set({ dimSearch: t.value });
+          const refreshed = document.getElementById("dimensions-search-input");
+          if (refreshed) { refreshed.focus(); refreshed.setSelectionRange(cursor, cursor); }
+          return;
+        }
+        if (t.id === "dimensions-add-name-input") {
+          const cursor = t.selectionStart;
+          store.set({ dimName: t.value });
+          const refreshed = document.getElementById("dimensions-add-name-input");
+          if (refreshed) { refreshed.focus(); refreshed.setSelectionRange(cursor, cursor); }
+          return;
+        }
+        if (t.id === "dimensions-add-length-input") {
+          store.set({ dimLength: t.value });
+          const refreshed = document.getElementById("dimensions-add-length-input");
+          if (refreshed) refreshed.focus();
+          return;
+        }
+        if (t.id === "dimensions-add-width-input") {
+          store.set({ dimWidth: t.value });
+          const refreshed = document.getElementById("dimensions-add-width-input");
+          if (refreshed) refreshed.focus();
+          return;
+        }
+        if (t.id === "categories-search-input") {
+          const cursor = t.selectionStart;
+          store.set({ catSearch: t.value });
+          const refreshed = document.getElementById("categories-search-input");
+          if (refreshed) { refreshed.focus(); refreshed.setSelectionRange(cursor, cursor); }
+          return;
+        }
+        if (t.id === "categories-add-name-input") {
+          const cursor = t.selectionStart;
+          store.set({ catName: t.value });
+          const refreshed = document.getElementById("categories-add-name-input");
+          if (refreshed) { refreshed.focus(); refreshed.setSelectionRange(cursor, cursor); }
+          return;
+        }
+      });
+
+      // Checkbox change
+      tabBody.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t.id === "attributes-add-form-has-color") {
+          store.set({ hasColor: t.checked });
+          return;
+        }
+        if (t.id === "categories-add-with-values") {
+          store.set({ catWithValues: t.checked });
+          return;
+        }
+      });
+
+      // Form submit
+      tabBody.addEventListener("submit", (e) => {
+        const s = store.get();
+        const activeType = s.topTab === "users" ? "user" : s.productSubTab;
+        if (e.target.id === "attributes-add-form") {
+          e.preventDefault();
+          if (!s.selectName.trim()) return;
+          addAttribute({ name: s.selectName.trim(), has_color: s.hasColor, type: activeType });
+          return;
+        }
+        if (e.target.dataset.comment && e.target.dataset.comment.endsWith("-inline-add")) {
+          e.preventDefault();
+          if (!s.optionName.trim()) return;
+          const rowId = Number(e.target.dataset.rowId);
+          addAttributeValue(activeType, rowId, s.optionName.trim());
+          return;
+        }
+        if (e.target.id === "dimensions-add-form") {
+          e.preventDefault();
+          if (!s.dimName.trim() || !s.dimLength || !s.dimWidth) return;
+          addDimension({ name: s.dimName.trim(), length: s.dimLength, width: s.dimWidth });
+          return;
+        }
+        if (e.target.id === "categories-add-form") {
+          e.preventDefault();
+          if (!s.catName.trim()) return;
+          addCategory({ name: s.catName.trim(), with_attribute_values: s.catWithValues });
+          return;
+        }
+      });
+
+      // ───── Handlers: sub-tabs ─────
+      document.getElementById("attributes-sub-tabs").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-subtab]");
+        if (!btn) return;
+        const s = store.get();
+        if (s.topTab === "users") return; // user has only one sub-tab
+        store.set({
+          productSubTab: btn.dataset.subtab,
+          addingSelect: false,
+          selectName: "",
+          hasColor: false,
+          expandedRow: null,
+          addingOptionFor: null,
+          optionName: "",
+          attrSearch: "",
+        });
+      });
+
+      // ───── Reveal ─────
+      const observer = new IntersectionObserver(
+        (entries) => entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("is-visible");
+        }),
+        { threshold: 0.1 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+    </script>
+  </body>
+</html>

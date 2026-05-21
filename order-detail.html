@@ -1,0 +1,2498 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapp Structures — Order Detail</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      /* ───── Reset ───── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ───── Design tokens ───── */
+      :root {
+        --radius: 0.5rem;
+        --background: oklch(0.93 0.011 257);
+        --background-secondary: oklch(98.837% 0.00143 285.197);
+        --foreground: oklch(0.14 0.033 262);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.22 0.03 255);
+        --popover: oklch(1 0 0);
+        --primary: oklch(0.53 0.18 260);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.97 0.005 250);
+        --secondary-foreground: oklch(0.14 0.033 262);
+        --secondary-hover: oklch(0.93 0.011 257);
+        --muted: oklch(0.97 0.005 250);
+        --muted-foreground: oklch(0.56 0.023 255);
+        --accent: oklch(0.96 0.03 260);
+        --accent-foreground: oklch(0.53 0.18 260);
+        --destructive: oklch(0.50 0.19 25);
+        --success: oklch(0.58 0.16 150);
+        --border: oklch(0.93 0.011 257);
+        --input: oklch(0.92 0.01 250);
+        --ring: oklch(0.53 0.18 260);
+
+        --sidebar: oklch(1 0 0);
+        --sidebar-foreground: oklch(0.55 0.02 255);
+        --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-accent: oklch(0.97 0.005 250);
+        --sidebar-accent-foreground: oklch(0.14 0.033 262);
+        --sidebar-border: oklch(0.92 0.01 250);
+
+        --amber-bg: #fef3c7;
+        --amber-fg: #92400e;
+        --green-bg: #dcfce7;
+        --green-fg: #166534;
+
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--background);
+        color: var(--foreground);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        overflow: hidden;
+      }
+
+      button {
+        cursor: pointer;
+        font-family: inherit;
+        border: 0;
+        background: transparent;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      /* ───── Scrollbar ───── */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+      }
+
+      /* ───── App layout ───── */
+      .app-shell {
+        background: var(--background);
+        padding: 16px;
+        height: 100vh;
+      }
+
+      .app-frame {
+        display: flex;
+        height: calc(100vh - 32px);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      /* ───── Sidebar (copied from home.html) ───── */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        background: var(--sidebar);
+        border-right: 1px solid var(--border);
+        flex-shrink: 0;
+        overflow: hidden;
+        width: 240px;
+        transition: width 0.2s ease;
+      }
+      .sidebar.collapsed { width: 56px; }
+
+      .sidebar-logo {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        padding: 0 16px 16px;
+        height: 64px;
+        flex-shrink: 0;
+        transition: opacity 0.15s ease;
+      }
+      .sidebar-logo:hover { opacity: 0.9; }
+      .sidebar.collapsed .sidebar-logo {
+        justify-content: center;
+        padding: 0 0 16px;
+        gap: 0;
+      }
+
+      .sidebar-logo-mark {
+        display: flex;
+        width: 32px;
+        height: 32px;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-logo-mark img { width: 24px; height: 24px; }
+
+      .sidebar-logo-text {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        line-height: 1.2;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+        color: var(--brand-navy);
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-logo-text { width: 0; opacity: 0; }
+
+      .sidebar-search {
+        position: relative;
+        padding: 0 8px 4px;
+      }
+      .sidebar-search-input-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        padding: 6px 10px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .sidebar-search-input-wrap:hover,
+      .sidebar-search-input-wrap.is-open {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-search-input-wrap.is-open {
+        border-color: color-mix(in oklch, var(--sidebar-foreground) 20%, transparent);
+      }
+      .sidebar-search-icon {
+        width: 14px;
+        height: 14px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        flex-shrink: 0;
+      }
+      .sidebar-search-input {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        font-size: 0.875rem;
+        font-family: inherit;
+        color: var(--sidebar-foreground);
+        border: 0;
+        outline: none;
+      }
+      .sidebar-search-input::placeholder {
+        color: color-mix(in oklch, var(--sidebar-foreground) 40%, transparent);
+      }
+      .sidebar-search-dropdown {
+        position: absolute;
+        bottom: 100%;
+        left: 4px;
+        right: 4px;
+        margin-bottom: 4px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--popover);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        z-index: 50;
+      }
+      .sidebar-search-dropdown-empty {
+        padding: 16px 12px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+      }
+      .sidebar-search-dropdown ul {
+        list-style: none;
+        max-height: 224px;
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+      .sidebar-search-dropdown-item {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        text-align: left;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .sidebar-search-dropdown-item:hover { background: var(--accent); }
+      .sidebar-search-dropdown-item-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.2;
+      }
+      .sidebar-search-dropdown-item-email {
+        margin-top: 2px;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        line-height: 1.2;
+      }
+      .sidebar.collapsed .sidebar-search { padding: 0 8px 4px; }
+      .sidebar.collapsed .sidebar-search-collapsed {
+        height: 34px;
+        padding-bottom: 4px;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        margin: 0 8px;
+        display: flex;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .sidebar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .sidebar-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 10px 6px 6px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-nav-link:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-nav-link.active {
+        background: var(--sidebar-accent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-nav-link-icon {
+        padding: 4px;
+        border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.15s ease;
+      }
+      .sidebar-nav-link.active .sidebar-nav-link-icon { background: var(--sidebar); }
+      .sidebar-nav-link-icon svg { width: 16px; height: 16px; }
+      .sidebar-nav-link-label {
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-nav-link-label { width: 0; opacity: 0; }
+      .sidebar-nav-link-badge {
+        margin-left: auto;
+        display: inline-flex;
+        gap: 4px;
+      }
+      .sidebar.collapsed .sidebar-nav-link-badge { display: none; }
+      .sidebar-badge {
+        display: inline-flex;
+        width: 20px;
+        height: 20px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        padding: 0 4px;
+      }
+      .sidebar-badge.amber { background: rgba(245, 158, 11, 0.2); color: rgb(180, 83, 9); }
+      .sidebar-badge.blue { background: rgba(59, 130, 246, 0.2); color: rgb(29, 78, 216); }
+
+      .sidebar-bottom {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 0 8px 16px;
+        flex-shrink: 0;
+      }
+      .sidebar-collapse-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 6px 10px 6px 6px;
+        border-radius: 6px;
+        color: var(--sidebar-foreground);
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-collapse-btn:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-collapse-btn-icon {
+        padding: 4px;
+        border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-collapse-btn:hover .sidebar-collapse-btn-icon { background: var(--sidebar); }
+      .sidebar-collapse-btn-icon svg { width: 16px; height: 16px; }
+      .sidebar-collapse-btn-label {
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-collapse-btn-label { width: 0; opacity: 0; }
+      .sidebar-user {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 6px;
+        border-radius: 6px;
+      }
+      .sidebar.collapsed .sidebar-user { justify-content: center; }
+      .sidebar-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 9999px;
+        background: var(--primary);
+        color: var(--primary-foreground);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      .sidebar-user-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .sidebar.collapsed .sidebar-user-text,
+      .sidebar.collapsed .sidebar-user-logout { display: none; }
+      .sidebar-user-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-user-email {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-user-logout {
+        flex-shrink: 0;
+        padding: 4px;
+        border-radius: 6px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        transition: background 0.15s ease, color 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sidebar-user-logout:hover {
+        color: var(--sidebar-foreground);
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-user-logout svg { width: 16px; height: 16px; }
+
+      /* ───── Main ───── */
+      .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: var(--background-secondary);
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      /* ───── Page header ───── */
+      .page-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 16px;
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) {
+        .page-header { padding: 16px; }
+      }
+
+      .page-header-title-wrap {
+        min-width: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .page-header-title {
+        font-size: 1.125rem;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
+      }
+      @media (min-width: 640px) {
+        .page-header-title { font-size: 1.25rem; }
+      }
+
+      .page-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      /* ───── Buttons ───── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        white-space: nowrap;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        font-family: inherit;
+        height: 36px;
+        padding: 8px 12px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .btn:disabled { pointer-events: none; opacity: 0.5; }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+      .btn-primary:hover { background: color-mix(in oklch, var(--primary) 90%, black); }
+
+      .btn-outline {
+        background: var(--card);
+        color: var(--foreground);
+        border: 1px solid var(--border);
+      }
+      .btn-outline:hover { background: var(--secondary); }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted-foreground);
+      }
+      .btn-ghost:hover {
+        background: var(--secondary);
+        color: var(--foreground);
+      }
+
+      .btn-sm {
+        height: 32px;
+        padding: 6px 10px;
+        font-size: 0.8125rem;
+      }
+
+      .btn svg { width: 16px; height: 16px; }
+
+      /* ───── Status badge (used in header) ───── */
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 9999px;
+        padding: 2px 10px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      .status-badge.amber { background: var(--amber-bg); color: var(--amber-fg); }
+      .status-badge.green { background: var(--green-bg); color: var(--green-fg); }
+
+      /* ───── Card (mirrors React <Card>) ───── */
+      .od-card {
+        background: var(--card);
+        color: var(--card-foreground);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        break-inside: avoid;
+      }
+      .od-card-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .od-card-title {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--foreground);
+      }
+      .od-card-content { display: flex; flex-direction: column; gap: 12px; }
+
+      /* ───── Section wrapper (rounded muted background) ───── */
+      .od-section {
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        padding: 14px;
+        background: var(--muted);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .od-section-title {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--muted-foreground);
+        margin-bottom: 2px;
+      }
+
+      /* ───── Two-column card layout (CSS columns to mimic md:columns-2) ───── */
+      .od-cards-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      @media (min-width: 768px) {
+        .od-cards-grid { grid-template-columns: repeat(2, 1fr); align-items: start; }
+      }
+
+      /* ───── Detail row ───── */
+      .od-detail-row {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .od-detail-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--foreground);
+      }
+      .od-detail-value {
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+
+      .od-checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.875rem;
+      }
+      .od-checkbox {
+        width: 16px;
+        height: 16px;
+        border: 1px solid var(--input);
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .od-checkbox.is-checked {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--primary-foreground);
+      }
+      .od-checkbox svg { width: 12px; height: 12px; }
+
+      /* ───── Timeline ───── */
+      .od-timeline {
+        list-style: none;
+        position: relative;
+        margin: 0;
+        padding: 0;
+      }
+      .od-timeline-item {
+        position: relative;
+      }
+      .od-timeline-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 12px 6px 4px;
+        border-radius: 6px;
+        text-align: left;
+        width: 100%;
+        background: transparent;
+        font-family: inherit;
+      }
+      .od-timeline-row.is-current { background: color-mix(in oklch, var(--primary) 10%, transparent); }
+      .od-timeline-row.is-clickable { cursor: pointer; }
+      .od-timeline-row.is-clickable:hover { background: color-mix(in oklch, var(--muted) 50%, transparent); }
+
+      .od-timeline-dot-wrap {
+        position: relative;
+        display: flex;
+        height: 24px;
+        width: 20px;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+      }
+      .od-timeline-dot {
+        z-index: 1;
+        display: inline-flex;
+        height: 20px;
+        width: 20px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        border: 2px solid color-mix(in oklch, var(--primary) 30%, transparent);
+        background: var(--background-secondary);
+        color: var(--primary-foreground);
+      }
+      .od-timeline-dot.is-completed {
+        border-color: var(--primary);
+        background: var(--primary);
+      }
+      .od-timeline-dot.is-current {
+        border-color: var(--primary);
+      }
+      .od-timeline-dot svg { width: 12px; height: 12px; }
+      .od-timeline-dot-current-inner {
+        width: 8px;
+        height: 8px;
+        border-radius: 9999px;
+        background: var(--primary);
+      }
+      .od-timeline-connector {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        height: calc(100% + 0.375rem);
+        width: 1px;
+        transform: translateX(-50%);
+        background: var(--primary);
+      }
+      .od-timeline-connector.is-locked { background: color-mix(in oklch, var(--primary) 30%, transparent); }
+
+      .od-timeline-label {
+        flex: 1;
+        font-size: 0.875rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .od-timeline-label.is-current { color: var(--primary); }
+      .od-timeline-label.is-locked { color: var(--muted-foreground); }
+
+      .od-timeline-date {
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        font-variant-numeric: tabular-nums;
+        flex-shrink: 0;
+      }
+      .od-timeline-state {
+        font-size: 0.75rem;
+        font-weight: 500;
+        width: 80px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .od-timeline-state.is-completed { color: var(--foreground); }
+      .od-timeline-state.is-current { color: var(--primary); }
+      .od-timeline-state.is-locked { color: var(--muted-foreground); }
+
+      /* ───── Address block ───── */
+      .od-address {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .od-address-title {
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted-foreground);
+        margin-bottom: 4px;
+      }
+      .od-address-line {
+        font-size: 0.875rem;
+        color: var(--foreground);
+      }
+
+      /* ───── File area / image grid ───── */
+      .od-files-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      @media (min-width: 640px) {
+        .od-files-grid { grid-template-columns: repeat(3, 1fr); }
+      }
+      @media (min-width: 1024px) {
+        .od-files-grid { grid-template-columns: repeat(4, 1fr); }
+      }
+      .od-file-card {
+        aspect-ratio: 1 / 1;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--background-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted-foreground);
+        flex-direction: column;
+        gap: 6px;
+        font-size: 0.75rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .od-file-card svg { width: 24px; height: 24px; opacity: 0.6; }
+      .od-file-upload {
+        cursor: pointer;
+        border-style: dashed;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .od-file-upload:hover {
+        background: var(--secondary);
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      .od-file-remove {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 22px;
+        height: 22px;
+        border-radius: 9999px;
+        background: rgba(0,0,0,0.55);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .od-file-remove svg { width: 12px; height: 12px; opacity: 1; }
+      .od-file-name {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        right: 6px;
+        font-size: 0.6875rem;
+        color: white;
+        background: rgba(0,0,0,0.5);
+        padding: 2px 6px;
+        border-radius: 4px;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* ───── Line items table ───── */
+      .od-table-shell {
+        border-radius: 12px;
+        background: var(--card);
+        padding: 10px;
+      }
+      .od-table-scroll {
+        overflow-x: auto;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card);
+      }
+      .od-line-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+      .od-line-table thead tr {
+        border-bottom: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+        background: color-mix(in oklch, var(--muted) 30%, transparent);
+      }
+      .od-line-table th {
+        padding: 8px 12px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+      }
+      .od-line-table th.t-right { text-align: right; }
+      .od-line-table th.t-center { text-align: center; }
+      .od-line-table tbody tr {
+        border-bottom: 1px solid color-mix(in oklch, var(--border) 40%, transparent);
+        vertical-align: top;
+      }
+      .od-line-table tbody tr:last-child { border-bottom: 0; }
+      .od-line-table td {
+        padding: 8px 12px;
+        border-right: 1px solid color-mix(in oklch, var(--border) 30%, transparent);
+      }
+      .od-line-table td:last-child { border-right: 0; }
+      .od-line-table td.t-right { text-align: right; font-variant-numeric: tabular-nums; }
+      .od-line-table td.t-center { text-align: center; }
+      .od-line-table .empty {
+        padding: 32px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      /* ───── Review process cards ───── */
+      .od-review-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      @media (max-width: 640px) {
+        .od-review-grid { grid-template-columns: 1fr; }
+      }
+      .od-review-card-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 2px 10px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      .od-review-card-status.is-pending {
+        background: var(--amber-bg);
+        color: var(--amber-fg);
+      }
+      .od-review-card-status.is-done {
+        background: var(--green-bg);
+        color: var(--green-fg);
+      }
+      .od-review-card-meta {
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+      }
+      .od-review-card-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 4px;
+      }
+
+      /* ───── Footer ───── */
+      .od-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 12px 16px 16px;
+        flex-shrink: 0;
+        border-top: 1px solid var(--border);
+        background: var(--background-secondary);
+      }
+      .od-footer-top {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-end;
+        width: 100%;
+      }
+      @media (min-width: 640px) {
+        .od-footer-top { flex-direction: row; }
+      }
+      .od-footer-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-right: auto;
+      }
+      .od-footer-meta-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--foreground);
+      }
+      .od-footer-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.875rem;
+      }
+      .od-footer-meta-row .label {
+        width: 96px;
+        color: var(--muted-foreground);
+      }
+      .od-footer-summary {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        background: var(--muted);
+        width: 100%;
+        max-width: 288px;
+        font-size: 0.875rem;
+      }
+      .od-summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 2px 0;
+      }
+      .od-summary-row .label { color: var(--muted-foreground); }
+      .od-summary-row .value { color: var(--foreground); font-variant-numeric: tabular-nums; }
+      .od-summary-divider {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--border);
+      }
+      .od-summary-total {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 600;
+      }
+
+      .od-footer-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+        width: 100%;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+      }
+
+      /* ───── Dialog ───── */
+      .od-dialog-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 60;
+        padding: 24px;
+      }
+      .od-dialog-overlay.is-open { display: flex; }
+      .od-dialog {
+        background: var(--card);
+        border-radius: 14px;
+        padding: 20px;
+        max-width: 460px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      }
+      .od-dialog-title { font-size: 1.05rem; font-weight: 600; }
+      .od-dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
+      .od-dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+      .od-form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .od-form-row label {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--foreground);
+      }
+      .od-form-row input,
+      .od-form-row select,
+      .od-form-row textarea {
+        height: 36px;
+        padding: 0 10px;
+        border: 1px solid var(--input);
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 0.875rem;
+        outline: none;
+        background: var(--card);
+        color: var(--foreground);
+      }
+      .od-form-row textarea {
+        height: auto;
+        min-height: 64px;
+        padding: 8px 10px;
+        resize: vertical;
+      }
+      .od-form-row input:focus,
+      .od-form-row select:focus,
+      .od-form-row textarea:focus { border-color: var(--ring); }
+
+      /* ───── Body ───── */
+      .od-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      @media (min-width: 640px) {
+        .od-body { padding: 16px; gap: 24px; }
+      }
+
+      /* ───── Skeleton ───── */
+      .skeleton {
+        display: block;
+        background: linear-gradient(
+          90deg,
+          color-mix(in oklch, var(--muted) 70%, transparent) 25%,
+          color-mix(in oklch, var(--border) 70%, transparent) 50%,
+          color-mix(in oklch, var(--muted) 70%, transparent) 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-pulse 1.4s ease-in-out infinite;
+        border-radius: 4px;
+      }
+      @keyframes skeleton-pulse {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* ───── Empty / error state ───── */
+      .od-empty {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 64px 24px;
+        text-align: center;
+        gap: 12px;
+        color: var(--muted-foreground);
+      }
+      .od-empty svg { width: 48px; height: 48px; opacity: 0.4; }
+      .od-empty-heading { font-size: 1.05rem; font-weight: 500; color: var(--foreground); }
+      .od-empty-text { font-size: 0.875rem; }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-comment="order-detail-app-shell">
+      <div class="app-frame" data-comment="order-detail-app-frame">
+        <!-- ───── Sidebar ───── -->
+        <aside
+          class="sidebar"
+          data-comment="order-detail-sidebar"
+          id="sidebar"
+          aria-label="Primary navigation">
+          <a
+            class="sidebar-logo"
+            data-comment="order-detail-sidebar-logo"
+            href="home.html"
+            aria-label="Go to home">
+            <span class="sidebar-logo-mark" data-comment="order-detail-sidebar-logo-mark">
+              <img
+                data-comment="order-detail-sidebar-logo-img"
+                src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png"
+                alt="Lapp Structures" />
+            </span>
+            <span class="sidebar-logo-text" data-comment="order-detail-sidebar-logo-text">Lapp Structures</span>
+          </a>
+
+          <div class="sidebar-search" data-comment="order-detail-sidebar-search" id="sidebar-search-wrap">
+            <div
+              class="sidebar-search-input-wrap"
+              data-comment="order-detail-sidebar-search-input-wrap"
+              id="sidebar-search-input-wrap">
+              <svg
+                class="sidebar-search-icon"
+                data-comment="order-detail-sidebar-search-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                class="sidebar-search-input"
+                data-comment="order-detail-sidebar-search-input"
+                id="sidebar-search-input"
+                placeholder="Find customer..." />
+            </div>
+            <div
+              class="sidebar-search-dropdown"
+              data-comment="order-detail-sidebar-search-dropdown"
+              id="sidebar-search-dropdown"
+              style="display: none">
+              <div
+                class="sidebar-search-dropdown-empty"
+                data-comment="order-detail-sidebar-search-dropdown-empty"
+                id="sidebar-search-empty">
+                No customers found.
+              </div>
+              <ul
+                data-comment="order-detail-sidebar-search-dropdown-list"
+                id="sidebar-search-list"
+                style="display: none"></ul>
+            </div>
+          </div>
+
+          <div
+            class="sidebar-search-collapsed"
+            data-comment="order-detail-sidebar-search-collapsed"
+            id="sidebar-search-collapsed"
+            style="display: none">
+            <svg
+              class="sidebar-search-icon"
+              data-comment="order-detail-sidebar-search-collapsed-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          <nav class="sidebar-nav" data-comment="order-detail-sidebar-nav" id="sidebar-nav"></nav>
+
+          <div class="sidebar-bottom" data-comment="order-detail-sidebar-bottom">
+            <button
+              class="sidebar-collapse-btn"
+              data-comment="order-detail-sidebar-collapse-btn"
+              id="sidebar-collapse-btn"
+              type="button">
+              <span class="sidebar-collapse-btn-icon" data-comment="order-detail-sidebar-collapse-btn-icon">
+                <svg id="icon-collapse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m16 15-3-3 3-3" />
+                </svg>
+                <svg id="icon-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m14 9 3 3-3 3" />
+                </svg>
+              </span>
+              <span class="sidebar-collapse-btn-label" data-comment="order-detail-sidebar-collapse-btn-label">Minimize bar</span>
+            </button>
+
+            <div class="sidebar-user" data-comment="order-detail-sidebar-user">
+              <div class="sidebar-user-info" data-comment="order-detail-sidebar-user-info">
+                <span
+                  class="avatar"
+                  data-comment="order-detail-sidebar-user-avatar"
+                  data-component="avatar"
+                  id="sidebar-user-avatar">AL</span>
+                <div class="sidebar-user-text" data-comment="order-detail-sidebar-user-text">
+                  <span class="sidebar-user-name" data-comment="order-detail-sidebar-user-name" id="sidebar-user-name">Anna Lee</span>
+                  <span class="sidebar-user-email" data-comment="order-detail-sidebar-user-email" id="sidebar-user-email">anna@lapp.com</span>
+                </div>
+              </div>
+              <button
+                class="sidebar-user-logout"
+                data-comment="order-detail-sidebar-user-logout"
+                id="sidebar-user-logout"
+                title="Log out"
+                type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ───── Main ───── -->
+        <main class="main" data-comment="order-detail-main">
+          <div class="main-content" data-comment="order-detail-main-content">
+            <!-- Page header -->
+            <header class="page-header" data-comment="order-detail-page-header">
+              <div class="page-header-title-wrap" data-comment="order-detail-page-header-title-wrap">
+                <h1 class="page-header-title" data-comment="order-detail-page-title" id="order-detail-page-title">
+                  Sales Order
+                </h1>
+                <span id="order-detail-header-status-slot" data-comment="order-detail-header-status-slot"></span>
+              </div>
+              <div class="page-header-actions" data-comment="order-detail-page-header-actions">
+                <a
+                  class="btn btn-ghost btn-sm"
+                  data-comment="order-detail-action-back"
+                  data-component="button"
+                  href="orders.html">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                  Back
+                </a>
+              </div>
+            </header>
+
+            <!-- Content slot — re-rendered based on state -->
+            <div id="order-detail-content" data-comment="order-detail-content" class="od-body"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Payment dialog -->
+    <div class="od-dialog-overlay" data-comment="order-detail-payment-dialog-overlay" id="payment-dialog-overlay">
+      <div class="od-dialog" data-comment="order-detail-payment-dialog" data-component="dialog" role="dialog" aria-modal="true">
+        <div data-comment="order-detail-payment-dialog-header">
+          <h2 class="od-dialog-title" data-comment="order-detail-payment-dialog-title">Down payment</h2>
+          <p class="od-dialog-description" data-comment="order-detail-payment-dialog-description">Record a down payment for this order.</p>
+        </div>
+        <div class="od-form-row" data-comment="order-detail-payment-amount-row">
+          <label for="payment-amount" data-comment="order-detail-payment-amount-label">Amount</label>
+          <input type="text" id="payment-amount" data-comment="order-detail-payment-amount-input" data-component="input" placeholder="$0.00" />
+        </div>
+        <div class="od-form-row" data-comment="order-detail-payment-method-row">
+          <label for="payment-method" data-comment="order-detail-payment-method-label">Method</label>
+          <select id="payment-method" data-comment="order-detail-payment-method-select" data-component="select">
+            <option>ACH</option>
+            <option>Card</option>
+            <option>Check</option>
+            <option>Cash</option>
+          </select>
+        </div>
+        <div class="od-form-row" data-comment="order-detail-payment-date-row">
+          <label for="payment-date" data-comment="order-detail-payment-date-label">Date</label>
+          <input type="date" id="payment-date" data-comment="order-detail-payment-date-input" data-component="input" />
+        </div>
+        <div class="od-dialog-footer" data-comment="order-detail-payment-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-payment-dialog-cancel" data-component="button" data-dialog-cancel="payment">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" data-comment="order-detail-payment-dialog-save" data-component="button" data-dialog-save="payment">Save payment</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delivery dialog -->
+    <div class="od-dialog-overlay" data-comment="order-detail-delivery-dialog-overlay" id="delivery-dialog-overlay">
+      <div class="od-dialog" data-comment="order-detail-delivery-dialog" data-component="dialog" role="dialog" aria-modal="true">
+        <div data-comment="order-detail-delivery-dialog-header">
+          <h2 class="od-dialog-title" data-comment="order-detail-delivery-dialog-title">Delivery info</h2>
+          <p class="od-dialog-description" data-comment="order-detail-delivery-dialog-description">Update delivery method and scheduled date.</p>
+        </div>
+        <div class="od-form-row" data-comment="order-detail-delivery-method-row">
+          <label for="delivery-method" data-comment="order-detail-delivery-method-label">Delivery Method</label>
+          <select id="delivery-method" data-comment="order-detail-delivery-method-select" data-component="select">
+            <option>Local Delivery</option>
+            <option>Freight</option>
+            <option>Pickup</option>
+          </select>
+        </div>
+        <div class="od-form-row" data-comment="order-detail-delivery-scheduled-row">
+          <label for="delivery-scheduled" data-comment="order-detail-delivery-scheduled-label">Scheduled Date</label>
+          <input type="date" id="delivery-scheduled" data-comment="order-detail-delivery-scheduled-input" data-component="input" />
+        </div>
+        <div class="od-form-row" data-comment="order-detail-delivery-instructions-row">
+          <label for="delivery-instructions" data-comment="order-detail-delivery-instructions-label">Loading Instructions</label>
+          <textarea id="delivery-instructions" data-comment="order-detail-delivery-instructions-input" data-component="textarea" rows="3"></textarea>
+        </div>
+        <div class="od-dialog-footer" data-comment="order-detail-delivery-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-delivery-dialog-cancel" data-component="button" data-dialog-cancel="delivery">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" data-comment="order-detail-delivery-dialog-save" data-component="button" data-dialog-save="delivery">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ───── Store ───── */
+      function createStore(initialState) {
+        let state = structuredClone(initialState);
+        const listeners = new Set();
+        return {
+          get: () => state,
+          set(updater) {
+            state =
+              typeof updater === "function"
+                ? updater(state)
+                : { ...state, ...updater };
+            listeners.forEach((fn) => fn(state));
+          },
+          subscribe(fn) {
+            listeners.add(fn);
+            return () => listeners.delete(fn);
+          },
+        };
+      }
+
+      /* ───── Icons (lucide-aligned strings) ───── */
+      const ICONS = {
+        list: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>',
+        userRound: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+        clipboardList: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>',
+        mapPin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+        users: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        clipboardCheck: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+        layers2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>',
+        check: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+        printer: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>',
+        creditCard: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg>',
+        fileText: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8M16 13H8M16 17H8"/></svg>',
+        paintbrush: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"/><path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"/><path d="M14.5 17.5 4.5 15"/></svg>',
+        pencil: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>',
+        plus: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+        x: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+        upload: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5-5 5 5M12 5v12"/></svg>',
+        image: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>',
+        alertCircle: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>',
+      };
+
+      /* ───── Navigation config ───── */
+      const NAV_BY_ROLE = {
+        admin: [
+          {
+            items: [
+              { label: "Customers", path: "customers.html", icon: "userRound" },
+              { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+              { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+              { label: "Sales Orders", path: "orders.html", icon: "list" },
+              { label: "Users", path: "users.html", icon: "users" },
+              { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
+              { label: "Options List", path: "attributes.html", icon: "layers2" },
+            ],
+          },
+        ],
+      };
+
+      /* ───── Status / Workflow ───── */
+      const STATUS_LABELS = {
+        awaiting_down_payment: "Awaiting Down Payment",
+        down_payment_received: "Down Payment Received",
+        awaiting_signature: "Awaiting Signature",
+        signed: "Signed",
+        awaiting_pricing_review: "Awaiting Pricing Review",
+        pricing_reviewed: "Pricing Reviewed",
+        awaiting_shop_review: "Awaiting Shop Review",
+        shop_reviewed: "Shop Reviewed",
+      };
+      const STATUS_ORDER = [
+        "awaiting_down_payment",
+        "down_payment_received",
+        "awaiting_signature",
+        "signed",
+        "awaiting_pricing_review",
+        "pricing_reviewed",
+        "awaiting_shop_review",
+        "shop_reviewed",
+      ];
+      function statusColor(status) {
+        if (!status) return null;
+        return status.startsWith("awaiting_") ? "amber" : "green";
+      }
+      function statusIdx(status) { return STATUS_ORDER.indexOf(status); }
+
+      /* ───── Seed sidebar customers (mirrors orders.html / home.html) ───── */
+      const SIDEBAR_CUSTOMERS = [
+        { id: 1, first_name: "Anna", last_name: "Lee", email: "anna@example.com" },
+        { id: 2, first_name: "Mark", last_name: "Chen", email: "mark@example.com" },
+        { id: 3, first_name: "Sarah", last_name: "Johnson", email: "sarah.j@example.com" },
+        { id: 4, first_name: "David", last_name: "Smith", email: "david.smith@example.com" },
+        { id: 5, first_name: "Emma", last_name: "Garcia", email: "emma.g@example.com" },
+        { id: 6, first_name: "James", last_name: "Wilson", email: "jwilson@example.com" },
+        { id: 7, first_name: "Olivia", last_name: "Brown", email: "olivia@example.com" },
+        { id: 8, first_name: "Michael", last_name: "Davis", email: "michael.d@example.com" },
+      ];
+
+      /* ───── Seed orders (mirrors orders.html shape, expanded with full sales_order data) ───── */
+      const SEED_ORDERS = [
+        {
+          autoid: "ORD-1001",
+          invoice: "SO-1001",
+          crea_date: "2025-04-22",
+          customer: "Anna Lee",
+          customer_id: 1,
+          po_no: "PO-44210",
+          ship_address: "12 Main St",
+          ship_city: "Lancaster",
+          ship_state: "PA",
+          ship_zip: "17601",
+          ship_country: "USA",
+          ship_type: "Local Delivery",
+          dp_estprod: "2025-05-15",
+          category: "Sheds",
+          dimension: "10x12",
+          descr: "10x12 Premium Shed, dual doors, gable roof.",
+          memo: "Standard prep — gravel pad ready.",
+          status: "shop_reviewed",
+          total: 8420.5,
+          subtotal: 7945.0,
+          load_instr: "Drop near driveway, lock gate after delivery.",
+          estimate_id: 5012,
+          sales_order: {
+            id: 1,
+            location: "Lancaster — Main",
+            built_onsite: false,
+            lead_time: "4 weeks",
+            dp_estprod: "2025-05-15",
+            delivery_method: "Local Delivery",
+            loading_instructions: "Drop near driveway, lock gate after delivery.",
+            special_delivery_instructions: "Confirm with customer before arrival.",
+            note: "Repeat customer.",
+            memo: "Standard prep — gravel pad ready.",
+            special_mgf_instructions: "Use signature stain finish.",
+            payment_date: "2025-04-23",
+            payment_method: "ACH",
+            payment: 2500,
+            category: { name: "Sheds" },
+            customer: {
+              primary_phone: "7175550101",
+              secondary_phone: null,
+              email: "anna@example.com",
+              addresses: [
+                { type: "billing", street: "12 Main St", city: "Lancaster", state: "PA", zip_code: "17601", country: "USA" },
+              ],
+            },
+            files: [
+              { id: 1, name: "front-elevation.jpg" },
+              { id: 2, name: "site-photo.jpg" },
+            ],
+          },
+          details: [
+            { quan: 1, inven: "SHED-10X12", descr: "10x12 Premium shed body", price: 6500, so_amount: 6500, tax_group: "Taxable" },
+            { quan: 2, inven: "DOOR-36", descr: "36\" exterior door", price: 320, so_amount: 640, tax_group: "Taxable" },
+            { quan: 4, inven: "WIN-24X36", descr: "24x36 vinyl window", price: 175, so_amount: 700, tax_group: "Taxable" },
+          ],
+        },
+        {
+          autoid: "ORD-1002",
+          invoice: "SO-1002",
+          crea_date: "2025-04-25",
+          customer: "Mark Chen",
+          customer_id: 2,
+          po_no: "PO-44211",
+          ship_address: "44 Penn Ave",
+          ship_city: "Reading",
+          ship_state: "PA",
+          ship_zip: "19601",
+          ship_country: "USA",
+          ship_type: "Freight",
+          dp_estprod: "2025-06-02",
+          category: "Garages",
+          dimension: "20x24",
+          descr: "Two-bay garage, insulated walls, gable roof.",
+          memo: "Two-bay garage; insulated walls.",
+          status: "awaiting_shop_review",
+          total: 18750.0,
+          subtotal: 17700.0,
+          load_instr: "Freight company will offload.",
+          estimate_id: 5018,
+          sales_order: {
+            id: 2,
+            location: "Reading — North",
+            built_onsite: true,
+            lead_time: "6 weeks",
+            dp_estprod: "2025-06-02",
+            delivery_method: "Freight",
+            loading_instructions: "Freight company will offload.",
+            special_delivery_instructions: "Call customer 24h before.",
+            note: "Insulation upgrade requested.",
+            memo: "Two-bay garage; insulated walls.",
+            special_mgf_instructions: "Install reinforced roof trusses.",
+            payment_date: "2025-04-27",
+            payment_method: "Check",
+            payment: 5000,
+            category: { name: "Garages" },
+            customer: {
+              primary_phone: "6105550102",
+              secondary_phone: null,
+              email: "mark@example.com",
+              addresses: [
+                { type: "billing", street: "44 Penn Ave", city: "Reading", state: "PA", zip_code: "19601", country: "USA" },
+              ],
+            },
+            files: [{ id: 3, name: "garage-plans.pdf" }],
+          },
+          details: [
+            { quan: 1, inven: "GAR-20X24", descr: "20x24 garage shell, insulated", price: 15500, so_amount: 15500, tax_group: "Taxable" },
+            { quan: 1, inven: "GD-9X8", descr: "9x8 overhead garage door", price: 1800, so_amount: 1800, tax_group: "Taxable" },
+            { quan: 2, inven: "WIN-24X36", descr: "24x36 vinyl window", price: 200, so_amount: 400, tax_group: "Taxable" },
+          ],
+        },
+        {
+          autoid: "ORD-1003",
+          invoice: "SO-1003",
+          crea_date: "2025-04-29",
+          customer: "Sarah Johnson",
+          customer_id: 3,
+          po_no: null,
+          ship_address: "201 East Market",
+          ship_city: "York",
+          ship_state: "PA",
+          ship_zip: "17402",
+          ship_country: "USA",
+          ship_type: "Pickup",
+          dp_estprod: "2025-05-20",
+          category: "Cabins",
+          dimension: "12x20",
+          descr: "Cabin with loft package and porch.",
+          memo: "Loft package included.",
+          status: "pricing_reviewed",
+          total: 14990.0,
+          subtotal: 14150.0,
+          load_instr: "Pickup at warehouse Bay 3.",
+          estimate_id: 5023,
+          sales_order: {
+            id: 3,
+            location: "York — Lot A",
+            built_onsite: false,
+            lead_time: "5 weeks",
+            dp_estprod: "2025-05-20",
+            delivery_method: "Pickup",
+            loading_instructions: "Pickup at warehouse Bay 3.",
+            special_delivery_instructions: null,
+            note: "Customer prefers morning pickup.",
+            memo: "Loft package included.",
+            special_mgf_instructions: null,
+            payment_date: "2025-04-30",
+            payment_method: "Card",
+            payment: 3000,
+            category: { name: "Cabins" },
+            customer: {
+              primary_phone: "7175550103",
+              secondary_phone: null,
+              email: "sarah.j@example.com",
+              addresses: [
+                { type: "billing", street: "201 East Market", city: "York", state: "PA", zip_code: "17402", country: "USA" },
+              ],
+            },
+            files: [],
+          },
+          details: [
+            { quan: 1, inven: "CAB-12X20", descr: "12x20 cabin shell, loft pkg", price: 12500, so_amount: 12500, tax_group: "Taxable" },
+            { quan: 1, inven: "PORCH-12", descr: "12ft porch add-on", price: 1650, so_amount: 1650, tax_group: "Taxable" },
+          ],
+        },
+        {
+          autoid: "ORD-1004",
+          invoice: "SO-1004",
+          crea_date: "2025-05-01",
+          customer: "David Smith",
+          customer_id: 4,
+          po_no: "PO-44215",
+          ship_address: "780 State St",
+          ship_city: "Harrisburg",
+          ship_state: "PA",
+          ship_zip: "17101",
+          ship_country: "USA",
+          ship_type: "Local Delivery",
+          dp_estprod: null,
+          category: "Sheds",
+          dimension: "8x10",
+          descr: "8x10 economy shed.",
+          memo: null,
+          status: "awaiting_pricing_review",
+          total: 5240.0,
+          subtotal: 4940.0,
+          load_instr: null,
+          estimate_id: null,
+          sales_order: {
+            id: 4,
+            location: "Harrisburg — Main",
+            built_onsite: false,
+            lead_time: "3 weeks",
+            dp_estprod: null,
+            delivery_method: "Local Delivery",
+            loading_instructions: null,
+            special_delivery_instructions: null,
+            note: null,
+            memo: null,
+            special_mgf_instructions: null,
+            payment_date: null,
+            payment_method: null,
+            payment: null,
+            category: { name: "Sheds" },
+            customer: {
+              primary_phone: "7175550104",
+              secondary_phone: null,
+              email: "david.smith@example.com",
+              addresses: [],
+            },
+            files: [],
+          },
+          details: [
+            { quan: 1, inven: "SHED-8X10", descr: "8x10 economy shed", price: 4940, so_amount: 4940, tax_group: "Taxable" },
+          ],
+        },
+        {
+          autoid: "ORD-1005",
+          invoice: "SO-1005",
+          crea_date: "2025-05-03",
+          customer: "Emma Garcia",
+          customer_id: 5,
+          po_no: "PO-44219",
+          ship_address: "5 Liberty Ln",
+          ship_city: "Allentown",
+          ship_state: "PA",
+          ship_zip: "18101",
+          ship_country: "USA",
+          ship_type: "Freight",
+          dp_estprod: "2025-06-12",
+          category: "Garages",
+          dimension: "24x32",
+          descr: "Heavy-duty garage, reinforced trusses.",
+          memo: "Heavy-duty trusses.",
+          status: "signed",
+          total: 28640.0,
+          subtotal: 27000.0,
+          load_instr: "Forklift needed at delivery.",
+          estimate_id: 5031,
+          sales_order: {
+            id: 5,
+            location: "Allentown — Yard",
+            built_onsite: true,
+            lead_time: "8 weeks",
+            dp_estprod: "2025-06-12",
+            delivery_method: "Freight",
+            loading_instructions: "Forklift needed at delivery.",
+            special_delivery_instructions: "Coordinate with on-site crew.",
+            note: "Customer pre-paid in full.",
+            memo: "Heavy-duty trusses.",
+            special_mgf_instructions: "Use 2x10 floor joists.",
+            payment_date: "2025-05-04",
+            payment_method: "ACH",
+            payment: 8000,
+            category: { name: "Garages" },
+            customer: {
+              primary_phone: "6105550105",
+              secondary_phone: "6105550199",
+              email: "emma.g@example.com",
+              addresses: [
+                { type: "billing", street: "5 Liberty Ln", city: "Allentown", state: "PA", zip_code: "18101", country: "USA" },
+              ],
+            },
+            files: [{ id: 4, name: "site-survey.jpg" }],
+          },
+          details: [
+            { quan: 1, inven: "GAR-24X32", descr: "24x32 garage, reinforced", price: 25000, so_amount: 25000, tax_group: "Taxable" },
+            { quan: 1, inven: "GD-10X9", descr: "10x9 overhead door", price: 2000, so_amount: 2000, tax_group: "Taxable" },
+          ],
+        },
+        {
+          autoid: "ORD-1006",
+          invoice: "SO-1006",
+          crea_date: "2025-05-05",
+          customer: "James Wilson",
+          customer_id: 6,
+          po_no: null,
+          ship_address: "30 Linden St",
+          ship_city: "Bethlehem",
+          ship_state: "PA",
+          ship_zip: "18017",
+          ship_country: "USA",
+          ship_type: "Local Delivery",
+          dp_estprod: "2025-05-28",
+          category: "Sheds",
+          dimension: "10x16",
+          descr: "10x16 shed with double doors.",
+          memo: "Double doors on long side.",
+          status: "awaiting_signature",
+          total: 7320.0,
+          subtotal: 6900.0,
+          load_instr: null,
+          estimate_id: 5039,
+          sales_order: {
+            id: 6,
+            location: "Bethlehem — Yard",
+            built_onsite: false,
+            lead_time: "4 weeks",
+            dp_estprod: "2025-05-28",
+            delivery_method: "Local Delivery",
+            loading_instructions: null,
+            special_delivery_instructions: null,
+            note: null,
+            memo: "Double doors on long side.",
+            special_mgf_instructions: null,
+            payment_date: "2025-05-06",
+            payment_method: "Card",
+            payment: 1500,
+            category: { name: "Sheds" },
+            customer: {
+              primary_phone: "6105550106",
+              secondary_phone: null,
+              email: "jwilson@example.com",
+              addresses: [
+                { type: "billing", street: "30 Linden St", city: "Bethlehem", state: "PA", zip_code: "18017", country: "USA" },
+              ],
+            },
+            files: [],
+          },
+          details: [
+            { quan: 1, inven: "SHED-10X16", descr: "10x16 shed with double doors", price: 6900, so_amount: 6900, tax_group: "Taxable" },
+          ],
+        },
+      ];
+
+      /* ───── Format helpers ───── */
+      function formatDate(value) {
+        if (!value) return "—";
+        const d = new Date(value);
+        if (isNaN(d.getTime())) return value;
+        return d.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      }
+
+      function formatCurrency(value) {
+        if (value == null) return "—";
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(value);
+      }
+
+      function formatPhone(p) {
+        if (!p) return "";
+        const d = String(p).replace(/\D/g, "");
+        if (d.length === 10) return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+        return p;
+      }
+
+      function esc(v) {
+        if (v == null) return "";
+        return String(v)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      /* ───── Get id from query string ───── */
+      function getOrderIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("id");
+      }
+
+      /* ───── Store ───── */
+      const store = createStore({
+        user: { id: 1, name: "Anna Lee", email: "anna@lapp.com", role: "admin" },
+        collapsed: false,
+        searchOpen: false,
+        sidebarSearchTerm: "",
+        customers: SIDEBAR_CUSTOMERS,
+        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        currentPath: "orders.html",
+
+        orderIdParam: getOrderIdFromUrl(),
+        orders: SEED_ORDERS,
+        isLoading: true,
+        paymentDialogOpen: false,
+        deliveryDialogOpen: false,
+      });
+
+      /* ───── Sidebar render ───── */
+      function renderSidebarNav() {
+        const s = store.get();
+        const nav = document.getElementById("sidebar-nav");
+        const sections = NAV_BY_ROLE[s.user.role] || [];
+        nav.innerHTML = sections
+          .map(
+            (section, sectionIdx) => `
+            <div class="sidebar-section" data-comment="order-detail-sidebar-section-${sectionIdx}">
+              ${section.items
+                .map((item, i) => {
+                  const isActive = item.path === s.currentPath;
+                  const slug = item.label.toLowerCase().replace(/\s+/g, "-");
+                  const badges =
+                    item.badge && !s.collapsed
+                      ? `<span class="sidebar-nav-link-badge" data-comment="order-detail-sidebar-nav-link-${slug}-badges">
+                          ${
+                            s.reviewBadges.not_pricing_reviewed > 0
+                              ? `<span class="sidebar-badge amber" data-comment="order-detail-sidebar-nav-link-${slug}-badge-pricing" title="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
+                              : ""
+                          }
+                          ${
+                            s.reviewBadges.not_shop_reviewed > 0
+                              ? `<span class="sidebar-badge blue" data-comment="order-detail-sidebar-nav-link-${slug}-badge-shop" title="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
+                              : ""
+                          }
+                        </span>`
+                      : "";
+                  return `
+                    <a class="sidebar-nav-link ${isActive ? "active" : ""}" data-comment="order-detail-sidebar-nav-link-${slug}" href="${item.path}" title="${item.label}">
+                      <span class="sidebar-nav-link-icon" data-comment="order-detail-sidebar-nav-link-${slug}-icon">${ICONS[item.icon] || ""}</span>
+                      <span class="sidebar-nav-link-label" data-comment="order-detail-sidebar-nav-link-${slug}-label">${item.label}</span>
+                      ${badges}
+                    </a>
+                  `;
+                })
+                .join("")}
+            </div>
+          `,
+          )
+          .join("");
+      }
+
+      function renderUser() {
+        const { user } = store.get();
+        document.getElementById("sidebar-user-name").textContent = user.name;
+        document.getElementById("sidebar-user-email").textContent = user.email;
+        document.getElementById("sidebar-user-avatar").textContent = user.name
+          .split(" ").slice(0, 2)
+          .map((w) => (w[0] || "").toUpperCase())
+          .join("");
+      }
+
+      function renderCollapse() {
+        const s = store.get();
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("collapsed", s.collapsed);
+        document.getElementById("icon-collapse").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("icon-expand").style.display = s.collapsed ? "block" : "none";
+        document.getElementById("sidebar-search-wrap").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("sidebar-search-collapsed").style.display = s.collapsed ? "flex" : "none";
+      }
+
+      function renderSidebarSearch() {
+        const s = store.get();
+        const wrap = document.getElementById("sidebar-search-input-wrap");
+        wrap.classList.toggle("is-open", s.searchOpen);
+        const showDropdown = s.searchOpen && s.sidebarSearchTerm.trim().length > 0;
+        const dropdown = document.getElementById("sidebar-search-dropdown");
+        dropdown.style.display = showDropdown ? "block" : "none";
+        if (!showDropdown) return;
+        const filtered = s.customers.filter((c) => {
+          const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+          const term = s.sidebarSearchTerm.trim().toLowerCase();
+          return (
+            fullName.includes(term) ||
+            (c.email && c.email.toLowerCase().includes(term))
+          );
+        });
+        const empty = document.getElementById("sidebar-search-empty");
+        const list = document.getElementById("sidebar-search-list");
+        if (filtered.length === 0) {
+          empty.style.display = "block";
+          list.style.display = "none";
+        } else {
+          empty.style.display = "none";
+          list.style.display = "block";
+          list.innerHTML = filtered
+            .slice(0, 8)
+            .map(
+              (c) => `
+              <li data-comment="order-detail-sidebar-search-item-${c.id}">
+                <button type="button"
+                  class="sidebar-search-dropdown-item"
+                  data-comment="order-detail-sidebar-search-item-${c.id}-button"
+                  data-customer-id="${c.id}">
+                  <div class="sidebar-search-dropdown-item-name" data-comment="order-detail-sidebar-search-item-${c.id}-name">${c.first_name} ${c.last_name}</div>
+                  ${c.email ? `<div class="sidebar-search-dropdown-item-email" data-comment="order-detail-sidebar-search-item-${c.id}-email">${c.email}</div>` : ""}
+                </button>
+              </li>
+            `,
+            )
+            .join("");
+        }
+      }
+
+      /* ───── Lookups ───── */
+      function getActiveOrder() {
+        const s = store.get();
+        if (!s.orderIdParam) return null;
+        return s.orders.find((o) =>
+          o.autoid === s.orderIdParam ||
+          o.invoice === s.orderIdParam ||
+          String(o.autoid) === String(s.orderIdParam)
+        ) || null;
+      }
+
+      /* ───── Render: status badge in header ───── */
+      function renderHeaderStatus() {
+        const s = store.get();
+        const slot = document.getElementById("order-detail-header-status-slot");
+        const titleEl = document.getElementById("order-detail-page-title");
+        if (s.isLoading) {
+          slot.innerHTML = `<span class="skeleton" data-comment="order-detail-header-status-skeleton" style="display:inline-block;width:120px;height:18px"></span>`;
+          titleEl.textContent = "Sales Order";
+          return;
+        }
+        const o = getActiveOrder();
+        if (!o) {
+          slot.innerHTML = "";
+          titleEl.textContent = "Order not found";
+          return;
+        }
+        titleEl.textContent = `Sales Order ${o.invoice}`;
+        const color = statusColor(o.status);
+        const label = o.status ? STATUS_LABELS[o.status] : null;
+        slot.innerHTML = label
+          ? `<span class="status-badge ${color}" data-comment="order-detail-header-status-badge" data-component="badge">${esc(label)}</span>`
+          : "";
+      }
+
+      /* ───── Render: skeleton ───── */
+      function renderSkeleton() {
+        const content = document.getElementById("order-detail-content");
+        content.innerHTML = `
+          <div class="od-section" data-comment="order-detail-skeleton-section-main">
+            <div class="od-cards-grid" data-comment="order-detail-skeleton-cards-grid">
+              ${[1,2,3,4,5,6].map((i) => `
+                <div class="od-card" data-comment="order-detail-skeleton-card-${i}">
+                  <div class="od-card-header" data-comment="order-detail-skeleton-card-${i}-header">
+                    <span class="skeleton" data-comment="order-detail-skeleton-card-${i}-title" style="width:120px;height:16px"></span>
+                  </div>
+                  <div class="od-card-content" data-comment="order-detail-skeleton-card-${i}-content">
+                    <span class="skeleton" data-comment="order-detail-skeleton-card-${i}-line-1" style="width:80%;height:14px"></span>
+                    <span class="skeleton" data-comment="order-detail-skeleton-card-${i}-line-2" style="width:65%;height:14px"></span>
+                    <span class="skeleton" data-comment="order-detail-skeleton-card-${i}-line-3" style="width:75%;height:14px"></span>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+          <div class="od-section" data-comment="order-detail-skeleton-section-files">
+            <span class="skeleton" data-comment="order-detail-skeleton-files-title" style="width:140px;height:18px"></span>
+            <div class="od-files-grid" data-comment="order-detail-skeleton-files-grid">
+              ${[1,2,3].map((i) => `<div class="od-file-card" data-comment="order-detail-skeleton-file-${i}"><span class="skeleton" data-comment="order-detail-skeleton-file-${i}-inner" style="width:100%;height:100%;border-radius:10px"></span></div>`).join("")}
+            </div>
+          </div>
+          <div class="od-section" data-comment="order-detail-skeleton-section-line-items">
+            <span class="skeleton" data-comment="order-detail-skeleton-line-items-title" style="width:120px;height:18px"></span>
+            <div class="od-table-shell" data-comment="order-detail-skeleton-line-items-shell">
+              ${[1,2,3].map((i) => `<div data-comment="order-detail-skeleton-line-row-${i}" style="display:flex;gap:8px;margin-bottom:8px"><span class="skeleton" style="width:40px;height:18px"></span><span class="skeleton" style="width:120px;height:18px"></span><span class="skeleton" style="flex:1;height:18px"></span></div>`).join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      /* ───── Render: empty / error state ───── */
+      function renderEmpty() {
+        const content = document.getElementById("order-detail-content");
+        content.innerHTML = `
+          <div class="od-empty" data-comment="order-detail-empty-state">
+            ${ICONS.alertCircle.replace('<svg ', '<svg data-comment="order-detail-empty-icon" ')}
+            <h2 class="od-empty-heading" data-comment="order-detail-empty-heading">Order not found</h2>
+            <p class="od-empty-text" data-comment="order-detail-empty-text">No order matches the id in the URL.</p>
+            <a class="btn btn-primary btn-sm" data-comment="order-detail-empty-back-link" data-component="button" href="orders.html">
+              ${ICONS.list}
+              Back to Sales Orders
+            </a>
+          </div>
+        `;
+      }
+
+      /* ───── Render: timeline ───── */
+      function renderTimeline(o) {
+        const so = o.sales_order;
+        const status = so?.status ?? o.status;
+        const sIdx = statusIdx(status);
+
+        const stepsDef = [
+          { key: "down_payment", label: "Down-payment", doneStatus: "down_payment_received" },
+          { key: "pricing_review", label: "Pricing Review", doneStatus: "pricing_reviewed" },
+          { key: "shop_review", label: "Shop Review", doneStatus: "shop_reviewed" },
+        ];
+
+        const stepsDone = stepsDef.map((s) => sIdx >= statusIdx(s.doneStatus));
+        const firstUnfinishedIdx = stepsDone.findIndex((c) => !c);
+
+        const stepItems = stepsDef.map((s, i) => {
+          let state;
+          if (stepsDone[i]) state = "completed";
+          else if (i === firstUnfinishedIdx) state = "current";
+          else state = "locked";
+          return {
+            label: s.label,
+            state,
+            date: stepsDone[i] ? formatDate(o.crea_date) : null,
+            clickable: s.key === "down_payment" && so != null,
+          };
+        });
+
+        const items = [
+          { label: "Order created", state: "completed", date: formatDate(so?.created_at ?? o.crea_date) },
+          stepItems[0],
+          { label: "Customer Signature", state: "locked", date: null },
+          stepItems[1],
+          stepItems[2],
+        ];
+
+        const stateLabel = { completed: "Complete", current: "Waiting", locked: "Waiting" };
+
+        return `
+          <ol class="od-timeline" data-comment="order-detail-timeline">
+            ${items.map((item, idx) => {
+              const isLast = idx === items.length - 1;
+              const dotInner =
+                item.state === "completed" ? ICONS.check :
+                item.state === "current" ? `<span class="od-timeline-dot-current-inner" data-comment="order-detail-timeline-${idx}-dot-current-inner"></span>` :
+                "";
+              const connectorLocked = !isLast && items[idx + 1].state === "locked" && item.state === "locked";
+              const connector = isLast ? "" : `<span class="od-timeline-connector ${connectorLocked ? "is-locked" : ""}" data-comment="order-detail-timeline-${idx}-connector" aria-hidden="true"></span>`;
+              const slug = `order-detail-timeline-${idx}`;
+              const rowClass = `od-timeline-row ${item.state === "current" ? "is-current" : ""} ${item.clickable ? "is-clickable" : ""}`;
+              const isInteractive = item.clickable;
+              const inner = `
+                <span class="od-timeline-dot-wrap" data-comment="${slug}-dot-wrap">
+                  <span class="od-timeline-dot ${item.state === "completed" ? "is-completed" : ""} ${item.state === "current" ? "is-current" : ""}" data-comment="${slug}-dot">${dotInner}</span>
+                  ${connector}
+                </span>
+                <span class="od-timeline-label ${item.state === "current" ? "is-current" : ""} ${item.state === "locked" ? "is-locked" : ""}" data-comment="${slug}-label">${esc(item.label)}</span>
+                <span class="od-timeline-date" data-comment="${slug}-date">${item.date ?? "—"}</span>
+                <span class="od-timeline-state is-${item.state}" data-comment="${slug}-state">${stateLabel[item.state]}</span>
+              `;
+              const tag = isInteractive ? "button" : "div";
+              const extraAttrs = isInteractive ? ' type="button" data-open-dialog="payment"' : "";
+              return `
+                <li class="od-timeline-item" data-comment="${slug}-item">
+                  <${tag} class="${rowClass}" data-comment="${slug}-row"${extraAttrs}>${inner}</${tag}>
+                </li>
+              `;
+            }).join("")}
+          </ol>
+        `;
+      }
+
+      /* ───── Render: data state (full detail) ───── */
+      function renderDataState(o) {
+        const so = o.sales_order;
+        const customer = so?.customer ?? null;
+        const subtotal = o.subtotal ?? 0;
+        const total = o.total ?? 0;
+        const tax = total - subtotal;
+        const hasPayment = so?.payment != null || so?.payment_date != null;
+
+        const shipLines = [
+          o.ship_address,
+          [o.ship_city, o.ship_state, o.ship_zip].filter(Boolean).join(", "),
+          o.ship_country,
+        ].filter(Boolean);
+
+        const billingAddr = so?.customer?.addresses?.find((a) => a.type === "billing");
+
+        const lineItems = (o.details ?? []).map((d) => ({
+          qty: d.quan,
+          itemCode: d.inven,
+          description: d.descr || "",
+          rate: d.price,
+          totalPrice: d.so_amount,
+          tax: d.tax_group === "Taxable" ? "Tax" : "No Tax",
+        }));
+
+        const files = so?.files ?? [];
+
+        const detailRow = (id, label, value) => `
+          <div class="od-detail-row" data-comment="order-detail-detail-row-${id}">
+            <p class="od-detail-label" data-comment="order-detail-detail-row-${id}-label">${esc(label)}</p>
+            <p class="od-detail-value" data-comment="order-detail-detail-row-${id}-value">${value == null || value === "" ? "—" : esc(value)}</p>
+          </div>
+        `;
+
+        return `
+          <!-- ── Section: main grid ── -->
+          <div class="od-section" data-comment="order-detail-section-main">
+            <div class="od-cards-grid" data-comment="order-detail-cards-grid">
+
+              <!-- Order Status -->
+              <div class="od-card" data-comment="order-detail-card-status" data-component="card">
+                <div class="od-card-header" data-comment="order-detail-card-status-header">
+                  <h3 class="od-card-title" data-comment="order-detail-card-status-title">Order Status</h3>
+                </div>
+                <div class="od-card-content" data-comment="order-detail-card-status-content">
+                  ${renderTimeline(o)}
+                </div>
+              </div>
+
+              <!-- Main -->
+              <div class="od-card" data-comment="order-detail-card-main" data-component="card">
+                <div class="od-card-header" data-comment="order-detail-card-main-header">
+                  <h3 class="od-card-title" data-comment="order-detail-card-main-title">Main</h3>
+                </div>
+                <div class="od-card-content" data-comment="order-detail-card-main-content">
+                  ${detailRow("customer", "Customer", o.customer)}
+                  ${detailRow("location", "Location (Class)", so?.location)}
+                  ${detailRow("po-number", "P.O. Number", o.po_no)}
+                  <div class="od-checkbox-row" data-comment="order-detail-detail-row-built-onsite">
+                    <span class="od-detail-label" data-comment="order-detail-detail-row-built-onsite-label">Build On Site</span>
+                    <span class="od-checkbox ${so?.built_onsite ? "is-checked" : ""}" data-comment="order-detail-detail-row-built-onsite-checkbox">
+                      ${so?.built_onsite ? ICONS.check : ""}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contact & Shipping -->
+              <div class="od-card" data-comment="order-detail-card-contact" data-component="card">
+                <div class="od-card-header" data-comment="order-detail-card-contact-header">
+                  <h3 class="od-card-title" data-comment="order-detail-card-contact-title">Contact &amp; Shipping Address</h3>
+                </div>
+                <div class="od-card-content" data-comment="order-detail-card-contact-content">
+                  ${detailRow("primary-phone", "Primary Phone", formatPhone(customer?.primary_phone) || null)}
+                  ${detailRow("secondary-phone", "Secondary Phone", formatPhone(customer?.secondary_phone) || null)}
+                  ${detailRow("email", "Email", customer?.email)}
+                  <div class="od-address" data-comment="order-detail-card-contact-shipping">
+                    <p class="od-address-title" data-comment="order-detail-card-contact-shipping-title">Shipping Address</p>
+                    ${
+                      shipLines.length
+                        ? shipLines.map((l, i) => `<p class="od-address-line" data-comment="order-detail-card-contact-shipping-line-${i}">${esc(l)}</p>`).join("")
+                        : `<p class="od-address-line" data-comment="order-detail-card-contact-shipping-empty">—</p>`
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product details -->
+              <div class="od-card" data-comment="order-detail-card-product" data-component="card">
+                <div class="od-card-header" data-comment="order-detail-card-product-header">
+                  <h3 class="od-card-title" data-comment="order-detail-card-product-title">Product details</h3>
+                </div>
+                <div class="od-card-content" data-comment="order-detail-card-product-content">
+                  ${detailRow("category", "Category", so?.category?.name)}
+                  ${detailRow("description", "Description", o.descr)}
+                  ${detailRow("memo-internal", "Memo (internal)", so?.memo)}
+                </div>
+              </div>
+
+              <!-- Delivery -->
+              <div class="od-card" data-comment="order-detail-card-delivery" data-component="card">
+                <div class="od-card-header" data-comment="order-detail-card-delivery-header">
+                  <h3 class="od-card-title" data-comment="order-detail-card-delivery-title">Delivery</h3>
+                  <button class="btn btn-ghost btn-sm" data-comment="order-detail-card-delivery-edit" data-component="button" data-open-dialog="delivery" aria-label="Edit delivery info">
+                    ${ICONS.pencil}
+                    Edit
+                  </button>
+                </div>
+                <div class="od-card-content" data-comment="order-detail-card-delivery-content">
+                  ${detailRow("delivery-lead-time", "Order Lead Time", so?.lead_time)}
+                  ${detailRow("delivery-scheduled-date", "Scheduled Delivery Date", formatDate(so?.dp_estprod))}
+                  ${detailRow("delivery-method", "Delivery Method", so?.delivery_method ?? o.ship_type)}
+                  ${detailRow("delivery-loading-instructions", "Loading Instructions", so?.loading_instructions ?? o.load_instr)}
+                  ${detailRow("delivery-special-instructions", "Special Delivery Instructions", so?.special_delivery_instructions)}
+                  ${detailRow("delivery-note", "Note", so?.note)}
+                </div>
+              </div>
+
+              <!-- Mfg details -->
+              <div class="od-card" data-comment="order-detail-card-mfg" data-component="card">
+                <div class="od-card-header" data-comment="order-detail-card-mfg-header">
+                  <h3 class="od-card-title" data-comment="order-detail-card-mfg-title">Mfg Details</h3>
+                </div>
+                <div class="od-card-content" data-comment="order-detail-card-mfg-content">
+                  ${detailRow("mfg-scheduled-date", "Scheduled Mfg Date", null)}
+                  ${detailRow("mfg-actual-date", "Actual Mfg Date", null)}
+                  ${detailRow("mfg-special-instructions", "Special Mfg Instructions", so?.special_mgf_instructions)}
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── Section: Order Images ── -->
+          <div class="od-section" data-comment="order-detail-section-files">
+            <div class="od-card" data-comment="order-detail-card-files" data-component="card">
+              <div class="od-card-header" data-comment="order-detail-card-files-header">
+                <h3 class="od-card-title" data-comment="order-detail-card-files-title">Order Images</h3>
+              </div>
+              <div class="od-card-content" data-comment="order-detail-card-files-content">
+                <div class="od-files-grid" data-comment="order-detail-files-grid">
+                  ${files
+                    .map((f, i) => `
+                      <div class="od-file-card" data-comment="order-detail-file-${i}">
+                        ${ICONS.image.replace('<svg ', `<svg data-comment="order-detail-file-${i}-icon" `)}
+                        <button type="button" class="od-file-remove" data-comment="order-detail-file-${i}-remove" data-component="button" aria-label="Remove file">${ICONS.x}</button>
+                        <span class="od-file-name" data-comment="order-detail-file-${i}-name">${esc(f.name)}</span>
+                      </div>
+                    `)
+                    .join("")}
+                  <button type="button" class="od-file-card od-file-upload" data-comment="order-detail-file-upload" data-component="button">
+                    ${ICONS.upload}
+                    Upload image
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Section: Line items ── -->
+          <div class="od-section" data-comment="order-detail-section-line-items">
+            <h3 class="od-section-title" data-comment="order-detail-section-line-items-title">Line Items</h3>
+            <div class="od-table-shell" data-comment="order-detail-line-items-shell">
+              <div class="od-table-scroll" data-comment="order-detail-line-items-scroll">
+                <table class="od-line-table" data-comment="order-detail-line-items-table" data-component="table">
+                  <thead data-comment="order-detail-line-items-thead">
+                    <tr data-comment="order-detail-line-items-thead-row">
+                      <th data-comment="order-detail-line-items-th-qty">QTY</th>
+                      <th data-comment="order-detail-line-items-th-item">Item</th>
+                      <th data-comment="order-detail-line-items-th-description">Description</th>
+                      <th class="t-right" data-comment="order-detail-line-items-th-rate">Rate</th>
+                      <th class="t-right" data-comment="order-detail-line-items-th-total">Total</th>
+                      <th class="t-center" data-comment="order-detail-line-items-th-tax">Tax</th>
+                    </tr>
+                  </thead>
+                  <tbody data-comment="order-detail-line-items-tbody">
+                    ${
+                      lineItems.length > 0
+                        ? lineItems.map((it, i) => `
+                            <tr data-comment="order-detail-line-items-row-${i}">
+                              <td class="t-center" data-comment="order-detail-line-items-row-${i}-qty">${esc(it.qty)}</td>
+                              <td data-comment="order-detail-line-items-row-${i}-item">${esc(it.itemCode)}</td>
+                              <td data-comment="order-detail-line-items-row-${i}-description">${esc(it.description)}</td>
+                              <td class="t-right" data-comment="order-detail-line-items-row-${i}-rate">${formatCurrency(it.rate)}</td>
+                              <td class="t-right" data-comment="order-detail-line-items-row-${i}-total">${formatCurrency(it.totalPrice)}</td>
+                              <td class="t-center" data-comment="order-detail-line-items-row-${i}-tax">${esc(it.tax)}</td>
+                            </tr>
+                          `).join("")
+                        : `<tr data-comment="order-detail-line-items-empty-row"><td colspan="6" class="empty" data-comment="order-detail-line-items-empty-cell">No line items</td></tr>`
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Section: Review Process ── -->
+          <div class="od-section" data-comment="order-detail-section-review">
+            <h3 class="od-section-title" data-comment="order-detail-section-review-title">Review Process</h3>
+            <div class="od-review-grid" data-comment="order-detail-review-grid">
+              <div class="od-card" data-comment="order-detail-card-review-pricing" data-component="card">
+                <div class="od-card-header" data-comment="order-detail-card-review-pricing-header">
+                  <h3 class="od-card-title" data-comment="order-detail-card-review-pricing-title">Pricing Review</h3>
+                </div>
+                <div class="od-card-content" data-comment="order-detail-card-review-pricing-content">
+                  <span class="od-review-card-status ${statusIdx(o.status) >= statusIdx("pricing_reviewed") ? "is-done" : "is-pending"}" data-comment="order-detail-card-review-pricing-status" data-component="badge">
+                    ${statusIdx(o.status) >= statusIdx("pricing_reviewed") ? "Complete" : "Pending"}
+                  </span>
+                  <p class="od-review-card-meta" data-comment="order-detail-card-review-pricing-meta">Verify item rates and tax codes before manufacturing.</p>
+                  <div class="od-review-card-actions" data-comment="order-detail-card-review-pricing-actions">
+                    <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-card-review-pricing-mark" data-component="button">Mark Reviewed</button>
+                  </div>
+                </div>
+              </div>
+              <div class="od-card" data-comment="order-detail-card-review-shop" data-component="card">
+                <div class="od-card-header" data-comment="order-detail-card-review-shop-header">
+                  <h3 class="od-card-title" data-comment="order-detail-card-review-shop-title">Shop Review</h3>
+                </div>
+                <div class="od-card-content" data-comment="order-detail-card-review-shop-content">
+                  <span class="od-review-card-status ${statusIdx(o.status) >= statusIdx("shop_reviewed") ? "is-done" : "is-pending"}" data-comment="order-detail-card-review-shop-status" data-component="badge">
+                    ${statusIdx(o.status) >= statusIdx("shop_reviewed") ? "Complete" : "Pending"}
+                  </span>
+                  <p class="od-review-card-meta" data-comment="order-detail-card-review-shop-meta">Confirm cut lists, materials and shop instructions.</p>
+                  <div class="od-review-card-actions" data-comment="order-detail-card-review-shop-actions">
+                    <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-card-review-shop-mark" data-component="button">Mark Reviewed</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Footer: order summary + actions ── -->
+          <div class="od-footer" data-comment="order-detail-footer">
+            <div class="od-footer-top" data-comment="order-detail-footer-top">
+              <div class="od-footer-meta" data-comment="order-detail-footer-meta">
+                <div class="od-footer-meta-title" data-comment="order-detail-footer-meta-title">Order Details</div>
+                <div class="od-footer-meta-row" data-comment="order-detail-footer-meta-row-created">
+                  <span class="label" data-comment="order-detail-footer-meta-row-created-label">Created at:</span>
+                  <span data-comment="order-detail-footer-meta-row-created-value">${formatDate(o.crea_date)}</span>
+                </div>
+              </div>
+              <div class="od-footer-summary" data-comment="order-detail-footer-summary">
+                <div class="od-summary-row" data-comment="order-detail-footer-summary-subtotal">
+                  <span class="label" data-comment="order-detail-footer-summary-subtotal-label">Subtotal</span>
+                  <span class="value" data-comment="order-detail-footer-summary-subtotal-value">${formatCurrency(subtotal)}</span>
+                </div>
+                <div class="od-summary-row" data-comment="order-detail-footer-summary-tax">
+                  <span class="label" data-comment="order-detail-footer-summary-tax-label">Tax</span>
+                  <span class="value" data-comment="order-detail-footer-summary-tax-value">${formatCurrency(tax)}</span>
+                </div>
+                <div class="od-summary-row" data-comment="order-detail-footer-summary-total">
+                  <span class="label" data-comment="order-detail-footer-summary-total-label">Total</span>
+                  <span class="value" data-comment="order-detail-footer-summary-total-value">${formatCurrency(total)}</span>
+                </div>
+                <div class="od-summary-divider" data-comment="order-detail-footer-summary-divider">
+                  <div class="od-summary-total" data-comment="order-detail-footer-summary-balance">
+                    <span data-comment="order-detail-footer-summary-balance-label">Order Balance</span>
+                    <span data-comment="order-detail-footer-summary-balance-value">${formatCurrency(total)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="od-footer-actions" data-comment="order-detail-footer-actions">
+              ${o.estimate_id != null ? `
+                <a class="btn btn-outline btn-sm" data-comment="order-detail-footer-action-view-estimate" data-component="button" href="estimates.html?id=${esc(o.estimate_id)}">
+                  ${ICONS.fileText}
+                  View Estimate
+                </a>` : ""}
+              <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-footer-action-print" data-component="button" onclick="window.print()">
+                ${ICONS.printer}
+                Print PDF
+              </button>
+              ${so ? `
+                <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-footer-action-add-drawing" data-component="button">
+                  ${ICONS.paintbrush}
+                  Add Drawing
+                </button>` : ""}
+              ${so ? `
+                <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-footer-action-down-payment" data-component="button" data-open-dialog="payment">
+                  ${ICONS.creditCard}
+                  ${hasPayment ? "View Down Payment" : "Add Down Payment"}
+                </button>` : ""}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderContent() {
+        const s = store.get();
+        if (s.isLoading) {
+          renderSkeleton();
+          return;
+        }
+        const o = getActiveOrder();
+        if (!o) {
+          renderEmpty();
+          return;
+        }
+        document.getElementById("order-detail-content").innerHTML = renderDataState(o);
+      }
+
+      function renderDialogs() {
+        const s = store.get();
+        document.getElementById("payment-dialog-overlay").classList.toggle("is-open", s.paymentDialogOpen);
+        document.getElementById("delivery-dialog-overlay").classList.toggle("is-open", s.deliveryDialogOpen);
+      }
+
+      /* ───── Subscriptions ───── */
+      store.subscribe(renderSidebarNav);
+      store.subscribe(renderUser);
+      store.subscribe(renderCollapse);
+      store.subscribe(renderSidebarSearch);
+      store.subscribe(renderHeaderStatus);
+      store.subscribe(renderContent);
+      store.subscribe(renderDialogs);
+
+      renderSidebarNav();
+      renderUser();
+      renderCollapse();
+      renderSidebarSearch();
+      renderHeaderStatus();
+      renderContent();
+      renderDialogs();
+
+      /* ───── Simulate loading ───── */
+      setTimeout(() => store.set({ isLoading: false }), 300);
+
+      /* ───── Sidebar handlers ───── */
+      document.getElementById("sidebar-collapse-btn").addEventListener("click", () => {
+        store.set((s) => ({ collapsed: !s.collapsed }));
+      });
+
+      const searchInput = document.getElementById("sidebar-search-input");
+      searchInput.addEventListener("focus", () => store.set({ searchOpen: true }));
+      searchInput.addEventListener("blur", () => setTimeout(() => store.set({ searchOpen: false }), 150));
+      searchInput.addEventListener("input", (e) => store.set({ sidebarSearchTerm: e.target.value }));
+
+      document.getElementById("sidebar-search-list").addEventListener("mousedown", (e) => {
+        const btn = e.target.closest("[data-customer-id]");
+        if (!btn) return;
+        const id = btn.dataset.customerId;
+        searchInput.value = "";
+        store.set({ searchOpen: false, sidebarSearchTerm: "" });
+        window.location.href = `customer-detail.html?id=${id}`;
+      });
+
+      document.getElementById("sidebar-user-logout").addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+
+      /* ───── Dialog handlers (event delegation) ───── */
+      document.body.addEventListener("click", (e) => {
+        const opener = e.target.closest("[data-open-dialog]");
+        if (opener) {
+          const which = opener.dataset.openDialog;
+          if (which === "payment") store.set({ paymentDialogOpen: true });
+          if (which === "delivery") store.set({ deliveryDialogOpen: true });
+          return;
+        }
+        const cancel = e.target.closest("[data-dialog-cancel]");
+        if (cancel) {
+          const which = cancel.dataset.dialogCancel;
+          if (which === "payment") store.set({ paymentDialogOpen: false });
+          if (which === "delivery") store.set({ deliveryDialogOpen: false });
+          return;
+        }
+        const save = e.target.closest("[data-dialog-save]");
+        if (save) {
+          const which = save.dataset.dialogSave;
+          if (which === "payment") store.set({ paymentDialogOpen: false });
+          if (which === "delivery") store.set({ deliveryDialogOpen: false });
+        }
+      });
+
+      // Close dialogs on overlay click
+      document.getElementById("payment-dialog-overlay").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) store.set({ paymentDialogOpen: false });
+      });
+      document.getElementById("delivery-dialog-overlay").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) store.set({ deliveryDialogOpen: false });
+      });
+    </script>
+  </body>
+</html>

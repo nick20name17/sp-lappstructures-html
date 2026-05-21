@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapp Structures — Customer Detail</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      /* ───── Reset ───── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ───── Design tokens ───── */
+      :root {
+        --radius: 0.5rem;
+        --background: oklch(0.93 0.011 257);
+        --background-secondary: oklch(98.837% 0.00143 285.197);
+        --foreground: oklch(0.14 0.033 262);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.22 0.03 255);
+        --popover: oklch(1 0 0);
+        --primary: oklch(0.53 0.18 260);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.97 0.005 250);
+        --secondary-foreground: oklch(0.14 0.033 262);
+        --secondary-hover: oklch(0.93 0.011 257);
+        --muted: oklch(0.97 0.005 250);
+        --muted-foreground: oklch(0.56 0.023 255);
+        --accent: oklch(0.96 0.03 260);
+        --accent-foreground: oklch(0.53 0.18 260);
+        --destructive: oklch(0.50 0.19 25);
+        --success: oklch(0.58 0.16 150);
+        --border: oklch(0.93 0.011 257);
+        --input: oklch(0.92 0.01 250);
+        --ring: oklch(0.53 0.18 260);
+
+        --sidebar: oklch(1 0 0);
+        --sidebar-foreground: oklch(0.55 0.02 255);
+        --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-accent: oklch(0.97 0.005 250);
+        --sidebar-accent-foreground: oklch(0.14 0.033 262);
+        --sidebar-border: oklch(0.92 0.01 250);
+
+        --amber-bg: #fef3c7;
+        --amber-fg: #92400e;
+        --green-bg: #dcfce7;
+        --green-fg: #166534;
+
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
+      }
+
+      html,
+      body { height: 100%; }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--background);
+        color: var(--foreground);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        overflow: hidden;
+      }
+
+      button { cursor: pointer; font-family: inherit; border: 0; background: transparent; }
+      a { color: inherit; text-decoration: none; }
+
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb {
+        background: color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+      }
+
+      /* ───── App layout ───── */
+      .app-shell {
+        background: var(--background);
+        padding: 16px;
+        height: 100vh;
+      }
+      .app-frame {
+        display: flex;
+        height: calc(100vh - 32px);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      /* ───── Sidebar ───── */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        background: var(--sidebar);
+        border-right: 1px solid var(--border);
+        flex-shrink: 0;
+        overflow: hidden;
+        width: 240px;
+        transition: width 0.2s ease;
+      }
+      .sidebar.collapsed { width: 56px; }
+
+      .sidebar-logo {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        padding: 0 16px 16px;
+        height: 64px;
+        flex-shrink: 0;
+      }
+      .sidebar.collapsed .sidebar-logo {
+        justify-content: center;
+        padding: 0 0 16px;
+        gap: 0;
+      }
+      .sidebar-logo-mark {
+        display: flex;
+        width: 32px;
+        height: 32px;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-logo-mark img { width: 24px; height: 24px; }
+      .sidebar-logo-text {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        line-height: 1.2;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+        color: var(--brand-navy);
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-logo-text { width: 0; opacity: 0; }
+
+      .sidebar-search { position: relative; padding: 0 8px 4px; }
+      .sidebar-search-input-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        padding: 6px 10px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .sidebar-search-input-wrap:hover,
+      .sidebar-search-input-wrap.is-open {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-search-input-wrap.is-open {
+        border-color: color-mix(in oklch, var(--sidebar-foreground) 20%, transparent);
+      }
+      .sidebar-search-icon {
+        width: 14px;
+        height: 14px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        flex-shrink: 0;
+      }
+      .sidebar-search-input {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        font-size: 0.875rem;
+        font-family: inherit;
+        color: var(--sidebar-foreground);
+        border: 0;
+        outline: none;
+      }
+      .sidebar-search-input::placeholder {
+        color: color-mix(in oklch, var(--sidebar-foreground) 40%, transparent);
+      }
+      .sidebar-search-dropdown {
+        position: absolute;
+        bottom: 100%;
+        left: 4px;
+        right: 4px;
+        margin-bottom: 4px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--popover);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        z-index: 50;
+      }
+      .sidebar-search-dropdown-empty {
+        padding: 16px 12px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+      }
+      .sidebar-search-dropdown ul {
+        list-style: none;
+        max-height: 224px;
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+      .sidebar-search-dropdown-item {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        text-align: left;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .sidebar-search-dropdown-item:hover { background: var(--accent); }
+      .sidebar-search-dropdown-item-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.2;
+      }
+      .sidebar-search-dropdown-item-email {
+        margin-top: 2px;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        line-height: 1.2;
+      }
+      .sidebar.collapsed .sidebar-search { padding: 0 8px 4px; }
+      .sidebar.collapsed .sidebar-search-collapsed {
+        height: 34px;
+        padding-bottom: 4px;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        margin: 0 8px;
+        display: flex;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .sidebar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .sidebar-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 10px 6px 6px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-nav-link:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-nav-link.active {
+        background: var(--sidebar-accent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-nav-link-icon {
+        padding: 4px;
+        border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-nav-link.active .sidebar-nav-link-icon { background: var(--sidebar); }
+      .sidebar-nav-link-icon svg { width: 16px; height: 16px; }
+      .sidebar-nav-link-label {
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-nav-link-label { width: 0; opacity: 0; }
+      .sidebar-nav-link-badge { margin-left: auto; display: inline-flex; gap: 4px; }
+      .sidebar.collapsed .sidebar-nav-link-badge { display: none; }
+      .sidebar-badge {
+        display: inline-flex;
+        width: 20px;
+        height: 20px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        padding: 0 4px;
+      }
+      .sidebar-badge.amber { background: rgba(245, 158, 11, 0.2); color: rgb(180, 83, 9); }
+      .sidebar-badge.blue { background: rgba(59, 130, 246, 0.2); color: rgb(29, 78, 216); }
+
+      .sidebar-bottom {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 0 8px 16px;
+        flex-shrink: 0;
+      }
+      .sidebar-collapse-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 6px 10px 6px 6px;
+        border-radius: 6px;
+        color: var(--sidebar-foreground);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      .sidebar-collapse-btn:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-collapse-btn-icon {
+        padding: 4px;
+        border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-collapse-btn:hover .sidebar-collapse-btn-icon { background: var(--sidebar); }
+      .sidebar-collapse-btn-icon svg { width: 16px; height: 16px; }
+      .sidebar-collapse-btn-label {
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-collapse-btn-label { width: 0; opacity: 0; }
+      .sidebar-user {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 6px;
+        border-radius: 6px;
+      }
+      .sidebar.collapsed .sidebar-user { justify-content: center; }
+      .sidebar-user-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 9999px;
+        background: var(--primary);
+        color: var(--primary-foreground);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      .sidebar-user-text { display: flex; flex-direction: column; min-width: 0; }
+      .sidebar.collapsed .sidebar-user-text,
+      .sidebar.collapsed .sidebar-user-logout { display: none; }
+      .sidebar-user-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-user-email {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-user-logout {
+        flex-shrink: 0;
+        padding: 4px;
+        border-radius: 6px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sidebar-user-logout:hover {
+        color: var(--sidebar-foreground);
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-user-logout svg { width: 16px; height: 16px; }
+
+      /* ───── Main / page header ───── */
+      .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: var(--background-secondary);
+      }
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .page-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 16px;
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) {
+        .page-header { padding: 16px; }
+      }
+      .page-header-title-wrap { min-width: 0; }
+      .page-header-title {
+        font-size: 1.125rem;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
+      }
+      @media (min-width: 640px) {
+        .page-header-title { font-size: 1.25rem; }
+      }
+      .page-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      /* ───── Buttons ───── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        white-space: nowrap;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        font-family: inherit;
+        height: 36px;
+        padding: 8px 12px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .btn:disabled { pointer-events: none; opacity: 0.5; }
+      .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+      .btn-primary:hover { background: color-mix(in oklch, var(--primary) 90%, black); }
+      .btn-outline {
+        background: var(--card);
+        color: var(--foreground);
+        border: 1px solid var(--border);
+      }
+      .btn-outline:hover { background: var(--secondary); }
+      .btn-ghost { background: transparent; color: var(--muted-foreground); }
+      .btn-ghost:hover { background: var(--secondary); color: var(--foreground); }
+      .btn-destructive { background: var(--destructive); color: white; }
+      .btn-destructive:hover { background: color-mix(in oklch, var(--destructive) 88%, black); }
+      .btn-sm { height: 32px; padding: 6px 10px; font-size: 0.8125rem; }
+      .btn-icon-sm {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border-radius: 6px;
+      }
+      .btn svg { width: 16px; height: 16px; }
+
+      /* ───── Customer body layout ───── */
+      .cd-body {
+        flex: 1;
+        min-height: 0;
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+      @media (min-width: 640px) {
+        .cd-body {
+          padding: 16px;
+          flex-direction: row;
+          gap: 16px;
+          overflow: hidden;
+        }
+      }
+
+      /* ───── Left card (info) ───── */
+      .cd-info-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+        flex-shrink: 0;
+      }
+      @media (min-width: 640px) {
+        .cd-info-card {
+          width: 288px;
+          align-self: flex-start;
+          position: sticky;
+          top: 0;
+          max-height: 100%;
+          overflow-y: auto;
+        }
+      }
+
+      .cd-info-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .cd-info-card-title {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--foreground);
+      }
+
+      /* ── Avatar block ── */
+      .cd-info-avatar-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .cd-info-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        font-weight: 600;
+        background: var(--secondary);
+        color: var(--secondary-foreground);
+        flex-shrink: 0;
+      }
+      .cd-info-avatar-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+      .cd-info-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.2;
+        color: var(--foreground);
+      }
+      .cd-tag-list {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .cd-tag-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 1px 8px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 500;
+        line-height: 1.2;
+        white-space: nowrap;
+        background: var(--secondary);
+        color: var(--muted-foreground);
+      }
+
+      /* ── Contact / details / addresses ── */
+      .cd-info-section { display: flex; flex-direction: column; gap: 10px; }
+      .cd-info-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 0;
+        border: 0;
+      }
+      .cd-info-contact-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.875rem;
+        word-break: break-word;
+      }
+      .cd-info-contact-row svg {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+        margin-top: 2px;
+        color: var(--muted-foreground);
+      }
+      .cd-info-detail { display: flex; flex-direction: column; gap: 2px; }
+      .cd-info-detail-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted-foreground);
+      }
+      .cd-info-detail-value { font-size: 0.875rem; color: var(--foreground); }
+      .cd-info-addresses { display: flex; flex-direction: column; gap: 8px; }
+      .cd-info-address-card {
+        border: 1px solid var(--border);
+        background: color-mix(in oklch, var(--muted) 50%, transparent);
+        border-radius: 8px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .cd-info-address-label {
+        font-size: 0.6875rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted-foreground);
+      }
+      .cd-info-address-value { font-size: 0.875rem; color: var(--foreground); line-height: 1.4; }
+
+      /* ───── Right pane (tabs) ───── */
+      .cd-right {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .cd-tabs-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .cd-tabs-list {
+        display: inline-flex;
+        background: var(--secondary);
+        padding: 4px;
+        border-radius: 8px;
+        gap: 2px;
+      }
+      .cd-tab-trigger {
+        padding: 6px 14px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--muted-foreground);
+        background: transparent;
+        border-radius: 6px;
+        font-family: inherit;
+      }
+      .cd-tab-trigger.is-active {
+        background: var(--card);
+        color: var(--foreground);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      }
+      .cd-tab-trigger:hover:not(.is-active) { color: var(--foreground); }
+
+      .cd-tab-content {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        padding: 12px 0 0;
+      }
+      .cd-tab-content[hidden] { display: none; }
+
+      /* ───── Table ───── */
+      .cd-table-wrap {
+        flex: 1;
+        min-height: 0;
+        overflow-x: auto;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 12px;
+      }
+      .cd-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+      .cd-table thead tr {
+        border-bottom: 1px solid var(--border);
+        background: color-mix(in oklch, var(--muted) 50%, transparent);
+        position: sticky;
+        top: 0;
+      }
+      .cd-table th {
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--muted-foreground);
+        padding: 10px 12px;
+        white-space: nowrap;
+      }
+      .cd-table tbody tr {
+        border-bottom: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+        cursor: pointer;
+      }
+      .cd-table tbody tr:hover { background: color-mix(in oklch, var(--accent) 30%, transparent); }
+      .cd-table td {
+        padding: 10px 12px;
+        color: var(--foreground);
+        vertical-align: middle;
+      }
+      .cd-table .empty {
+        text-align: center;
+        padding: 32px 16px;
+        color: var(--muted-foreground);
+        font-size: 0.875rem;
+      }
+      .cell-overflow {
+        display: inline-block;
+        max-width: 240px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+      }
+
+      /* ───── Stage badge (mirror) ───── */
+      .stage-badge {
+        position: relative;
+        display: inline-flex;
+        height: 26px;
+        width: 100%;
+        max-width: 160px;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-radius: 9999px;
+        border: 1px solid color-mix(in oklch, var(--primary) 40%, transparent);
+        background: color-mix(in oklch, var(--primary) 10%, transparent);
+      }
+      .stage-badge-fill {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        background: color-mix(in oklch, var(--primary) 25%, transparent);
+      }
+      .stage-badge-label {
+        position: relative;
+        z-index: 1;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        color: var(--primary);
+        padding: 0 10px;
+        white-space: nowrap;
+      }
+
+      /* ───── Pagination ───── */
+      .cd-pagination {
+        flex-shrink: 0;
+        border-top: 1px solid var(--border);
+        padding: 10px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.8125rem;
+        color: var(--muted-foreground);
+        gap: 12px;
+      }
+
+      /* ───── Skeleton ───── */
+      .skeleton {
+        display: block;
+        background: linear-gradient(
+          90deg,
+          color-mix(in oklch, var(--muted) 70%, transparent) 25%,
+          color-mix(in oklch, var(--border) 70%, transparent) 50%,
+          color-mix(in oklch, var(--muted) 70%, transparent) 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-pulse 1.4s ease-in-out infinite;
+        border-radius: 4px;
+      }
+      @keyframes skeleton-pulse {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* ───── Dialog ───── */
+      .cd-dialog-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 60;
+        padding: 24px;
+      }
+      .cd-dialog-overlay.is-open { display: flex; }
+      .cd-dialog {
+        background: var(--card);
+        border-radius: 14px;
+        padding: 22px;
+        max-width: 480px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      }
+      .cd-dialog-title { font-size: 1.05rem; font-weight: 600; }
+      .cd-dialog-desc { font-size: 0.875rem; color: var(--muted-foreground); }
+      .cd-dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+      .cd-form-row { display: flex; flex-direction: column; gap: 4px; }
+      .cd-form-row label {
+        font-size: 0.8125rem;
+        font-weight: 500;
+      }
+      .cd-form-row input,
+      .cd-form-row textarea {
+        height: 36px;
+        padding: 0 10px;
+        border: 1px solid var(--input);
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 0.875rem;
+        outline: none;
+        background: var(--card);
+        color: var(--foreground);
+      }
+      .cd-form-row textarea { height: auto; min-height: 64px; padding: 8px 10px; resize: vertical; }
+      .cd-form-row input:focus,
+      .cd-form-row textarea:focus { border-color: var(--ring); }
+      .cd-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      /* ───── Empty / error state ───── */
+      .cd-empty {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 64px 24px;
+        text-align: center;
+        gap: 12px;
+        color: var(--muted-foreground);
+      }
+      .cd-empty svg { width: 48px; height: 48px; opacity: 0.4; }
+      .cd-empty-heading { font-size: 1.05rem; font-weight: 500; color: var(--foreground); }
+      .cd-empty-text { font-size: 0.875rem; }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-comment="customer-detail-app-shell">
+      <div class="app-frame" data-comment="customer-detail-app-frame">
+        <!-- ───── Sidebar ───── -->
+        <aside
+          class="sidebar"
+          data-comment="customer-detail-sidebar"
+          id="sidebar"
+          aria-label="Primary navigation">
+          <a
+            class="sidebar-logo"
+            data-comment="customer-detail-sidebar-logo"
+            href="home.html"
+            aria-label="Go to home">
+            <span class="sidebar-logo-mark" data-comment="customer-detail-sidebar-logo-mark">
+              <img
+                data-comment="customer-detail-sidebar-logo-img"
+                src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png"
+                alt="Lapp Structures" />
+            </span>
+            <span class="sidebar-logo-text" data-comment="customer-detail-sidebar-logo-text">Lapp Structures</span>
+          </a>
+
+          <div class="sidebar-search" data-comment="customer-detail-sidebar-search" id="sidebar-search-wrap">
+            <div
+              class="sidebar-search-input-wrap"
+              data-comment="customer-detail-sidebar-search-input-wrap"
+              id="sidebar-search-input-wrap">
+              <svg
+                class="sidebar-search-icon"
+                data-comment="customer-detail-sidebar-search-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                class="sidebar-search-input"
+                data-comment="customer-detail-sidebar-search-input"
+                id="sidebar-search-input"
+                placeholder="Find customer..." />
+            </div>
+            <div
+              class="sidebar-search-dropdown"
+              data-comment="customer-detail-sidebar-search-dropdown"
+              id="sidebar-search-dropdown"
+              style="display: none">
+              <div
+                class="sidebar-search-dropdown-empty"
+                data-comment="customer-detail-sidebar-search-dropdown-empty"
+                id="sidebar-search-empty">
+                No customers found.
+              </div>
+              <ul
+                data-comment="customer-detail-sidebar-search-dropdown-list"
+                id="sidebar-search-list"
+                style="display: none"></ul>
+            </div>
+          </div>
+
+          <div
+            class="sidebar-search-collapsed"
+            data-comment="customer-detail-sidebar-search-collapsed"
+            id="sidebar-search-collapsed"
+            style="display: none">
+            <svg
+              class="sidebar-search-icon"
+              data-comment="customer-detail-sidebar-search-collapsed-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          <nav class="sidebar-nav" data-comment="customer-detail-sidebar-nav" id="sidebar-nav"></nav>
+
+          <div class="sidebar-bottom" data-comment="customer-detail-sidebar-bottom">
+            <button
+              class="sidebar-collapse-btn"
+              data-comment="customer-detail-sidebar-collapse-btn"
+              id="sidebar-collapse-btn"
+              type="button">
+              <span class="sidebar-collapse-btn-icon" data-comment="customer-detail-sidebar-collapse-btn-icon">
+                <svg id="icon-collapse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m16 15-3-3 3-3" />
+                </svg>
+                <svg id="icon-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m14 9 3 3-3 3" />
+                </svg>
+              </span>
+              <span class="sidebar-collapse-btn-label" data-comment="customer-detail-sidebar-collapse-btn-label">Minimize bar</span>
+            </button>
+
+            <div class="sidebar-user" data-comment="customer-detail-sidebar-user">
+              <div class="sidebar-user-info" data-comment="customer-detail-sidebar-user-info">
+                <span
+                  class="avatar"
+                  data-comment="customer-detail-sidebar-user-avatar"
+                  data-component="avatar"
+                  id="sidebar-user-avatar">AL</span>
+                <div class="sidebar-user-text" data-comment="customer-detail-sidebar-user-text">
+                  <span class="sidebar-user-name" data-comment="customer-detail-sidebar-user-name" id="sidebar-user-name">Anna Lee</span>
+                  <span class="sidebar-user-email" data-comment="customer-detail-sidebar-user-email" id="sidebar-user-email">anna@lapp.com</span>
+                </div>
+              </div>
+              <button
+                class="sidebar-user-logout"
+                data-comment="customer-detail-sidebar-user-logout"
+                id="sidebar-user-logout"
+                title="Log out"
+                type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ───── Main ───── -->
+        <main class="main" data-comment="customer-detail-main">
+          <div class="main-content" data-comment="customer-detail-main-content">
+            <!-- Page header -->
+            <header class="page-header" data-comment="customer-detail-page-header">
+              <div class="page-header-title-wrap" data-comment="customer-detail-page-header-title-wrap">
+                <h1 class="page-header-title" data-comment="customer-detail-page-title" id="customer-detail-page-title">
+                  Customer
+                </h1>
+              </div>
+              <div class="page-header-actions" data-comment="customer-detail-page-header-actions">
+                <a
+                  class="btn btn-ghost btn-sm"
+                  data-comment="customer-detail-action-back"
+                  data-component="button"
+                  href="customers.html">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                  Back
+                </a>
+              </div>
+            </header>
+
+            <!-- Content slot — re-rendered based on state -->
+            <div id="customer-detail-content" data-comment="customer-detail-content" class="cd-body"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Edit customer dialog -->
+    <div class="cd-dialog-overlay" data-comment="customer-detail-edit-dialog-overlay" id="edit-dialog-overlay">
+      <div class="cd-dialog" data-comment="customer-detail-edit-dialog" data-component="dialog" role="dialog" aria-modal="true">
+        <div data-comment="customer-detail-edit-dialog-header">
+          <h2 class="cd-dialog-title" data-comment="customer-detail-edit-dialog-title">Edit Customer</h2>
+          <p class="cd-dialog-desc" data-comment="customer-detail-edit-dialog-description">Update customer info.</p>
+        </div>
+        <div class="cd-form-grid" data-comment="customer-detail-edit-form-grid">
+          <div class="cd-form-row" data-comment="customer-detail-edit-row-first-name">
+            <label for="cd-edit-first-name" data-comment="customer-detail-edit-row-first-name-label">First Name</label>
+            <input id="cd-edit-first-name" data-comment="customer-detail-edit-row-first-name-input" data-component="input" type="text" />
+          </div>
+          <div class="cd-form-row" data-comment="customer-detail-edit-row-last-name">
+            <label for="cd-edit-last-name" data-comment="customer-detail-edit-row-last-name-label">Last Name</label>
+            <input id="cd-edit-last-name" data-comment="customer-detail-edit-row-last-name-input" data-component="input" type="text" />
+          </div>
+        </div>
+        <div class="cd-form-row" data-comment="customer-detail-edit-row-email">
+          <label for="cd-edit-email" data-comment="customer-detail-edit-row-email-label">Email</label>
+          <input id="cd-edit-email" data-comment="customer-detail-edit-row-email-input" data-component="input" type="email" />
+        </div>
+        <div class="cd-form-row" data-comment="customer-detail-edit-row-phone">
+          <label for="cd-edit-phone" data-comment="customer-detail-edit-row-phone-label">Phone</label>
+          <input id="cd-edit-phone" data-comment="customer-detail-edit-row-phone-input" data-component="input" type="tel" />
+        </div>
+        <div class="cd-form-row" data-comment="customer-detail-edit-row-note">
+          <label for="cd-edit-note" data-comment="customer-detail-edit-row-note-label">Note</label>
+          <textarea id="cd-edit-note" data-comment="customer-detail-edit-row-note-input" data-component="textarea" rows="2"></textarea>
+        </div>
+        <div class="cd-dialog-footer" data-comment="customer-detail-edit-dialog-footer">
+          <button type="button" class="btn btn-destructive btn-sm" data-comment="customer-detail-edit-dialog-delete" data-component="button" data-dialog-delete>Delete</button>
+          <button type="button" class="btn btn-outline btn-sm" data-comment="customer-detail-edit-dialog-cancel" data-component="button" data-dialog-cancel="edit">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" data-comment="customer-detail-edit-dialog-save" data-component="button" data-dialog-save="edit">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete confirmation dialog -->
+    <div class="cd-dialog-overlay" data-comment="customer-detail-delete-dialog-overlay" id="delete-dialog-overlay">
+      <div class="cd-dialog" data-comment="customer-detail-delete-dialog" data-component="dialog" role="dialog" aria-modal="true">
+        <div data-comment="customer-detail-delete-dialog-header">
+          <h2 class="cd-dialog-title" data-comment="customer-detail-delete-dialog-title">Delete customer</h2>
+          <p class="cd-dialog-desc" data-comment="customer-detail-delete-dialog-description" id="customer-detail-delete-dialog-description-text">
+            This action cannot be undone.
+          </p>
+        </div>
+        <div class="cd-dialog-footer" data-comment="customer-detail-delete-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-comment="customer-detail-delete-dialog-cancel" data-component="button" data-dialog-cancel="delete">Cancel</button>
+          <button type="button" class="btn btn-destructive btn-sm" data-comment="customer-detail-delete-dialog-confirm" data-component="button" data-dialog-confirm="delete">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ───── Store ───── */
+      function createStore(initialState) {
+        let state = structuredClone(initialState);
+        const listeners = new Set();
+        return {
+          get: () => state,
+          set(updater) {
+            state =
+              typeof updater === "function"
+                ? updater(state)
+                : { ...state, ...updater };
+            listeners.forEach((fn) => fn(state));
+          },
+          subscribe(fn) {
+            listeners.add(fn);
+            return () => listeners.delete(fn);
+          },
+        };
+      }
+
+      /* ───── Icons ───── */
+      const ICONS = {
+        list: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>',
+        userRound: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+        clipboardList: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>',
+        mapPin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+        users: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        clipboardCheck: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+        layers2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>',
+        mail: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>',
+        phone: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>',
+        globe: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>',
+        pencil: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>',
+        plus: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+        alertCircle: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>',
+      };
+
+      /* ───── Navigation config ───── */
+      const NAV_BY_ROLE = {
+        admin: [
+          {
+            items: [
+              { label: "Customers", path: "customers.html", icon: "userRound" },
+              { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+              { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+              { label: "Sales Orders", path: "orders.html", icon: "list" },
+              { label: "Users", path: "users.html", icon: "users" },
+              { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
+              { label: "Options List", path: "attributes.html", icon: "layers2" },
+            ],
+          },
+        ],
+      };
+
+      /* ───── Status / Workflow helpers (mirror orders.html) ───── */
+      const STATUS_LABELS = {
+        awaiting_down_payment: "Awaiting Down Payment",
+        down_payment_received: "Down Payment Received",
+        awaiting_signature: "Awaiting Signature",
+        signed: "Signed",
+        awaiting_pricing_review: "Awaiting Pricing Review",
+        pricing_reviewed: "Pricing Reviewed",
+        awaiting_shop_review: "Awaiting Shop Review",
+        shop_reviewed: "Shop Reviewed",
+      };
+      const STATUS_ORDER = [
+        "awaiting_down_payment",
+        "down_payment_received",
+        "awaiting_signature",
+        "signed",
+        "awaiting_pricing_review",
+        "pricing_reviewed",
+        "awaiting_shop_review",
+        "shop_reviewed",
+      ];
+      function getOverallProgress(status) {
+        const idx = STATUS_ORDER.indexOf(status);
+        if (idx < 0) return 0;
+        const total = STATUS_ORDER.length - 1;
+        return Math.round((idx / total) * 100);
+      }
+
+      /* ───── Seed customers (mirrors customers.html, expanded with addresses) ───── */
+      const SEED_CUSTOMERS = [
+        {
+          id: 1,
+          first_name: "Anna",
+          last_name: "Lee",
+          email: "anna@example.com",
+          primary_phone: "7175550101",
+          secondary_phone: null,
+          website_url: "annalee.com",
+          location: "Lancaster, PA",
+          ebms_id: "EBMS-ANN001",
+          company: "Lee Construction",
+          position: "Owner",
+          note: "Repeat buyer — prefers ACH payments and weekday deliveries.",
+          tags: [{ id: 1, name: "VIP", hex_color: "#7c3aed" }],
+          sales_rep: "Tom Brady",
+          billing: { street: "12 Main St", city: "Lancaster", state: "PA", zip_code: "17601" },
+          shipping: { street: "12 Main St", city: "Lancaster", state: "PA", zip_code: "17601" },
+        },
+        {
+          id: 2,
+          first_name: "Mark",
+          last_name: "Chen",
+          email: "mark@example.com",
+          primary_phone: "6105550102",
+          secondary_phone: null,
+          website_url: null,
+          location: "Reading, PA",
+          ebms_id: "EBMS-MAR002",
+          company: "Chen & Sons",
+          position: "Manager",
+          note: null,
+          tags: [{ id: 2, name: "Dealer", hex_color: "#2563eb" }],
+          sales_rep: "Tom Brady",
+          billing: { street: "44 Penn Ave", city: "Reading", state: "PA", zip_code: "19601" },
+          shipping: { street: "44 Penn Ave", city: "Reading", state: "PA", zip_code: "19601" },
+        },
+        {
+          id: 3,
+          first_name: "Sarah",
+          last_name: "Johnson",
+          email: "sarah.j@example.com",
+          primary_phone: "7175550103",
+          secondary_phone: null,
+          website_url: null,
+          location: "York, PA",
+          ebms_id: "EBMS-SAR003",
+          company: null,
+          position: null,
+          note: "Off-grid project — solar prep required.",
+          tags: [{ id: 3, name: "Repeat", hex_color: "#16a34a" }],
+          sales_rep: "Linda Park",
+          billing: { street: "201 East Market", city: "York", state: "PA", zip_code: "17402" },
+          shipping: { street: "201 East Market", city: "York", state: "PA", zip_code: "17402" },
+        },
+        {
+          id: 4,
+          first_name: "David",
+          last_name: "Smith",
+          email: "david.smith@example.com",
+          primary_phone: "7175550104",
+          secondary_phone: null,
+          website_url: null,
+          location: "Harrisburg, PA",
+          ebms_id: null,
+          company: null,
+          position: null,
+          note: null,
+          tags: [],
+          sales_rep: "Linda Park",
+          billing: { street: "780 State St", city: "Harrisburg", state: "PA", zip_code: "17101" },
+          shipping: { street: "780 State St", city: "Harrisburg", state: "PA", zip_code: "17101" },
+        },
+        {
+          id: 5,
+          first_name: "Emma",
+          last_name: "Garcia",
+          email: "emma.g@example.com",
+          primary_phone: "6105550105",
+          secondary_phone: "6105550199",
+          website_url: "garcia-builders.com",
+          location: "Allentown, PA",
+          ebms_id: "EBMS-EMM005",
+          company: "Garcia Builders",
+          position: "Lead",
+          note: "Heavy-duty trusses standard request.",
+          tags: [{ id: 1, name: "VIP", hex_color: "#7c3aed" }],
+          sales_rep: "Marcus Yu",
+          billing: { street: "5 Liberty Ln", city: "Allentown", state: "PA", zip_code: "18101" },
+          shipping: { street: "5 Liberty Ln", city: "Allentown", state: "PA", zip_code: "18101" },
+        },
+        {
+          id: 6,
+          first_name: "James",
+          last_name: "Wilson",
+          email: "jwilson@example.com",
+          primary_phone: "6105550106",
+          secondary_phone: null,
+          website_url: null,
+          location: "Bethlehem, PA",
+          ebms_id: "EBMS-JAM006",
+          company: "Wilson Properties",
+          position: "Owner",
+          note: null,
+          tags: [{ id: 4, name: "Builder", hex_color: "#ea580c" }],
+          sales_rep: "Marcus Yu",
+          billing: { street: "30 Linden St", city: "Bethlehem", state: "PA", zip_code: "18017" },
+          shipping: { street: "30 Linden St", city: "Bethlehem", state: "PA", zip_code: "18017" },
+        },
+        {
+          id: 7,
+          first_name: "Olivia",
+          last_name: "Brown",
+          email: "olivia@example.com",
+          primary_phone: "7175550107",
+          secondary_phone: null,
+          website_url: null,
+          location: "Lebanon, PA",
+          ebms_id: "EBMS-OLI007",
+          company: null,
+          position: null,
+          note: "Rustic interior package preferred.",
+          tags: [{ id: 3, name: "Repeat", hex_color: "#16a34a" }],
+          sales_rep: "Tom Brady",
+          billing: { street: "14 Cedar Rd", city: "Lebanon", state: "PA", zip_code: "17042" },
+          shipping: { street: "14 Cedar Rd", city: "Lebanon", state: "PA", zip_code: "17042" },
+        },
+        {
+          id: 8,
+          first_name: "Michael",
+          last_name: "Davis",
+          email: "michael.d@example.com",
+          primary_phone: "4125550108",
+          secondary_phone: null,
+          website_url: null,
+          location: "Pittsburgh, PA",
+          ebms_id: "EBMS-MIC008",
+          company: "Davis Yards",
+          position: "Buyer",
+          note: null,
+          tags: [{ id: 2, name: "Dealer", hex_color: "#2563eb" }],
+          sales_rep: "Linda Park",
+          billing: { street: "120 Forbes Ave", city: "Pittsburgh", state: "PA", zip_code: "15201" },
+          shipping: { street: "120 Forbes Ave", city: "Pittsburgh", state: "PA", zip_code: "15201" },
+        },
+      ];
+
+      /* ───── Seed orders + estimates per customer ───── */
+      const SEED_ORDERS = [
+        { autoid: "ORD-1001", invoice: "SO-1001", crea_date: "2025-04-22", customer: "Anna Lee", customer_id: 1, dp_estprod: "2025-05-15", category: "Sheds", ship_type: "Local Delivery", total: 8420.5, status: "shop_reviewed" },
+        { autoid: "ORD-1002", invoice: "SO-1002", crea_date: "2025-04-25", customer: "Mark Chen", customer_id: 2, dp_estprod: "2025-06-02", category: "Garages", ship_type: "Freight", total: 18750.0, status: "awaiting_shop_review" },
+        { autoid: "ORD-1003", invoice: "SO-1003", crea_date: "2025-04-29", customer: "Sarah Johnson", customer_id: 3, dp_estprod: "2025-05-20", category: "Cabins", ship_type: "Pickup", total: 14990.0, status: "pricing_reviewed" },
+        { autoid: "ORD-1004", invoice: "SO-1004", crea_date: "2025-05-01", customer: "David Smith", customer_id: 4, dp_estprod: null, category: "Sheds", ship_type: "Local Delivery", total: 5240.0, status: "awaiting_pricing_review" },
+        { autoid: "ORD-1005", invoice: "SO-1005", crea_date: "2025-05-03", customer: "Emma Garcia", customer_id: 5, dp_estprod: "2025-06-12", category: "Garages", ship_type: "Freight", total: 28640.0, status: "signed" },
+        { autoid: "ORD-1006", invoice: "SO-1006", crea_date: "2025-05-05", customer: "James Wilson", customer_id: 6, dp_estprod: "2025-05-28", category: "Sheds", ship_type: "Local Delivery", total: 7320.0, status: "awaiting_signature" },
+        { autoid: "ORD-1007", invoice: "SO-1007", crea_date: "2025-05-07", customer: "Olivia Brown", customer_id: 7, dp_estprod: "2025-06-05", category: "Cabins", ship_type: "Local Delivery", total: 19420.0, status: "down_payment_received" },
+        { autoid: "ORD-1008", invoice: "SO-1008", crea_date: "2025-05-09", customer: "Michael Davis", customer_id: 8, dp_estprod: null, category: "Garages", ship_type: "Freight", total: 22100.0, status: "awaiting_down_payment" },
+        { autoid: "ORD-1009", invoice: "SO-1009", crea_date: "2025-05-10", customer: "Anna Lee", customer_id: 1, dp_estprod: "2025-06-18", category: "Sheds", ship_type: "Local Delivery", total: 9210.0, status: "awaiting_pricing_review" },
+      ];
+
+      const SEED_ESTIMATES = [
+        { id: 5012, name: "EST-5012", crea_date: "2025-04-10", customer_id: 1, status: "Approved", total: 8420.5 },
+        { id: 5018, name: "EST-5018", crea_date: "2025-04-15", customer_id: 2, status: "Approved", total: 18750.0 },
+        { id: 5023, name: "EST-5023", crea_date: "2025-04-20", customer_id: 3, status: "Approved", total: 14990.0 },
+        { id: 5024, name: "EST-5024", crea_date: "2025-04-22", customer_id: 1, status: "Pending", total: 3200.0 },
+        { id: 5031, name: "EST-5031", crea_date: "2025-04-28", customer_id: 5, status: "Approved", total: 28640.0 },
+        { id: 5039, name: "EST-5039", crea_date: "2025-05-01", customer_id: 6, status: "Pending", total: 7320.0 },
+      ];
+
+      /* ───── Format helpers ───── */
+      function formatDate(value) {
+        if (!value) return "—";
+        const d = new Date(value);
+        if (isNaN(d.getTime())) return value;
+        return d.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      }
+      function formatCurrency(value) {
+        if (value == null) return "—";
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(value);
+      }
+      function formatPhone(p) {
+        if (!p) return "";
+        const d = String(p).replace(/\D/g, "");
+        if (d.length === 10) return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+        return p;
+      }
+      function formatAddress(addr) {
+        if (!addr) return null;
+        const parts = [addr.street, addr.city, addr.state, addr.zip_code].filter(Boolean);
+        return parts.length ? parts.join(", ") : null;
+      }
+      function esc(v) {
+        if (v == null) return "";
+        return String(v)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+      function getParam(name) {
+        return new URLSearchParams(window.location.search).get(name);
+      }
+
+      /* ───── Store ───── */
+      const store = createStore({
+        user: { id: 1, name: "Anna Lee", email: "anna@lapp.com", role: "admin" },
+        collapsed: false,
+        searchOpen: false,
+        sidebarSearchTerm: "",
+        sidebarCustomers: SEED_CUSTOMERS.map((c) => ({
+          id: c.id, first_name: c.first_name, last_name: c.last_name, email: c.email,
+        })),
+        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        currentPath: "customers.html",
+
+        customerIdParam: getParam("id"),
+        tabParam: getParam("tab") || "estimates",
+        customers: SEED_CUSTOMERS,
+        orders: SEED_ORDERS,
+        estimates: SEED_ESTIMATES,
+        isLoading: true,
+
+        editDialogOpen: false,
+        deleteDialogOpen: false,
+      });
+
+      /* ───── Sidebar render ───── */
+      function renderSidebarNav() {
+        const s = store.get();
+        const nav = document.getElementById("sidebar-nav");
+        const sections = NAV_BY_ROLE[s.user.role] || [];
+        nav.innerHTML = sections
+          .map(
+            (section, sectionIdx) => `
+            <div class="sidebar-section" data-comment="customer-detail-sidebar-section-${sectionIdx}">
+              ${section.items
+                .map((item) => {
+                  const isActive = item.path === s.currentPath;
+                  const slug = item.label.toLowerCase().replace(/\s+/g, "-");
+                  const badges =
+                    item.badge && !s.collapsed
+                      ? `<span class="sidebar-nav-link-badge" data-comment="customer-detail-sidebar-nav-link-${slug}-badges">
+                          ${
+                            s.reviewBadges.not_pricing_reviewed > 0
+                              ? `<span class="sidebar-badge amber" data-comment="customer-detail-sidebar-nav-link-${slug}-badge-pricing" title="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
+                              : ""
+                          }
+                          ${
+                            s.reviewBadges.not_shop_reviewed > 0
+                              ? `<span class="sidebar-badge blue" data-comment="customer-detail-sidebar-nav-link-${slug}-badge-shop" title="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
+                              : ""
+                          }
+                        </span>`
+                      : "";
+                  return `
+                    <a class="sidebar-nav-link ${isActive ? "active" : ""}" data-comment="customer-detail-sidebar-nav-link-${slug}" href="${item.path}" title="${item.label}">
+                      <span class="sidebar-nav-link-icon" data-comment="customer-detail-sidebar-nav-link-${slug}-icon">${ICONS[item.icon] || ""}</span>
+                      <span class="sidebar-nav-link-label" data-comment="customer-detail-sidebar-nav-link-${slug}-label">${item.label}</span>
+                      ${badges}
+                    </a>
+                  `;
+                })
+                .join("")}
+            </div>
+          `,
+          )
+          .join("");
+      }
+
+      function renderUser() {
+        const { user } = store.get();
+        document.getElementById("sidebar-user-name").textContent = user.name;
+        document.getElementById("sidebar-user-email").textContent = user.email;
+        document.getElementById("sidebar-user-avatar").textContent = user.name
+          .split(" ").slice(0, 2)
+          .map((w) => (w[0] || "").toUpperCase())
+          .join("");
+      }
+
+      function renderCollapse() {
+        const s = store.get();
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("collapsed", s.collapsed);
+        document.getElementById("icon-collapse").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("icon-expand").style.display = s.collapsed ? "block" : "none";
+        document.getElementById("sidebar-search-wrap").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("sidebar-search-collapsed").style.display = s.collapsed ? "flex" : "none";
+      }
+
+      function renderSidebarSearch() {
+        const s = store.get();
+        const wrap = document.getElementById("sidebar-search-input-wrap");
+        wrap.classList.toggle("is-open", s.searchOpen);
+        const showDropdown = s.searchOpen && s.sidebarSearchTerm.trim().length > 0;
+        const dropdown = document.getElementById("sidebar-search-dropdown");
+        dropdown.style.display = showDropdown ? "block" : "none";
+        if (!showDropdown) return;
+        const filtered = s.sidebarCustomers.filter((c) => {
+          const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+          const term = s.sidebarSearchTerm.trim().toLowerCase();
+          return (
+            fullName.includes(term) ||
+            (c.email && c.email.toLowerCase().includes(term))
+          );
+        });
+        const empty = document.getElementById("sidebar-search-empty");
+        const list = document.getElementById("sidebar-search-list");
+        if (filtered.length === 0) {
+          empty.style.display = "block";
+          list.style.display = "none";
+        } else {
+          empty.style.display = "none";
+          list.style.display = "block";
+          list.innerHTML = filtered
+            .slice(0, 8)
+            .map(
+              (c) => `
+              <li data-comment="customer-detail-sidebar-search-item-${c.id}">
+                <button type="button"
+                  class="sidebar-search-dropdown-item"
+                  data-comment="customer-detail-sidebar-search-item-${c.id}-button"
+                  data-customer-id="${c.id}">
+                  <div class="sidebar-search-dropdown-item-name" data-comment="customer-detail-sidebar-search-item-${c.id}-name">${c.first_name} ${c.last_name}</div>
+                  ${c.email ? `<div class="sidebar-search-dropdown-item-email" data-comment="customer-detail-sidebar-search-item-${c.id}-email">${c.email}</div>` : ""}
+                </button>
+              </li>
+            `,
+            )
+            .join("");
+        }
+      }
+
+      /* ───── Lookups ───── */
+      function getActiveCustomer() {
+        const s = store.get();
+        if (!s.customerIdParam) return null;
+        const id = Number(s.customerIdParam);
+        return s.customers.find((c) => c.id === id) || null;
+      }
+      function getCustomerOrders(customerId) {
+        return store.get().orders.filter((o) => o.customer_id === customerId);
+      }
+      function getCustomerEstimates(customerId) {
+        return store.get().estimates.filter((e) => e.customer_id === customerId);
+      }
+
+      /* ───── Render: page title ───── */
+      function renderHeaderTitle() {
+        const s = store.get();
+        const titleEl = document.getElementById("customer-detail-page-title");
+        if (s.isLoading) {
+          titleEl.textContent = "Loading…";
+          return;
+        }
+        const c = getActiveCustomer();
+        if (!c) {
+          titleEl.textContent = "Customer";
+          return;
+        }
+        titleEl.textContent = `${c.first_name} ${c.last_name}`.trim();
+      }
+
+      /* ───── Render: stage badge for order rows ───── */
+      function renderStageBadge(status, commentBase) {
+        const label = status ? STATUS_LABELS[status] : "Order created";
+        const progress = status ? getOverallProgress(status) : 0;
+        return `
+          <div class="stage-badge" data-comment="${commentBase}" data-component="badge" role="img" aria-label="Stage: ${label} (${progress}% complete)">
+            <div class="stage-badge-fill" data-comment="${commentBase}-fill" style="width:${progress}%" aria-hidden="true"></div>
+            <span class="stage-badge-label" data-comment="${commentBase}-label">${esc(label)}</span>
+          </div>
+        `;
+      }
+
+      /* ───── Render: info card body ───── */
+      function renderInfoCardBody(c) {
+        const tagColor = c.tags && c.tags[0]?.hex_color;
+        const initials = `${c.first_name?.[0] ?? ""}${c.last_name?.[0] ?? ""}`.toUpperCase();
+        const avatarStyle = tagColor ? `style="color:${tagColor};background-color:${tagColor}33"` : "";
+
+        const tagsHtml = c.tags && c.tags.length
+          ? c.tags.map((t) => `<span class="cd-tag-badge" data-comment="customer-detail-info-tag-${t.id}" data-component="badge" style="background:${t.hex_color}22;color:${t.hex_color}">${esc(t.name)}</span>`).join("")
+          : `<span class="cd-tag-badge" data-comment="customer-detail-info-tag-default" data-component="badge">Customer</span>`;
+
+        const contactItems = [
+          { id: "email", icon: "mail", value: c.email, tooltip: "Email" },
+          { id: "primary-phone", icon: "phone", value: formatPhone(c.primary_phone), tooltip: "Phone" },
+          { id: "secondary-phone", icon: "phone", value: formatPhone(c.secondary_phone), tooltip: "Secondary Phone" },
+          { id: "website", icon: "globe", value: c.website_url, tooltip: "Website" },
+        ].filter((i) => i.value);
+
+        const detailFields = [
+          { id: "location", label: "Location", value: c.location },
+          { id: "ebms", label: "Name in EBMS", value: c.ebms_id },
+          { id: "company", label: "Company", value: c.company },
+          { id: "position", label: "Position", value: c.position },
+          { id: "note", label: "Note", value: c.note },
+        ].filter((f) => f.value);
+
+        const billing = c.billing;
+        const shipping = c.shipping;
+        const hasContact = contactItems.length > 0;
+        const hasDetails = detailFields.length > 0;
+        const hasAddresses = Boolean(billing || shipping);
+
+        return `
+          <div class="cd-info-section" data-comment="customer-detail-info-section-avatar">
+            <div class="cd-info-avatar-row" data-comment="customer-detail-info-avatar-row">
+              <span class="cd-info-avatar" data-comment="customer-detail-info-avatar" data-component="avatar" ${avatarStyle}>${esc(initials)}</span>
+              <div class="cd-info-avatar-info" data-comment="customer-detail-info-avatar-info">
+                <p class="cd-info-name" data-comment="customer-detail-info-name">${esc(c.first_name)} ${esc(c.last_name)}</p>
+                <div class="cd-tag-list" data-comment="customer-detail-info-tag-list">${tagsHtml}</div>
+              </div>
+            </div>
+          </div>
+
+          ${hasContact ? `
+            <hr class="cd-info-divider" data-comment="customer-detail-info-divider-contact" />
+            <div class="cd-info-section" data-comment="customer-detail-info-section-contact">
+              ${contactItems.map((ci) => `
+                <div class="cd-info-contact-row" data-comment="customer-detail-info-contact-${ci.id}" title="${esc(ci.tooltip)}">
+                  ${ICONS[ci.icon]}
+                  <span data-comment="customer-detail-info-contact-${ci.id}-value">${esc(ci.value)}</span>
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
+
+          ${hasDetails ? `
+            <hr class="cd-info-divider" data-comment="customer-detail-info-divider-details" />
+            <div class="cd-info-section" data-comment="customer-detail-info-section-details">
+              ${detailFields.map((f) => `
+                <div class="cd-info-detail" data-comment="customer-detail-info-detail-${f.id}">
+                  <p class="cd-info-detail-label" data-comment="customer-detail-info-detail-${f.id}-label">${esc(f.label)}</p>
+                  <p class="cd-info-detail-value" data-comment="customer-detail-info-detail-${f.id}-value">${esc(f.value)}</p>
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
+
+          ${hasAddresses ? `
+            <hr class="cd-info-divider" data-comment="customer-detail-info-divider-addresses" />
+            <div class="cd-info-section" data-comment="customer-detail-info-section-addresses">
+              <p class="cd-info-detail-label" data-comment="customer-detail-info-addresses-label">Addresses</p>
+              <div class="cd-info-addresses" data-comment="customer-detail-info-addresses-list">
+                ${billing ? `
+                  <div class="cd-info-address-card" data-comment="customer-detail-info-address-billing">
+                    <p class="cd-info-address-label" data-comment="customer-detail-info-address-billing-label">Billing</p>
+                    <p class="cd-info-address-value" data-comment="customer-detail-info-address-billing-value">${esc(formatAddress(billing) || "—")}</p>
+                  </div>` : ""}
+                ${shipping ? `
+                  <div class="cd-info-address-card" data-comment="customer-detail-info-address-shipping">
+                    <p class="cd-info-address-label" data-comment="customer-detail-info-address-shipping-label">Shipping</p>
+                    <p class="cd-info-address-value" data-comment="customer-detail-info-address-shipping-value">${esc(formatAddress(shipping) || "—")}</p>
+                  </div>` : ""}
+              </div>
+            </div>
+          ` : ""}
+        `;
+      }
+
+      /* ───── Render: tab tables ───── */
+      function renderEstimatesTable(estimates, customerId) {
+        const bodyRows = estimates.length === 0
+          ? `<tr data-comment="customer-detail-estimates-empty-row">
+               <td colspan="4" class="empty" data-comment="customer-detail-estimates-empty-cell">No estimates for this customer.</td>
+             </tr>`
+          : estimates.map((e) => `
+              <tr data-comment="customer-detail-estimates-row-${e.id}" onclick="window.location.href='estimates.html?id=${e.id}'">
+                <td data-comment="customer-detail-estimates-row-${e.id}-name">${esc(e.name)}</td>
+                <td data-comment="customer-detail-estimates-row-${e.id}-created">${formatDate(e.crea_date)}</td>
+                <td data-comment="customer-detail-estimates-row-${e.id}-status">${esc(e.status)}</td>
+                <td data-comment="customer-detail-estimates-row-${e.id}-total">${formatCurrency(e.total)}</td>
+              </tr>
+            `).join("");
+
+        return `
+          <div class="cd-table-wrap" data-comment="customer-detail-estimates-table-wrap">
+            <table class="cd-table" data-comment="customer-detail-estimates-table" data-component="table">
+              <thead data-comment="customer-detail-estimates-thead">
+                <tr data-comment="customer-detail-estimates-thead-row">
+                  <th data-comment="customer-detail-estimates-th-name">Estimate</th>
+                  <th data-comment="customer-detail-estimates-th-created">Created</th>
+                  <th data-comment="customer-detail-estimates-th-status">Status</th>
+                  <th data-comment="customer-detail-estimates-th-total">Total</th>
+                </tr>
+              </thead>
+              <tbody data-comment="customer-detail-estimates-tbody">${bodyRows}</tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function renderOrdersTable(orders) {
+        const bodyRows = orders.length === 0
+          ? `<tr data-comment="customer-detail-orders-empty-row">
+               <td colspan="7" class="empty" data-comment="customer-detail-orders-empty-cell">No sales orders for this customer.</td>
+             </tr>`
+          : orders.map((o) => {
+              const idSafe = esc(o.autoid);
+              return `
+                <tr data-comment="customer-detail-orders-row-${idSafe}" onclick="window.location.href='order-detail.html?id=${idSafe}'">
+                  <td data-comment="customer-detail-orders-row-${idSafe}-invoice">${esc(o.invoice)}</td>
+                  <td data-comment="customer-detail-orders-row-${idSafe}-created">${formatDate(o.crea_date)}</td>
+                  <td data-comment="customer-detail-orders-row-${idSafe}-category"><span class="cell-overflow">${esc(o.category || "—")}</span></td>
+                  <td data-comment="customer-detail-orders-row-${idSafe}-stage">${renderStageBadge(o.status, `customer-detail-orders-row-${idSafe}-stage-badge`)}</td>
+                  <td data-comment="customer-detail-orders-row-${idSafe}-scheduled">${formatDate(o.dp_estprod)}</td>
+                  <td data-comment="customer-detail-orders-row-${idSafe}-ship-type">${esc(o.ship_type || "—")}</td>
+                  <td data-comment="customer-detail-orders-row-${idSafe}-total">${formatCurrency(o.total)}</td>
+                </tr>
+              `;
+            }).join("");
+
+        return `
+          <div class="cd-table-wrap" data-comment="customer-detail-orders-table-wrap">
+            <table class="cd-table" data-comment="customer-detail-orders-table" data-component="table">
+              <thead data-comment="customer-detail-orders-thead">
+                <tr data-comment="customer-detail-orders-thead-row">
+                  <th data-comment="customer-detail-orders-th-invoice">Invoice</th>
+                  <th data-comment="customer-detail-orders-th-created">Created</th>
+                  <th data-comment="customer-detail-orders-th-category">Category</th>
+                  <th data-comment="customer-detail-orders-th-stage">Stage</th>
+                  <th data-comment="customer-detail-orders-th-scheduled">Scheduled</th>
+                  <th data-comment="customer-detail-orders-th-ship-type">Ship Type</th>
+                  <th data-comment="customer-detail-orders-th-total">Total</th>
+                </tr>
+              </thead>
+              <tbody data-comment="customer-detail-orders-tbody">${bodyRows}</tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      /* ───── Render: skeleton ───── */
+      function renderSkeleton() {
+        const content = document.getElementById("customer-detail-content");
+        content.innerHTML = `
+          <div class="cd-info-card" data-comment="customer-detail-skeleton-info-card">
+            <div class="cd-info-card-header" data-comment="customer-detail-skeleton-info-card-header">
+              <span class="skeleton" data-comment="customer-detail-skeleton-info-card-title" style="width:120px;height:16px"></span>
+            </div>
+            <div class="cd-info-avatar-row" data-comment="customer-detail-skeleton-info-avatar-row">
+              <span class="skeleton" data-comment="customer-detail-skeleton-info-avatar" style="width:40px;height:40px;border-radius:9999px"></span>
+              <div data-comment="customer-detail-skeleton-info-avatar-info">
+                <span class="skeleton" data-comment="customer-detail-skeleton-info-name" style="width:120px;height:16px;margin-bottom:6px"></span>
+                <span class="skeleton" data-comment="customer-detail-skeleton-info-tag" style="width:60px;height:14px;border-radius:9999px"></span>
+              </div>
+            </div>
+            <hr class="cd-info-divider" data-comment="customer-detail-skeleton-info-divider-1" />
+            ${[1,2,3].map((i) => `<span class="skeleton" data-comment="customer-detail-skeleton-info-row-${i}" style="width:80%;height:14px;margin-bottom:8px"></span>`).join("")}
+            <hr class="cd-info-divider" data-comment="customer-detail-skeleton-info-divider-2" />
+            ${[1,2].map((i) => `
+              <div data-comment="customer-detail-skeleton-info-address-${i}">
+                <span class="skeleton" data-comment="customer-detail-skeleton-info-address-${i}-label" style="width:60px;height:12px;margin-bottom:4px"></span>
+                <span class="skeleton" data-comment="customer-detail-skeleton-info-address-${i}-value" style="width:100%;height:14px"></span>
+              </div>
+            `).join("")}
+          </div>
+          <div class="cd-right" data-comment="customer-detail-skeleton-right">
+            <div class="cd-tabs-header" data-comment="customer-detail-skeleton-tabs-header">
+              <span class="skeleton" data-comment="customer-detail-skeleton-tabs-list" style="width:160px;height:32px;border-radius:8px"></span>
+              <span class="skeleton" data-comment="customer-detail-skeleton-new-estimate" style="width:130px;height:32px;border-radius:8px"></span>
+            </div>
+            <div class="cd-tab-content" data-comment="customer-detail-skeleton-tab-content">
+              <div class="cd-table-wrap" data-comment="customer-detail-skeleton-table-wrap">
+                ${[1,2,3,4,5].map((i) => `<div data-comment="customer-detail-skeleton-row-${i}" style="display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border)"><span class="skeleton" style="width:80px;height:14px"></span><span class="skeleton" style="width:100px;height:14px"></span><span class="skeleton" style="flex:1;height:14px"></span><span class="skeleton" style="width:80px;height:14px"></span></div>`).join("")}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      /* ───── Render: empty ───── */
+      function renderEmpty() {
+        const content = document.getElementById("customer-detail-content");
+        content.innerHTML = `
+          <div class="cd-empty" data-comment="customer-detail-empty-state">
+            ${ICONS.alertCircle.replace('<svg ', '<svg data-comment="customer-detail-empty-icon" ')}
+            <h2 class="cd-empty-heading" data-comment="customer-detail-empty-heading">Customer not found</h2>
+            <p class="cd-empty-text" data-comment="customer-detail-empty-text">No customer matches the id in the URL.</p>
+            <a class="btn btn-primary btn-sm" data-comment="customer-detail-empty-back-link" data-component="button" href="customers.html">
+              ${ICONS.userRound}
+              Back to Customers
+            </a>
+          </div>
+        `;
+      }
+
+      /* ───── Render: full data state ───── */
+      function renderDataState(c) {
+        const s = store.get();
+        const orders = getCustomerOrders(c.id);
+        const estimates = getCustomerEstimates(c.id);
+        const tab = s.tabParam === "orders" ? "orders" : "estimates";
+
+        return `
+          <!-- ── Left card: info ── -->
+          <aside class="cd-info-card" data-comment="customer-detail-info-card" data-component="card">
+            <div class="cd-info-card-header" data-comment="customer-detail-info-card-header">
+              <h2 class="cd-info-card-title" data-comment="customer-detail-info-card-title">Customer Info</h2>
+              <button type="button" class="btn btn-ghost btn-icon-sm" data-comment="customer-detail-info-edit-btn" data-component="button" data-open-dialog="edit" aria-label="Edit customer">
+                ${ICONS.pencil}
+              </button>
+            </div>
+            ${renderInfoCardBody(c)}
+          </aside>
+
+          <!-- ── Right: tabs ── -->
+          <section class="cd-right" data-comment="customer-detail-right" data-component="tabs">
+            <div class="cd-tabs-header" data-comment="customer-detail-tabs-header">
+              <div class="cd-tabs-list" data-comment="customer-detail-tabs-list" role="tablist">
+                <button type="button"
+                  class="cd-tab-trigger ${tab === "estimates" ? "is-active" : ""}"
+                  data-comment="customer-detail-tab-trigger-estimates"
+                  data-component="button"
+                  data-tab="estimates"
+                  role="tab"
+                  aria-selected="${tab === "estimates"}">Estimates</button>
+                <button type="button"
+                  class="cd-tab-trigger ${tab === "orders" ? "is-active" : ""}"
+                  data-comment="customer-detail-tab-trigger-orders"
+                  data-component="button"
+                  data-tab="orders"
+                  role="tab"
+                  aria-selected="${tab === "orders"}">Sales Orders</button>
+              </div>
+              <a class="btn btn-primary btn-sm" data-comment="customer-detail-action-new-estimate" data-component="button" href="estimates.html?customerId=${c.id}">
+                ${ICONS.plus}
+                New Estimate
+              </a>
+            </div>
+
+            <div class="cd-tab-content" data-comment="customer-detail-tab-content-estimates" ${tab === "estimates" ? "" : "hidden"} role="tabpanel">
+              ${renderEstimatesTable(estimates, c.id)}
+              <div class="cd-pagination" data-comment="customer-detail-estimates-pagination">
+                <span data-comment="customer-detail-estimates-pagination-label">Page 1 of 1</span>
+                <span data-comment="customer-detail-estimates-pagination-count">${estimates.length} item${estimates.length === 1 ? "" : "s"}</span>
+              </div>
+            </div>
+
+            <div class="cd-tab-content" data-comment="customer-detail-tab-content-orders" ${tab === "orders" ? "" : "hidden"} role="tabpanel">
+              ${renderOrdersTable(orders)}
+              <div class="cd-pagination" data-comment="customer-detail-orders-pagination">
+                <span data-comment="customer-detail-orders-pagination-label">Page 1 of 1</span>
+                <span data-comment="customer-detail-orders-pagination-count">${orders.length} order${orders.length === 1 ? "" : "s"}</span>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      function renderContent() {
+        const s = store.get();
+        if (s.isLoading) {
+          renderSkeleton();
+          return;
+        }
+        const c = getActiveCustomer();
+        if (!c) {
+          renderEmpty();
+          return;
+        }
+        document.getElementById("customer-detail-content").innerHTML = renderDataState(c);
+        // populate edit form
+        document.getElementById("cd-edit-first-name").value = c.first_name || "";
+        document.getElementById("cd-edit-last-name").value = c.last_name || "";
+        document.getElementById("cd-edit-email").value = c.email || "";
+        document.getElementById("cd-edit-phone").value = formatPhone(c.primary_phone) || "";
+        document.getElementById("cd-edit-note").value = c.note || "";
+        // delete dialog name
+        const desc = document.getElementById("customer-detail-delete-dialog-description-text");
+        desc.textContent = `Delete ${c.first_name} ${c.last_name}? This action cannot be undone.`;
+      }
+
+      function renderDialogs() {
+        const s = store.get();
+        document.getElementById("edit-dialog-overlay").classList.toggle("is-open", s.editDialogOpen);
+        document.getElementById("delete-dialog-overlay").classList.toggle("is-open", s.deleteDialogOpen);
+      }
+
+      /* ───── Subscriptions ───── */
+      store.subscribe(renderSidebarNav);
+      store.subscribe(renderUser);
+      store.subscribe(renderCollapse);
+      store.subscribe(renderSidebarSearch);
+      store.subscribe(renderHeaderTitle);
+      store.subscribe(renderContent);
+      store.subscribe(renderDialogs);
+
+      renderSidebarNav();
+      renderUser();
+      renderCollapse();
+      renderSidebarSearch();
+      renderHeaderTitle();
+      renderContent();
+      renderDialogs();
+
+      /* ───── Simulate loading ───── */
+      setTimeout(() => store.set({ isLoading: false }), 300);
+
+      /* ───── Sidebar handlers ───── */
+      document.getElementById("sidebar-collapse-btn").addEventListener("click", () => {
+        store.set((s) => ({ collapsed: !s.collapsed }));
+      });
+
+      const searchInput = document.getElementById("sidebar-search-input");
+      searchInput.addEventListener("focus", () => store.set({ searchOpen: true }));
+      searchInput.addEventListener("blur", () => setTimeout(() => store.set({ searchOpen: false }), 150));
+      searchInput.addEventListener("input", (e) => store.set({ sidebarSearchTerm: e.target.value }));
+
+      document.getElementById("sidebar-search-list").addEventListener("mousedown", (e) => {
+        const btn = e.target.closest("[data-customer-id]");
+        if (!btn) return;
+        const id = btn.dataset.customerId;
+        searchInput.value = "";
+        store.set({ searchOpen: false, sidebarSearchTerm: "" });
+        window.location.href = `customer-detail.html?id=${id}`;
+      });
+
+      document.getElementById("sidebar-user-logout").addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+
+      /* ───── Tab + dialog handlers (event delegation) ───── */
+      document.body.addEventListener("click", (e) => {
+        const tabBtn = e.target.closest("[data-tab]");
+        if (tabBtn) {
+          const tab = tabBtn.dataset.tab;
+          store.set({ tabParam: tab });
+          // Update URL search param
+          const url = new URL(window.location.href);
+          if (tab === "orders") url.searchParams.set("tab", "orders");
+          else url.searchParams.delete("tab");
+          window.history.replaceState({}, "", url.toString());
+          return;
+        }
+        const opener = e.target.closest("[data-open-dialog]");
+        if (opener) {
+          const which = opener.dataset.openDialog;
+          if (which === "edit") store.set({ editDialogOpen: true });
+          return;
+        }
+        const cancel = e.target.closest("[data-dialog-cancel]");
+        if (cancel) {
+          const which = cancel.dataset.dialogCancel;
+          if (which === "edit") store.set({ editDialogOpen: false });
+          if (which === "delete") store.set({ deleteDialogOpen: false });
+          return;
+        }
+        const save = e.target.closest("[data-dialog-save]");
+        if (save) {
+          const which = save.dataset.dialogSave;
+          if (which === "edit") {
+            // Apply edits to active customer in store
+            const c = getActiveCustomer();
+            if (c) {
+              const updates = {
+                first_name: document.getElementById("cd-edit-first-name").value.trim(),
+                last_name: document.getElementById("cd-edit-last-name").value.trim(),
+                email: document.getElementById("cd-edit-email").value.trim(),
+                primary_phone: document.getElementById("cd-edit-phone").value.replace(/\D/g, ""),
+                note: document.getElementById("cd-edit-note").value.trim(),
+              };
+              store.set((s) => ({
+                customers: s.customers.map((cc) => (cc.id === c.id ? { ...cc, ...updates } : cc)),
+                editDialogOpen: false,
+              }));
+            }
+          }
+          return;
+        }
+        const del = e.target.closest("[data-dialog-delete]");
+        if (del) {
+          store.set({ editDialogOpen: false, deleteDialogOpen: true });
+          return;
+        }
+        const confirmDel = e.target.closest("[data-dialog-confirm]");
+        if (confirmDel && confirmDel.dataset.dialogConfirm === "delete") {
+          // "Delete" the active customer locally, then go back to the list
+          const c = getActiveCustomer();
+          if (c) {
+            store.set((s) => ({
+              customers: s.customers.filter((cc) => cc.id !== c.id),
+              deleteDialogOpen: false,
+            }));
+            window.location.href = "customers.html";
+          }
+        }
+      });
+
+      document.getElementById("edit-dialog-overlay").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) store.set({ editDialogOpen: false });
+      });
+      document.getElementById("delete-dialog-overlay").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) store.set({ deleteDialogOpen: false });
+      });
+    </script>
+  </body>
+</html>

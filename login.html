@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapp Structures — Login</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --radius: 0.5rem;
+        --background: oklch(0.93 0.011 257);
+        --foreground: oklch(0.14 0.033 262);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.22 0.03 255);
+        --primary: oklch(0.53 0.18 260);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.97 0.005 250);
+        --muted: oklch(0.97 0.005 250);
+        --muted-foreground: oklch(0.56 0.023 255);
+        --destructive: oklch(0.50 0.19 25);
+        --border: oklch(0.93 0.011 257);
+        --input: oklch(0.92 0.01 250);
+        --ring: oklch(0.53 0.18 260);
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--background);
+        color: var(--foreground);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      }
+
+      button {
+        cursor: pointer;
+        font-family: inherit;
+      }
+
+      .auth-shell {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+
+      .auth-container {
+        width: 100%;
+        max-width: 28rem;
+      }
+
+      .auth-brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .auth-brand-logo img {
+        width: 33px;
+        height: 36px;
+        display: block;
+      }
+
+      .auth-brand-title {
+        margin-top: 12px;
+        font-family: var(--font-display);
+        font-size: 1.875rem;
+        line-height: 1;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+        color: var(--brand-navy);
+      }
+
+      .auth-footer {
+        margin-top: 24px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+      }
+
+      .card {
+        background: var(--card);
+        color: var(--card-foreground);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06),
+          0 2px 4px -2px rgba(0, 0, 0, 0.04);
+        padding: 0 0 16px;
+      }
+
+      .card-header {
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+        background: color-mix(in oklch, var(--background) 35%, transparent);
+      }
+
+      .card-title {
+        font-size: 1.125rem;
+        line-height: 1.4;
+        font-weight: 500;
+      }
+
+      .card-content {
+        padding: 16px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .field + .field,
+      .stack > * + * {
+        margin-top: 16px;
+      }
+
+      .label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.875rem;
+        line-height: 1;
+        font-weight: 500;
+        user-select: none;
+      }
+
+      .input {
+        width: 100%;
+        height: 36px;
+        min-width: 0;
+        padding: 4px 12px;
+        font-size: 0.875rem;
+        font-family: inherit;
+        color: var(--foreground);
+        background: transparent;
+        border: 1px solid var(--input);
+        border-radius: 0.375rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .input::placeholder {
+        color: var(--muted-foreground);
+      }
+
+      .input:focus-visible {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+      }
+
+      .input[aria-invalid="true"] {
+        border-color: var(--destructive);
+        box-shadow: 0 0 0 3px
+          color-mix(in oklch, var(--destructive) 20%, transparent);
+      }
+
+      .input-wrap {
+        position: relative;
+      }
+
+      .input-wrap .input {
+        padding-right: 40px;
+      }
+
+      .input-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: 0;
+        color: var(--muted-foreground);
+        display: inline-flex;
+        align-items: center;
+        padding: 0;
+      }
+
+      .input-toggle:hover {
+        color: var(--foreground);
+      }
+
+      .input-toggle svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .field-error {
+        font-size: 0.75rem;
+        color: var(--destructive);
+      }
+
+      .alert-destructive {
+        border-radius: 0.375rem;
+        background: color-mix(in oklch, var(--destructive) 10%, transparent);
+        color: var(--destructive);
+        padding: 10px 12px;
+        font-size: 0.875rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        white-space: nowrap;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        font-family: inherit;
+        transition: background 0.15s ease, color 0.15s ease,
+          box-shadow 0.15s ease;
+        height: 36px;
+        padding: 8px 16px;
+        border: 0;
+      }
+
+      .btn:disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+
+      .btn-primary:hover {
+        background: color-mix(in oklch, var(--primary) 90%, black);
+      }
+
+      .btn-full {
+        width: 100%;
+      }
+
+      .checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border: 1px solid var(--input);
+        border-radius: 0.25rem;
+        background: transparent;
+        position: relative;
+        cursor: pointer;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+        flex-shrink: 0;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+
+      .checkbox:checked {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+
+      .checkbox:checked::after {
+        content: "";
+        position: absolute;
+        left: 4px;
+        top: 1px;
+        width: 4px;
+        height: 8px;
+        border: solid var(--primary-foreground);
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+
+      .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .checkbox-label {
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.875rem;
+      }
+
+      .link-primary {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.75rem;
+      }
+
+      .link-primary:hover {
+        text-decoration: underline;
+      }
+
+      .row-end {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .below-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .spinner {
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-shell" data-comment="auth-shell">
+      <div class="auth-container" data-comment="auth-container">
+        <div class="auth-brand" data-comment="auth-brand">
+          <div class="auth-brand-logo" data-comment="auth-brand-logo">
+            <img
+              data-comment="auth-brand-logo-img"
+              src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png"
+              alt="Lapp Structures" />
+          </div>
+          <h1 class="auth-brand-title" data-comment="auth-brand-title">
+            Lapp Structures
+          </h1>
+        </div>
+
+        <div class="card" data-comment="login-card" data-component="card">
+          <div class="card-header" data-comment="login-card-header">
+            <h2 class="card-title" data-comment="login-card-title">
+              Welcome back!
+            </h2>
+          </div>
+          <div class="card-content" data-comment="login-card-content">
+            <form
+              data-comment="login-form"
+              id="login-form"
+              novalidate
+              autocomplete="on">
+              <div
+                class="alert-destructive"
+                data-comment="login-server-error"
+                data-component="alert"
+                id="server-error"
+                style="display: none; margin-bottom: 16px"></div>
+
+              <div class="field" data-comment="login-field-email">
+                <label
+                  class="label"
+                  for="email"
+                  data-comment="login-label-email">
+                  Email
+                </label>
+                <input
+                  class="input"
+                  data-comment="login-input-email"
+                  data-component="input"
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="name@company.com"
+                  autocomplete="email"
+                  autofocus />
+                <p
+                  class="field-error"
+                  data-comment="login-error-email"
+                  id="error-email"
+                  style="display: none"></p>
+              </div>
+
+              <div class="field" data-comment="login-field-password">
+                <label
+                  class="label"
+                  for="password"
+                  data-comment="login-label-password">
+                  Password
+                </label>
+                <div class="input-wrap" data-comment="login-password-wrap">
+                  <input
+                    class="input"
+                    data-comment="login-input-password"
+                    data-component="input"
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password" />
+                  <button
+                    type="button"
+                    class="input-toggle"
+                    data-comment="login-toggle-password"
+                    id="toggle-password"
+                    tabindex="-1"
+                    aria-label="Show password">
+                    <svg
+                      id="eye-on"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path
+                        d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <svg
+                      id="eye-off"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="display: none">
+                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                      <path
+                        d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                      <path
+                        d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                      <line x1="2" x2="22" y1="2" y2="22" />
+                    </svg>
+                  </button>
+                </div>
+                <p
+                  class="field-error"
+                  data-comment="login-error-password"
+                  id="error-password"
+                  style="display: none"></p>
+              </div>
+
+              <div
+                class="below-fields"
+                data-comment="login-below-fields"
+                style="margin-top: 16px">
+                <div class="row-end" data-comment="login-forgot-row">
+                  <a
+                    class="link-primary"
+                    data-comment="login-forgot-link"
+                    href="password-reset.html">
+                    Forgot password?
+                  </a>
+                </div>
+                <div class="checkbox-row" data-comment="login-remember-row">
+                  <input
+                    type="checkbox"
+                    class="checkbox"
+                    data-comment="login-checkbox-remember"
+                    data-component="checkbox"
+                    id="remember-me"
+                    checked />
+                  <label
+                    for="remember-me"
+                    class="checkbox-label"
+                    data-comment="login-label-remember">
+                    Remember me
+                  </label>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                class="btn btn-primary btn-full"
+                data-comment="login-submit"
+                data-component="button"
+                id="submit-btn"
+                style="margin-top: 16px">
+                <span data-comment="login-submit-text" id="submit-text"
+                  >Login</span
+                >
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <p class="auth-footer" data-comment="auth-footer" id="footer">
+          © <span id="copyright-year">2026</span> Lapp Structures. All rights
+          reserved.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // ── Year
+      document.getElementById("copyright-year").textContent =
+        new Date().getFullYear();
+
+      // ── Store
+      function createStore(initialState) {
+        let state = structuredClone(initialState);
+        const listeners = new Set();
+        return {
+          get: () => state,
+          set(updater) {
+            state =
+              typeof updater === "function"
+                ? updater(state)
+                : { ...state, ...updater };
+            listeners.forEach((fn) => fn(state));
+          },
+          subscribe(fn) {
+            listeners.add(fn);
+            return () => listeners.delete(fn);
+          },
+        };
+      }
+
+      const store = createStore({
+        isSubmitting: false,
+        showPassword: false,
+        rememberMe: true,
+        serverError: null,
+        fieldErrors: {},
+      });
+
+      // ── Actions
+      function loginApi({ email, password }) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            if (email === "demo@lapp.com" && password === "password") {
+              resolve({ ok: true });
+            } else {
+              reject(new Error("Invalid email or password. Please try again."));
+            }
+          }, 700);
+        });
+      }
+
+      function setSubmitting(v) {
+        store.set({ isSubmitting: v });
+      }
+
+      function setServerError(msg) {
+        store.set({ serverError: msg });
+      }
+
+      function setFieldErrors(errors) {
+        store.set({ fieldErrors: errors });
+      }
+
+      function togglePassword() {
+        store.set((s) => ({ showPassword: !s.showPassword }));
+      }
+
+      // ── Validation
+      function validate({ email, password }) {
+        const errors = {};
+        if (!email.trim()) errors.email = "Please enter your email.";
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+          errors.email = "Please enter a valid email.";
+        if (!password) errors.password = "Please enter your password.";
+        return errors;
+      }
+
+      // ── Render
+      function renderState() {
+        const s = store.get();
+
+        // Submit button
+        const btn = document.getElementById("submit-btn");
+        const text = document.getElementById("submit-text");
+        btn.disabled = s.isSubmitting;
+        if (s.isSubmitting) {
+          text.innerHTML =
+            '<svg class="spinner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Logging in...';
+        } else {
+          text.textContent = "Login";
+        }
+
+        // Password visibility
+        const pw = document.getElementById("password");
+        pw.type = s.showPassword ? "text" : "password";
+        document.getElementById("eye-on").style.display = s.showPassword
+          ? "none"
+          : "block";
+        document.getElementById("eye-off").style.display = s.showPassword
+          ? "block"
+          : "none";
+
+        // Remember me
+        document.getElementById("remember-me").checked = s.rememberMe;
+
+        // Server error
+        const srv = document.getElementById("server-error");
+        if (s.serverError) {
+          srv.textContent = s.serverError;
+          srv.style.display = "block";
+        } else {
+          srv.style.display = "none";
+        }
+
+        // Field errors
+        ["email", "password"].forEach((field) => {
+          const input = document.getElementById(field);
+          const err = document.getElementById("error-" + field);
+          const msg = s.fieldErrors[field];
+          if (msg) {
+            input.setAttribute("aria-invalid", "true");
+            err.textContent = msg;
+            err.style.display = "block";
+          } else {
+            input.removeAttribute("aria-invalid");
+            err.style.display = "none";
+          }
+        });
+      }
+
+      store.subscribe(renderState);
+      renderState();
+
+      // ── Handlers
+      document
+        .getElementById("toggle-password")
+        .addEventListener("click", togglePassword);
+
+      document
+        .getElementById("remember-me")
+        .addEventListener("change", (e) => {
+          store.set({ rememberMe: e.target.checked });
+        });
+
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+
+          const errors = validate({ email, password });
+          setFieldErrors(errors);
+          setServerError(null);
+          if (Object.keys(errors).length > 0) return;
+
+          setSubmitting(true);
+          try {
+            await loginApi({ email, password });
+            // Mock: in real platform would redirect by role
+            setServerError(null);
+            setSubmitting(false);
+            // Visual success — short delay then "redirect"
+            const btnText = document.getElementById("submit-text");
+            btnText.textContent = "Success — redirecting…";
+          } catch (err) {
+            setServerError(err.message);
+            setSubmitting(false);
+          }
+        });
+    </script>
+  </body>
+</html>

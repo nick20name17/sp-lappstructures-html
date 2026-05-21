@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapp Structures — Account</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      /* ───── Reset ───── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ───── Design tokens ───── */
+      :root {
+        --radius: 0.5rem;
+        --background: oklch(0.93 0.011 257);
+        --background-secondary: oklch(98.837% 0.00143 285.197);
+        --foreground: oklch(0.14 0.033 262);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.22 0.03 255);
+        --popover: oklch(1 0 0);
+        --primary: oklch(0.53 0.18 260);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.97 0.005 250);
+        --secondary-foreground: oklch(0.14 0.033 262);
+        --secondary-hover: oklch(0.93 0.011 257);
+        --muted: oklch(0.97 0.005 250);
+        --muted-foreground: oklch(0.56 0.023 255);
+        --accent: oklch(0.96 0.03 260);
+        --accent-foreground: oklch(0.53 0.18 260);
+        --destructive: oklch(0.50 0.19 25);
+        --success: oklch(0.58 0.16 150);
+        --border: oklch(0.93 0.011 257);
+        --input: oklch(0.92 0.01 250);
+        --ring: oklch(0.53 0.18 260);
+
+        --sidebar: oklch(1 0 0);
+        --sidebar-foreground: oklch(0.55 0.02 255);
+        --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-accent: oklch(0.97 0.005 250);
+        --sidebar-accent-foreground: oklch(0.14 0.033 262);
+        --sidebar-border: oklch(0.92 0.01 250);
+
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--background);
+        color: var(--foreground);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        overflow: hidden;
+      }
+
+      button {
+        cursor: pointer;
+        font-family: inherit;
+        border: 0;
+        background: transparent;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      /* ───── Scrollbar ───── */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+      }
+
+      /* ───── App layout ───── */
+      .app-shell {
+        background: var(--background);
+        padding: 16px;
+        height: 100vh;
+      }
+
+      .app-frame {
+        display: flex;
+        height: calc(100vh - 32px);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      /* ───── Sidebar ───── */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        background: var(--sidebar);
+        border-right: 1px solid var(--border);
+        flex-shrink: 0;
+        overflow: hidden;
+        width: 240px;
+        transition: width 0.2s ease;
+      }
+
+      .sidebar.collapsed {
+        width: 56px;
+      }
+
+      .sidebar-logo {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        padding: 0 16px 16px;
+        height: 64px;
+        flex-shrink: 0;
+        transition: opacity 0.15s ease;
+      }
+
+      .sidebar-logo:hover {
+        opacity: 0.9;
+      }
+
+      .sidebar.collapsed .sidebar-logo {
+        justify-content: center;
+        padding: 0 0 16px;
+        gap: 0;
+      }
+
+      .sidebar-logo-mark {
+        display: flex;
+        width: 32px;
+        height: 32px;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar-logo-mark img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .sidebar-logo-text {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        line-height: 1.2;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+        color: var(--brand-navy);
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+
+      .sidebar.collapsed .sidebar-logo-text {
+        width: 0;
+        opacity: 0;
+      }
+
+      /* Customer quick-search */
+      .sidebar-search {
+        position: relative;
+        padding: 0 8px 4px;
+      }
+
+      .sidebar-search-input-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        padding: 6px 10px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+
+      .sidebar-search-input-wrap:hover,
+      .sidebar-search-input-wrap.is-open {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+
+      .sidebar-search-input-wrap.is-open {
+        border-color: color-mix(
+          in oklch,
+          var(--sidebar-foreground) 20%,
+          transparent
+        );
+      }
+
+      .sidebar-search-icon {
+        width: 14px;
+        height: 14px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        flex-shrink: 0;
+      }
+
+      .sidebar-search-input {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        font-size: 0.875rem;
+        font-family: inherit;
+        color: var(--sidebar-foreground);
+        border: 0;
+        outline: none;
+      }
+
+      .sidebar-search-input::placeholder {
+        color: color-mix(in oklch, var(--sidebar-foreground) 40%, transparent);
+      }
+
+      .sidebar-search-dropdown {
+        position: absolute;
+        bottom: 100%;
+        left: 4px;
+        right: 4px;
+        margin-bottom: 4px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--popover);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        z-index: 50;
+      }
+
+      .sidebar-search-dropdown-empty {
+        padding: 16px 12px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+      }
+
+      .sidebar-search-dropdown ul {
+        list-style: none;
+        max-height: 224px;
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+
+      .sidebar-search-dropdown-item {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        text-align: left;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+
+      .sidebar-search-dropdown-item:hover {
+        background: var(--accent);
+      }
+
+      .sidebar-search-dropdown-item-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.2;
+      }
+
+      .sidebar-search-dropdown-item-email {
+        margin-top: 2px;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        line-height: 1.2;
+      }
+
+      .sidebar.collapsed .sidebar-search {
+        padding: 0 8px 4px;
+      }
+
+      .sidebar.collapsed .sidebar-search-collapsed {
+        height: 34px;
+        padding-bottom: 4px;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        margin: 0 8px;
+        display: flex;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* Navigation */
+      .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .sidebar-section-title {
+        padding: 0 12px;
+        margin-bottom: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, height 0.2s ease;
+      }
+
+      .sidebar.collapsed .sidebar-section-title {
+        opacity: 0;
+        height: 0;
+        margin-bottom: 0;
+      }
+
+      .sidebar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .sidebar-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 10px 6px 6px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .sidebar-nav-link:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+
+      .sidebar-nav-link.active {
+        background: var(--sidebar-accent);
+        color: var(--sidebar-accent-foreground);
+      }
+
+      .sidebar-nav-link-icon {
+        padding: 4px;
+        border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.15s ease;
+      }
+
+      .sidebar-nav-link.active .sidebar-nav-link-icon {
+        background: var(--sidebar);
+      }
+
+      .sidebar-nav-link-icon svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .sidebar-nav-link-label {
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+
+      .sidebar.collapsed .sidebar-nav-link-label {
+        width: 0;
+        opacity: 0;
+      }
+
+      .sidebar-nav-link-badge {
+        margin-left: auto;
+        display: inline-flex;
+        gap: 4px;
+      }
+
+      .sidebar.collapsed .sidebar-nav-link-badge {
+        display: none;
+      }
+
+      .sidebar-badge {
+        display: inline-flex;
+        width: 20px;
+        height: 20px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        padding: 0 4px;
+      }
+
+      .sidebar-badge.amber {
+        background: rgba(245, 158, 11, 0.2);
+        color: rgb(180, 83, 9);
+      }
+
+      .sidebar-badge.blue {
+        background: rgba(59, 130, 246, 0.2);
+        color: rgb(29, 78, 216);
+      }
+
+      /* Bottom area */
+      .sidebar-bottom {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 0 8px 16px;
+        flex-shrink: 0;
+      }
+
+      .sidebar-collapse-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 6px 10px 6px 6px;
+        border-radius: 6px;
+        color: var(--sidebar-foreground);
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .sidebar-collapse-btn:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+
+      .sidebar-collapse-btn-icon {
+        padding: 4px;
+        border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar-collapse-btn:hover .sidebar-collapse-btn-icon {
+        background: var(--sidebar);
+      }
+
+      .sidebar-collapse-btn-icon svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .sidebar-collapse-btn-label {
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+
+      .sidebar.collapsed .sidebar-collapse-btn-label {
+        width: 0;
+        opacity: 0;
+      }
+
+      .sidebar-user {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 6px;
+        border-radius: 6px;
+      }
+
+      .sidebar.collapsed .sidebar-user {
+        justify-content: center;
+      }
+
+      .sidebar-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 9999px;
+        background: var(--primary);
+        color: var(--primary-foreground);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .sidebar-user-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .sidebar.collapsed .sidebar-user-text,
+      .sidebar.collapsed .sidebar-user-logout {
+        display: none;
+      }
+
+      .sidebar-user-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .sidebar-user-email {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .sidebar-user-logout {
+        flex-shrink: 0;
+        padding: 4px;
+        border-radius: 6px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        transition: background 0.15s ease, color 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .sidebar-user-logout:hover {
+        color: var(--sidebar-foreground);
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+
+      .sidebar-user-logout svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* ───── Main ───── */
+      .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: var(--background-secondary);
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      /* ───── Page header ───── */
+      .page-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 16px;
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) {
+        .page-header {
+          padding: 16px;
+        }
+      }
+
+      .page-header-title-wrap {
+        min-width: 0;
+      }
+
+      .page-header-title {
+        font-size: 1.125rem;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
+      }
+      @media (min-width: 640px) {
+        .page-header-title {
+          font-size: 1.25rem;
+        }
+      }
+
+      .page-header-description {
+        margin-top: 2px;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+
+      .page-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      /* ───── Buttons (shared) ───── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        white-space: nowrap;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        font-family: inherit;
+        height: 36px;
+        padding: 8px 16px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .btn:disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+
+      .btn-primary:hover {
+        background: color-mix(in oklch, var(--primary) 90%, black);
+      }
+
+      .btn-outline {
+        background: white;
+        color: var(--foreground);
+        border: 1px solid var(--border);
+      }
+
+      .btn-outline:hover {
+        background: var(--secondary);
+      }
+
+      .btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* ───── Card ───── */
+      .card {
+        background: var(--card);
+        color: var(--card-foreground);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      @media (min-width: 640px) {
+        .card {
+          padding: 24px;
+          gap: 24px;
+        }
+      }
+
+      .card-title {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--muted-foreground);
+      }
+      @media (min-width: 1536px) {
+        .card-title {
+          font-size: 1.125rem;
+        }
+      }
+
+      /* ───── Body ───── */
+      .body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+      }
+
+      /* ───── Placeholder state ───── */
+      .placeholder-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 24px;
+        text-align: center;
+        color: var(--muted-foreground);
+      }
+
+      .placeholder-state svg {
+        width: 48px;
+        height: 48px;
+        opacity: 0.3;
+        margin-bottom: 12px;
+      }
+
+      .placeholder-state-text {
+        font-size: 0.875rem;
+      }
+      @media (min-width: 1536px) {
+        .placeholder-state-text {
+          font-size: 1rem;
+        }
+      }
+
+      .placeholder-state-role {
+        margin-top: 4px;
+        font-size: 0.75rem;
+      }
+      @media (min-width: 1536px) {
+        .placeholder-state-role {
+          font-size: 0.875rem;
+        }
+      }
+
+      .placeholder-state-role b {
+        font-weight: 500;
+        text-transform: capitalize;
+      }
+
+      /* ───── Reveal ───── */
+      .reveal {
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 400ms ease, transform 400ms ease;
+      }
+
+      .reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-comment="account-app-shell">
+      <div class="app-frame" data-comment="account-app-frame">
+        <!-- ───── Sidebar ───── -->
+        <aside
+          class="sidebar"
+          data-comment="account-sidebar"
+          id="sidebar"
+          aria-label="Primary navigation">
+          <!-- Logo -->
+          <a
+            class="sidebar-logo"
+            data-comment="account-sidebar-logo"
+            href="home.html"
+            aria-label="Go to home">
+            <span class="sidebar-logo-mark" data-comment="account-sidebar-logo-mark">
+              <img
+                data-comment="account-sidebar-logo-img"
+                src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png"
+                alt="Lapp Structures" />
+            </span>
+            <span class="sidebar-logo-text" data-comment="account-sidebar-logo-text"
+              >Lapp Structures</span
+            >
+          </a>
+
+          <!-- Customer search (expanded) -->
+          <div
+            class="sidebar-search"
+            data-comment="account-sidebar-search"
+            id="sidebar-search-wrap">
+            <div
+              class="sidebar-search-input-wrap"
+              data-comment="account-sidebar-search-input-wrap"
+              id="sidebar-search-input-wrap">
+              <svg
+                class="sidebar-search-icon"
+                data-comment="account-sidebar-search-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                class="sidebar-search-input"
+                data-comment="account-sidebar-search-input"
+                id="sidebar-search-input"
+                placeholder="Find customer..." />
+            </div>
+            <div
+              class="sidebar-search-dropdown"
+              data-comment="account-sidebar-search-dropdown"
+              id="sidebar-search-dropdown"
+              style="display: none">
+              <div
+                class="sidebar-search-dropdown-empty"
+                data-comment="account-sidebar-search-dropdown-empty"
+                id="sidebar-search-empty">
+                No customers found.
+              </div>
+              <ul
+                data-comment="account-sidebar-search-dropdown-list"
+                id="sidebar-search-list"
+                style="display: none"></ul>
+            </div>
+          </div>
+
+          <!-- Customer search (collapsed) -->
+          <div
+            class="sidebar-search-collapsed"
+            data-comment="account-sidebar-search-collapsed"
+            id="sidebar-search-collapsed"
+            style="display: none">
+            <svg
+              class="sidebar-search-icon"
+              data-comment="account-sidebar-search-collapsed-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          <!-- Navigation -->
+          <nav class="sidebar-nav" data-comment="account-sidebar-nav" id="sidebar-nav">
+            <!-- rendered by JS -->
+          </nav>
+
+          <!-- Bottom -->
+          <div class="sidebar-bottom" data-comment="account-sidebar-bottom">
+            <button
+              class="sidebar-collapse-btn"
+              data-comment="account-sidebar-collapse-btn"
+              id="sidebar-collapse-btn"
+              type="button">
+              <span
+                class="sidebar-collapse-btn-icon"
+                data-comment="account-sidebar-collapse-btn-icon">
+                <svg
+                  id="icon-collapse"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m16 15-3-3 3-3" />
+                </svg>
+                <svg
+                  id="icon-expand"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  style="display: none">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m14 9 3 3-3 3" />
+                </svg>
+              </span>
+              <span
+                class="sidebar-collapse-btn-label"
+                data-comment="account-sidebar-collapse-btn-label"
+                >Minimize bar</span
+              >
+            </button>
+
+            <div class="sidebar-user" data-comment="account-sidebar-user">
+              <div
+                class="sidebar-user-info"
+                data-comment="account-sidebar-user-info">
+                <span
+                  class="avatar"
+                  data-comment="account-sidebar-user-avatar"
+                  data-component="avatar"
+                  id="sidebar-user-avatar"
+                  >AL</span
+                >
+                <div
+                  class="sidebar-user-text"
+                  data-comment="account-sidebar-user-text">
+                  <span
+                    class="sidebar-user-name"
+                    data-comment="account-sidebar-user-name"
+                    id="sidebar-user-name"
+                    >Anna Lee</span
+                  >
+                  <span
+                    class="sidebar-user-email"
+                    data-comment="account-sidebar-user-email"
+                    id="sidebar-user-email"
+                    >anna@lapp.com</span
+                  >
+                </div>
+              </div>
+              <button
+                class="sidebar-user-logout"
+                data-comment="account-sidebar-user-logout"
+                id="sidebar-user-logout"
+                title="Log out"
+                type="button">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path
+                    d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ───── Main ───── -->
+        <main class="main" data-comment="account-main">
+          <div class="main-content" data-comment="account-main-content">
+            <!-- Page header -->
+            <header class="page-header" data-comment="account-page-header">
+              <div
+                class="page-header-title-wrap"
+                data-comment="account-page-header-title-wrap">
+                <h1
+                  class="page-header-title"
+                  data-comment="account-page-header-title">
+                  Account
+                </h1>
+                <p
+                  class="page-header-description"
+                  data-comment="account-page-header-description">
+                  Manage your account settings
+                </p>
+              </div>
+            </header>
+
+            <!-- Body -->
+            <div class="body" data-comment="account-body">
+              <div
+                class="card reveal"
+                data-comment="account-placeholder-card"
+                data-component="card">
+                <div
+                  class="card-title"
+                  data-comment="account-placeholder-card-title">
+                  Account — <span id="placeholder-role-title">admin</span> view
+                </div>
+                <div
+                  class="placeholder-state"
+                  data-comment="account-placeholder-state">
+                  <svg
+                    data-comment="account-placeholder-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="10" r="3" />
+                    <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
+                  </svg>
+                  <p
+                    class="placeholder-state-text"
+                    data-comment="account-placeholder-text">
+                    This page is under construction.
+                  </p>
+                  <p
+                    class="placeholder-state-role"
+                    data-comment="account-placeholder-role">
+                    Role:&nbsp; <b id="placeholder-role">admin</b>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // ───── Store ─────
+      function createStore(initialState) {
+        let state = structuredClone(initialState);
+        const listeners = new Set();
+        return {
+          get: () => state,
+          set(updater) {
+            state =
+              typeof updater === "function"
+                ? updater(state)
+                : { ...state, ...updater };
+            listeners.forEach((fn) => fn(state));
+          },
+          subscribe(fn) {
+            listeners.add(fn);
+            return () => listeners.delete(fn);
+          },
+        };
+      }
+
+      // ───── Icons (lucide-aligned strings) ─────
+      const ICONS = {
+        list: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>',
+        userRound:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+        clipboardList:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>',
+        mapPin:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+        users:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        clipboardCheck:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+        layers2:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>',
+      };
+
+      // ───── Navigation config (mirrors src/config/navigation.ts) ─────
+      const NAV_BY_ROLE = {
+        admin: [
+          {
+            items: [
+              { label: "Customers", path: "customers.html", icon: "userRound" },
+              { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+              { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+              { label: "Sales Orders", path: "orders.html", icon: "list" },
+              { label: "Users", path: "users.html", icon: "users" },
+              { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
+              { label: "Options List", path: "attributes.html", icon: "layers2" },
+            ],
+          },
+        ],
+        dealer: [
+          {
+            items: [
+              { label: "Customers", path: "customers.html", icon: "userRound" },
+              { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+              { label: "Sales Orders", path: "orders.html", icon: "list" },
+            ],
+          },
+        ],
+        retail_location: [
+          {
+            items: [
+              { label: "Customers", path: "customers.html", icon: "userRound" },
+              { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+              { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+              { label: "Sales Orders", path: "orders.html", icon: "list" },
+            ],
+          },
+        ],
+        sales: [
+          {
+            items: [
+              { label: "Customers", path: "customers.html", icon: "userRound" },
+              { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+              { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+              { label: "Sales Orders", path: "orders.html", icon: "list" },
+            ],
+          },
+        ],
+        customer: [
+          {
+            items: [{ label: "Orders", path: "orders.html", icon: "list" }],
+          },
+        ],
+      };
+
+      // ───── Seed data ─────
+      const SEED_CUSTOMERS = [
+        { id: 1, first_name: "Anna", last_name: "Lee", email: "anna@example.com" },
+        { id: 2, first_name: "Mark", last_name: "Chen", email: "mark@example.com" },
+        { id: 3, first_name: "Sarah", last_name: "Johnson", email: "sarah.j@example.com" },
+        { id: 4, first_name: "David", last_name: "Smith", email: "david.smith@example.com" },
+        { id: 5, first_name: "Emma", last_name: "Garcia", email: "emma.g@example.com" },
+        { id: 6, first_name: "James", last_name: "Wilson", email: "jwilson@example.com" },
+        { id: 7, first_name: "Olivia", last_name: "Brown", email: "olivia@example.com" },
+        { id: 8, first_name: "Michael", last_name: "Davis", email: "michael.d@example.com" },
+      ];
+
+      const store = createStore({
+        user: {
+          id: 1,
+          name: "Anna Lee",
+          email: "anna@lapp.com",
+          role: "admin",
+        },
+        collapsed: false,
+        searchOpen: false,
+        searchTerm: "",
+        customers: SEED_CUSTOMERS,
+        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        currentPath: "account.html",
+      });
+
+      // ───── Render: sidebar nav ─────
+      function renderSidebarNav() {
+        const s = store.get();
+        const nav = document.getElementById("sidebar-nav");
+        const sections = NAV_BY_ROLE[s.user.role] || [];
+        nav.innerHTML = sections
+          .map(
+            (section, sectionIdx) => `
+            <div class="sidebar-section" data-comment="account-sidebar-section-${sectionIdx}">
+              ${
+                section.title
+                  ? `<p class="sidebar-section-title" data-comment="account-sidebar-section-${sectionIdx}-title">${section.title}</p>`
+                  : ""
+              }
+              ${section.items
+                .map((item, i) => {
+                  const isActive = item.path === s.currentPath;
+                  const badges =
+                    item.badge && !s.collapsed
+                      ? `<span class="sidebar-nav-link-badge" data-comment="account-sidebar-nav-link-${i}-badges">
+                          ${
+                            s.reviewBadges.not_pricing_reviewed > 0
+                              ? `<span class="sidebar-badge amber" data-comment="account-sidebar-nav-link-${i}-badge-pricing" title="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
+                              : ""
+                          }
+                          ${
+                            s.reviewBadges.not_shop_reviewed > 0
+                              ? `<span class="sidebar-badge blue" data-comment="account-sidebar-nav-link-${i}-badge-shop" title="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
+                              : ""
+                          }
+                        </span>`
+                      : "";
+                  const slug = item.label.toLowerCase().replace(/\s+/g, "-");
+                  return `
+                    <a class="sidebar-nav-link ${isActive ? "active" : ""}" data-comment="account-sidebar-nav-link-${slug}" href="${item.path}" title="${item.label}">
+                      <span class="sidebar-nav-link-icon" data-comment="account-sidebar-nav-link-${slug}-icon">${ICONS[item.icon] || ""}</span>
+                      <span class="sidebar-nav-link-label" data-comment="account-sidebar-nav-link-${slug}-label">${item.label}</span>
+                      ${badges}
+                    </a>
+                  `;
+                })
+                .join("")}
+            </div>
+          `,
+          )
+          .join("");
+      }
+
+      // ───── Render: user info ─────
+      function renderUser() {
+        const { user } = store.get();
+        document.getElementById("sidebar-user-name").textContent = user.name;
+        document.getElementById("sidebar-user-email").textContent = user.email;
+        document.getElementById("sidebar-user-avatar").textContent = user.name
+          .split(" ")
+          .slice(0, 2)
+          .map((w) => (w[0] || "").toUpperCase())
+          .join("");
+        document.getElementById("placeholder-role").textContent = user.role;
+        document.getElementById("placeholder-role-title").textContent = user.role;
+      }
+
+      // ───── Render: collapse state ─────
+      function renderCollapse() {
+        const s = store.get();
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("collapsed", s.collapsed);
+        document.getElementById("icon-collapse").style.display = s.collapsed
+          ? "none"
+          : "block";
+        document.getElementById("icon-expand").style.display = s.collapsed
+          ? "block"
+          : "none";
+        document.getElementById("sidebar-search-wrap").style.display = s.collapsed
+          ? "none"
+          : "block";
+        document.getElementById("sidebar-search-collapsed").style.display =
+          s.collapsed ? "flex" : "none";
+      }
+
+      // ───── Render: customer search dropdown ─────
+      function renderSearch() {
+        const s = store.get();
+        const wrap = document.getElementById("sidebar-search-input-wrap");
+        wrap.classList.toggle("is-open", s.searchOpen);
+
+        const showDropdown = s.searchOpen && s.searchTerm.trim().length > 0;
+        const dropdown = document.getElementById("sidebar-search-dropdown");
+        dropdown.style.display = showDropdown ? "block" : "none";
+        if (!showDropdown) return;
+
+        const filtered = s.customers.filter((c) => {
+          const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+          const term = s.searchTerm.trim().toLowerCase();
+          return (
+            fullName.includes(term) ||
+            (c.email && c.email.toLowerCase().includes(term))
+          );
+        });
+
+        const empty = document.getElementById("sidebar-search-empty");
+        const list = document.getElementById("sidebar-search-list");
+        if (filtered.length === 0) {
+          empty.style.display = "block";
+          list.style.display = "none";
+        } else {
+          empty.style.display = "none";
+          list.style.display = "block";
+          list.innerHTML = filtered
+            .slice(0, 8)
+            .map(
+              (c) => `
+              <li data-comment="account-sidebar-search-item-${c.id}">
+                <button type="button"
+                  class="sidebar-search-dropdown-item"
+                  data-comment="account-sidebar-search-item-${c.id}-button"
+                  data-customer-id="${c.id}">
+                  <div class="sidebar-search-dropdown-item-name" data-comment="account-sidebar-search-item-${c.id}-name">${c.first_name} ${c.last_name}</div>
+                  ${c.email ? `<div class="sidebar-search-dropdown-item-email" data-comment="account-sidebar-search-item-${c.id}-email">${c.email}</div>` : ""}
+                </button>
+              </li>
+            `,
+            )
+            .join("");
+        }
+      }
+
+      store.subscribe(renderSidebarNav);
+      store.subscribe(renderUser);
+      store.subscribe(renderCollapse);
+      store.subscribe(renderSearch);
+      renderSidebarNav();
+      renderUser();
+      renderCollapse();
+      renderSearch();
+
+      // ───── Handlers ─────
+      document
+        .getElementById("sidebar-collapse-btn")
+        .addEventListener("click", () => {
+          store.set((s) => ({ collapsed: !s.collapsed }));
+        });
+
+      const searchInput = document.getElementById("sidebar-search-input");
+      searchInput.addEventListener("focus", () => {
+        store.set({ searchOpen: true });
+      });
+      searchInput.addEventListener("blur", () => {
+        setTimeout(() => store.set({ searchOpen: false }), 150);
+      });
+      searchInput.addEventListener("input", (e) => {
+        store.set({ searchTerm: e.target.value });
+      });
+
+      document
+        .getElementById("sidebar-search-list")
+        .addEventListener("mousedown", (e) => {
+          const btn = e.target.closest("[data-customer-id]");
+          if (!btn) return;
+          const id = btn.dataset.customerId;
+          searchInput.value = "";
+          store.set({ searchOpen: false, searchTerm: "" });
+          window.location.href = `customer-detail.html?id=${id}`;
+        });
+
+      document
+        .getElementById("sidebar-user-logout")
+        .addEventListener("click", () => {
+          window.location.href = "login.html";
+        });
+
+      // ───── Reveal ─────
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting)
+              entry.target.classList.add("is-visible");
+          });
+        },
+        { threshold: 0.1 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+    </script>
+  </body>
+</html>

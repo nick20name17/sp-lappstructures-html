@@ -1,0 +1,31 @@
+# React source — separate repo at eaglesoftwarecanada/sp-lappstructures-front
+sp-lappstructures-front/
+
+# Dependencies (none expected in this repo, but defensive)
+node_modules/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Claude Code local settings (personal — not shared)
+.claude/settings.local.json
+
+# Logs
+*.log
+
+# Temp screenshots / artifacts
+/tmp/sl-shots/
+/tmp/sl-compare/
+/tmp/sl-logs/

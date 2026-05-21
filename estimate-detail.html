@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapp Structures — Estimate Detail</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --radius: 0.5rem;
+        --background: oklch(0.93 0.011 257);
+        --background-secondary: oklch(98.837% 0.00143 285.197);
+        --foreground: oklch(0.14 0.033 262);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.22 0.03 255);
+        --popover: oklch(1 0 0);
+        --primary: oklch(0.53 0.18 260);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.97 0.005 250);
+        --secondary-foreground: oklch(0.14 0.033 262);
+        --secondary-hover: oklch(0.93 0.011 257);
+        --muted: oklch(0.97 0.005 250);
+        --muted-foreground: oklch(0.56 0.023 255);
+        --accent: oklch(0.96 0.03 260);
+        --accent-foreground: oklch(0.53 0.18 260);
+        --destructive: oklch(0.50 0.19 25);
+        --success: oklch(0.58 0.16 150);
+        --success-foreground: oklch(1 0 0);
+        --border: oklch(0.93 0.011 257);
+        --input: oklch(0.92 0.01 250);
+        --ring: oklch(0.53 0.18 260);
+
+        --sidebar: oklch(1 0 0);
+        --sidebar-foreground: oklch(0.55 0.02 255);
+        --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-accent: oklch(0.97 0.005 250);
+        --sidebar-accent-foreground: oklch(0.14 0.033 262);
+        --sidebar-border: oklch(0.92 0.01 250);
+
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
+      }
+
+      html, body { height: 100%; }
+      body {
+        font-family: var(--font-body);
+        background: var(--background);
+        color: var(--foreground);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        overflow: hidden;
+      }
+      button { cursor: pointer; font-family: inherit; border: 0; background: transparent; }
+      a { color: inherit; text-decoration: none; }
+
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb {
+        background: color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+      }
+
+      .app-shell { background: var(--background); padding: 16px; height: 100vh; }
+      .app-frame { display: flex; height: calc(100vh - 32px); border-radius: 12px; overflow: hidden; }
+
+      /* ───── Sidebar ───── */
+      .sidebar {
+        display: flex; flex-direction: column;
+        background: var(--sidebar);
+        border-right: 1px solid var(--border);
+        flex-shrink: 0; overflow: hidden;
+        width: 240px; transition: width 0.2s ease;
+      }
+      .sidebar.collapsed { width: 56px; }
+      .sidebar-logo {
+        display: flex; align-items: flex-end; gap: 10px;
+        padding: 0 16px 16px; height: 64px;
+        flex-shrink: 0;
+        transition: opacity 0.15s ease;
+      }
+      .sidebar-logo:hover { opacity: 0.9; }
+      .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 0 0 16px; gap: 0; }
+      .sidebar-logo-mark { display: flex; width: 32px; height: 32px; align-items: center; justify-content: center; flex-shrink: 0; }
+      .sidebar-logo-mark img { width: 24px; height: 24px; }
+      .sidebar-logo-text {
+        font-family: var(--font-display);
+        font-size: 1.25rem; line-height: 1.2;
+        font-weight: 500; letter-spacing: 0.025em;
+        color: var(--brand-navy);
+        white-space: nowrap; overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-logo-text { width: 0; opacity: 0; }
+
+      .sidebar-search { position: relative; padding: 0 8px 4px; }
+      .sidebar-search-input-wrap {
+        display: flex; align-items: center; gap: 8px;
+        border-radius: 6px; border: 1px solid transparent;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        padding: 6px 10px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .sidebar-search-input-wrap:hover,
+      .sidebar-search-input-wrap.is-open {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-search-input-wrap.is-open {
+        border-color: color-mix(in oklch, var(--sidebar-foreground) 20%, transparent);
+      }
+      .sidebar-search-icon {
+        width: 14px; height: 14px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        flex-shrink: 0;
+      }
+      .sidebar-search-input {
+        flex: 1; min-width: 0; background: transparent;
+        font-size: 0.875rem; font-family: inherit;
+        color: var(--sidebar-foreground);
+        border: 0; outline: none;
+      }
+      .sidebar-search-input::placeholder {
+        color: color-mix(in oklch, var(--sidebar-foreground) 40%, transparent);
+      }
+      .sidebar-search-dropdown {
+        position: absolute; bottom: 100%; left: 4px; right: 4px;
+        margin-bottom: 4px; border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--popover);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        overflow: hidden; z-index: 50;
+      }
+      .sidebar-search-dropdown-empty {
+        padding: 16px 12px; text-align: center;
+        font-size: 0.75rem; color: var(--muted-foreground);
+      }
+      .sidebar-search-dropdown ul { list-style: none; max-height: 224px; overflow-y: auto; padding: 4px 0; }
+      .sidebar-search-dropdown-item {
+        display: block; width: 100%; padding: 8px 12px;
+        text-align: left; font-family: inherit; cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .sidebar-search-dropdown-item:hover { background: var(--accent); }
+      .sidebar-search-dropdown-item-name { font-size: 0.875rem; font-weight: 500; line-height: 1.2; }
+      .sidebar-search-dropdown-item-email {
+        margin-top: 2px; font-size: 0.75rem;
+        color: var(--muted-foreground); line-height: 1.2;
+      }
+      .sidebar.collapsed .sidebar-search { padding: 0 8px 4px; }
+      .sidebar.collapsed .sidebar-search-collapsed {
+        height: 34px; padding-bottom: 4px;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        margin: 0 8px;
+        display: flex; border: 1px solid var(--border);
+        border-radius: 6px; justify-content: center; align-items: center;
+      }
+
+      .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 8px; display: flex; flex-direction: column; gap: 24px; }
+      .sidebar-section-title {
+        padding: 0 12px; margin-bottom: 8px;
+        font-size: 11px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.05em;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap; overflow: hidden;
+        transition: opacity 0.2s ease, height 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-section-title { opacity: 0; height: 0; margin-bottom: 0; }
+      .sidebar-section { display: flex; flex-direction: column; gap: 4px; }
+      .sidebar-nav-link {
+        display: flex; align-items: center; gap: 12px;
+        padding: 6px 10px 6px 6px; border-radius: 6px;
+        font-size: 0.875rem; font-weight: 500;
+        color: var(--sidebar-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-nav-link:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-nav-link.active { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
+      .sidebar-nav-link-icon {
+        padding: 4px; border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex; align-items: center; justify-content: center;
+        flex-shrink: 0; transition: background 0.15s ease;
+      }
+      .sidebar-nav-link.active .sidebar-nav-link-icon { background: var(--sidebar); }
+      .sidebar-nav-link-icon svg { width: 16px; height: 16px; }
+      .sidebar-nav-link-label { white-space: nowrap; overflow: hidden; transition: opacity 0.2s ease, width 0.2s ease; }
+      .sidebar.collapsed .sidebar-nav-link-label { width: 0; opacity: 0; }
+      .sidebar-nav-link-badge { margin-left: auto; display: inline-flex; gap: 4px; }
+      .sidebar.collapsed .sidebar-nav-link-badge { display: none; }
+      .sidebar-badge {
+        display: inline-flex; width: 20px; height: 20px;
+        align-items: center; justify-content: center;
+        border-radius: 9999px;
+        font-size: 10px; font-weight: 600; line-height: 1;
+        font-variant-numeric: tabular-nums; padding: 0 4px;
+      }
+      .sidebar-badge.amber { background: rgba(245, 158, 11, 0.2); color: rgb(180, 83, 9); }
+      .sidebar-badge.blue { background: rgba(59, 130, 246, 0.2); color: rgb(29, 78, 216); }
+
+      .sidebar-bottom { display: flex; flex-direction: column; gap: 4px; padding: 0 8px 16px; flex-shrink: 0; }
+      .sidebar-collapse-btn {
+        display: flex; align-items: center; gap: 8px; width: 100%;
+        padding: 6px 10px 6px 6px; border-radius: 6px;
+        color: var(--sidebar-foreground);
+        font-size: 0.875rem; font-weight: 500;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-collapse-btn:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-collapse-btn-icon {
+        padding: 4px; border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-collapse-btn:hover .sidebar-collapse-btn-icon { background: var(--sidebar); }
+      .sidebar-collapse-btn-icon svg { width: 16px; height: 16px; }
+      .sidebar-collapse-btn-label { white-space: nowrap; overflow: hidden; transition: opacity 0.2s ease, width 0.2s ease; }
+      .sidebar.collapsed .sidebar-collapse-btn-label { width: 0; opacity: 0; }
+      .sidebar-user {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; padding: 8px 6px; border-radius: 6px;
+      }
+      .sidebar.collapsed .sidebar-user { justify-content: center; }
+      .sidebar-user-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .avatar {
+        width: 32px; height: 32px; border-radius: 9999px;
+        background: var(--primary); color: var(--primary-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 600; flex-shrink: 0;
+      }
+      .sidebar-user-text { display: flex; flex-direction: column; min-width: 0; }
+      .sidebar.collapsed .sidebar-user-text,
+      .sidebar.collapsed .sidebar-user-logout { display: none; }
+      .sidebar-user-name {
+        font-size: 0.875rem; font-weight: 500; color: var(--sidebar-foreground);
+        line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .sidebar-user-email {
+        font-size: 0.75rem; line-height: 1.2;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .sidebar-user-logout {
+        flex-shrink: 0; padding: 4px; border-radius: 6px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        transition: background 0.15s ease, color 0.15s ease;
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .sidebar-user-logout:hover {
+        color: var(--sidebar-foreground);
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-user-logout svg { width: 16px; height: 16px; }
+
+      /* ───── Main ───── */
+      .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--background-secondary); }
+      .main-content { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+      .page-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex; flex-wrap: wrap;
+        align-items: center; justify-content: space-between;
+        gap: 8px 16px;
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) { .page-header { padding: 16px; } }
+      .page-header-title-wrap { min-width: 0; display: inline-flex; align-items: center; gap: 16px; flex-shrink: 0; }
+      .page-header-title {
+        font-size: 1.125rem; font-weight: 500;
+        line-height: 1.2; letter-spacing: -0.025em;
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
+      }
+      @media (min-width: 640px) { .page-header-title { font-size: 1.25rem; } }
+      .page-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+      /* ───── Buttons ───── */
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 6px; white-space: nowrap; border-radius: 6px;
+        font-size: 0.875rem; font-weight: 500; font-family: inherit;
+        height: 36px; padding: 8px 14px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .btn-sm { height: 32px; padding: 6px 12px; font-size: 0.8125rem; }
+      .btn:disabled { pointer-events: none; opacity: 0.5; }
+      .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+      .btn-primary:hover { background: color-mix(in oklch, var(--primary) 90%, black); }
+      .btn-outline { background: white; color: var(--foreground); border: 1px solid var(--border); }
+      .btn-outline:hover { background: var(--secondary); }
+      .btn-ghost { background: transparent; color: var(--muted-foreground); }
+      .btn-ghost:hover { background: var(--secondary); color: var(--foreground); }
+      .btn-destructive-outline {
+        background: white; color: var(--destructive);
+        border: 1px solid var(--destructive);
+      }
+      .btn-destructive-outline:hover { background: color-mix(in oklch, var(--destructive) 8%, white); }
+      .btn-destructive {
+        background: var(--destructive); color: var(--primary-foreground);
+      }
+      .btn-destructive:hover { background: color-mix(in oklch, var(--destructive) 90%, black); }
+      .btn-success {
+        background: var(--success); color: var(--success-foreground);
+        border: 1px solid var(--success);
+      }
+      .btn-success:hover { background: color-mix(in oklch, var(--success) 90%, black); }
+      .btn svg { width: 16px; height: 16px; }
+      .detail-row-value svg, .link svg, .meta-row svg, .action-row svg { width: 14px; height: 14px; vertical-align: middle; flex-shrink: 0; }
+
+      /* Status badge */
+      .status-badge {
+        display: inline-flex; height: 28px;
+        align-items: center; justify-content: center;
+        padding: 0 12px; border-radius: 9999px;
+        border: 1px solid;
+        font-size: 0.75rem; font-weight: 500;
+        white-space: nowrap;
+      }
+      .status-badge.draft { background: var(--muted); color: var(--muted-foreground); border-color: color-mix(in oklch, var(--muted-foreground) 20%, transparent); }
+      .status-badge.pending { background: rgb(254 243 199); color: rgb(146 64 14); border-color: rgb(252 211 77); }
+      .status-badge.accepted { background: color-mix(in oklch, var(--primary) 15%, transparent); color: var(--primary); border-color: color-mix(in oklch, var(--primary) 40%, transparent); }
+      .status-badge.rejected { background: rgb(254 226 226); color: rgb(153 27 27); border-color: rgb(252 165 165); }
+      .status-badge.expired { background: rgb(255 237 213); color: rgb(154 52 18); border-color: rgb(253 186 116); }
+
+      /* Site check pill */
+      .sc-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 2px 8px; border-radius: 9999px;
+        border: 1px solid;
+        font-size: 0.75rem; font-weight: 500;
+      }
+      .sc-badge .dot { display: inline-block; width: 8px; height: 8px; border-radius: 9999px; }
+      .sc-badge.pending { background: rgb(238 242 255); color: rgb(67 56 202); border-color: rgb(165 180 252); }
+      .sc-badge.pending .dot { background: rgb(99 102 241); }
+      .sc-badge.required { background: rgb(255 251 235); color: rgb(146 64 14); border-color: rgb(252 211 77); }
+      .sc-badge.required .dot { background: rgb(245 158 11); }
+      .sc-badge.in_progress { background: rgb(239 246 255); color: rgb(29 78 216); border-color: rgb(147 197 253); }
+      .sc-badge.in_progress .dot { background: rgb(59 130 246); }
+      .sc-badge.completed { background: rgb(236 253 245); color: rgb(4 120 87); border-color: rgb(110 231 183); }
+      .sc-badge.completed .dot { background: rgb(16 185 129); }
+      .sc-badge.cancelled { background: rgb(255 241 242); color: rgb(190 18 60); border-color: rgb(253 164 175); }
+      .sc-badge.cancelled .dot { background: rgb(244 63 94); }
+      .sc-badge.not_required {
+        background: color-mix(in oklch, var(--muted) 40%, transparent);
+        color: var(--muted-foreground);
+        border-color: var(--border);
+      }
+      .sc-badge.not_required .dot { background: color-mix(in oklch, var(--muted-foreground) 50%, transparent); }
+
+      /* ───── Detail body ───── */
+      .detail-body { flex: 1; min-height: 0; overflow-y: auto; padding: 12px; }
+      @media (min-width: 640px) { .detail-body { padding: 16px; } }
+      .detail-body > * + * { margin-top: 16px; }
+      @media (min-width: 640px) { .detail-body > * + * { margin-top: 24px; } }
+
+      .section {
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--muted);
+        padding: 10px;
+      }
+      @media (min-width: 640px) {
+        .section { border-radius: 24px; padding: 14px; }
+      }
+      .section-title {
+        font-size: 1rem; font-weight: 500;
+        color: var(--muted-foreground);
+        margin-bottom: 10px;
+      }
+      @media (min-width: 1536px) { .section-title { font-size: 1.125rem; } }
+
+      .section-blocks {
+        column-count: 1;
+        gap: 8px;
+      }
+      @media (min-width: 768px) { .section-blocks { column-count: 2; } }
+      .section-blocks > * {
+        break-inside: avoid;
+        margin-bottom: 8px;
+      }
+
+      /* Card */
+      .card {
+        background: var(--card);
+        color: var(--card-foreground);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .card-header {
+        padding: 16px 20px 8px;
+      }
+      .card-title {
+        font-size: 1rem; font-weight: 500;
+        color: var(--foreground);
+        letter-spacing: -0.01em;
+      }
+      .card-content { padding: 12px 20px 20px; }
+
+      .detail-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+      .detail-grid.cols-2 { grid-template-columns: 1fr; }
+      @media (min-width: 1024px) {
+        .detail-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+      }
+
+      .detail-row { display: flex; flex-direction: column; gap: 4px; }
+      .detail-row-label {
+        font-size: 0.875rem; font-weight: 500;
+        color: var(--foreground);
+      }
+      .detail-row-value {
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+        white-space: pre-wrap;
+      }
+      .detail-row-value.link {
+        color: var(--accent-foreground);
+        display: inline-flex; align-items: center; gap: 4px;
+      }
+      .detail-row-value.link:hover { text-decoration: underline; }
+
+      .address-block {
+        display: flex; flex-direction: column;
+        gap: 2px;
+        font-size: 0.875rem; color: var(--muted-foreground);
+      }
+      .address-block-label {
+        font-size: 0.875rem; font-weight: 500;
+        color: var(--foreground); margin-bottom: 2px;
+      }
+
+      /* Line Items */
+      .line-items-card {
+        border-radius: 12px;
+        background: var(--card);
+        padding: 12px;
+      }
+      .line-items-scroll {
+        overflow-x: auto;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card);
+      }
+      .line-items-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+      .line-items-table thead tr {
+        border-bottom: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+        background: color-mix(in oklch, var(--muted) 30%, transparent);
+      }
+      .line-items-table th {
+        padding: 8px 10px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+        text-align: left;
+      }
+      .line-items-table th.right { text-align: right; }
+      .line-items-table th.center { text-align: center; }
+      .line-items-table th.qty-col { width: 64px; }
+      .line-items-table th.rate-col, .line-items-table th.total-col { width: 112px; }
+      .line-items-table th.tax-col { width: 96px; }
+      .line-items-table tbody tr {
+        border-bottom: 1px solid color-mix(in oklch, var(--border) 40%, transparent);
+        vertical-align: top;
+      }
+      .line-items-table tbody tr:last-child { border-bottom: 0; }
+      .line-items-table td {
+        padding: 8px 10px;
+        border-right: 1px solid color-mix(in oklch, var(--border) 30%, transparent);
+        color: var(--foreground);
+      }
+      .line-items-table td:last-child { border-right: 0; }
+      .line-items-table td.center { text-align: center; }
+      .line-items-table td.right { text-align: right; font-variant-numeric: tabular-nums; }
+      .line-items-empty {
+        padding: 40px 12px;
+        text-align: center;
+        color: var(--muted-foreground);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      /* Footer area */
+      .detail-footer {
+        flex-shrink: 0;
+        display: flex; flex-direction: column;
+        gap: 16px;
+        align-items: flex-end;
+        padding: 12px;
+        border-top: 1px solid var(--border);
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) { .detail-footer { padding: 16px; } }
+      .detail-footer-row {
+        width: 100%;
+        display: flex; flex-direction: column;
+        justify-content: flex-end;
+        gap: 16px;
+      }
+      @media (min-width: 640px) {
+        .detail-footer-row { flex-direction: row; align-items: flex-end; }
+      }
+      .footer-meta {
+        margin-right: auto;
+        display: flex; flex-direction: column; gap: 10px;
+      }
+      .footer-meta-title {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 0.875rem; font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--foreground);
+      }
+      .footer-meta-row {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 0.875rem;
+      }
+      .footer-meta-row .label {
+        color: var(--muted-foreground); width: 96px;
+        flex-shrink: 0;
+      }
+      .footer-meta-row .value { font-weight: 500; }
+
+      .summary-card {
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--muted);
+        padding: 14px;
+        width: 100%;
+      }
+      @media (min-width: 640px) {
+        .summary-card { width: 288px; align-self: flex-end; }
+      }
+      .summary-rows { display: flex; flex-direction: column; gap: 4px; }
+      .summary-row {
+        display: flex; align-items: center; justify-content: space-between;
+        font-size: 0.875rem;
+      }
+      .summary-row .label { color: var(--muted-foreground); }
+      .summary-row .value { color: var(--foreground); font-variant-numeric: tabular-nums; }
+      .summary-divider {
+        border-top: 1px solid var(--border);
+        margin-top: 8px;
+        padding-top: 8px;
+      }
+      .summary-total {
+        display: flex; align-items: center; justify-content: space-between;
+        font-weight: 600;
+      }
+      .summary-total .value { font-variant-numeric: tabular-nums; }
+
+      .actions-row {
+        width: 100%;
+        display: flex; flex-wrap: wrap; gap: 8px;
+        align-items: center;
+        border-top: 1px solid var(--border);
+        padding-top: 16px;
+      }
+      .actions-row-end {
+        display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+        margin-left: auto;
+      }
+
+      /* Skeleton */
+      .skeleton-block {
+        background: linear-gradient(90deg,
+          color-mix(in oklch, var(--border) 80%, transparent) 25%,
+          color-mix(in oklch, var(--border) 40%, transparent) 50%,
+          color-mix(in oklch, var(--border) 80%, transparent) 75%);
+        background-size: 200% 100%;
+        border-radius: 8px;
+        animation: skeleton-pulse 1.5s ease-in-out infinite;
+      }
+      .skeleton-card {
+        height: 192px;
+        border-radius: 16px;
+        margin-bottom: 12px;
+      }
+      @keyframes skeleton-pulse {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* Empty / Error state */
+      .empty-state {
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        text-align: center;
+        padding: 64px 24px;
+        color: var(--muted-foreground);
+      }
+      .empty-state-icon {
+        width: 56px; height: 56px;
+        opacity: 0.35;
+        margin-bottom: 12px;
+      }
+      .empty-state-title {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--foreground);
+        margin-bottom: 4px;
+      }
+      .empty-state-text {
+        font-size: 0.875rem;
+        margin-bottom: 16px;
+      }
+
+      /* Dialog (delete) */
+      .dialog-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center; justify-content: center;
+        padding: 16px; z-index: 100;
+      }
+      .dialog-overlay.is-open { display: flex; }
+      .dialog {
+        background: var(--card);
+        border-radius: 12px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        width: 100%; max-width: 28rem;
+        padding: 24px;
+        display: flex; flex-direction: column; gap: 16px;
+      }
+      .dialog-title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; color: var(--foreground); }
+      .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
+      .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-comment="estimate-detail-app-shell">
+      <div class="app-frame" data-comment="estimate-detail-app-frame">
+        <!-- Sidebar -->
+        <aside
+          class="sidebar"
+          data-comment="estimate-detail-sidebar"
+          id="sidebar"
+          aria-label="Primary navigation">
+          <a class="sidebar-logo" data-comment="estimate-detail-sidebar-logo" href="home.html" aria-label="Go to home">
+            <span class="sidebar-logo-mark" data-comment="estimate-detail-sidebar-logo-mark">
+              <img data-comment="estimate-detail-sidebar-logo-img" src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png" alt="Lapp Structures" />
+            </span>
+            <span class="sidebar-logo-text" data-comment="estimate-detail-sidebar-logo-text">Lapp Structures</span>
+          </a>
+
+          <div class="sidebar-search" data-comment="estimate-detail-sidebar-search" id="sidebar-search-wrap">
+            <div class="sidebar-search-input-wrap" data-comment="estimate-detail-sidebar-search-input-wrap" id="sidebar-search-input-wrap">
+              <svg class="sidebar-search-icon" data-comment="estimate-detail-sidebar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+              </svg>
+              <input type="text" class="sidebar-search-input" data-comment="estimate-detail-sidebar-search-input" id="sidebar-search-input" placeholder="Find customer..." />
+            </div>
+            <div class="sidebar-search-dropdown" data-comment="estimate-detail-sidebar-search-dropdown" id="sidebar-search-dropdown" style="display: none">
+              <div class="sidebar-search-dropdown-empty" data-comment="estimate-detail-sidebar-search-dropdown-empty" id="sidebar-search-empty">
+                No customers found.
+              </div>
+              <ul data-comment="estimate-detail-sidebar-search-dropdown-list" id="sidebar-search-list" style="display: none"></ul>
+            </div>
+          </div>
+
+          <div class="sidebar-search-collapsed" data-comment="estimate-detail-sidebar-search-collapsed" id="sidebar-search-collapsed" style="display: none">
+            <svg class="sidebar-search-icon" data-comment="estimate-detail-sidebar-search-collapsed-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          <nav class="sidebar-nav" data-comment="estimate-detail-sidebar-nav" id="sidebar-nav"></nav>
+
+          <div class="sidebar-bottom" data-comment="estimate-detail-sidebar-bottom">
+            <button class="sidebar-collapse-btn" data-comment="estimate-detail-sidebar-collapse-btn" id="sidebar-collapse-btn" type="button">
+              <span class="sidebar-collapse-btn-icon" data-comment="estimate-detail-sidebar-collapse-btn-icon">
+                <svg id="icon-collapse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /><path d="m16 15-3-3 3-3" />
+                </svg>
+                <svg id="icon-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none">
+                  <rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /><path d="m14 9 3 3-3 3" />
+                </svg>
+              </span>
+              <span class="sidebar-collapse-btn-label" data-comment="estimate-detail-sidebar-collapse-btn-label">Minimize bar</span>
+            </button>
+
+            <div class="sidebar-user" data-comment="estimate-detail-sidebar-user">
+              <div class="sidebar-user-info" data-comment="estimate-detail-sidebar-user-info">
+                <span class="avatar" data-comment="estimate-detail-sidebar-user-avatar" data-component="avatar" id="sidebar-user-avatar">AL</span>
+                <div class="sidebar-user-text" data-comment="estimate-detail-sidebar-user-text">
+                  <span class="sidebar-user-name" data-comment="estimate-detail-sidebar-user-name" id="sidebar-user-name">Anna Lee</span>
+                  <span class="sidebar-user-email" data-comment="estimate-detail-sidebar-user-email" id="sidebar-user-email">anna@lapp.com</span>
+                </div>
+              </div>
+              <button class="sidebar-user-logout" data-comment="estimate-detail-sidebar-user-logout" id="sidebar-user-logout" title="Log out" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main" data-comment="estimate-detail-main">
+          <div class="main-content" data-comment="estimate-detail-main-content">
+            <header class="page-header" data-comment="estimate-detail-page-header">
+              <div class="page-header-title-wrap" data-comment="estimate-detail-page-header-title-wrap">
+                <h1 class="page-header-title" data-comment="estimate-detail-page-header-title" id="estimate-detail-title">
+                  Estimate
+                </h1>
+                <span id="estimate-detail-header-badge" data-comment="estimate-detail-header-badge-slot"></span>
+              </div>
+              <div class="page-header-actions" data-comment="estimate-detail-page-header-actions">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm"
+                  data-comment="estimate-detail-back-btn"
+                  data-component="button"
+                  id="estimate-detail-back-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m12 19-7-7 7-7" /><path d="M19 12H5" />
+                  </svg>
+                  Back
+                </button>
+              </div>
+            </header>
+
+            <div id="estimate-detail-root" data-comment="estimate-detail-root" style="flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Delete dialog -->
+    <div class="dialog-overlay" data-comment="estimate-detail-delete-overlay" id="estimate-detail-delete-overlay">
+      <div class="dialog" data-comment="estimate-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div data-comment="estimate-detail-delete-header">
+          <h2 class="dialog-title" data-comment="estimate-detail-delete-title">Delete estimate</h2>
+          <p class="dialog-description" data-comment="estimate-detail-delete-description" style="margin-top: 8px">
+            Are you sure you want to delete this estimate? This action cannot be undone.
+          </p>
+        </div>
+        <div class="dialog-footer" data-comment="estimate-detail-delete-footer">
+          <button class="btn btn-outline btn-sm" data-comment="estimate-detail-delete-cancel" data-component="button" type="button" id="estimate-detail-delete-cancel">
+            Cancel
+          </button>
+          <button class="btn btn-destructive btn-sm" data-comment="estimate-detail-delete-confirm" data-component="button" type="button" id="estimate-detail-delete-confirm">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Approve dialog -->
+    <div class="dialog-overlay" data-comment="estimate-detail-approve-overlay" id="estimate-detail-approve-overlay">
+      <div class="dialog" data-comment="estimate-detail-approve-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div data-comment="estimate-detail-approve-header">
+          <h2 class="dialog-title" data-comment="estimate-detail-approve-title">Approve estimate</h2>
+          <p class="dialog-description" data-comment="estimate-detail-approve-description" style="margin-top: 8px">
+            Mark this estimate as approved? You will be able to create a sales order from it.
+          </p>
+        </div>
+        <div class="dialog-footer" data-comment="estimate-detail-approve-footer">
+          <button class="btn btn-outline btn-sm" data-comment="estimate-detail-approve-cancel" data-component="button" type="button" id="estimate-detail-approve-cancel">
+            Cancel
+          </button>
+          <button class="btn btn-success btn-sm" data-comment="estimate-detail-approve-confirm" data-component="button" type="button" id="estimate-detail-approve-confirm">
+            Approve
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reject dialog -->
+    <div class="dialog-overlay" data-comment="estimate-detail-reject-overlay" id="estimate-detail-reject-overlay">
+      <div class="dialog" data-comment="estimate-detail-reject-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div data-comment="estimate-detail-reject-header">
+          <h2 class="dialog-title" data-comment="estimate-detail-reject-title">Reject estimate</h2>
+          <p class="dialog-description" data-comment="estimate-detail-reject-description" style="margin-top: 8px">
+            Mark this estimate as rejected? The customer will be notified.
+          </p>
+        </div>
+        <div class="dialog-footer" data-comment="estimate-detail-reject-footer">
+          <button class="btn btn-outline btn-sm" data-comment="estimate-detail-reject-cancel" data-component="button" type="button" id="estimate-detail-reject-cancel">
+            Cancel
+          </button>
+          <button class="btn btn-destructive btn-sm" data-comment="estimate-detail-reject-confirm" data-component="button" type="button" id="estimate-detail-reject-confirm">
+            Reject
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Sales Order dialog -->
+    <div class="dialog-overlay" data-comment="estimate-detail-sales-overlay" id="estimate-detail-sales-overlay">
+      <div class="dialog" data-comment="estimate-detail-sales-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div data-comment="estimate-detail-sales-header">
+          <h2 class="dialog-title" data-comment="estimate-detail-sales-title">Create sales order</h2>
+          <p class="dialog-description" data-comment="estimate-detail-sales-description" style="margin-top: 8px">
+            Convert this estimate into a sales order? Items and totals will be carried over.
+          </p>
+        </div>
+        <div class="dialog-footer" data-comment="estimate-detail-sales-footer">
+          <button class="btn btn-outline btn-sm" data-comment="estimate-detail-sales-cancel" data-component="button" type="button" id="estimate-detail-sales-cancel">
+            Cancel
+          </button>
+          <button class="btn btn-success btn-sm" data-comment="estimate-detail-sales-confirm" data-component="button" type="button" id="estimate-detail-sales-confirm">
+            Create Sales Order
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ───── Store ─────
+      function createStore(initialState) {
+        let state = structuredClone(initialState);
+        const listeners = new Set();
+        return {
+          get: () => state,
+          set(updater) {
+            state = typeof updater === "function" ? updater(state) : { ...state, ...updater };
+            listeners.forEach((fn) => fn(state));
+          },
+          subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+        };
+      }
+
+      // ───── Icons ─────
+      const ICONS = {
+        list: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>',
+        userRound: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+        clipboardList: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>',
+        mapPin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+        users: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        clipboardCheck: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+        layers2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>',
+        trash2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>',
+        pencil: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>',
+        printer: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V2h12v7"/><path d="M6 14h12v8H6z"/></svg>',
+        check: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+        x: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+        copy: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>',
+        package: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>',
+        paintbrush: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.622 17.897-10.68-2.913"/><path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.642a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z"/><path d="M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15"/></svg>',
+        externalLink: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>',
+        arrowLeft: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>',
+        fileWarning: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 12v4"/><path d="M12 20h.01"/></svg>',
+        paperclip: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.234 20.252 21 12.3"/><path d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"/></svg>',
+        clipboardCheck2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+      };
+
+      // ───── Navigation ─────
+      const NAV_BY_ROLE = {
+        admin: [
+          { items: [
+            { label: "Customers", path: "customers.html", icon: "userRound" },
+            { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+            { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+            { label: "Sales Orders", path: "orders.html", icon: "list" },
+            { label: "Users", path: "users.html", icon: "users" },
+            { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
+            { label: "Options List", path: "attributes.html", icon: "layers2" },
+          ]},
+        ],
+      };
+
+      const STATUS_LABELS = {
+        draft: "Draft",
+        pending: "Pending",
+        accepted: "Approved",
+        rejected: "Rejected",
+        expired: "Expired",
+      };
+
+      const SC_LABELS = {
+        pending: "Scheduled",
+        required: "Required",
+        in_progress: "In Progress",
+        completed: "Completed",
+        cancelled: "Cancelled",
+        not_required: "Not required",
+      };
+
+      // ───── Seed: customers ─────
+      const SEED_CUSTOMERS = [
+        { id: 1, first_name: "Anna", last_name: "Lee", email: "anna@example.com", location: "Lancaster", primary_phone: "7175551020", secondary_phone: "7175551021",
+          addresses: [
+            { type: "billing",  street: "120 Maple Ave",   city: "Lancaster",  state: "PA", zip_code: "17601", country: "USA" },
+            { type: "shipping", street: "120 Maple Ave",   city: "Lancaster",  state: "PA", zip_code: "17601", country: "USA" },
+          ] },
+        { id: 2, first_name: "Mark", last_name: "Chen", email: "mark@example.com", location: "York", primary_phone: "7175552233",
+          addresses: [
+            { type: "billing",  street: "88 Oak Street",   city: "York",       state: "PA", zip_code: "17402", country: "USA" },
+            { type: "shipping", street: "455 Industrial Rd", city: "York",     state: "PA", zip_code: "17404", country: "USA" },
+          ] },
+        { id: 3, first_name: "Sarah", last_name: "Johnson", email: "sarah.j@example.com", location: "Harrisburg", primary_phone: "7175557788",
+          addresses: [
+            { type: "billing",  street: "32 Front Street", city: "Harrisburg", state: "PA", zip_code: "17101", country: "USA" },
+            { type: "shipping", street: "32 Front Street", city: "Harrisburg", state: "PA", zip_code: "17101", country: "USA" },
+          ] },
+        { id: 4, first_name: "David", last_name: "Smith", email: "david.smith@example.com", location: "Reading", primary_phone: "6105554455",
+          addresses: [
+            { type: "billing",  street: "14 Penn Ave",     city: "Reading",    state: "PA", zip_code: "19601", country: "USA" },
+          ] },
+        { id: 5, first_name: "Emma", last_name: "Garcia", email: "emma.g@example.com", location: "Lancaster", primary_phone: "7175558899",
+          addresses: [
+            { type: "billing",  street: "210 Lime Street", city: "Lancaster",  state: "PA", zip_code: "17602", country: "USA" },
+            { type: "shipping", street: "210 Lime Street", city: "Lancaster",  state: "PA", zip_code: "17602", country: "USA" },
+          ] },
+        { id: 6, first_name: "James", last_name: "Wilson", email: "jwilson@example.com", location: "York", primary_phone: "7175553311" },
+        { id: 7, first_name: "Olivia", last_name: "Brown", email: "olivia@example.com", location: "Harrisburg", primary_phone: "7175554422" },
+        { id: 8, first_name: "Michael", last_name: "Davis", email: "michael.d@example.com", location: "Reading", primary_phone: "6105556677" },
+      ];
+
+      // ───── Seed: estimates (full detail records) ─────
+      const SEED_ESTIMATES = [
+        { id: 10024, name: "12x16 Single Slope", status: "draft",    order_date: "2025-05-12", customer_id: 1, customer: SEED_CUSTOMERS[0], total: 5824.50,  total_tax: 0,      sales_rep_name: "Michael Davis",
+          po_number: "PO-2025-0512", terms: "Net 30", delivery_method: "Delivery", product_category: "Sheds", campaign: "Spring 2025",
+          location_class: "Lancaster", tags: ["new", "rush"], built_onsite: false, site_check: true, special_mfg_instructions: "Use treated lumber for skids.", memo: "Pending customer signature.",
+          activity: { id: 501, status: "pending" }, order: null,
+          created_by_id: 8, created_by: { first_name: "Michael", last_name: "Davis" }, created_at: "2025-05-12T09:23:00",
+          details: [
+            { quantity: 1, inven: "SH-12x16-SS", description: "12x16 Single Slope Shed — base build", price: 4200.00, tax_group: "Taxable" },
+            { quantity: 2, inven: "WIN-2x3",    description: "2x3 Window with screens", price: 185.00, tax_group: "Taxable" },
+            { quantity: 1, inven: "DOOR-36",    description: "36\" Steel walk-in door",  price: 380.00, tax_group: "Taxable" },
+            { quantity: 4, inven: "SHT-METAL",  description: "Standing seam metal roofing panels", price: 218.625, tax_group: "Taxable" },
+          ],
+          files: [
+            { id: 1, name: "site-photo-1.jpg", size: 245678 },
+            { id: 2, name: "specs.pdf",         size: 84210 },
+          ] },
+        { id: 10025, name: "10x12 Mini Barn", status: "pending", order_date: "2025-05-10", customer_id: 2, customer: SEED_CUSTOMERS[1], total: 3210.00, total_tax: 192.6, sales_rep_name: "Sophia Martinez",
+          po_number: "PO-2025-0510", terms: "Net 15", delivery_method: "Customer Pickup", product_category: "Mini Barns",
+          location_class: "York", tags: ["color-match"], built_onsite: false, site_check: true, special_mfg_instructions: "", memo: "Confirm color match.",
+          activity: { id: 502, status: "in_progress" }, order: null,
+          created_by_id: 9, created_by: { first_name: "Sophia", last_name: "Martinez" }, created_at: "2025-05-10T13:45:00",
+          details: [
+            { quantity: 1, inven: "MB-10x12", description: "10x12 Mini Barn — vinyl siding, charcoal roof", price: 3210.00, tax_group: "Taxable" },
+          ],
+          files: [] },
+        { id: 10026, name: "14x24 Garage", status: "accepted", order_date: "2025-05-08", customer_id: 3, customer: SEED_CUSTOMERS[2], total: 12480.00, total_tax: 748.8, sales_rep_name: "Michael Davis",
+          po_number: "PO-2025-0508", terms: "Net 30", delivery_method: "Build Onsite", product_category: "Garages",
+          location_class: "Harrisburg", tags: [], built_onsite: true, site_check: true, special_mfg_instructions: "Slope grade ~3% — adjust foundation pads.", memo: "Awaiting build slot.",
+          activity: { id: 503, status: "completed" }, order: null,
+          created_by_id: 8, created_by: { first_name: "Michael", last_name: "Davis" }, created_at: "2025-05-08T08:15:00",
+          details: [
+            { quantity: 1, inven: "GAR-14x24",   description: "14x24 Garage — onsite build", price: 11200.00, tax_group: "Taxable" },
+            { quantity: 1, inven: "GAR-DR-8x7",  description: "8x7 Overhead garage door",    price: 880.00,  tax_group: "Taxable" },
+            { quantity: 2, inven: "WIN-2x3",     description: "2x3 Window with screens",     price: 200.00,  tax_group: "Taxable" },
+          ],
+          files: [
+            { id: 3, name: "permit-application.pdf", size: 123456 },
+          ] },
+        { id: 10027, name: "8x10 Garden Shed", status: "rejected", order_date: "2025-05-05", customer_id: 4, customer: SEED_CUSTOMERS[3], total: 1840.00, total_tax: 110.4, sales_rep_name: "Lucas White",
+          po_number: "", terms: "Net 30", delivery_method: "Delivery", product_category: "Sheds",
+          location_class: "Reading", tags: ["cancelled"], built_onsite: false, site_check: false, special_mfg_instructions: "", memo: "Customer cancelled.",
+          activity: null, order: null,
+          created_by_id: 14, created_by: { first_name: "Lucas", last_name: "White" }, created_at: "2025-05-05T11:00:00",
+          details: [ { quantity: 1, inven: "SH-8x10", description: "8x10 Garden Shed", price: 1840.00, tax_group: "Taxable" } ],
+          files: [] },
+        { id: 10028, name: "20x30 Garage Custom", status: "expired", order_date: "2025-03-15", customer_id: 5, customer: SEED_CUSTOMERS[4], total: 24650.00, total_tax: 1479.0, sales_rep_name: "William Anderson",
+          po_number: "PO-2025-0315", terms: "Net 60", delivery_method: "Build Onsite", product_category: "Garages",
+          location_class: "Lancaster", tags: [], built_onsite: true, site_check: false, special_mfg_instructions: "", memo: "",
+          activity: null, order: null,
+          created_by_id: 10, created_by: { first_name: "William", last_name: "Anderson" }, created_at: "2025-03-15T10:00:00",
+          details: [
+            { quantity: 1, inven: "GAR-20x30", description: "20x30 Garage — custom build", price: 22500.00, tax_group: "Taxable" },
+            { quantity: 1, inven: "INSULATE",  description: "Wall + ceiling insulation package", price: 2150.00, tax_group: "Taxable" },
+          ],
+          files: [] },
+      ];
+
+      // ───── Form template (mirrors ESTIMATE_FORM_TEMPLATE — view portion) ─────
+      const DETAIL_TEMPLATE = [
+        {
+          title: "Estimate Details",
+          blocks: [
+            { title: "Customer", fields: [
+              { label: "Customer",       key: "_customer_link" },
+              { label: "Name in EBMS",   key: "_ebms_name" },
+              { label: "P.O. Number",    key: "po_number" },
+            ] },
+            { title: "Options", fields: [
+              { label: "Build onsite",   key: "built_onsite", type: "bool" },
+              { label: "Site Check",     key: "site_check",   type: "bool" },
+            ] },
+            { title: "Estimate", fields: [
+              { label: "Product Category", key: "product_category" },
+              { label: "Estimate name",    key: "name" },
+              { label: "Delivery Method",  key: "delivery_method" },
+              { label: "Estimate number",  key: "id" },
+              { label: "Estimate Validity",key: "_validity" },
+            ] },
+            { title: "Classification", fields: [
+              { label: "Sales Rep",        key: "sales_rep_name" },
+              { label: "Tags",             key: "_tags" },
+              { label: "Location (Class)", key: "location_class" },
+              { label: "Terms",            key: "terms" },
+              { label: "Campaign",         key: "campaign" },
+            ] },
+            { title: "Notes", fields: [
+              { label: "Special Mgf Instructions", key: "special_mfg_instructions" },
+              { label: "Memo (Internal)",          key: "memo" },
+            ] },
+            { title: "", fields: [
+              { label: "Attachments", key: "_files" },
+            ] },
+          ],
+        },
+      ];
+
+      // ───── App state ─────
+      const params = new URLSearchParams(window.location.search);
+      const idParam = Number(params.get("id"));
+      const initialId = Number.isFinite(idParam) && idParam > 0 ? idParam : SEED_ESTIMATES[0].id;
+
+      const store = createStore({
+        user: { id: 1, name: "Anna Lee", email: "anna@lapp.com", role: "admin" },
+        collapsed: false,
+        searchOpen: false,
+        searchTerm: "",
+        customers: SEED_CUSTOMERS,
+        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        currentPath: "estimates.html",
+
+        estimates: SEED_ESTIMATES,
+        selectedId: initialId,
+        isLoading: true,
+        dialog: { type: "closed" },
+      });
+
+      // ───── Utils ─────
+      function escapeHtml(s) {
+        return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+        })[c]);
+      }
+      function formatMoney(n) {
+        return Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+      function formatDate(iso) {
+        if (!iso) return "—";
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return "—";
+        return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+      }
+      function formatPhone(p) {
+        if (!p) return "";
+        const s = String(p).replace(/\D/g, "");
+        if (s.length === 10) return `(${s.slice(0,3)}) ${s.slice(3,6)}-${s.slice(6)}`;
+        return p;
+      }
+      function formatAddress(addr) {
+        if (!addr) return [];
+        const lines = [];
+        if (addr.street) lines.push(addr.street);
+        const csz = [addr.city, addr.state, addr.zip_code].filter(Boolean).join(", ");
+        if (csz) lines.push(csz);
+        if (addr.country) lines.push(addr.country);
+        return lines;
+      }
+      function getEstimate(id) {
+        return store.get().estimates.find((e) => e.id === id) || null;
+      }
+
+      // ───── CRUD ─────
+      function deleteEstimate(id) {
+        store.set((s) => ({
+          estimates: s.estimates.filter((e) => e.id !== id),
+          dialog: { type: "closed" },
+        }));
+        // navigate back to list
+        window.location.href = "estimates.html";
+      }
+      function approveEstimate(id) {
+        store.set((s) => ({
+          estimates: s.estimates.map((e) => e.id === id ? { ...e, status: "accepted" } : e),
+          dialog: { type: "closed" },
+        }));
+      }
+      function rejectEstimate(id) {
+        store.set((s) => ({
+          estimates: s.estimates.map((e) => e.id === id ? { ...e, status: "rejected" } : e),
+          dialog: { type: "closed" },
+        }));
+      }
+      function createSalesOrder(id) {
+        store.set((s) => ({
+          estimates: s.estimates.map((e) => e.id === id ? { ...e, order: "SO-" + id } : e),
+          dialog: { type: "closed" },
+        }));
+      }
+
+      // ───── Sidebar renderers ─────
+      function renderSidebarNav() {
+        const s = store.get();
+        const nav = document.getElementById("sidebar-nav");
+        const sections = NAV_BY_ROLE[s.user.role] || [];
+        nav.innerHTML = sections.map((section, sectionIdx) => `
+          <div class="sidebar-section" data-comment="estimate-detail-sidebar-section-${sectionIdx}">
+            ${section.items.map((item) => {
+              const isActive = item.path === s.currentPath;
+              const slug = item.label.toLowerCase().replace(/\s+/g, "-");
+              const badges = item.badge && !s.collapsed
+                ? `<span class="sidebar-nav-link-badge" data-comment="estimate-detail-sidebar-nav-link-${slug}-badges">
+                    ${s.reviewBadges.not_pricing_reviewed > 0
+                      ? `<span class="sidebar-badge amber" data-comment="estimate-detail-sidebar-nav-link-${slug}-badge-pricing">${s.reviewBadges.not_pricing_reviewed}</span>` : ""}
+                    ${s.reviewBadges.not_shop_reviewed > 0
+                      ? `<span class="sidebar-badge blue" data-comment="estimate-detail-sidebar-nav-link-${slug}-badge-shop">${s.reviewBadges.not_shop_reviewed}</span>` : ""}
+                  </span>` : "";
+              return `
+                <a class="sidebar-nav-link ${isActive ? "active" : ""}" data-comment="estimate-detail-sidebar-nav-link-${slug}" href="${item.path}" title="${item.label}">
+                  <span class="sidebar-nav-link-icon" data-comment="estimate-detail-sidebar-nav-link-${slug}-icon">${ICONS[item.icon] || ""}</span>
+                  <span class="sidebar-nav-link-label" data-comment="estimate-detail-sidebar-nav-link-${slug}-label">${item.label}</span>
+                  ${badges}
+                </a>
+              `;
+            }).join("")}
+          </div>
+        `).join("");
+      }
+      function renderUser() {
+        const { user } = store.get();
+        document.getElementById("sidebar-user-name").textContent = user.name;
+        document.getElementById("sidebar-user-email").textContent = user.email;
+        document.getElementById("sidebar-user-avatar").textContent = user.name
+          .split(" ").slice(0, 2).map((w) => (w[0] || "").toUpperCase()).join("");
+      }
+      function renderCollapse() {
+        const s = store.get();
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("collapsed", s.collapsed);
+        document.getElementById("icon-collapse").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("icon-expand").style.display = s.collapsed ? "block" : "none";
+        document.getElementById("sidebar-search-wrap").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("sidebar-search-collapsed").style.display = s.collapsed ? "flex" : "none";
+      }
+      function renderSidebarSearch() {
+        const s = store.get();
+        const wrap = document.getElementById("sidebar-search-input-wrap");
+        wrap.classList.toggle("is-open", s.searchOpen);
+        const showDropdown = s.searchOpen && s.searchTerm.trim().length > 0;
+        const dropdown = document.getElementById("sidebar-search-dropdown");
+        dropdown.style.display = showDropdown ? "block" : "none";
+        if (!showDropdown) return;
+        const term = s.searchTerm.trim().toLowerCase();
+        const filtered = s.customers.filter((c) => {
+          const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+          return fullName.includes(term) || (c.email && c.email.toLowerCase().includes(term));
+        });
+        const empty = document.getElementById("sidebar-search-empty");
+        const list = document.getElementById("sidebar-search-list");
+        if (filtered.length === 0) {
+          empty.style.display = "block"; list.style.display = "none";
+        } else {
+          empty.style.display = "none"; list.style.display = "block";
+          list.innerHTML = filtered.slice(0, 8).map((c) => `
+            <li data-comment="estimate-detail-sidebar-search-item-${c.id}">
+              <button type="button"
+                class="sidebar-search-dropdown-item"
+                data-comment="estimate-detail-sidebar-search-item-${c.id}-button"
+                data-customer-id="${c.id}">
+                <div class="sidebar-search-dropdown-item-name" data-comment="estimate-detail-sidebar-search-item-${c.id}-name">${c.first_name} ${c.last_name}</div>
+                ${c.email ? `<div class="sidebar-search-dropdown-item-email" data-comment="estimate-detail-sidebar-search-item-${c.id}-email">${c.email}</div>` : ""}
+              </button>
+            </li>
+          `).join("");
+        }
+      }
+
+      // ───── Render: header status badge + title ─────
+      function renderHeader() {
+        const s = store.get();
+        const est = getEstimate(s.selectedId);
+        const titleEl = document.getElementById("estimate-detail-title");
+        const badgeEl = document.getElementById("estimate-detail-header-badge");
+        titleEl.textContent = est ? `Estimate ${est.id}` : `Estimate ${s.selectedId || ""}`.trim();
+        if (est) {
+          const label = STATUS_LABELS[est.status] || est.status;
+          badgeEl.innerHTML = `<span class="status-badge ${est.status}" data-comment="estimate-detail-header-status-badge" data-component="badge">${escapeHtml(label)}</span>`;
+        } else {
+          badgeEl.innerHTML = "";
+        }
+      }
+
+      // ───── Render: field value (for DetailBlock fields) ─────
+      function renderFieldValue(est, field) {
+        if (field.key === "_customer_link") {
+          if (!est.customer) return `<span class="detail-row-value" data-comment="estimate-detail-row-customer-value">—</span>`;
+          const name = `${est.customer.first_name} ${est.customer.last_name}`.trim();
+          return `<a class="detail-row-value link" data-comment="estimate-detail-row-customer-link" href="customer-detail.html?id=${est.customer.id}">${escapeHtml(name)} ${ICONS.externalLink}</a>`;
+        }
+        if (field.key === "_ebms_name") {
+          if (!est.customer) return `<span class="detail-row-value" data-comment="estimate-detail-row-ebms-empty">—</span>`;
+          return `<span class="detail-row-value" data-comment="estimate-detail-row-ebms-value">${escapeHtml(est.customer.first_name + " " + est.customer.last_name)}</span>`;
+        }
+        if (field.key === "_validity") {
+          return `<span class="detail-row-value" data-comment="estimate-detail-row-validity-value">30 days from creation</span>`;
+        }
+        if (field.key === "_tags") {
+          const tags = (est.tags || []);
+          if (tags.length === 0) return `<span class="detail-row-value" data-comment="estimate-detail-row-tags-empty">—</span>`;
+          return `<span class="detail-row-value" data-comment="estimate-detail-row-tags-value">${tags.map(escapeHtml).join(", ")}</span>`;
+        }
+        if (field.key === "_files") {
+          const files = est.files || [];
+          if (files.length === 0) {
+            return `<span class="detail-row-value" data-comment="estimate-detail-row-attachments-empty">No attachments</span>`;
+          }
+          return `
+            <ul class="detail-row-value" data-comment="estimate-detail-row-attachments-list" style="list-style: none; display: flex; flex-direction: column; gap: 4px;">
+              ${files.map((f, i) => `
+                <li data-comment="estimate-detail-row-attachment-${f.id}" style="display: inline-flex; align-items: center; gap: 6px;">
+                  ${ICONS.paperclip}
+                  <span data-comment="estimate-detail-row-attachment-${f.id}-name">${escapeHtml(f.name)}</span>
+                  <span data-comment="estimate-detail-row-attachment-${f.id}-size" style="color: var(--muted-foreground); font-size: 0.75rem;">${(f.size / 1024).toFixed(1)} KB</span>
+                </li>
+              `).join("")}
+            </ul>
+          `;
+        }
+        if (field.type === "bool") {
+          const v = !!est[field.key];
+          return `<span class="detail-row-value" data-comment="estimate-detail-row-${field.key.replace(/_/g,'-')}-value">${v ? "Yes" : "No"}</span>`;
+        }
+        const v = est[field.key];
+        if (v === null || v === undefined || v === "") {
+          return `<span class="detail-row-value" data-comment="estimate-detail-row-${field.key.replace(/_/g,'-')}-value">—</span>`;
+        }
+        return `<span class="detail-row-value" data-comment="estimate-detail-row-${field.key.replace(/_/g,'-')}-value">${escapeHtml(String(v))}</span>`;
+      }
+
+      // ───── Render: detail block (mirrors DetailBlock) ─────
+      function renderDetailBlock(est, block, blockIdx) {
+        const safeTitle = (block.title || "untitled").toLowerCase().replace(/\s+/g, "-").replace(/[()]/g, "");
+        return `
+          <div class="card" data-comment="estimate-detail-block-${safeTitle}" data-component="card">
+            ${block.title ? `
+              <div class="card-header" data-comment="estimate-detail-block-${safeTitle}-header">
+                <div class="card-title" data-comment="estimate-detail-block-${safeTitle}-title">${escapeHtml(block.title)}</div>
+              </div>` : ""}
+            <div class="card-content" data-comment="estimate-detail-block-${safeTitle}-content">
+              <div class="detail-grid" data-comment="estimate-detail-block-${safeTitle}-grid">
+                ${block.fields.map((f) => `
+                  <div class="detail-row" data-comment="estimate-detail-block-${safeTitle}-row-${f.key.replace(/_/g,'-')}">
+                    <p class="detail-row-label" data-comment="estimate-detail-block-${safeTitle}-row-${f.key.replace(/_/g,'-')}-label">${escapeHtml(f.label)}</p>
+                    ${renderFieldValue(est, f)}
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // ───── Render: contact & shipping address card (after Customer block) ─────
+      function renderAddressCard(est) {
+        const billing  = (est.customer?.addresses || []).find(a => a.type === "billing")  || null;
+        const shipping = (est.customer?.addresses || []).find(a => a.type === "shipping") || null;
+        const billingLines  = formatAddress(billing);
+        const shippingLines = formatAddress(shipping);
+        return `
+          <div class="card" data-comment="estimate-detail-address-card" data-component="card">
+            <div class="card-header" data-comment="estimate-detail-address-card-header">
+              <div class="card-title" data-comment="estimate-detail-address-card-title">Contact & Shipping Address</div>
+            </div>
+            <div class="card-content" data-comment="estimate-detail-address-card-content">
+              <div class="detail-grid" data-comment="estimate-detail-address-grid" style="gap: 24px;">
+                <div class="detail-grid" data-comment="estimate-detail-address-phones">
+                  <div class="detail-row" data-comment="estimate-detail-address-phone-row">
+                    <p class="detail-row-label" data-comment="estimate-detail-address-phone-label">Phone</p>
+                    <p class="detail-row-value" data-comment="estimate-detail-address-phone-value">${formatPhone(est.customer?.primary_phone) || "—"}</p>
+                  </div>
+                  <div class="detail-row" data-comment="estimate-detail-address-secondary-row">
+                    <p class="detail-row-label" data-comment="estimate-detail-address-secondary-label">Secondary Phone</p>
+                    <p class="detail-row-value" data-comment="estimate-detail-address-secondary-value">${formatPhone(est.customer?.secondary_phone) || "—"}</p>
+                  </div>
+                </div>
+                <div class="detail-grid cols-2" data-comment="estimate-detail-address-pair">
+                  <div class="address-block" data-comment="estimate-detail-billing-address">
+                    <p class="address-block-label" data-comment="estimate-detail-billing-address-label">Billing Address</p>
+                    ${billingLines.length
+                      ? billingLines.map((l, i) => `<span data-comment="estimate-detail-billing-address-line-${i + 1}">${escapeHtml(l)}</span>`).join("")
+                      : `<span data-comment="estimate-detail-billing-address-empty">—</span>`}
+                  </div>
+                  <div class="address-block" data-comment="estimate-detail-shipping-address">
+                    <p class="address-block-label" data-comment="estimate-detail-shipping-address-label">Shipping Address</p>
+                    ${shippingLines.length
+                      ? shippingLines.map((l, i) => `<span data-comment="estimate-detail-shipping-address-line-${i + 1}">${escapeHtml(l)}</span>`).join("")
+                      : `<span data-comment="estimate-detail-shipping-address-empty">—</span>`}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // ───── Render: line items table ─────
+      function renderLineItems(est) {
+        const items = (est.details || []).map((d) => ({
+          qty: d.quantity, itemCode: d.inven, description: d.description,
+          rate: d.price, totalPrice: d.quantity * d.price,
+          tax: d.tax_group === "Taxable" ? "Tax" : "No Tax",
+        }));
+        const rows = items.length === 0
+          ? `<tr data-comment="estimate-detail-line-items-empty-row">
+               <td class="line-items-empty" data-comment="estimate-detail-line-items-empty" colspan="6">No line items</td>
+             </tr>`
+          : items.map((it, i) => `
+              <tr data-comment="estimate-detail-line-item-${i + 1}">
+                <td class="center" data-comment="estimate-detail-line-item-${i + 1}-qty">${it.qty}</td>
+                <td data-comment="estimate-detail-line-item-${i + 1}-code">${escapeHtml(it.itemCode)}</td>
+                <td data-comment="estimate-detail-line-item-${i + 1}-description" style="white-space: pre-wrap;">${escapeHtml(it.description)}</td>
+                <td class="right" data-comment="estimate-detail-line-item-${i + 1}-rate">$${formatMoney(it.rate)}</td>
+                <td class="right" data-comment="estimate-detail-line-item-${i + 1}-total">$${formatMoney(it.totalPrice)}</td>
+                <td class="center" data-comment="estimate-detail-line-item-${i + 1}-tax">${escapeHtml(it.tax || "—")}</td>
+              </tr>
+            `).join("");
+
+        return `
+          <div class="section" data-comment="estimate-detail-line-items-section">
+            <h3 class="section-title" data-comment="estimate-detail-line-items-title">Line Items</h3>
+            <div class="line-items-card" data-comment="estimate-detail-line-items-card">
+              <div class="line-items-scroll" data-comment="estimate-detail-line-items-scroll">
+                <table class="line-items-table" data-comment="estimate-detail-line-items-table" data-component="table">
+                  <thead data-comment="estimate-detail-line-items-thead">
+                    <tr data-comment="estimate-detail-line-items-header-row">
+                      <th class="qty-col" data-comment="estimate-detail-line-items-th-qty">QTY</th>
+                      <th data-comment="estimate-detail-line-items-th-item">Item</th>
+                      <th data-comment="estimate-detail-line-items-th-description">Description</th>
+                      <th class="rate-col right" data-comment="estimate-detail-line-items-th-rate">Rate</th>
+                      <th class="total-col right" data-comment="estimate-detail-line-items-th-total">Total</th>
+                      <th class="tax-col center" data-comment="estimate-detail-line-items-th-tax">Tax</th>
+                    </tr>
+                  </thead>
+                  <tbody data-comment="estimate-detail-line-items-tbody">${rows}</tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // ───── Render: site check status sub-section ─────
+      function renderSiteCheckSection(est) {
+        if (!est.activity && !est.site_check) return "";
+        const status = est.activity?.status || "required";
+        const label = SC_LABELS[status] || status;
+        const isCompleted = status === "completed";
+        const activityId = est.activity?.id;
+        return `
+          <div class="section" data-comment="estimate-detail-site-check-section">
+            <h3 class="section-title" data-comment="estimate-detail-site-check-section-title">Site Check</h3>
+            <div class="card" data-comment="estimate-detail-site-check-card" data-component="card">
+              <div class="card-content" data-comment="estimate-detail-site-check-content">
+                <div class="detail-grid cols-2" data-comment="estimate-detail-site-check-grid">
+                  <div class="detail-row" data-comment="estimate-detail-site-check-status-row">
+                    <p class="detail-row-label" data-comment="estimate-detail-site-check-status-label">Status</p>
+                    <span class="sc-badge ${status}" data-comment="estimate-detail-site-check-status-badge" data-component="badge">
+                      ${isCompleted ? `<span data-comment="estimate-detail-site-check-status-icon">${ICONS.check}</span>` : `<span class="dot" data-comment="estimate-detail-site-check-status-dot"></span>`}
+                      ${escapeHtml(label)}
+                    </span>
+                  </div>
+                  <div class="detail-row" data-comment="estimate-detail-site-check-link-row">
+                    <p class="detail-row-label" data-comment="estimate-detail-site-check-link-label">Related Activity</p>
+                    ${activityId
+                      ? `<a class="detail-row-value link" data-comment="estimate-detail-site-check-link-value" href="site-check-detail.html?id=${activityId}">SC-${activityId} ${ICONS.externalLink}</a>`
+                      : `<span class="detail-row-value" data-comment="estimate-detail-site-check-link-empty">Not yet scheduled</span>`}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // ───── Render: footer (totals + actions) ─────
+      function renderFooter(est) {
+        const subtotal = est.total ?? 0;
+        const tax = est.total_tax ?? 0;
+        const total = subtotal + tax;
+        const canEdit = est.status === "draft";
+        const isExpired = est.status === "expired";
+        const canChangeStatus = !isExpired && est.status !== "accepted" && est.status !== "rejected";
+        const siteCheckPending = est.site_check && est.activity?.status !== "completed";
+
+        const createdBy = est.created_by_id
+          ? `
+            <div class="footer-meta" data-comment="estimate-detail-footer-meta">
+              <div class="footer-meta-title" data-comment="estimate-detail-footer-meta-title">Estimate Details</div>
+              <div class="footer-meta-row" data-comment="estimate-detail-footer-meta-created-by">
+                <span class="label" data-comment="estimate-detail-footer-meta-created-by-label">Created by:</span>
+                <span class="value" data-comment="estimate-detail-footer-meta-created-by-value">${escapeHtml(est.created_by.first_name + " " + est.created_by.last_name)}</span>
+              </div>
+              ${est.created_at ? `
+                <div class="footer-meta-row" data-comment="estimate-detail-footer-meta-created-at">
+                  <span class="label" data-comment="estimate-detail-footer-meta-created-at-label">Created at:</span>
+                  <span class="value" data-comment="estimate-detail-footer-meta-created-at-value">${formatDate(est.created_at)}</span>
+                </div>` : ""}
+            </div>` : "";
+
+        return `
+          <div class="detail-footer" data-comment="estimate-detail-footer">
+            <div class="detail-footer-row" data-comment="estimate-detail-footer-row">
+              ${createdBy}
+              <div class="summary-card" data-comment="estimate-detail-summary-card" data-component="card">
+                <div class="summary-rows" data-comment="estimate-detail-summary-rows">
+                  <div class="summary-row" data-comment="estimate-detail-summary-subtotal">
+                    <span class="label" data-comment="estimate-detail-summary-subtotal-label">Subtotal</span>
+                    <span class="value" data-comment="estimate-detail-summary-subtotal-value">$${formatMoney(subtotal)}</span>
+                  </div>
+                  <div class="summary-row" data-comment="estimate-detail-summary-tax">
+                    <span class="label" data-comment="estimate-detail-summary-tax-label">Tax</span>
+                    <span class="value" data-comment="estimate-detail-summary-tax-value">$${formatMoney(tax)}</span>
+                  </div>
+                  <div class="summary-row" data-comment="estimate-detail-summary-total">
+                    <span class="label" data-comment="estimate-detail-summary-total-label">Total</span>
+                    <span class="value" data-comment="estimate-detail-summary-total-value">$${formatMoney(total)}</span>
+                  </div>
+                </div>
+                <div class="summary-divider" data-comment="estimate-detail-summary-divider">
+                  <div class="summary-total" data-comment="estimate-detail-summary-balance">
+                    <span data-comment="estimate-detail-summary-balance-label">Estimate Balance</span>
+                    <span class="value" data-comment="estimate-detail-summary-balance-value">$${formatMoney(total)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="actions-row" data-comment="estimate-detail-actions-row">
+              <button type="button" class="btn btn-destructive-outline btn-sm" data-comment="estimate-detail-action-delete" data-component="button" data-action="open-delete">
+                ${ICONS.trash2} Delete
+              </button>
+              <div class="actions-row-end" data-comment="estimate-detail-actions-end">
+                ${est.site_check && !est.activity ? `
+                  <a class="btn btn-outline btn-sm" data-comment="estimate-detail-action-add-site-check" data-component="button" href="site-checks-create.html?estimateId=${est.id}">
+                    ${ICONS.clipboardCheck2} Add Site Check
+                  </a>` : ""}
+                ${est.activity ? `
+                  <a class="btn btn-outline btn-sm" data-comment="estimate-detail-action-view-site-check" data-component="button" href="site-check-detail.html?id=${est.activity.id}">
+                    ${ICONS.clipboardCheck2} View Site Check
+                  </a>` : ""}
+                ${est.order ? `
+                  <a class="btn btn-outline btn-sm" data-comment="estimate-detail-action-view-order" data-component="button" href="orders.html?id=${est.order}">
+                    ${ICONS.package} View Order
+                  </a>` : ""}
+                <button type="button" class="btn btn-outline btn-sm" data-comment="estimate-detail-action-print" data-component="button" data-action="print">
+                  ${ICONS.printer} Print PDF
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" data-comment="estimate-detail-action-duplicate" data-component="button" data-action="duplicate">
+                  ${ICONS.copy} Duplicate
+                </button>
+                ${(est.status === "draft" || est.status === "accepted") ? `
+                  <a class="btn btn-outline btn-sm" data-comment="estimate-detail-action-add-drawing" data-component="button" href="documents.html?estimateId=${est.id}">
+                    ${ICONS.paintbrush} Add Drawing
+                  </a>` : ""}
+                ${canEdit ? `
+                  <button type="button" class="btn btn-primary btn-sm" data-comment="estimate-detail-action-edit" data-component="button" data-action="edit">
+                    ${ICONS.pencil} Edit
+                  </button>` : ""}
+                ${canChangeStatus ? `
+                  <button type="button" class="btn btn-destructive btn-sm" data-comment="estimate-detail-action-reject" data-component="button" data-action="open-reject">
+                    ${ICONS.x} Reject
+                  </button>` : ""}
+                ${canChangeStatus ? `
+                  <button type="button" class="btn btn-success btn-sm" data-comment="estimate-detail-action-approve" data-component="button" data-action="open-approve" ${siteCheckPending ? "disabled title='Site check must be completed before approving the estimate.'" : ""}>
+                    ${ICONS.check} Approve
+                  </button>` : ""}
+                ${(est.status === "accepted" && !est.order) ? `
+                  <button type="button" class="btn btn-success btn-sm" data-comment="estimate-detail-action-create-sales-order" data-component="button" data-action="open-sales">
+                    ${ICONS.check} Create Sales Order
+                  </button>` : ""}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // ───── Render: skeleton ─────
+      function renderSkeleton() {
+        return `
+          <div class="detail-body" data-comment="estimate-detail-skeleton">
+            <div class="skeleton-block skeleton-card" data-comment="estimate-detail-skeleton-card-1"></div>
+            <div class="skeleton-block skeleton-card" data-comment="estimate-detail-skeleton-card-2"></div>
+            <div class="skeleton-block skeleton-card" data-comment="estimate-detail-skeleton-card-3"></div>
+          </div>
+        `;
+      }
+
+      // ───── Render: empty / not-found ─────
+      function renderNotFound(id) {
+        return `
+          <div class="detail-body" data-comment="estimate-detail-not-found-wrap">
+            <div class="empty-state" data-comment="estimate-detail-not-found">
+              <svg class="empty-state-icon" data-comment="estimate-detail-not-found-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6" /><path d="M12 12v4" /><path d="M12 20h.01" />
+              </svg>
+              <h2 class="empty-state-title" data-comment="estimate-detail-not-found-title">Estimate not found</h2>
+              <p class="empty-state-text" data-comment="estimate-detail-not-found-text">
+                We couldn't find an estimate with ID ${escapeHtml(String(id))}.
+              </p>
+              <a class="btn btn-outline btn-sm" data-comment="estimate-detail-not-found-back" data-component="button" href="estimates.html">
+                ${ICONS.arrowLeft} Back to estimates
+              </a>
+            </div>
+          </div>
+        `;
+      }
+
+      // ───── Render: main detail view ─────
+      function renderDetail() {
+        const s = store.get();
+        const root = document.getElementById("estimate-detail-root");
+
+        if (s.isLoading) {
+          root.innerHTML = renderSkeleton();
+          return;
+        }
+
+        const est = getEstimate(s.selectedId);
+        if (!est) {
+          root.innerHTML = renderNotFound(s.selectedId);
+          return;
+        }
+
+        // Build template sections
+        const sectionsHtml = DETAIL_TEMPLATE.map((section, si) => {
+          const safeTitle = (section.title || "untitled").toLowerCase().replace(/\s+/g, "-");
+          const blocksHtml = section.blocks.map((block, bi) => {
+            const blockHtml = renderDetailBlock(est, block, bi);
+            // Insert address card right after "Customer" block (mirrors React Fragment)
+            if (block.title === "Customer") {
+              return blockHtml + renderAddressCard(est);
+            }
+            return blockHtml;
+          }).join("");
+          return `
+            <div class="section" data-comment="estimate-detail-section-${safeTitle}">
+              ${section.title ? `<h3 class="section-title" data-comment="estimate-detail-section-${safeTitle}-title">${escapeHtml(section.title)}</h3>` : ""}
+              <div class="section-blocks" data-comment="estimate-detail-section-${safeTitle}-blocks">${blocksHtml}</div>
+            </div>
+          `;
+        }).join("");
+
+        root.innerHTML = `
+          <div class="detail-body" data-comment="estimate-detail-body">
+            ${sectionsHtml}
+            ${renderSiteCheckSection(est)}
+            ${renderLineItems(est)}
+          </div>
+          ${renderFooter(est)}
+        `;
+      }
+
+      // ───── Render: dialogs ─────
+      function renderDialogs() {
+        const s = store.get();
+        document.getElementById("estimate-detail-delete-overlay").classList.toggle("is-open", s.dialog.type === "delete");
+        document.getElementById("estimate-detail-approve-overlay").classList.toggle("is-open", s.dialog.type === "approve");
+        document.getElementById("estimate-detail-reject-overlay").classList.toggle("is-open", s.dialog.type === "reject");
+        document.getElementById("estimate-detail-sales-overlay").classList.toggle("is-open", s.dialog.type === "createSalesOrder");
+      }
+
+      // ───── Subscribe + initial render ─────
+      store.subscribe(renderSidebarNav);
+      store.subscribe(renderUser);
+      store.subscribe(renderCollapse);
+      store.subscribe(renderSidebarSearch);
+      store.subscribe(renderHeader);
+      store.subscribe(renderDetail);
+      store.subscribe(renderDialogs);
+
+      renderSidebarNav();
+      renderUser();
+      renderCollapse();
+      renderSidebarSearch();
+      renderHeader();
+      renderDetail();
+      renderDialogs();
+
+      // Loading skeleton ~300ms
+      setTimeout(() => store.set({ isLoading: false }), 300);
+
+      // ───── Handlers: sidebar ─────
+      document.getElementById("sidebar-collapse-btn").addEventListener("click", () => {
+        store.set((s) => ({ collapsed: !s.collapsed }));
+      });
+      const sidebarSearchInput = document.getElementById("sidebar-search-input");
+      sidebarSearchInput.addEventListener("focus", () => store.set({ searchOpen: true }));
+      sidebarSearchInput.addEventListener("blur", () => setTimeout(() => store.set({ searchOpen: false }), 150));
+      sidebarSearchInput.addEventListener("input", (e) => store.set({ searchTerm: e.target.value }));
+      document.getElementById("sidebar-search-list").addEventListener("mousedown", (e) => {
+        const btn = e.target.closest("[data-customer-id]");
+        if (!btn) return;
+        const id = btn.dataset.customerId;
+        sidebarSearchInput.value = "";
+        store.set({ searchOpen: false, searchTerm: "" });
+        window.location.href = `customer-detail.html?id=${id}`;
+      });
+      document.getElementById("sidebar-user-logout").addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+
+      // ───── Handlers: back + actions ─────
+      document.getElementById("estimate-detail-back-btn").addEventListener("click", () => {
+        window.location.href = "estimates.html";
+      });
+      document.getElementById("estimate-detail-root").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const id = store.get().selectedId;
+        if (action === "open-delete")    store.set({ dialog: { type: "delete" } });
+        else if (action === "open-approve")   store.set({ dialog: { type: "approve" } });
+        else if (action === "open-reject")    store.set({ dialog: { type: "reject" } });
+        else if (action === "open-sales")     store.set({ dialog: { type: "createSalesOrder" } });
+        else if (action === "edit")           window.location.href = `estimate-detail.html?id=${id}&edit=1`;
+        else if (action === "duplicate")      { /* mock */ }
+        else if (action === "print")          window.print();
+      });
+
+      // ───── Handlers: dialogs ─────
+      document.getElementById("estimate-detail-delete-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      document.getElementById("estimate-detail-delete-confirm").addEventListener("click", () => deleteEstimate(store.get().selectedId));
+      document.getElementById("estimate-detail-approve-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      document.getElementById("estimate-detail-approve-confirm").addEventListener("click", () => approveEstimate(store.get().selectedId));
+      document.getElementById("estimate-detail-reject-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      document.getElementById("estimate-detail-reject-confirm").addEventListener("click", () => rejectEstimate(store.get().selectedId));
+      document.getElementById("estimate-detail-sales-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      document.getElementById("estimate-detail-sales-confirm").addEventListener("click", () => createSalesOrder(store.get().selectedId));
+    </script>
+  </body>
+</html>

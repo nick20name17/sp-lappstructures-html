@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapp Structures — Edit Site Check</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --radius: 0.5rem;
+        --background: oklch(0.93 0.011 257);
+        --background-secondary: oklch(98.837% 0.00143 285.197);
+        --foreground: oklch(0.14 0.033 262);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.22 0.03 255);
+        --popover: oklch(1 0 0);
+        --primary: oklch(0.53 0.18 260);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.97 0.005 250);
+        --secondary-foreground: oklch(0.14 0.033 262);
+        --secondary-hover: oklch(0.93 0.011 257);
+        --muted: oklch(0.97 0.005 250);
+        --muted-foreground: oklch(0.56 0.023 255);
+        --accent: oklch(0.96 0.03 260);
+        --accent-foreground: oklch(0.53 0.18 260);
+        --destructive: oklch(0.50 0.19 25);
+        --success: oklch(0.58 0.16 150);
+        --border: oklch(0.93 0.011 257);
+        --input: oklch(0.92 0.01 250);
+        --ring: oklch(0.53 0.18 260);
+
+        --sidebar: oklch(1 0 0);
+        --sidebar-foreground: oklch(0.55 0.02 255);
+        --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-accent: oklch(0.97 0.005 250);
+        --sidebar-accent-foreground: oklch(0.14 0.033 262);
+        --sidebar-border: oklch(0.92 0.01 250);
+
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
+      }
+
+      html, body { height: 100%; }
+      body {
+        font-family: var(--font-body);
+        background: var(--background);
+        color: var(--foreground);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        overflow: hidden;
+      }
+      button { cursor: pointer; font-family: inherit; border: 0; background: transparent; }
+      a { color: inherit; text-decoration: none; }
+
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb {
+        background: color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+      }
+
+      .app-shell { background: var(--background); padding: 16px; height: 100vh; }
+      .app-frame { display: flex; height: calc(100vh - 32px); border-radius: 12px; overflow: hidden; }
+
+      /* Sidebar */
+      .sidebar {
+        display: flex; flex-direction: column;
+        background: var(--sidebar);
+        border-right: 1px solid var(--border);
+        flex-shrink: 0; overflow: hidden;
+        width: 240px; transition: width 0.2s ease;
+      }
+      .sidebar.collapsed { width: 56px; }
+      .sidebar-logo {
+        display: flex; align-items: flex-end; gap: 10px;
+        padding: 0 16px 16px; height: 64px;
+        flex-shrink: 0; transition: opacity 0.15s ease;
+      }
+      .sidebar-logo:hover { opacity: 0.9; }
+      .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 0 0 16px; gap: 0; }
+      .sidebar-logo-mark { display: flex; width: 32px; height: 32px; align-items: center; justify-content: center; flex-shrink: 0; }
+      .sidebar-logo-mark img { width: 24px; height: 24px; }
+      .sidebar-logo-text {
+        font-family: var(--font-display);
+        font-size: 1.25rem; line-height: 1.2;
+        font-weight: 500; letter-spacing: 0.025em;
+        color: var(--brand-navy);
+        white-space: nowrap; overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-logo-text { width: 0; opacity: 0; }
+
+      .sidebar-search { position: relative; padding: 0 8px 4px; }
+      .sidebar-search-input-wrap {
+        display: flex; align-items: center; gap: 8px;
+        border-radius: 6px; border: 1px solid transparent;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        padding: 6px 10px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .sidebar-search-input-wrap:hover,
+      .sidebar-search-input-wrap.is-open {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-search-input-wrap.is-open {
+        border-color: color-mix(in oklch, var(--sidebar-foreground) 20%, transparent);
+      }
+      .sidebar-search-icon {
+        width: 14px; height: 14px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        flex-shrink: 0;
+      }
+      .sidebar-search-input {
+        flex: 1; min-width: 0; background: transparent;
+        font-size: 0.875rem; font-family: inherit;
+        color: var(--sidebar-foreground);
+        border: 0; outline: none;
+      }
+      .sidebar-search-input::placeholder {
+        color: color-mix(in oklch, var(--sidebar-foreground) 40%, transparent);
+      }
+      .sidebar-search-dropdown {
+        position: absolute; bottom: 100%; left: 4px; right: 4px;
+        margin-bottom: 4px; border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--popover);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        overflow: hidden; z-index: 50;
+      }
+      .sidebar-search-dropdown-empty {
+        padding: 16px 12px; text-align: center;
+        font-size: 0.75rem; color: var(--muted-foreground);
+      }
+      .sidebar-search-dropdown ul { list-style: none; max-height: 224px; overflow-y: auto; padding: 4px 0; }
+      .sidebar-search-dropdown-item {
+        display: block; width: 100%; padding: 8px 12px;
+        text-align: left; font-family: inherit; cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .sidebar-search-dropdown-item:hover { background: var(--accent); }
+      .sidebar-search-dropdown-item-name { font-size: 0.875rem; font-weight: 500; line-height: 1.2; }
+      .sidebar-search-dropdown-item-email { margin-top: 2px; font-size: 0.75rem; color: var(--muted-foreground); line-height: 1.2; }
+      .sidebar.collapsed .sidebar-search { padding: 0 8px 4px; }
+      .sidebar.collapsed .sidebar-search-collapsed {
+        height: 34px; padding-bottom: 4px;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        margin: 0 8px;
+        display: flex; border: 1px solid var(--border);
+        border-radius: 6px; justify-content: center; align-items: center;
+      }
+
+      .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 8px; display: flex; flex-direction: column; gap: 24px; }
+      .sidebar-section { display: flex; flex-direction: column; gap: 4px; }
+      .sidebar-nav-link {
+        display: flex; align-items: center; gap: 12px;
+        padding: 6px 10px 6px 6px; border-radius: 6px;
+        font-size: 0.875rem; font-weight: 500;
+        color: var(--sidebar-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-nav-link:hover { background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent); color: var(--sidebar-accent-foreground); }
+      .sidebar-nav-link.active { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
+      .sidebar-nav-link-icon {
+        padding: 4px; border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex; align-items: center; justify-content: center;
+        flex-shrink: 0; transition: background 0.15s ease;
+      }
+      .sidebar-nav-link.active .sidebar-nav-link-icon { background: var(--sidebar); }
+      .sidebar-nav-link-icon svg { width: 16px; height: 16px; }
+      .sidebar-nav-link-label { white-space: nowrap; overflow: hidden; transition: opacity 0.2s ease, width 0.2s ease; }
+      .sidebar.collapsed .sidebar-nav-link-label { width: 0; opacity: 0; }
+      .sidebar-nav-link-badge { margin-left: auto; display: inline-flex; gap: 4px; }
+      .sidebar.collapsed .sidebar-nav-link-badge { display: none; }
+      .sidebar-badge {
+        display: inline-flex; width: 20px; height: 20px;
+        align-items: center; justify-content: center;
+        border-radius: 9999px;
+        font-size: 10px; font-weight: 600; line-height: 1;
+        font-variant-numeric: tabular-nums; padding: 0 4px;
+      }
+      .sidebar-badge.amber { background: rgba(245, 158, 11, 0.2); color: rgb(180, 83, 9); }
+      .sidebar-badge.blue { background: rgba(59, 130, 246, 0.2); color: rgb(29, 78, 216); }
+
+      .sidebar-bottom { display: flex; flex-direction: column; gap: 4px; padding: 0 8px 16px; flex-shrink: 0; }
+      .sidebar-collapse-btn {
+        display: flex; align-items: center; gap: 8px; width: 100%;
+        padding: 6px 10px 6px 6px; border-radius: 6px;
+        color: var(--sidebar-foreground);
+        font-size: 0.875rem; font-weight: 500;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-collapse-btn:hover { background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent); color: var(--sidebar-accent-foreground); }
+      .sidebar-collapse-btn-icon {
+        padding: 4px; border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-collapse-btn:hover .sidebar-collapse-btn-icon { background: var(--sidebar); }
+      .sidebar-collapse-btn-icon svg { width: 16px; height: 16px; }
+      .sidebar-collapse-btn-label { white-space: nowrap; overflow: hidden; transition: opacity 0.2s ease, width 0.2s ease; }
+      .sidebar.collapsed .sidebar-collapse-btn-label { width: 0; opacity: 0; }
+      .sidebar-user { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 6px; border-radius: 6px; }
+      .sidebar.collapsed .sidebar-user { justify-content: center; }
+      .sidebar-user-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .avatar {
+        width: 32px; height: 32px; border-radius: 9999px;
+        background: var(--primary); color: var(--primary-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 600; flex-shrink: 0;
+      }
+      .sidebar-user-text { display: flex; flex-direction: column; min-width: 0; }
+      .sidebar.collapsed .sidebar-user-text,
+      .sidebar.collapsed .sidebar-user-logout { display: none; }
+      .sidebar-user-name {
+        font-size: 0.875rem; font-weight: 500; color: var(--sidebar-foreground);
+        line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .sidebar-user-email {
+        font-size: 0.75rem; line-height: 1.2;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .sidebar-user-logout {
+        flex-shrink: 0; padding: 4px; border-radius: 6px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        transition: background 0.15s ease, color 0.15s ease;
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .sidebar-user-logout:hover {
+        color: var(--sidebar-foreground);
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-user-logout svg { width: 16px; height: 16px; }
+
+      /* Main */
+      .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--background-secondary); }
+      .main-content { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+      .page-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex; flex-wrap: wrap;
+        align-items: center; justify-content: space-between;
+        gap: 8px 16px;
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) { .page-header { padding: 16px; } }
+      .page-header-title-wrap { min-width: 0; display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .page-header-title {
+        font-size: 1.125rem; font-weight: 500;
+        line-height: 1.2; letter-spacing: -0.025em;
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
+      }
+      @media (min-width: 640px) { .page-header-title { font-size: 1.25rem; } }
+      .page-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+      /* Site check status badge */
+      .sc-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 2px 8px; border-radius: 9999px;
+        border: 1px solid;
+        font-size: 0.75rem; font-weight: 500;
+      }
+      .sc-badge .dot { display: inline-block; width: 8px; height: 8px; border-radius: 9999px; }
+      .sc-badge.pending { background: rgb(238 242 255); color: rgb(67 56 202); border-color: rgb(165 180 252); }
+      .sc-badge.pending .dot { background: rgb(99 102 241); }
+      .sc-badge.in_progress { background: rgb(239 246 255); color: rgb(29 78 216); border-color: rgb(147 197 253); }
+      .sc-badge.in_progress .dot { background: rgb(59 130 246); }
+      .sc-badge.completed { background: rgb(236 253 245); color: rgb(4 120 87); border-color: rgb(110 231 183); }
+      .sc-badge.completed .dot { background: rgb(16 185 129); }
+      .sc-badge.cancelled { background: rgb(255 241 242); color: rgb(190 18 60); border-color: rgb(253 164 175); }
+      .sc-badge.cancelled .dot { background: rgb(244 63 94); }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 6px; white-space: nowrap; border-radius: 6px;
+        font-size: 0.875rem; font-weight: 500; font-family: inherit;
+        height: 36px; padding: 8px 14px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .btn-sm { height: 32px; padding: 6px 12px; font-size: 0.8125rem; }
+      .btn:disabled { pointer-events: none; opacity: 0.5; }
+      .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+      .btn-primary:hover { background: color-mix(in oklch, var(--primary) 90%, black); }
+      .btn-outline { background: white; color: var(--foreground); border: 1px solid var(--border); }
+      .btn-outline:hover { background: var(--secondary); }
+      .btn-ghost { background: transparent; color: var(--muted-foreground); }
+      .btn-ghost:hover { background: var(--secondary); color: var(--foreground); }
+      .btn-destructive-outline {
+        background: white; color: var(--destructive);
+        border: 1px solid var(--destructive);
+      }
+      .btn-destructive-outline:hover { background: color-mix(in oklch, var(--destructive) 8%, white); }
+      .btn-destructive { background: var(--destructive); color: var(--primary-foreground); }
+      .btn-destructive:hover { background: color-mix(in oklch, var(--destructive) 90%, black); }
+      .btn svg { width: 16px; height: 16px; }
+
+      /* Form layout */
+      .form-body { flex: 1; min-height: 0; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 16px; }
+      @media (min-width: 640px) { .form-body { padding: 16px; gap: 24px; } }
+
+      .form-section {
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--muted);
+        padding: 10px;
+      }
+      @media (min-width: 640px) { .form-section { border-radius: 24px; padding: 14px; } }
+
+      .form-block {
+        background: var(--card);
+        color: var(--card-foreground);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 16px;
+      }
+      .form-block + .form-block { margin-top: 8px; }
+      .form-block-title {
+        font-size: 1rem; font-weight: 500;
+        color: var(--foreground);
+        margin-bottom: 12px;
+        letter-spacing: -0.01em;
+      }
+      .form-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+      @media (min-width: 768px) {
+        .form-grid.cols-2 { grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+      }
+      .form-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+      .form-field.full { grid-column: 1 / -1; }
+      .form-label {
+        font-size: 0.875rem; font-weight: 500;
+        color: var(--foreground);
+        display: inline-flex; align-items: center; gap: 2px;
+      }
+      .form-label .req { color: var(--destructive); margin-left: 1px; }
+
+      .input,
+      .textarea,
+      .native-select {
+        width: 100%;
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 6px;
+        border: 1px solid var(--input);
+        background: white;
+        font-family: inherit;
+        font-size: 0.875rem;
+        color: var(--foreground);
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .input::placeholder, .textarea::placeholder { color: var(--muted-foreground); }
+      .input:focus,
+      .textarea:focus,
+      .native-select:focus {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent);
+      }
+      .input.is-readonly,
+      .textarea.is-readonly {
+        background: var(--muted);
+        color: var(--muted-foreground);
+        opacity: 0.85;
+      }
+      .textarea {
+        height: auto;
+        min-height: 88px;
+        padding: 10px 12px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+      .native-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 32px;
+      }
+      .input.is-error,
+      .textarea.is-error,
+      .native-select.is-error,
+      .select-trigger.is-error {
+        border-color: var(--destructive);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 12%, transparent);
+      }
+      .field-error {
+        font-size: 0.8125rem;
+        color: var(--destructive);
+        line-height: 1.2;
+      }
+
+      /* Combobox-style select trigger (search-select) */
+      .search-select { position: relative; }
+      .select-trigger {
+        width: 100%;
+        height: 36px;
+        padding: 0 32px 0 12px;
+        border-radius: 6px;
+        border: 1px solid var(--input);
+        background: white;
+        font-family: inherit;
+        font-size: 0.875rem;
+        color: var(--foreground);
+        text-align: left;
+        display: inline-flex; align-items: center; justify-content: space-between;
+        gap: 8px;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .select-trigger:hover { border-color: color-mix(in oklch, var(--input) 50%, var(--muted-foreground)); }
+      .select-trigger.is-open {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent);
+      }
+      .select-trigger-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .select-trigger-value.placeholder { color: var(--muted-foreground); }
+      .select-trigger-chevron {
+        flex-shrink: 0;
+        color: var(--muted-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+        position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+        pointer-events: none;
+      }
+      .select-trigger-chevron svg { width: 16px; height: 16px; }
+
+      .select-popover {
+        position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+        z-index: 50;
+        background: var(--popover);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        display: none;
+      }
+      .select-popover.is-open { display: block; }
+      .select-search {
+        display: flex; align-items: center; gap: 8px;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--border);
+      }
+      .select-search svg { width: 14px; height: 14px; color: var(--muted-foreground); flex-shrink: 0; }
+      .select-search input {
+        flex: 1; min-width: 0;
+        font-family: inherit; font-size: 0.875rem;
+        background: transparent; border: 0; outline: none;
+        color: var(--foreground);
+      }
+      .select-search input::placeholder { color: var(--muted-foreground); }
+      .select-list {
+        list-style: none;
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+      .select-option {
+        display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        padding: 8px 12px;
+        font-size: 0.875rem;
+        color: var(--foreground);
+        cursor: pointer;
+        transition: background 0.12s ease;
+      }
+      .select-option:hover, .select-option.is-active { background: var(--accent); }
+      .select-option-meta {
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        white-space: nowrap;
+      }
+      .select-option-check { color: var(--primary); display: inline-flex; }
+      .select-option-check svg { width: 14px; height: 14px; }
+      .select-empty {
+        padding: 16px 12px;
+        text-align: center;
+        font-size: 0.8125rem;
+        color: var(--muted-foreground);
+      }
+
+      /* Status segmented control */
+      .status-segmented {
+        display: flex;
+        overflow: hidden;
+        border-radius: 6px;
+        border: 1px solid var(--input);
+        background: white;
+      }
+      .status-segmented button {
+        flex: 1;
+        border-right: 1px solid var(--input);
+        padding: 6px 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        font-family: inherit;
+        color: var(--muted-foreground);
+        background: transparent;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .status-segmented button:last-child { border-right: 0; }
+      .status-segmented button.is-active {
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+      .status-segmented button:not(.is-active):hover {
+        background: var(--secondary);
+        color: var(--foreground);
+      }
+      @media (min-width: 1536px) {
+        .status-segmented button { font-size: 0.8125rem; }
+      }
+
+      /* Checkbox */
+      .checkbox-row { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+      .checkbox-input {
+        appearance: none;
+        width: 16px; height: 16px;
+        border-radius: 4px;
+        border: 1px solid var(--input);
+        background: white;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.12s ease, border-color 0.12s ease;
+      }
+      .checkbox-input:checked {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+      .checkbox-input:checked::after {
+        content: "";
+        position: absolute;
+        top: 1px; left: 4px;
+        width: 5px; height: 9px;
+        border: solid var(--primary-foreground);
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+      .checkbox-label {
+        font-size: 0.875rem;
+        color: var(--foreground);
+        user-select: none;
+      }
+
+      /* Rich text editor */
+      .rte {
+        min-height: 120px;
+        padding: 10px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--input);
+        background: white;
+        font-family: inherit;
+        font-size: 0.875rem;
+        color: var(--foreground);
+        line-height: 1.5;
+        outline: none;
+        overflow-y: auto;
+      }
+      .rte:focus {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent);
+      }
+      .rte:empty::before {
+        content: attr(data-placeholder);
+        color: var(--muted-foreground);
+      }
+      .rte-toolbar {
+        display: flex; align-items: center; gap: 4px;
+        padding: 6px;
+        border-radius: 6px 6px 0 0;
+        border: 1px solid var(--input);
+        border-bottom: 0;
+        background: var(--secondary);
+      }
+      .rte-toolbar + .rte {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
+      .rte-toolbar button {
+        width: 28px; height: 28px;
+        border-radius: 4px;
+        color: var(--muted-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: background 0.12s ease, color 0.12s ease;
+      }
+      .rte-toolbar button:hover { background: white; color: var(--foreground); }
+      .rte-toolbar button svg { width: 14px; height: 14px; }
+
+      /* File upload / attachments */
+      .upload-zone {
+        border: 1px dashed color-mix(in oklch, var(--input) 60%, var(--muted-foreground));
+        border-radius: 8px;
+        background: color-mix(in oklch, var(--muted) 60%, white);
+        padding: 18px;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 6px;
+        text-align: center;
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .upload-zone:hover {
+        border-color: var(--primary);
+        background: color-mix(in oklch, var(--primary) 6%, white);
+      }
+      .upload-zone-icon { color: var(--muted-foreground); }
+      .upload-zone-icon svg { width: 28px; height: 28px; }
+      .upload-zone-title { font-size: 0.875rem; font-weight: 500; color: var(--foreground); }
+      .upload-zone-hint { font-size: 0.75rem; color: var(--muted-foreground); }
+      .upload-list {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 8px;
+      }
+      .upload-item {
+        position: relative;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px;
+        background: white;
+        display: flex; flex-direction: column;
+        gap: 6px; align-items: center;
+        font-size: 0.75rem;
+      }
+      .upload-item.is-existing { background: color-mix(in oklch, var(--accent) 30%, white); }
+      .upload-thumb {
+        width: 100%; aspect-ratio: 4 / 3;
+        border-radius: 6px;
+        background: color-mix(in oklch, var(--muted-foreground) 8%, var(--background-secondary));
+        display: flex; align-items: center; justify-content: center;
+        color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+      }
+      .upload-thumb svg { width: 26px; height: 26px; opacity: 0.6; }
+      .upload-name {
+        font-weight: 500;
+        color: var(--foreground);
+        text-align: center;
+        word-break: break-all;
+        line-height: 1.25;
+      }
+      .upload-remove {
+        position: absolute; top: -6px; right: -6px;
+        width: 20px; height: 20px;
+        border-radius: 9999px;
+        background: var(--destructive);
+        color: var(--primary-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .upload-remove svg { width: 12px; height: 12px; }
+
+      /* Date completed read-only display */
+      .date-completed-display {
+        display: flex; align-items: center;
+        width: 100%; height: 36px;
+        padding: 0 12px;
+        border-radius: 6px;
+        border: 1px solid var(--input);
+        background: var(--muted);
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+        opacity: 0.85;
+      }
+
+      /* Footer */
+      .form-footer {
+        flex-shrink: 0;
+        display: flex; flex-wrap: wrap;
+        gap: 8px; align-items: center;
+        padding: 12px;
+        border-top: 1px solid var(--border);
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) { .form-footer { padding: 16px; } }
+      .form-footer .footer-actions-end {
+        display: flex; gap: 8px; align-items: center;
+        margin-left: auto;
+      }
+
+      /* Skeleton */
+      .skeleton-block {
+        background: linear-gradient(90deg,
+          color-mix(in oklch, var(--border) 80%, transparent) 25%,
+          color-mix(in oklch, var(--border) 40%, transparent) 50%,
+          color-mix(in oklch, var(--border) 80%, transparent) 75%);
+        background-size: 200% 100%;
+        border-radius: 8px;
+        animation: skeleton-pulse 1.5s ease-in-out infinite;
+      }
+      .skeleton-card { height: 192px; border-radius: 16px; margin-bottom: 12px; }
+      @keyframes skeleton-pulse {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* Empty / not found state */
+      .empty-state {
+        flex: 1;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        text-align: center;
+        padding: 64px 24px;
+        color: var(--muted-foreground);
+      }
+      .empty-state-title { font-size: 1rem; font-weight: 500; color: var(--foreground); margin-bottom: 4px; }
+      .empty-state-text { font-size: 0.875rem; margin-bottom: 16px; }
+
+      /* Dialog */
+      .dialog-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center; justify-content: center;
+        padding: 16px; z-index: 100;
+      }
+      .dialog-overlay.is-open { display: flex; }
+      .dialog {
+        background: var(--card);
+        border-radius: 12px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        width: 100%; max-width: 28rem;
+        padding: 24px;
+        display: flex; flex-direction: column; gap: 16px;
+      }
+      .dialog-title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; color: var(--foreground); }
+      .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
+      .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
+
+      /* Toast */
+      .toast-stack {
+        position: fixed;
+        bottom: 24px; right: 24px;
+        display: flex; flex-direction: column;
+        gap: 8px;
+        z-index: 200;
+        pointer-events: none;
+      }
+      .toast {
+        pointer-events: auto;
+        min-width: 220px; max-width: 360px;
+        padding: 10px 14px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        color: var(--foreground);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
+      }
+      .toast.success { border-color: color-mix(in oklch, var(--success) 60%, transparent); color: color-mix(in oklch, var(--success) 50%, var(--foreground)); }
+      .toast.error { border-color: color-mix(in oklch, var(--destructive) 60%, transparent); color: var(--destructive); }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-comment="site-checks-edit-app-shell">
+      <div class="app-frame" data-comment="site-checks-edit-app-frame">
+        <!-- Sidebar -->
+        <aside class="sidebar" data-comment="site-checks-edit-sidebar" id="sidebar" aria-label="Primary navigation">
+          <a class="sidebar-logo" data-comment="site-checks-edit-sidebar-logo" href="home.html" aria-label="Go to home">
+            <span class="sidebar-logo-mark" data-comment="site-checks-edit-sidebar-logo-mark">
+              <img data-comment="site-checks-edit-sidebar-logo-img" src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png" alt="Lapp Structures" />
+            </span>
+            <span class="sidebar-logo-text" data-comment="site-checks-edit-sidebar-logo-text">Lapp Structures</span>
+          </a>
+
+          <div class="sidebar-search" data-comment="site-checks-edit-sidebar-search" id="sidebar-search-wrap">
+            <div class="sidebar-search-input-wrap" data-comment="site-checks-edit-sidebar-search-input-wrap" id="sidebar-search-input-wrap">
+              <svg class="sidebar-search-icon" data-comment="site-checks-edit-sidebar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+              </svg>
+              <input type="text" class="sidebar-search-input" data-comment="site-checks-edit-sidebar-search-input" data-component="input" id="sidebar-search-input" placeholder="Find customer..." />
+            </div>
+            <div class="sidebar-search-dropdown" data-comment="site-checks-edit-sidebar-search-dropdown" id="sidebar-search-dropdown" style="display: none">
+              <div class="sidebar-search-dropdown-empty" data-comment="site-checks-edit-sidebar-search-dropdown-empty" id="sidebar-search-empty">
+                No customers found.
+              </div>
+              <ul data-comment="site-checks-edit-sidebar-search-dropdown-list" id="sidebar-search-list" style="display: none"></ul>
+            </div>
+          </div>
+
+          <div class="sidebar-search-collapsed" data-comment="site-checks-edit-sidebar-search-collapsed" id="sidebar-search-collapsed" style="display: none">
+            <svg class="sidebar-search-icon" data-comment="site-checks-edit-sidebar-search-collapsed-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          <nav class="sidebar-nav" data-comment="site-checks-edit-sidebar-nav" id="sidebar-nav"></nav>
+
+          <div class="sidebar-bottom" data-comment="site-checks-edit-sidebar-bottom">
+            <button class="sidebar-collapse-btn" data-comment="site-checks-edit-sidebar-collapse-btn" id="sidebar-collapse-btn" type="button">
+              <span class="sidebar-collapse-btn-icon" data-comment="site-checks-edit-sidebar-collapse-btn-icon">
+                <svg id="icon-collapse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /><path d="m16 15-3-3 3-3" />
+                </svg>
+                <svg id="icon-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none">
+                  <rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /><path d="m14 9 3 3-3 3" />
+                </svg>
+              </span>
+              <span class="sidebar-collapse-btn-label" data-comment="site-checks-edit-sidebar-collapse-btn-label">Minimize bar</span>
+            </button>
+
+            <div class="sidebar-user" data-comment="site-checks-edit-sidebar-user">
+              <div class="sidebar-user-info" data-comment="site-checks-edit-sidebar-user-info">
+                <span class="avatar" data-comment="site-checks-edit-sidebar-user-avatar" data-component="avatar" id="sidebar-user-avatar">AL</span>
+                <div class="sidebar-user-text" data-comment="site-checks-edit-sidebar-user-text">
+                  <span class="sidebar-user-name" data-comment="site-checks-edit-sidebar-user-name" id="sidebar-user-name">Anna Lee</span>
+                  <span class="sidebar-user-email" data-comment="site-checks-edit-sidebar-user-email" id="sidebar-user-email">anna@lapp.com</span>
+                </div>
+              </div>
+              <button class="sidebar-user-logout" data-comment="site-checks-edit-sidebar-user-logout" id="sidebar-user-logout" title="Log out" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main" data-comment="site-checks-edit-main">
+          <div class="main-content" data-comment="site-checks-edit-main-content">
+            <header class="page-header" data-comment="site-checks-edit-page-header">
+              <div class="page-header-title-wrap" data-comment="site-checks-edit-page-header-title-wrap">
+                <h1 class="page-header-title" data-comment="site-checks-edit-page-header-title" id="edit-page-title">Edit Site Check</h1>
+                <span id="header-status-badge" data-comment="site-checks-edit-header-status-slot"></span>
+              </div>
+              <div class="page-header-actions" data-comment="site-checks-edit-page-header-actions">
+                <a class="btn btn-ghost btn-sm" data-comment="site-checks-edit-back-btn" data-component="button" href="site-checks.html">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m12 19-7-7 7-7" /><path d="M19 12H5" />
+                  </svg>
+                  Back
+                </a>
+              </div>
+            </header>
+
+            <div id="edit-root" data-comment="site-checks-edit-root" style="flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Delete confirm dialog -->
+    <div class="dialog-overlay" data-comment="site-checks-edit-delete-overlay" id="delete-overlay">
+      <div class="dialog" data-comment="site-checks-edit-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div data-comment="site-checks-edit-delete-header">
+          <h2 class="dialog-title" data-comment="site-checks-edit-delete-title">Delete site check</h2>
+          <p class="dialog-description" data-comment="site-checks-edit-delete-description" style="margin-top: 8px">
+            Are you sure you want to delete this site check? This action cannot be undone.
+          </p>
+        </div>
+        <div class="dialog-footer" data-comment="site-checks-edit-delete-footer">
+          <button class="btn btn-outline btn-sm" data-comment="site-checks-edit-delete-cancel" data-component="button" type="button" id="delete-cancel">Cancel</button>
+          <button class="btn btn-destructive btn-sm" data-comment="site-checks-edit-delete-confirm" data-component="button" type="button" id="delete-confirm">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast stack -->
+    <div class="toast-stack" id="toast-stack" data-comment="site-checks-edit-toast-stack"></div>
+
+    <script>
+      // ───── Store ─────
+      function createStore(initialState) {
+        let state = structuredClone(initialState);
+        const listeners = new Set();
+        return {
+          get: () => state,
+          set(updater) {
+            state = typeof updater === "function" ? updater(state) : { ...state, ...updater };
+            listeners.forEach((fn) => fn(state));
+          },
+          subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+        };
+      }
+
+      // ───── Icons ─────
+      const ICONS = {
+        list: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>',
+        userRound: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+        clipboardList: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>',
+        mapPin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+        users: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        clipboardCheck: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+        layers2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>',
+        trash2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>',
+        check: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+        x: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+        image: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>',
+      };
+
+      // ───── Navigation ─────
+      const NAV_BY_ROLE = {
+        admin: [
+          { items: [
+            { label: "Customers", path: "customers.html", icon: "userRound" },
+            { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+            { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+            { label: "Sales Orders", path: "orders.html", icon: "list" },
+            { label: "Users", path: "users.html", icon: "users" },
+            { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
+            { label: "Options List", path: "attributes.html", icon: "layers2" },
+          ]},
+        ],
+      };
+
+      const SC_LABELS = {
+        pending: "Pending",
+        in_progress: "In Progress",
+        completed: "Completed",
+        cancelled: "Cancelled",
+      };
+
+      // ───── Seed data ─────
+      const SEED_CUSTOMERS = [
+        { id: 1, first_name: "Anna",    last_name: "Lee",     email: "anna@example.com",        location: "Lancaster" },
+        { id: 2, first_name: "Mark",    last_name: "Chen",    email: "mark@example.com",        location: "York" },
+        { id: 3, first_name: "Sarah",   last_name: "Johnson", email: "sarah.j@example.com",     location: "Harrisburg" },
+        { id: 4, first_name: "David",   last_name: "Smith",   email: "david.smith@example.com", location: "Reading" },
+        { id: 5, first_name: "Emma",    last_name: "Garcia",  email: "emma.g@example.com",      location: "Lancaster" },
+        { id: 6, first_name: "James",   last_name: "Wilson",  email: "jwilson@example.com",     location: "York" },
+        { id: 7, first_name: "Olivia",  last_name: "Brown",   email: "olivia@example.com",      location: "Harrisburg" },
+        { id: 8, first_name: "Michael", last_name: "Davis",   email: "michael.d@example.com",   location: "Reading" },
+      ];
+      const RETAIL_LOCATIONS = [
+        { id: 1, name: "Lancaster" },
+        { id: 2, name: "York" },
+        { id: 3, name: "Harrisburg" },
+        { id: 4, name: "Reading" },
+        { id: 5, name: "Lebanon" },
+      ];
+      const ASSIGNED_USERS = [
+        { id: 8,  first_name: "Michael", last_name: "Davis",     email: "michael.d@lapp.com",   role: "sales_rep" },
+        { id: 9,  first_name: "Sophia",  last_name: "Martinez",  email: "sophia.m@lapp.com",    role: "sales_rep" },
+        { id: 10, first_name: "William", last_name: "Anderson",  email: "will.a@lapp.com",      role: "sales_rep" },
+        { id: 11, first_name: "Isabella",last_name: "Thomas",    email: "isabella.t@lapp.com",  role: "sales_rep" },
+        { id: 12, first_name: "Ethan",   last_name: "Harris",    email: "ethan.h@lapp.com",     role: "sales_rep" },
+        { id: 14, first_name: "Lucas",   last_name: "White",     email: "lucas.w@lapp.com",     role: "sales_rep" },
+      ];
+      const SEED_ESTIMATES = [
+        { id: 10024, name: "EST-10024", customer_id: 1, customer: SEED_CUSTOMERS[0] },
+        { id: 10025, name: "EST-10025", customer_id: 2, customer: SEED_CUSTOMERS[1] },
+        { id: 10026, name: "EST-10026", customer_id: 3, customer: SEED_CUSTOMERS[2] },
+        { id: 10027, name: "EST-10027", customer_id: 4, customer: SEED_CUSTOMERS[3] },
+        { id: 10028, name: "EST-10028", customer_id: 5, customer: SEED_CUSTOMERS[4] },
+        { id: 10029, name: "EST-10029", customer_id: 6, customer: SEED_CUSTOMERS[5] },
+        { id: 10030, name: "EST-10030", customer_id: 7, customer: SEED_CUSTOMERS[6] },
+        { id: 10031, name: "EST-10031", customer_id: 8, customer: SEED_CUSTOMERS[7] },
+        { id: 10032, name: "EST-10032", customer_id: 1, customer: SEED_CUSTOMERS[0] },
+        { id: 10033, name: "EST-10033", customer_id: 2, customer: SEED_CUSTOMERS[1] },
+        { id: 10034, name: "EST-10034", customer_id: 3, customer: SEED_CUSTOMERS[2] },
+        { id: 10035, name: "EST-10035", customer_id: 4, customer: SEED_CUSTOMERS[3] },
+      ];
+
+      // Match site-checks.html seed shape
+      const SEED_SITE_CHECKS = [
+        { id: 501, contact_id: 1, contact: SEED_CUSTOMERS[0], estimate_id: 10024, status: "pending",     type: "site_check",
+          assigned_to_id: 8,  assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-22T09:00:00", date_completed: null,
+          comments: "<p>Customer requests morning visit. Site has a gentle slope on the south side.</p>",
+          results_of_site_check: "",
+          notify_assigned_to: true,
+          files: [{ id: 1, name: "front-yard.jpg" }, { id: 2, name: "south-slope.jpg" }] },
+        { id: 502, contact_id: 2, contact: SEED_CUSTOMERS[1], estimate_id: 10025, status: "in_progress", type: "site_check",
+          assigned_to_id: 9,  assigned_to: ASSIGNED_USERS[1], start_date_time: "2025-05-21T11:30:00", date_completed: null,
+          comments: "<p>Crew is onsite. Measurements being verified.</p>",
+          results_of_site_check: "",
+          notify_assigned_to: true,
+          files: [] },
+        { id: 503, contact_id: 3, contact: SEED_CUSTOMERS[2], estimate_id: 10026, status: "completed",   type: "site_check",
+          assigned_to_id: 8,  assigned_to: ASSIGNED_USERS[0], start_date_time: "2025-05-18T08:00:00", date_completed: "2025-05-18T11:30:00",
+          comments: "<p>Slope grade ~3% — recommended foundation pads.</p>",
+          results_of_site_check: "Driveway access confirmed.",
+          notify_assigned_to: false,
+          files: [{ id: 3, name: "east-gate.jpg" }, { id: 4, name: "foundation-area.jpg" }, { id: 5, name: "measurements.pdf" }] },
+        { id: 504, contact_id: 4, contact: SEED_CUSTOMERS[3], estimate_id: 10027, status: "cancelled",   type: "site_check",
+          assigned_to_id: 10, assigned_to: ASSIGNED_USERS[2], start_date_time: "2025-05-05T14:00:00", date_completed: null,
+          comments: "<p>Customer cancelled order. Visit not required.</p>",
+          results_of_site_check: "",
+          notify_assigned_to: false,
+          files: [] },
+        { id: 505, contact_id: 5, contact: SEED_CUSTOMERS[4], estimate_id: 10028, status: "pending",     type: "follow_up",
+          assigned_to_id: 14, assigned_to: ASSIGNED_USERS[5], start_date_time: "2025-05-24T10:00:00", date_completed: null,
+          comments: "", results_of_site_check: "",
+          notify_assigned_to: true,
+          files: [] },
+        { id: 506, contact_id: 6, contact: SEED_CUSTOMERS[5], estimate_id: 10029, status: "in_progress", type: "site_check",
+          assigned_to_id: 9,  assigned_to: ASSIGNED_USERS[1], start_date_time: "2025-05-20T09:00:00", date_completed: null,
+          comments: "<p>Verifying access for delivery.</p>", results_of_site_check: "",
+          notify_assigned_to: true,
+          files: [] },
+        { id: 507, contact_id: 7, contact: SEED_CUSTOMERS[6], estimate_id: 10030, status: "completed",   type: "site_check",
+          assigned_to_id: 10, assigned_to: ASSIGNED_USERS[2], start_date_time: "2025-05-15T13:30:00", date_completed: "2025-05-15T15:45:00",
+          comments: "", results_of_site_check: "Ground is level. Skids can be placed without prep.",
+          notify_assigned_to: false,
+          files: [{ id: 6, name: "level-ground.jpg" }] },
+      ];
+
+      // ───── URL params ─────
+      const urlParams = new URLSearchParams(window.location.search);
+      const recordId = urlParams.get("id") ? Number(urlParams.get("id")) : SEED_SITE_CHECKS[0].id;
+      const existingRecord = SEED_SITE_CHECKS.find((sc) => sc.id === recordId) || null;
+
+      function toLocalDateString(iso) {
+        if (!iso) return "";
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return "";
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      }
+      function formatDate(iso) {
+        if (!iso) return "—";
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return "—";
+        return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+      }
+      function escapeHtml(s) {
+        return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+        })[c]);
+      }
+      function findCustomer(id) { return SEED_CUSTOMERS.find((c) => c.id === id) || null; }
+      function findUser(id) { return ASSIGNED_USERS.find((u) => u.id === id) || null; }
+      function findEstimate(id) { return SEED_ESTIMATES.find((e) => e.id === id) || null; }
+      function customerLabel(c) { return c ? `${c.first_name} ${c.last_name}` : ""; }
+      function userLabel(u) { return u ? `${u.first_name} ${u.last_name}` : ""; }
+      function estimateLabel(e) { return e ? e.name : ""; }
+
+      // ───── Initial form values ─────
+      const initialForm = existingRecord ? {
+        contact_id: existingRecord.contact_id,
+        assigned_to_id: existingRecord.assigned_to_id,
+        estimate_id: existingRecord.estimate_id,
+        start_date: toLocalDateString(existingRecord.start_date_time),
+        date_completed: existingRecord.date_completed || "",
+        type: existingRecord.type || "site_check",
+        status: existingRecord.status || "pending",
+        notify_assigned_to: existingRecord.notify_assigned_to ?? true,
+        comments: existingRecord.comments || "",
+        results_of_site_check: existingRecord.results_of_site_check || "",
+      } : null;
+
+      // ───── App state ─────
+      const store = createStore({
+        user: { id: 1, name: "Anna Lee", email: "anna@lapp.com", role: "admin" },
+        collapsed: false,
+        searchOpen: false,
+        searchTerm: "",
+        customers: SEED_CUSTOMERS,
+        retailLocations: RETAIL_LOCATIONS,
+        users: ASSIGNED_USERS,
+        estimates: SEED_ESTIMATES,
+        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        currentPath: "site-checks.html",
+
+        record: existingRecord,
+        isLoading: true,
+        notFound: !existingRecord,
+
+        form: initialForm || {
+          contact_id: null,
+          assigned_to_id: null,
+          estimate_id: null,
+          start_date: "",
+          date_completed: "",
+          type: "site_check",
+          status: "pending",
+          notify_assigned_to: true,
+          comments: "",
+          results_of_site_check: "",
+        },
+        existingFiles: existingRecord?.files ? existingRecord.files.map((f) => ({ ...f })) : [],
+        attachments: [],
+        errors: {},
+        submitAttempted: false,
+        isSaving: false,
+        deleteDialogOpen: false,
+
+        openPopover: null,
+        contactSearch: "",
+        assignedSearch: "",
+        estimateSearch: "",
+        toasts: [],
+      });
+
+      // ───── Body / form HTML template ─────
+      function formBodyHtml() {
+        return `
+          <form id="site-check-form" class="form-body" data-comment="site-checks-edit-form" data-component="form" novalidate>
+            <div class="form-section" data-comment="site-checks-edit-form-section">
+              <!-- Assignment block -->
+              <div class="form-block" data-comment="site-checks-edit-block-assignment" data-component="card">
+                <h3 class="form-block-title" data-comment="site-checks-edit-block-assignment-title">Assignment</h3>
+                <div class="form-grid cols-2" data-comment="site-checks-edit-block-assignment-grid">
+
+                  <div class="form-field" data-comment="site-checks-edit-field-contact">
+                    <label class="form-label" data-comment="site-checks-edit-field-contact-label">
+                      Contact<span class="req" data-comment="site-checks-edit-field-contact-required">*</span>
+                    </label>
+                    <div class="search-select" data-comment="site-checks-edit-field-contact-select" data-component="select">
+                      <button type="button" class="select-trigger" id="contact-trigger" data-comment="site-checks-edit-field-contact-trigger">
+                        <span class="select-trigger-value placeholder" id="contact-trigger-value" data-comment="site-checks-edit-field-contact-trigger-value">Select customer…</span>
+                        <span class="select-trigger-chevron" data-comment="site-checks-edit-field-contact-trigger-chevron">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        </span>
+                      </button>
+                      <div class="select-popover" id="contact-popover" data-comment="site-checks-edit-field-contact-popover">
+                        <div class="select-search" data-comment="site-checks-edit-field-contact-search">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                          <input type="text" id="contact-search" data-comment="site-checks-edit-field-contact-search-input" data-component="input" placeholder="Search customers…" />
+                        </div>
+                        <ul class="select-list" id="contact-list" data-comment="site-checks-edit-field-contact-list"></ul>
+                      </div>
+                    </div>
+                    <p class="field-error" id="contact-error" data-comment="site-checks-edit-field-contact-error" style="display: none">Contact is required.</p>
+                  </div>
+
+                  <div class="form-field" data-comment="site-checks-edit-field-assigned-to">
+                    <label class="form-label" data-comment="site-checks-edit-field-assigned-to-label">
+                      Assigned To<span class="req" data-comment="site-checks-edit-field-assigned-to-required">*</span>
+                    </label>
+                    <div class="search-select" data-comment="site-checks-edit-field-assigned-to-select" data-component="select">
+                      <button type="button" class="select-trigger" id="assigned-trigger" data-comment="site-checks-edit-field-assigned-to-trigger">
+                        <span class="select-trigger-value placeholder" id="assigned-trigger-value" data-comment="site-checks-edit-field-assigned-to-trigger-value">Select user…</span>
+                        <span class="select-trigger-chevron" data-comment="site-checks-edit-field-assigned-to-trigger-chevron">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        </span>
+                      </button>
+                      <div class="select-popover" id="assigned-popover" data-comment="site-checks-edit-field-assigned-to-popover">
+                        <div class="select-search" data-comment="site-checks-edit-field-assigned-to-search">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                          <input type="text" id="assigned-search" data-comment="site-checks-edit-field-assigned-to-search-input" data-component="input" placeholder="Search users…" />
+                        </div>
+                        <ul class="select-list" id="assigned-list" data-comment="site-checks-edit-field-assigned-to-list"></ul>
+                      </div>
+                    </div>
+                    <p class="field-error" id="assigned-error" data-comment="site-checks-edit-field-assigned-to-error" style="display: none">Assigned To is required.</p>
+                  </div>
+
+                  <div class="form-field" data-comment="site-checks-edit-field-estimate">
+                    <label class="form-label" data-comment="site-checks-edit-field-estimate-label">
+                      Related Estimate<span class="req" data-comment="site-checks-edit-field-estimate-required">*</span>
+                    </label>
+                    <div class="search-select" data-comment="site-checks-edit-field-estimate-select" data-component="select">
+                      <button type="button" class="select-trigger" id="estimate-trigger" data-comment="site-checks-edit-field-estimate-trigger">
+                        <span class="select-trigger-value placeholder" id="estimate-trigger-value" data-comment="site-checks-edit-field-estimate-trigger-value">Select estimate…</span>
+                        <span class="select-trigger-chevron" data-comment="site-checks-edit-field-estimate-trigger-chevron">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        </span>
+                      </button>
+                      <div class="select-popover" id="estimate-popover" data-comment="site-checks-edit-field-estimate-popover">
+                        <div class="select-search" data-comment="site-checks-edit-field-estimate-search">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                          <input type="text" id="estimate-search" data-comment="site-checks-edit-field-estimate-search-input" data-component="input" placeholder="Search estimates…" />
+                        </div>
+                        <ul class="select-list" id="estimate-list" data-comment="site-checks-edit-field-estimate-list"></ul>
+                      </div>
+                    </div>
+                    <p class="field-error" id="estimate-error" data-comment="site-checks-edit-field-estimate-error" style="display: none">Related Estimate is required.</p>
+                  </div>
+
+                  <div class="form-field" data-comment="site-checks-edit-field-start-date">
+                    <label class="form-label" for="start-date" data-comment="site-checks-edit-field-start-date-label">Start Date</label>
+                    <input type="date" class="input" id="start-date" data-comment="site-checks-edit-field-start-date-input" data-component="date-picker" />
+                  </div>
+
+                  <div class="form-field" data-comment="site-checks-edit-field-type">
+                    <label class="form-label" for="type-select" data-comment="site-checks-edit-field-type-label">Type</label>
+                    <select class="native-select" id="type-select" data-comment="site-checks-edit-field-type-select" data-component="select">
+                      <option value="site_check" data-comment="site-checks-edit-field-type-option-site_check">Site Check</option>
+                      <option value="follow_up" data-comment="site-checks-edit-field-type-option-follow_up">Follow Up</option>
+                      <option value="phone_call" data-comment="site-checks-edit-field-type-option-phone_call">Phone Call</option>
+                      <option value="other" data-comment="site-checks-edit-field-type-option-other">Other</option>
+                    </select>
+                  </div>
+
+                  <div class="form-field" data-comment="site-checks-edit-field-status">
+                    <label class="form-label" data-comment="site-checks-edit-field-status-label">Status</label>
+                    <div class="status-segmented" id="status-segmented" data-comment="site-checks-edit-field-status-segmented">
+                      <button type="button" data-value="pending" data-comment="site-checks-edit-field-status-pending">Pending</button>
+                      <button type="button" data-value="in_progress" data-comment="site-checks-edit-field-status-in_progress">In Progress</button>
+                      <button type="button" data-value="completed" data-comment="site-checks-edit-field-status-completed">Completed</button>
+                      <button type="button" data-value="cancelled" data-comment="site-checks-edit-field-status-cancelled">Cancelled</button>
+                    </div>
+                  </div>
+
+                  <div class="form-field" data-comment="site-checks-edit-field-date-completed">
+                    <label class="form-label" data-comment="site-checks-edit-field-date-completed-label">Date Completed</label>
+                    <div class="date-completed-display" id="date-completed-display" data-comment="site-checks-edit-field-date-completed-value">—</div>
+                  </div>
+
+                  <div class="form-field full" data-comment="site-checks-edit-field-notify">
+                    <label class="checkbox-row" data-comment="site-checks-edit-field-notify-row">
+                      <input type="checkbox" class="checkbox-input" id="notify-checkbox" data-comment="site-checks-edit-field-notify-input" data-component="checkbox" />
+                      <span class="checkbox-label" data-comment="site-checks-edit-field-notify-label">Notify Assigned To</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Details block -->
+              <div class="form-block" data-comment="site-checks-edit-block-details" data-component="card">
+                <h3 class="form-block-title" data-comment="site-checks-edit-block-details-title">Details</h3>
+                <div class="form-grid" data-comment="site-checks-edit-block-details-grid">
+
+                  <div class="form-field full" data-comment="site-checks-edit-field-comments">
+                    <label class="form-label" data-comment="site-checks-edit-field-comments-label">Comments</label>
+                    <div class="rte-toolbar" data-comment="site-checks-edit-field-comments-toolbar">
+                      <button type="button" data-cmd="bold" title="Bold" data-comment="site-checks-edit-field-comments-toolbar-bold">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h9a4 4 0 0 1 0 8H6z"/><path d="M6 4h8a4 4 0 0 1 0 8H6z"/></svg>
+                      </button>
+                      <button type="button" data-cmd="italic" title="Italic" data-comment="site-checks-edit-field-comments-toolbar-italic">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg>
+                      </button>
+                      <button type="button" data-cmd="insertUnorderedList" title="Bulleted list" data-comment="site-checks-edit-field-comments-toolbar-list">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                    <div class="rte" id="comments-rte" data-comment="site-checks-edit-field-comments-editor" data-component="textarea" contenteditable="true" data-placeholder="Add comments…"></div>
+                  </div>
+
+                  <div class="form-field full" data-comment="site-checks-edit-field-results" id="results-field" style="display: none">
+                    <label class="form-label" for="results-textarea" data-comment="site-checks-edit-field-results-label">Results of Site Check</label>
+                    <textarea class="textarea" id="results-textarea" rows="3" placeholder="Enter results…" data-comment="site-checks-edit-field-results-input" data-component="textarea"></textarea>
+                  </div>
+
+                  <div class="form-field full" data-comment="site-checks-edit-field-attachments">
+                    <label class="form-label" data-comment="site-checks-edit-field-attachments-label">Attachments</label>
+                    <div class="upload-zone" id="upload-zone" data-comment="site-checks-edit-field-attachments-zone">
+                      <span class="upload-zone-icon" data-comment="site-checks-edit-field-attachments-zone-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                      </span>
+                      <span class="upload-zone-title" data-comment="site-checks-edit-field-attachments-zone-title">Click or drag files to upload</span>
+                      <span class="upload-zone-hint" data-comment="site-checks-edit-field-attachments-zone-hint">Images and PDFs supported</span>
+                      <input type="file" id="upload-input" data-comment="site-checks-edit-field-attachments-input" data-component="input" multiple accept="image/*,application/pdf" style="display: none" />
+                    </div>
+                    <div class="upload-list" id="upload-list" data-comment="site-checks-edit-field-attachments-list"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div class="form-footer" data-comment="site-checks-edit-form-footer">
+            <button type="button" class="btn btn-destructive-outline btn-sm" data-comment="site-checks-edit-delete-btn" data-component="button" id="delete-btn">
+              ${ICONS.trash2} Delete
+            </button>
+            <div class="footer-actions-end" data-comment="site-checks-edit-form-footer-actions">
+              <a class="btn btn-outline btn-sm" data-comment="site-checks-edit-cancel-btn" data-component="button" href="site-checks.html">Cancel</a>
+              <button type="submit" form="site-check-form" class="btn btn-primary btn-sm" data-comment="site-checks-edit-save-btn" data-component="button" id="save-btn">Update</button>
+            </div>
+          </div>
+        `;
+      }
+      function skeletonHtml() {
+        return `
+          <div class="form-body" data-comment="site-checks-edit-skeleton">
+            <div class="skeleton-block skeleton-card" data-comment="site-checks-edit-skeleton-card-1"></div>
+            <div class="skeleton-block skeleton-card" data-comment="site-checks-edit-skeleton-card-2"></div>
+          </div>
+        `;
+      }
+      function notFoundHtml() {
+        return `
+          <div class="empty-state" data-comment="site-checks-edit-not-found">
+            <h2 class="empty-state-title" data-comment="site-checks-edit-not-found-title">Site check not found</h2>
+            <p class="empty-state-text" data-comment="site-checks-edit-not-found-text">The site check you tried to edit doesn't exist or was deleted.</p>
+            <a class="btn btn-outline btn-sm" data-comment="site-checks-edit-not-found-back" data-component="button" href="site-checks.html">Back to Site Checks</a>
+          </div>
+        `;
+      }
+
+      // ───── Sidebar renderers ─────
+      function renderSidebarNav() {
+        const s = store.get();
+        const nav = document.getElementById("sidebar-nav");
+        const sections = NAV_BY_ROLE[s.user.role] || [];
+        nav.innerHTML = sections.map((section, sectionIdx) => `
+          <div class="sidebar-section" data-comment="site-checks-edit-sidebar-section-${sectionIdx}">
+            ${section.items.map((item) => {
+              const isActive = item.path === s.currentPath;
+              const slug = item.label.toLowerCase().replace(/\s+/g, "-");
+              const badges = item.badge && !s.collapsed
+                ? `<span class="sidebar-nav-link-badge" data-comment="site-checks-edit-sidebar-nav-link-${slug}-badges">
+                    ${s.reviewBadges.not_pricing_reviewed > 0
+                      ? `<span class="sidebar-badge amber" data-comment="site-checks-edit-sidebar-nav-link-${slug}-badge-pricing">${s.reviewBadges.not_pricing_reviewed}</span>` : ""}
+                    ${s.reviewBadges.not_shop_reviewed > 0
+                      ? `<span class="sidebar-badge blue" data-comment="site-checks-edit-sidebar-nav-link-${slug}-badge-shop">${s.reviewBadges.not_shop_reviewed}</span>` : ""}
+                  </span>` : "";
+              return `
+                <a class="sidebar-nav-link ${isActive ? "active" : ""}" data-comment="site-checks-edit-sidebar-nav-link-${slug}" href="${item.path}" title="${item.label}">
+                  <span class="sidebar-nav-link-icon" data-comment="site-checks-edit-sidebar-nav-link-${slug}-icon">${ICONS[item.icon] || ""}</span>
+                  <span class="sidebar-nav-link-label" data-comment="site-checks-edit-sidebar-nav-link-${slug}-label">${item.label}</span>
+                  ${badges}
+                </a>
+              `;
+            }).join("")}
+          </div>
+        `).join("");
+      }
+      function renderUser() {
+        const { user } = store.get();
+        document.getElementById("sidebar-user-name").textContent = user.name;
+        document.getElementById("sidebar-user-email").textContent = user.email;
+        document.getElementById("sidebar-user-avatar").textContent = user.name
+          .split(" ").slice(0, 2).map((w) => (w[0] || "").toUpperCase()).join("");
+      }
+      function renderCollapse() {
+        const s = store.get();
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("collapsed", s.collapsed);
+        document.getElementById("icon-collapse").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("icon-expand").style.display = s.collapsed ? "block" : "none";
+        document.getElementById("sidebar-search-wrap").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("sidebar-search-collapsed").style.display = s.collapsed ? "flex" : "none";
+      }
+      function renderSidebarSearch() {
+        const s = store.get();
+        const wrap = document.getElementById("sidebar-search-input-wrap");
+        wrap.classList.toggle("is-open", s.searchOpen);
+        const showDropdown = s.searchOpen && s.searchTerm.trim().length > 0;
+        const dropdown = document.getElementById("sidebar-search-dropdown");
+        dropdown.style.display = showDropdown ? "block" : "none";
+        if (!showDropdown) return;
+        const term = s.searchTerm.trim().toLowerCase();
+        const filtered = s.customers.filter((c) => {
+          const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+          return fullName.includes(term) || (c.email && c.email.toLowerCase().includes(term));
+        });
+        const empty = document.getElementById("sidebar-search-empty");
+        const list = document.getElementById("sidebar-search-list");
+        if (filtered.length === 0) {
+          empty.style.display = "block"; list.style.display = "none";
+        } else {
+          empty.style.display = "none"; list.style.display = "block";
+          list.innerHTML = filtered.slice(0, 8).map((c) => `
+            <li data-comment="site-checks-edit-sidebar-search-item-${c.id}">
+              <button type="button" class="sidebar-search-dropdown-item" data-comment="site-checks-edit-sidebar-search-item-${c.id}-button" data-customer-id="${c.id}">
+                <div class="sidebar-search-dropdown-item-name" data-comment="site-checks-edit-sidebar-search-item-${c.id}-name">${c.first_name} ${c.last_name}</div>
+                ${c.email ? `<div class="sidebar-search-dropdown-item-email" data-comment="site-checks-edit-sidebar-search-item-${c.id}-email">${c.email}</div>` : ""}
+              </button>
+            </li>
+          `).join("");
+        }
+      }
+
+      // ───── Header ─────
+      function renderHeader() {
+        const s = store.get();
+        const titleEl = document.getElementById("edit-page-title");
+        const badgeEl = document.getElementById("header-status-badge");
+        if (s.record) {
+          titleEl.textContent = `Edit Site Check SC-${s.record.id}`;
+          const label = SC_LABELS[s.form.status] || s.form.status;
+          const isCompleted = s.form.status === "completed";
+          badgeEl.innerHTML = `
+            <span class="sc-badge ${s.form.status}" data-comment="site-checks-edit-header-status-badge" data-component="badge">
+              ${isCompleted ? `<span data-comment="site-checks-edit-header-status-icon">${ICONS.check}</span>` : `<span class="dot" data-comment="site-checks-edit-header-status-dot"></span>`}
+              ${escapeHtml(label)}
+            </span>`;
+        } else {
+          titleEl.textContent = "Edit Site Check";
+          badgeEl.innerHTML = "";
+        }
+      }
+
+      // ───── Form triggers ─────
+      function renderTriggerValues() {
+        const s = store.get();
+        if (s.isLoading || s.notFound) return;
+        const contact = findCustomer(s.form.contact_id);
+        const assigned = findUser(s.form.assigned_to_id);
+        const estimate = findEstimate(s.form.estimate_id);
+
+        const ct = document.getElementById("contact-trigger-value");
+        const at = document.getElementById("assigned-trigger-value");
+        const et = document.getElementById("estimate-trigger-value");
+        if (!ct || !at || !et) return;
+
+        if (contact) { ct.textContent = customerLabel(contact); ct.classList.remove("placeholder"); }
+        else { ct.textContent = "Select customer…"; ct.classList.add("placeholder"); }
+
+        if (assigned) { at.textContent = userLabel(assigned); at.classList.remove("placeholder"); }
+        else { at.textContent = "Select user…"; at.classList.add("placeholder"); }
+
+        if (estimate) { et.textContent = estimateLabel(estimate); et.classList.remove("placeholder"); }
+        else { et.textContent = "Select estimate…"; et.classList.add("placeholder"); }
+
+        document.getElementById("contact-trigger").classList.toggle("is-open", s.openPopover === "contact");
+        document.getElementById("assigned-trigger").classList.toggle("is-open", s.openPopover === "assigned");
+        document.getElementById("estimate-trigger").classList.toggle("is-open", s.openPopover === "estimate");
+
+        document.getElementById("contact-popover").classList.toggle("is-open", s.openPopover === "contact");
+        document.getElementById("assigned-popover").classList.toggle("is-open", s.openPopover === "assigned");
+        document.getElementById("estimate-popover").classList.toggle("is-open", s.openPopover === "estimate");
+      }
+
+      function renderContactOptions() {
+        const s = store.get();
+        if (s.isLoading || s.notFound) return;
+        const list = document.getElementById("contact-list");
+        if (!list) return;
+        const term = s.contactSearch.trim().toLowerCase();
+        const items = s.customers.filter((c) =>
+          !term ||
+          `${c.first_name} ${c.last_name}`.toLowerCase().includes(term) ||
+          (c.email && c.email.toLowerCase().includes(term)),
+        );
+        if (items.length === 0) {
+          list.innerHTML = `<li class="select-empty" data-comment="site-checks-edit-field-contact-empty">No customers found.</li>`;
+          return;
+        }
+        list.innerHTML = items.map((c) => `
+          <li class="select-option ${s.form.contact_id === c.id ? "is-active" : ""}"
+              data-comment="site-checks-edit-field-contact-option-${c.id}"
+              data-id="${c.id}">
+            <span data-comment="site-checks-edit-field-contact-option-${c.id}-label">${escapeHtml(c.first_name + " " + c.last_name)}</span>
+            <span class="select-option-meta" data-comment="site-checks-edit-field-contact-option-${c.id}-meta">
+              ${s.form.contact_id === c.id
+                ? `<span class="select-option-check" data-comment="site-checks-edit-field-contact-option-${c.id}-check">${ICONS.check}</span>`
+                : escapeHtml(c.location || "")}
+            </span>
+          </li>
+        `).join("");
+      }
+      function renderAssignedOptions() {
+        const s = store.get();
+        if (s.isLoading || s.notFound) return;
+        const list = document.getElementById("assigned-list");
+        if (!list) return;
+        const term = s.assignedSearch.trim().toLowerCase();
+        const items = s.users.filter((u) =>
+          !term ||
+          `${u.first_name} ${u.last_name}`.toLowerCase().includes(term) ||
+          (u.email && u.email.toLowerCase().includes(term)),
+        );
+        if (items.length === 0) {
+          list.innerHTML = `<li class="select-empty" data-comment="site-checks-edit-field-assigned-to-empty">No users found.</li>`;
+          return;
+        }
+        list.innerHTML = items.map((u) => `
+          <li class="select-option ${s.form.assigned_to_id === u.id ? "is-active" : ""}"
+              data-comment="site-checks-edit-field-assigned-to-option-${u.id}"
+              data-id="${u.id}">
+            <span data-comment="site-checks-edit-field-assigned-to-option-${u.id}-label">${escapeHtml(u.first_name + " " + u.last_name)}</span>
+            <span class="select-option-meta" data-comment="site-checks-edit-field-assigned-to-option-${u.id}-meta">
+              ${s.form.assigned_to_id === u.id
+                ? `<span class="select-option-check" data-comment="site-checks-edit-field-assigned-to-option-${u.id}-check">${ICONS.check}</span>`
+                : escapeHtml(u.email || "")}
+            </span>
+          </li>
+        `).join("");
+      }
+      function renderEstimateOptions() {
+        const s = store.get();
+        if (s.isLoading || s.notFound) return;
+        const list = document.getElementById("estimate-list");
+        if (!list) return;
+        const term = s.estimateSearch.trim().toLowerCase();
+        const customerId = s.form.contact_id;
+        let items = s.estimates;
+        if (customerId) items = items.filter((e) => e.customer_id === customerId);
+        items = items.filter((e) =>
+          !term ||
+          e.name.toLowerCase().includes(term) ||
+          String(e.id).includes(term),
+        );
+        if (items.length === 0) {
+          list.innerHTML = `<li class="select-empty" data-comment="site-checks-edit-field-estimate-empty">No estimates found.</li>`;
+          return;
+        }
+        list.innerHTML = items.map((e) => `
+          <li class="select-option ${s.form.estimate_id === e.id ? "is-active" : ""}"
+              data-comment="site-checks-edit-field-estimate-option-${e.id}"
+              data-id="${e.id}">
+            <span data-comment="site-checks-edit-field-estimate-option-${e.id}-label">${escapeHtml(e.name)}</span>
+            <span class="select-option-meta" data-comment="site-checks-edit-field-estimate-option-${e.id}-meta">
+              ${s.form.estimate_id === e.id
+                ? `<span class="select-option-check" data-comment="site-checks-edit-field-estimate-option-${e.id}-check">${ICONS.check}</span>`
+                : escapeHtml(customerLabel(e.customer))}
+            </span>
+          </li>
+        `).join("");
+      }
+
+      function renderErrors() {
+        const s = store.get();
+        if (s.isLoading || s.notFound) return;
+        const fields = [
+          { key: "contact_id",     triggerId: "contact-trigger",  errorId: "contact-error" },
+          { key: "assigned_to_id", triggerId: "assigned-trigger", errorId: "assigned-error" },
+          { key: "estimate_id",    triggerId: "estimate-trigger", errorId: "estimate-error" },
+        ];
+        fields.forEach((f) => {
+          const trigger = document.getElementById(f.triggerId);
+          const errEl = document.getElementById(f.errorId);
+          if (!trigger || !errEl) return;
+          const hasError = !!s.errors[f.key];
+          trigger.classList.toggle("is-error", hasError);
+          errEl.style.display = hasError ? "block" : "none";
+          if (hasError) errEl.textContent = s.errors[f.key];
+        });
+      }
+
+      function renderStatus() {
+        const s = store.get();
+        if (s.isLoading || s.notFound) return;
+        document.querySelectorAll("#status-segmented button").forEach((btn) => {
+          btn.classList.toggle("is-active", btn.dataset.value === s.form.status);
+        });
+        // Toggle results field visibility on completed
+        const resultsField = document.getElementById("results-field");
+        if (resultsField) {
+          resultsField.style.display = s.form.status === "completed" ? "" : "none";
+        }
+        // Date completed display
+        const display = document.getElementById("date-completed-display");
+        if (display) {
+          display.textContent = formatDate(s.form.date_completed);
+        }
+      }
+
+      function renderAttachments() {
+        const s = store.get();
+        if (s.isLoading || s.notFound) return;
+        const list = document.getElementById("upload-list");
+        if (!list) return;
+        const existing = s.existingFiles.map((f) => `
+          <div class="upload-item is-existing" data-comment="site-checks-edit-existing-${f.id}">
+            <div class="upload-thumb" data-comment="site-checks-edit-existing-${f.id}-thumb">${ICONS.image}</div>
+            <div class="upload-name" data-comment="site-checks-edit-existing-${f.id}-name">${escapeHtml(f.name)}</div>
+            <button type="button" class="upload-remove" data-comment="site-checks-edit-existing-${f.id}-remove" data-remove-existing-id="${f.id}" aria-label="Remove existing attachment">${ICONS.x}</button>
+          </div>
+        `).join("");
+        const fresh = s.attachments.map((f) => `
+          <div class="upload-item" data-comment="site-checks-edit-attachment-${f.id}">
+            <div class="upload-thumb" data-comment="site-checks-edit-attachment-${f.id}-thumb">${ICONS.image}</div>
+            <div class="upload-name" data-comment="site-checks-edit-attachment-${f.id}-name">${escapeHtml(f.name)}</div>
+            <button type="button" class="upload-remove" data-comment="site-checks-edit-attachment-${f.id}-remove" data-remove-id="${f.id}" aria-label="Remove attachment">${ICONS.x}</button>
+          </div>
+        `).join("");
+        list.innerHTML = existing + fresh;
+      }
+
+      function renderSaveBtn() {
+        const s = store.get();
+        if (s.isLoading || s.notFound) return;
+        const btn = document.getElementById("save-btn");
+        if (!btn) return;
+        btn.disabled = s.isSaving;
+        btn.textContent = s.isSaving ? "Saving…" : "Update";
+      }
+
+      function renderDialog() {
+        const s = store.get();
+        const overlay = document.getElementById("delete-overlay");
+        overlay.classList.toggle("is-open", s.deleteDialogOpen);
+      }
+
+      function renderToasts() {
+        const s = store.get();
+        const stack = document.getElementById("toast-stack");
+        stack.innerHTML = s.toasts.map((t) => `
+          <div class="toast ${t.type}" data-comment="site-checks-edit-toast-${t.id}">${escapeHtml(t.message)}</div>
+        `).join("");
+      }
+
+      // ───── Show toast ─────
+      function showToast(type, message) {
+        const id = Date.now() + Math.random();
+        store.set((s) => ({ toasts: [...s.toasts, { id, type, message }] }));
+        setTimeout(() => {
+          store.set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
+        }, 2200);
+      }
+
+      // ───── Validation ─────
+      function validate(form) {
+        const errors = {};
+        if (!form.contact_id) errors.contact_id = "Contact is required.";
+        if (!form.assigned_to_id) errors.assigned_to_id = "Assigned To is required.";
+        if (!form.estimate_id) errors.estimate_id = "Related Estimate is required.";
+        return errors;
+      }
+      function revalidateIfSubmitted() {
+        const s = store.get();
+        if (!s.submitAttempted) return;
+        store.set({ errors: validate(s.form) });
+      }
+      function setContact(id) {
+        store.set((s) => {
+          const next = { ...s.form, contact_id: id };
+          if (next.estimate_id) {
+            const est = findEstimate(next.estimate_id);
+            if (est && id != null && est.customer_id !== id) next.estimate_id = null;
+          }
+          return { form: next };
+        });
+        revalidateIfSubmitted();
+      }
+      function setAssigned(id) {
+        store.set((s) => ({ form: { ...s.form, assigned_to_id: id } }));
+        revalidateIfSubmitted();
+      }
+      function setEstimate(id) {
+        store.set((s) => {
+          const next = { ...s.form, estimate_id: id };
+          if (id != null) {
+            const est = findEstimate(id);
+            if (est && !next.contact_id) next.contact_id = est.customer_id;
+          }
+          return { form: next };
+        });
+        revalidateIfSubmitted();
+      }
+      function setStatus(value) {
+        store.set((s) => {
+          const next = { ...s.form, status: value };
+          if (value === "completed" && !next.date_completed) {
+            next.date_completed = new Date().toISOString();
+          }
+          return { form: next };
+        });
+      }
+      function setOpenPopover(name) { store.set({ openPopover: name }); }
+      function addAttachments(files) {
+        const list = Array.from(files).map((f) => ({
+          id: Date.now() + Math.random(),
+          name: f.name,
+          size: f.size,
+        }));
+        store.set((s) => ({ attachments: [...s.attachments, ...list] }));
+      }
+      function removeAttachment(id) {
+        store.set((s) => ({ attachments: s.attachments.filter((f) => f.id !== id) }));
+      }
+      function removeExistingFile(id) {
+        store.set((s) => ({ existingFiles: s.existingFiles.filter((f) => f.id !== id) }));
+        showToast("success", "File removed.");
+      }
+
+      // ───── Submit ─────
+      function handleSubmit(e) {
+        e.preventDefault();
+        const s = store.get();
+        const errors = validate(s.form);
+        store.set({ submitAttempted: true, errors });
+        if (Object.keys(errors).length > 0) {
+          showToast("error", "Please complete required fields.");
+          return;
+        }
+        store.set({ isSaving: true });
+        // Mutate store (simulate update) then redirect.
+        showToast("success", "Site check updated.");
+        setTimeout(() => {
+          window.location.href = "site-checks.html";
+        }, 500);
+      }
+
+      // ───── Delete ─────
+      function openDeleteDialog() { store.set({ deleteDialogOpen: true }); }
+      function closeDeleteDialog() { store.set({ deleteDialogOpen: false }); }
+      function confirmDelete() {
+        showToast("success", "Site check deleted.");
+        setTimeout(() => {
+          window.location.href = "site-checks.html";
+        }, 400);
+      }
+
+      // ───── Mount form ─────
+      function mountForm() {
+        const root = document.getElementById("edit-root");
+        const s = store.get();
+        if (s.notFound) {
+          root.innerHTML = notFoundHtml();
+          return;
+        }
+        if (s.isLoading) {
+          root.innerHTML = skeletonHtml();
+          return;
+        }
+        root.innerHTML = formBodyHtml();
+
+        // Hydrate form values
+        document.getElementById("start-date").value = s.form.start_date || "";
+        document.getElementById("type-select").value = s.form.type || "site_check";
+        document.getElementById("notify-checkbox").checked = !!s.form.notify_assigned_to;
+        document.getElementById("comments-rte").innerHTML = s.form.comments || "";
+        const resultsEl = document.getElementById("results-textarea");
+        if (resultsEl) resultsEl.value = s.form.results_of_site_check || "";
+
+        renderTriggerValues();
+        renderContactOptions();
+        renderAssignedOptions();
+        renderEstimateOptions();
+        renderStatus();
+        renderErrors();
+        renderAttachments();
+        renderSaveBtn();
+
+        attachFormHandlers();
+      }
+
+      // ───── Form handlers (attached after mount) ─────
+      function attachFormHandlers() {
+        function toggleAndFocus(name, inputId) {
+          const cur = store.get().openPopover;
+          const next = cur === name ? null : name;
+          setOpenPopover(next);
+          if (next) {
+            setTimeout(() => { document.getElementById(inputId)?.focus(); }, 0);
+          }
+        }
+        document.getElementById("contact-trigger").addEventListener("click", () => toggleAndFocus("contact", "contact-search"));
+        document.getElementById("assigned-trigger").addEventListener("click", () => toggleAndFocus("assigned", "assigned-search"));
+        document.getElementById("estimate-trigger").addEventListener("click", () => toggleAndFocus("estimate", "estimate-search"));
+
+        document.getElementById("contact-search").addEventListener("input", (e) => store.set({ contactSearch: e.target.value }));
+        document.getElementById("assigned-search").addEventListener("input", (e) => store.set({ assignedSearch: e.target.value }));
+        document.getElementById("estimate-search").addEventListener("input", (e) => store.set({ estimateSearch: e.target.value }));
+
+        document.getElementById("contact-list").addEventListener("click", (e) => {
+          const li = e.target.closest("[data-id]");
+          if (!li) return;
+          setContact(Number(li.dataset.id));
+          store.set({ openPopover: null, contactSearch: "" });
+        });
+        document.getElementById("assigned-list").addEventListener("click", (e) => {
+          const li = e.target.closest("[data-id]");
+          if (!li) return;
+          setAssigned(Number(li.dataset.id));
+          store.set({ openPopover: null, assignedSearch: "" });
+        });
+        document.getElementById("estimate-list").addEventListener("click", (e) => {
+          const li = e.target.closest("[data-id]");
+          if (!li) return;
+          setEstimate(Number(li.dataset.id));
+          store.set({ openPopover: null, estimateSearch: "" });
+        });
+
+        document.addEventListener("click", (e) => {
+          const cur = store.get().openPopover;
+          if (!cur) return;
+          const target = e.target;
+          const triggerIds = ["contact-trigger", "assigned-trigger", "estimate-trigger"];
+          const popoverIds = ["contact-popover", "assigned-popover", "estimate-popover"];
+          const inside = triggerIds.some((id) => document.getElementById(id)?.contains(target))
+            || popoverIds.some((id) => document.getElementById(id)?.contains(target));
+          if (!inside) setOpenPopover(null);
+        });
+
+        document.getElementById("start-date").addEventListener("input", (e) => {
+          store.set((s) => ({ form: { ...s.form, start_date: e.target.value } }));
+        });
+        document.getElementById("type-select").addEventListener("change", (e) => {
+          store.set((s) => ({ form: { ...s.form, type: e.target.value } }));
+        });
+        document.getElementById("status-segmented").addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-value]");
+          if (!btn) return;
+          setStatus(btn.dataset.value);
+        });
+        document.getElementById("notify-checkbox").addEventListener("change", (e) => {
+          store.set((s) => ({ form: { ...s.form, notify_assigned_to: e.target.checked } }));
+        });
+
+        const rte = document.getElementById("comments-rte");
+        rte.addEventListener("input", () => {
+          store.set((s) => ({ form: { ...s.form, comments: rte.innerHTML } }));
+        });
+        document.querySelectorAll(".rte-toolbar button").forEach((btn) => {
+          btn.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            const cmd = btn.dataset.cmd;
+            document.execCommand(cmd, false, null);
+            rte.focus();
+          });
+        });
+
+        const results = document.getElementById("results-textarea");
+        if (results) {
+          results.addEventListener("input", (e) => {
+            store.set((s) => ({ form: { ...s.form, results_of_site_check: e.target.value } }));
+          });
+        }
+
+        const uploadZone = document.getElementById("upload-zone");
+        const uploadInput = document.getElementById("upload-input");
+        uploadZone.addEventListener("click", () => uploadInput.click());
+        uploadInput.addEventListener("change", (e) => {
+          if (e.target.files) addAttachments(e.target.files);
+          e.target.value = "";
+        });
+        uploadZone.addEventListener("dragover", (e) => e.preventDefault());
+        uploadZone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          if (e.dataTransfer?.files) addAttachments(e.dataTransfer.files);
+        });
+        document.getElementById("upload-list").addEventListener("click", (e) => {
+          const removeBtn = e.target.closest("[data-remove-id]");
+          if (removeBtn) { removeAttachment(Number(removeBtn.dataset.removeId)); return; }
+          const removeExistingBtn = e.target.closest("[data-remove-existing-id]");
+          if (removeExistingBtn) { removeExistingFile(Number(removeExistingBtn.dataset.removeExistingId)); return; }
+        });
+
+        document.getElementById("delete-btn").addEventListener("click", openDeleteDialog);
+        document.getElementById("site-check-form").addEventListener("submit", handleSubmit);
+      }
+
+      // ───── Subscriptions ─────
+      store.subscribe(renderSidebarNav);
+      store.subscribe(renderUser);
+      store.subscribe(renderCollapse);
+      store.subscribe(renderSidebarSearch);
+      store.subscribe(renderHeader);
+      store.subscribe(renderTriggerValues);
+      store.subscribe(renderContactOptions);
+      store.subscribe(renderAssignedOptions);
+      store.subscribe(renderEstimateOptions);
+      store.subscribe(renderErrors);
+      store.subscribe(renderStatus);
+      store.subscribe(renderAttachments);
+      store.subscribe(renderSaveBtn);
+      store.subscribe(renderDialog);
+      store.subscribe(renderToasts);
+
+      // ───── Initial render: shows skeleton, then mounts form after a brief simulated load ─────
+      renderSidebarNav();
+      renderUser();
+      renderCollapse();
+      renderSidebarSearch();
+      renderHeader();
+      mountForm();
+      renderDialog();
+      renderToasts();
+
+      // Simulate brief load, then mount full form
+      setTimeout(() => {
+        store.set({ isLoading: false });
+        mountForm();
+      }, 220);
+
+      // ───── Sidebar handlers ─────
+      document.getElementById("sidebar-collapse-btn").addEventListener("click", () => {
+        store.set((s) => ({ collapsed: !s.collapsed }));
+      });
+      const sidebarSearchInput = document.getElementById("sidebar-search-input");
+      sidebarSearchInput.addEventListener("focus", () => store.set({ searchOpen: true }));
+      sidebarSearchInput.addEventListener("blur", () => setTimeout(() => store.set({ searchOpen: false }), 150));
+      sidebarSearchInput.addEventListener("input", (e) => store.set({ searchTerm: e.target.value }));
+      document.getElementById("sidebar-search-list").addEventListener("mousedown", (e) => {
+        const btn = e.target.closest("[data-customer-id]");
+        if (!btn) return;
+        const id = btn.dataset.customerId;
+        sidebarSearchInput.value = "";
+        store.set({ searchOpen: false, searchTerm: "" });
+        window.location.href = `customer-detail.html?id=${id}`;
+      });
+      document.getElementById("sidebar-user-logout").addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+
+      // Delete dialog handlers
+      document.getElementById("delete-cancel").addEventListener("click", closeDeleteDialog);
+      document.getElementById("delete-confirm").addEventListener("click", confirmDelete);
+    </script>
+  </body>
+</html>

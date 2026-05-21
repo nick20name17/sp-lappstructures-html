@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapp Structures — New Estimate</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --radius: 0.5rem;
+        --background: oklch(0.93 0.011 257);
+        --background-secondary: oklch(98.837% 0.00143 285.197);
+        --foreground: oklch(0.14 0.033 262);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.22 0.03 255);
+        --popover: oklch(1 0 0);
+        --primary: oklch(0.53 0.18 260);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.97 0.005 250);
+        --secondary-foreground: oklch(0.14 0.033 262);
+        --secondary-hover: oklch(0.93 0.011 257);
+        --muted: oklch(0.97 0.005 250);
+        --muted-foreground: oklch(0.56 0.023 255);
+        --accent: oklch(0.96 0.03 260);
+        --accent-foreground: oklch(0.53 0.18 260);
+        --destructive: oklch(0.50 0.19 25);
+        --success: oklch(0.58 0.16 150);
+        --success-foreground: oklch(1 0 0);
+        --border: oklch(0.93 0.011 257);
+        --input: oklch(0.92 0.01 250);
+        --ring: oklch(0.53 0.18 260);
+
+        --sidebar: oklch(1 0 0);
+        --sidebar-foreground: oklch(0.55 0.02 255);
+        --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-accent: oklch(0.97 0.005 250);
+        --sidebar-accent-foreground: oklch(0.14 0.033 262);
+        --sidebar-border: oklch(0.92 0.01 250);
+
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
+      }
+
+      html, body { height: 100%; }
+      body {
+        font-family: var(--font-body);
+        background: var(--background);
+        color: var(--foreground);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        overflow: hidden;
+      }
+      button { cursor: pointer; font-family: inherit; border: 0; background: transparent; }
+      a { color: inherit; text-decoration: none; }
+
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb {
+        background: color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+      }
+
+      .app-shell { background: var(--background); padding: 16px; height: 100vh; }
+      .app-frame { display: flex; height: calc(100vh - 32px); border-radius: 12px; overflow: hidden; }
+
+      /* ───── Sidebar ───── */
+      .sidebar {
+        display: flex; flex-direction: column;
+        background: var(--sidebar);
+        border-right: 1px solid var(--border);
+        flex-shrink: 0; overflow: hidden;
+        width: 240px; transition: width 0.2s ease;
+      }
+      .sidebar.collapsed { width: 56px; }
+      .sidebar-logo {
+        display: flex; align-items: flex-end; gap: 10px;
+        padding: 0 16px 16px; height: 64px;
+        flex-shrink: 0; transition: opacity 0.15s ease;
+      }
+      .sidebar-logo:hover { opacity: 0.9; }
+      .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 0 0 16px; gap: 0; }
+      .sidebar-logo-mark { display: flex; width: 32px; height: 32px; align-items: center; justify-content: center; flex-shrink: 0; }
+      .sidebar-logo-mark img { width: 24px; height: 24px; }
+      .sidebar-logo-text {
+        font-family: var(--font-display);
+        font-size: 1.25rem; line-height: 1.2;
+        font-weight: 500; letter-spacing: 0.025em;
+        color: var(--brand-navy);
+        white-space: nowrap; overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-logo-text { width: 0; opacity: 0; }
+
+      .sidebar-search { position: relative; padding: 0 8px 4px; }
+      .sidebar-search-input-wrap {
+        display: flex; align-items: center; gap: 8px;
+        border-radius: 6px; border: 1px solid transparent;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        padding: 6px 10px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .sidebar-search-input-wrap:hover,
+      .sidebar-search-input-wrap.is-open {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-search-input-wrap.is-open {
+        border-color: color-mix(in oklch, var(--sidebar-foreground) 20%, transparent);
+      }
+      .sidebar-search-icon {
+        width: 14px; height: 14px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        flex-shrink: 0;
+      }
+      .sidebar-search-input {
+        flex: 1; min-width: 0; background: transparent;
+        font-size: 0.875rem; font-family: inherit;
+        color: var(--sidebar-foreground);
+        border: 0; outline: none;
+      }
+      .sidebar-search-input::placeholder {
+        color: color-mix(in oklch, var(--sidebar-foreground) 40%, transparent);
+      }
+      .sidebar-search-dropdown {
+        position: absolute; bottom: 100%; left: 4px; right: 4px;
+        margin-bottom: 4px; border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--popover);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        overflow: hidden; z-index: 50;
+      }
+      .sidebar-search-dropdown-empty {
+        padding: 16px 12px; text-align: center;
+        font-size: 0.75rem; color: var(--muted-foreground);
+      }
+      .sidebar-search-dropdown ul { list-style: none; max-height: 224px; overflow-y: auto; padding: 4px 0; }
+      .sidebar-search-dropdown-item {
+        display: block; width: 100%; padding: 8px 12px;
+        text-align: left; font-family: inherit; cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .sidebar-search-dropdown-item:hover { background: var(--accent); }
+      .sidebar-search-dropdown-item-name { font-size: 0.875rem; font-weight: 500; line-height: 1.2; }
+      .sidebar-search-dropdown-item-email {
+        margin-top: 2px; font-size: 0.75rem;
+        color: var(--muted-foreground); line-height: 1.2;
+      }
+      .sidebar.collapsed .sidebar-search { padding: 0 8px 4px; }
+      .sidebar.collapsed .sidebar-search-collapsed {
+        height: 34px; padding-bottom: 4px;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        margin: 0 8px;
+        display: flex; border: 1px solid var(--border);
+        border-radius: 6px; justify-content: center; align-items: center;
+      }
+
+      .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 8px; display: flex; flex-direction: column; gap: 24px; }
+      .sidebar-section-title {
+        padding: 0 12px; margin-bottom: 8px;
+        font-size: 11px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.05em;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap; overflow: hidden;
+        transition: opacity 0.2s ease, height 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-section-title { opacity: 0; height: 0; margin-bottom: 0; }
+      .sidebar-section { display: flex; flex-direction: column; gap: 4px; }
+      .sidebar-nav-link {
+        display: flex; align-items: center; gap: 12px;
+        padding: 6px 10px 6px 6px; border-radius: 6px;
+        font-size: 0.875rem; font-weight: 500;
+        color: var(--sidebar-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-nav-link:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-nav-link.active { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
+      .sidebar-nav-link-icon {
+        padding: 4px; border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex; align-items: center; justify-content: center;
+        flex-shrink: 0; transition: background 0.15s ease;
+      }
+      .sidebar-nav-link.active .sidebar-nav-link-icon { background: var(--sidebar); }
+      .sidebar-nav-link-icon svg { width: 16px; height: 16px; }
+      .sidebar-nav-link-label { white-space: nowrap; overflow: hidden; transition: opacity 0.2s ease, width 0.2s ease; }
+      .sidebar.collapsed .sidebar-nav-link-label { width: 0; opacity: 0; }
+      .sidebar-nav-link-badge { margin-left: auto; display: inline-flex; gap: 4px; }
+      .sidebar.collapsed .sidebar-nav-link-badge { display: none; }
+      .sidebar-badge {
+        display: inline-flex; width: 20px; height: 20px;
+        align-items: center; justify-content: center;
+        border-radius: 9999px;
+        font-size: 10px; font-weight: 600; line-height: 1;
+        font-variant-numeric: tabular-nums; padding: 0 4px;
+      }
+      .sidebar-badge.amber { background: rgba(245, 158, 11, 0.2); color: rgb(180, 83, 9); }
+      .sidebar-badge.blue { background: rgba(59, 130, 246, 0.2); color: rgb(29, 78, 216); }
+
+      .sidebar-bottom { display: flex; flex-direction: column; gap: 4px; padding: 0 8px 16px; flex-shrink: 0; }
+      .sidebar-collapse-btn {
+        display: flex; align-items: center; gap: 8px; width: 100%;
+        padding: 6px 10px 6px 6px; border-radius: 6px;
+        color: var(--sidebar-foreground);
+        font-size: 0.875rem; font-weight: 500;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-collapse-btn:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-collapse-btn-icon {
+        padding: 4px; border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-collapse-btn:hover .sidebar-collapse-btn-icon { background: var(--sidebar); }
+      .sidebar-collapse-btn-icon svg { width: 16px; height: 16px; }
+      .sidebar-collapse-btn-label { white-space: nowrap; overflow: hidden; transition: opacity 0.2s ease, width 0.2s ease; }
+      .sidebar.collapsed .sidebar-collapse-btn-label { width: 0; opacity: 0; }
+      .sidebar-user {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; padding: 8px 6px; border-radius: 6px;
+      }
+      .sidebar.collapsed .sidebar-user { justify-content: center; }
+      .sidebar-user-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .avatar {
+        width: 32px; height: 32px; border-radius: 9999px;
+        background: var(--primary); color: var(--primary-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 600; flex-shrink: 0;
+      }
+      .sidebar-user-text { display: flex; flex-direction: column; min-width: 0; }
+      .sidebar.collapsed .sidebar-user-text,
+      .sidebar.collapsed .sidebar-user-logout { display: none; }
+      .sidebar-user-name {
+        font-size: 0.875rem; font-weight: 500; color: var(--sidebar-foreground);
+        line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .sidebar-user-email {
+        font-size: 0.75rem; line-height: 1.2;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .sidebar-user-logout {
+        flex-shrink: 0; padding: 4px; border-radius: 6px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        transition: background 0.15s ease, color 0.15s ease;
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .sidebar-user-logout:hover {
+        color: var(--sidebar-foreground);
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-user-logout svg { width: 16px; height: 16px; }
+
+      /* ───── Main ───── */
+      .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--background-secondary); }
+      .main-content { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+      .page-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex; flex-wrap: wrap;
+        align-items: center; justify-content: space-between;
+        gap: 8px 16px;
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) { .page-header { padding: 16px; } }
+      .page-header-title-wrap { min-width: 0; display: inline-flex; align-items: center; gap: 16px; }
+      .page-header-title {
+        font-size: 1.125rem; font-weight: 500;
+        line-height: 1.2; letter-spacing: -0.025em;
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
+      }
+      @media (min-width: 640px) { .page-header-title { font-size: 1.25rem; } }
+      .page-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+      /* ───── Buttons ───── */
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 6px; white-space: nowrap; border-radius: 6px;
+        font-size: 0.875rem; font-weight: 500; font-family: inherit;
+        height: 36px; padding: 8px 14px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .btn-sm { height: 32px; padding: 6px 12px; font-size: 0.8125rem; }
+      .btn:disabled { pointer-events: none; opacity: 0.5; }
+      .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+      .btn-primary:hover { background: color-mix(in oklch, var(--primary) 90%, black); }
+      .btn-outline { background: white; color: var(--foreground); border: 1px solid var(--border); }
+      .btn-outline:hover { background: var(--secondary); }
+      .btn-ghost { background: transparent; color: var(--muted-foreground); }
+      .btn-ghost:hover { background: var(--secondary); color: var(--foreground); }
+      .btn-icon { width: 36px; height: 36px; padding: 0; }
+      .btn-icon.btn-sm { width: 28px; height: 28px; }
+      .btn svg { width: 16px; height: 16px; }
+
+      /* ───── Form body ───── */
+      .form-body { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 12px 8px; display: flex; flex-direction: column; gap: 16px; }
+      @media (min-width: 640px) { .form-body { padding: 16px 16px 8px; gap: 24px; } }
+
+      /* Section */
+      .section {
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--muted);
+        padding: 10px;
+      }
+      @media (min-width: 640px) {
+        .section { border-radius: 24px; padding: 14px; }
+      }
+      .section-title {
+        font-size: 1rem; font-weight: 500;
+        color: var(--muted-foreground);
+        margin-bottom: 10px;
+      }
+      @media (min-width: 1536px) { .section-title { font-size: 1.125rem; } }
+      .section-blocks {
+        column-count: 1;
+        gap: 8px;
+      }
+      @media (min-width: 768px) { .section-blocks { column-count: 2; } }
+      .section-blocks > * {
+        break-inside: avoid;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      /* Card */
+      .card {
+        background: var(--card);
+        color: var(--card-foreground);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .card-header { padding: 16px 20px 8px; }
+      .card-title {
+        font-size: 1rem; font-weight: 500;
+        color: var(--foreground);
+        letter-spacing: -0.01em;
+      }
+      .card-content { padding: 12px 20px 20px; }
+      .card-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+      .card-grid.cols-2 { grid-template-columns: 1fr; }
+      @media (min-width: 1024px) {
+        .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+      }
+
+      /* Field */
+      .field { display: flex; flex-direction: column; gap: 6px; }
+      .field-label {
+        font-size: 0.875rem; font-weight: 500;
+        color: var(--foreground);
+      }
+      .field-label .required { color: var(--destructive); margin-left: 2px; }
+      .field-hint { font-size: 0.75rem; color: var(--muted-foreground); }
+      .field-error { font-size: 0.75rem; color: var(--destructive); }
+
+      .input, .select, .textarea {
+        width: 100%; min-width: 0;
+        font-size: 0.875rem; font-family: inherit;
+        color: var(--foreground);
+        background: var(--card);
+        border: 1px solid var(--input);
+        border-radius: 0.375rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .input, .select { height: 36px; padding: 4px 12px; }
+      .textarea { padding: 8px 12px; min-height: 80px; resize: vertical; line-height: 1.4; }
+      .input::placeholder, .textarea::placeholder { color: var(--muted-foreground); }
+      .input:focus-visible, .select:focus-visible, .textarea:focus-visible {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+      }
+      .input[aria-invalid="true"], .select[aria-invalid="true"], .textarea[aria-invalid="true"] {
+        border-color: var(--destructive);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
+      }
+      .input:disabled, .select:disabled, .textarea:disabled {
+        background: color-mix(in oklch, var(--muted) 50%, transparent);
+        cursor: not-allowed; opacity: 0.65;
+      }
+
+      .select {
+        appearance: none; -webkit-appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 32px;
+      }
+
+      .input-with-button { display: flex; gap: 8px; }
+      .input-with-button > :first-child { flex: 1; min-width: 0; }
+
+      /* Combobox (customer picker) */
+      .combobox-trigger {
+        width: 100%; height: 36px; padding: 4px 12px;
+        display: flex; align-items: center; justify-content: space-between;
+        background: var(--card); color: var(--foreground);
+        border: 1px solid var(--input);
+        border-radius: 0.375rem;
+        font-size: 0.875rem; font-family: inherit;
+        text-align: left;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .combobox-trigger:hover { background: var(--secondary); }
+      .combobox-trigger:focus-visible {
+        outline: none;
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+      }
+      .combobox-trigger[aria-invalid="true"] {
+        border-color: var(--destructive);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
+      }
+      .combobox-trigger-placeholder { color: var(--muted-foreground); }
+      .combobox-trigger svg { width: 14px; height: 14px; color: var(--muted-foreground); flex-shrink: 0; }
+      .btn-icon svg { width: 14px; height: 14px; }
+
+      .combobox-popover {
+        position: relative;
+      }
+      .combobox-dropdown {
+        position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+        background: var(--popover);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.04);
+        z-index: 30;
+        max-height: 280px; overflow: hidden;
+        display: none;
+      }
+      .combobox-dropdown.is-open { display: flex; flex-direction: column; }
+      .combobox-search {
+        padding: 8px; border-bottom: 1px solid var(--border);
+      }
+      .combobox-search input {
+        width: 100%; height: 32px; padding: 0 8px;
+        background: var(--muted); color: var(--foreground);
+        border: 1px solid var(--input);
+        border-radius: 4px;
+        font-size: 0.8125rem; font-family: inherit; outline: none;
+      }
+      .combobox-list { list-style: none; overflow-y: auto; max-height: 220px; padding: 4px 0; }
+      .combobox-item {
+        width: 100%; padding: 8px 12px;
+        text-align: left;
+        display: flex; align-items: center; gap: 8px;
+        font-family: inherit; cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .combobox-item:hover { background: var(--accent); }
+      .combobox-item-check { width: 16px; height: 16px; flex-shrink: 0; }
+      .combobox-item-check.is-hidden { visibility: hidden; }
+      .combobox-item-text { display: flex; flex-direction: column; min-width: 0; }
+      .combobox-item-name { font-size: 0.875rem; color: var(--foreground); }
+      .combobox-item-email { font-size: 0.75rem; color: var(--muted-foreground); }
+      .combobox-empty {
+        padding: 16px 12px;
+        text-align: center;
+        font-size: 0.8125rem;
+        color: var(--muted-foreground);
+      }
+
+      /* Checkbox row */
+      .checkbox-row { display: flex; align-items: center; gap: 8px; }
+      .checkbox {
+        appearance: none; -webkit-appearance: none;
+        width: 16px; height: 16px;
+        border: 1px solid var(--input);
+        border-radius: 4px;
+        background: var(--card);
+        position: relative; cursor: pointer;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+        flex-shrink: 0;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .checkbox:checked { background: var(--primary); border-color: var(--primary); }
+      .checkbox:checked::after {
+        content: "";
+        position: absolute;
+        left: 4px; top: 1px;
+        width: 4px; height: 8px;
+        border: solid var(--primary-foreground);
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+      .checkbox-label {
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--foreground);
+      }
+
+      /* Address block */
+      .address-block { display: flex; flex-direction: column; gap: 2px; font-size: 0.875rem; color: var(--muted-foreground); }
+      .address-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+      .address-block-label { font-size: 0.875rem; font-weight: 500; color: var(--foreground); }
+
+      /* Phone row */
+      .phone-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+      .phone-row { display: flex; flex-direction: column; gap: 2px; }
+      .phone-row-label { font-size: 0.875rem; font-weight: 500; color: var(--foreground); }
+      .phone-row-value { font-size: 0.875rem; color: var(--muted-foreground); }
+
+      /* Validity grid */
+      .validity-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+      @media (min-width: 640px) {
+        .validity-grid { grid-template-columns: 1fr 1fr; }
+      }
+      .manual-badge {
+        display: inline-flex; align-items: center;
+        border-radius: 9999px;
+        background: rgba(245, 158, 11, 0.15);
+        color: rgb(146, 64, 14);
+        padding: 0 8px;
+        font-size: 10px; font-weight: 500;
+        height: 18px;
+      }
+
+      /* Image upload */
+      .image-upload {
+        border: 1.5px dashed color-mix(in oklch, var(--input) 80%, transparent);
+        border-radius: 8px;
+        padding: 24px 16px;
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        background: var(--background-secondary);
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease;
+      }
+      .image-upload:hover { border-color: var(--ring); background: var(--card); }
+      .image-upload-icon { color: var(--muted-foreground); }
+      .image-upload-icon svg { width: 28px; height: 28px; }
+      .image-upload-text { font-size: 0.875rem; color: var(--foreground); font-weight: 500; }
+      .image-upload-hint { font-size: 0.75rem; color: var(--muted-foreground); }
+      .image-upload-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+        gap: 8px; margin-top: 8px;
+      }
+      .image-upload-item {
+        position: relative;
+        aspect-ratio: 1; border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--muted);
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+      }
+      .image-upload-item-icon { color: var(--muted-foreground); }
+      .image-upload-item-icon svg { width: 24px; height: 24px; }
+      .image-upload-item-name {
+        position: absolute; left: 0; right: 0; bottom: 0;
+        padding: 2px 6px;
+        font-size: 0.625rem;
+        background: rgba(0, 0, 0, 0.55);
+        color: white;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .image-upload-item-remove {
+        position: absolute; top: 4px; right: 4px;
+        width: 20px; height: 20px; border-radius: 9999px;
+        background: rgba(0, 0, 0, 0.55); color: white;
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .image-upload-item-remove svg { width: 12px; height: 12px; }
+
+      /* Line Items Table */
+      .line-items-card { border-radius: 12px; background: var(--card); padding: 12px; }
+      .line-items-scroll {
+        overflow-x: auto;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card);
+      }
+      .line-items-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+      .line-items-table thead tr {
+        border-bottom: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+        background: color-mix(in oklch, var(--muted) 30%, transparent);
+      }
+      .line-items-table th {
+        padding: 8px 10px;
+        font-size: 11px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.04em;
+        color: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+        text-align: left;
+      }
+      .line-items-table th.right { text-align: right; }
+      .line-items-table th.center { text-align: center; }
+      .line-items-table th.qty-col { width: 70px; }
+      .line-items-table th.rate-col, .line-items-table th.total-col { width: 112px; }
+      .line-items-table th.tax-col { width: 96px; }
+      .line-items-table th.action-col { width: 40px; }
+      .line-items-table tbody tr {
+        border-bottom: 1px solid color-mix(in oklch, var(--border) 40%, transparent);
+        vertical-align: top;
+      }
+      .line-items-table tbody tr:last-child { border-bottom: 0; }
+      .line-items-table td {
+        padding: 4px 0;
+        border-right: 1px solid color-mix(in oklch, var(--border) 30%, transparent);
+        color: var(--foreground);
+      }
+      .line-items-table td:last-child { border-right: 0; }
+      .line-items-table td.action-cell { text-align: center; padding: 4px; }
+      .li-cell-input {
+        width: 100%; height: 32px;
+        background: transparent; border: 0;
+        padding: 4px 10px;
+        font-size: 0.8125rem; font-family: inherit;
+        color: var(--foreground); outline: none;
+        border-radius: 0;
+      }
+      .li-cell-input:focus { background: color-mix(in oklch, var(--accent) 35%, transparent); }
+      .li-cell-input.center { text-align: center; }
+      .li-cell-input.right { text-align: right; font-variant-numeric: tabular-nums; }
+      .li-cell-input.readonly { color: var(--muted-foreground); background: color-mix(in oklch, var(--muted) 25%, transparent); }
+      .li-cell-textarea {
+        width: 100%; min-height: 32px; max-height: 120px;
+        background: transparent; border: 0;
+        padding: 6px 10px;
+        font-size: 0.8125rem; font-family: inherit;
+        color: var(--foreground); outline: none;
+        resize: none; field-sizing: content;
+        line-height: 1.4;
+      }
+      .li-cell-textarea:focus { background: color-mix(in oklch, var(--accent) 35%, transparent); }
+      .li-cell-select {
+        width: 100%; height: 32px;
+        background: transparent; border: 0;
+        padding: 4px 10px;
+        font-size: 0.8125rem; font-family: inherit;
+        color: var(--foreground); outline: none;
+        cursor: pointer;
+        appearance: none; -webkit-appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 6px center;
+        padding-right: 22px;
+      }
+      .li-cell-select:focus { background: color-mix(in oklch, var(--accent) 35%, transparent); }
+      .li-row-error td { background: color-mix(in oklch, var(--destructive) 5%, transparent); }
+      .line-items-empty {
+        padding: 40px 12px;
+        text-align: center;
+        color: var(--muted-foreground);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .li-add-btn {
+        margin-top: 8px;
+      }
+
+      /* Tag chips */
+      .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+      .tag-chip {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 2px 8px;
+        border-radius: 9999px;
+        font-size: 0.75rem; font-weight: 500;
+        cursor: pointer;
+        border: 1px solid transparent;
+        background: var(--muted);
+        color: var(--muted-foreground);
+        transition: opacity 0.15s ease;
+      }
+      .tag-chip.is-selected {
+        border-color: currentColor;
+      }
+      .tag-chip-remove { display: inline-flex; }
+      .tag-chip-remove svg { width: 10px; height: 10px; }
+
+      /* Form footer */
+      .form-footer {
+        flex-shrink: 0;
+        display: flex; flex-direction: column;
+        gap: 16px;
+        align-items: flex-end;
+        padding: 12px;
+        border-top: 1px solid var(--border);
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) { .form-footer { padding: 16px; } }
+      .summary-card {
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--muted);
+        padding: 14px;
+        width: 100%;
+      }
+      @media (min-width: 640px) { .summary-card { width: 288px; align-self: flex-end; } }
+      .summary-rows { display: flex; flex-direction: column; gap: 4px; }
+      .summary-row {
+        display: flex; align-items: center; justify-content: space-between;
+        font-size: 0.875rem;
+      }
+      .summary-row .label { color: var(--muted-foreground); }
+      .summary-row .value { color: var(--foreground); font-variant-numeric: tabular-nums; }
+      .summary-divider {
+        border-top: 1px solid var(--border);
+        margin-top: 8px;
+        padding-top: 8px;
+      }
+      .summary-total {
+        display: flex; align-items: center; justify-content: space-between;
+        font-weight: 600;
+      }
+      .actions-row {
+        width: 100%;
+        display: flex; flex-wrap: wrap; gap: 8px;
+        align-items: center;
+        border-top: 1px solid var(--border);
+        padding-top: 16px;
+      }
+      .actions-row-end {
+        display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+        margin-left: auto;
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed; right: 16px; bottom: 16px;
+        background: var(--card); color: var(--foreground);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.875rem;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,.15);
+        z-index: 200;
+        opacity: 0; transform: translateY(8px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        pointer-events: none;
+      }
+      .toast.is-visible { opacity: 1; transform: translateY(0); }
+
+      /* Form error banner */
+      .form-error-banner {
+        background: color-mix(in oklch, var(--destructive) 10%, transparent);
+        border: 1px solid color-mix(in oklch, var(--destructive) 40%, transparent);
+        color: var(--destructive);
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-comment="estimates-create-app-shell">
+      <div class="app-frame" data-comment="estimates-create-app-frame">
+        <!-- Sidebar -->
+        <aside class="sidebar" data-comment="estimates-create-sidebar" id="sidebar" aria-label="Primary navigation">
+          <a class="sidebar-logo" data-comment="estimates-create-sidebar-logo" href="home.html" aria-label="Go to home">
+            <span class="sidebar-logo-mark" data-comment="estimates-create-sidebar-logo-mark">
+              <img data-comment="estimates-create-sidebar-logo-img" src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png" alt="Lapp Structures" />
+            </span>
+            <span class="sidebar-logo-text" data-comment="estimates-create-sidebar-logo-text">Lapp Structures</span>
+          </a>
+
+          <div class="sidebar-search" data-comment="estimates-create-sidebar-search" id="sidebar-search-wrap">
+            <div class="sidebar-search-input-wrap" data-comment="estimates-create-sidebar-search-input-wrap" id="sidebar-search-input-wrap">
+              <svg class="sidebar-search-icon" data-comment="estimates-create-sidebar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+              </svg>
+              <input type="text" class="sidebar-search-input" data-comment="estimates-create-sidebar-search-input" id="sidebar-search-input" placeholder="Find customer..." />
+            </div>
+            <div class="sidebar-search-dropdown" data-comment="estimates-create-sidebar-search-dropdown" id="sidebar-search-dropdown" style="display:none">
+              <div class="sidebar-search-dropdown-empty" data-comment="estimates-create-sidebar-search-dropdown-empty" id="sidebar-search-empty">No customers found.</div>
+              <ul data-comment="estimates-create-sidebar-search-dropdown-list" id="sidebar-search-list" style="display:none"></ul>
+            </div>
+          </div>
+
+          <div class="sidebar-search-collapsed" data-comment="estimates-create-sidebar-search-collapsed" id="sidebar-search-collapsed" style="display:none">
+            <svg class="sidebar-search-icon" data-comment="estimates-create-sidebar-search-collapsed-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          <nav class="sidebar-nav" data-comment="estimates-create-sidebar-nav" id="sidebar-nav"></nav>
+
+          <div class="sidebar-bottom" data-comment="estimates-create-sidebar-bottom">
+            <button class="sidebar-collapse-btn" data-comment="estimates-create-sidebar-collapse-btn" id="sidebar-collapse-btn" type="button">
+              <span class="sidebar-collapse-btn-icon" data-comment="estimates-create-sidebar-collapse-btn-icon">
+                <svg id="icon-collapse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /><path d="m16 15-3-3 3-3" />
+                </svg>
+                <svg id="icon-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                  <rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /><path d="m14 9 3 3-3 3" />
+                </svg>
+              </span>
+              <span class="sidebar-collapse-btn-label" data-comment="estimates-create-sidebar-collapse-btn-label">Minimize bar</span>
+            </button>
+
+            <div class="sidebar-user" data-comment="estimates-create-sidebar-user">
+              <div class="sidebar-user-info" data-comment="estimates-create-sidebar-user-info">
+                <span class="avatar" data-comment="estimates-create-sidebar-user-avatar" data-component="avatar" id="sidebar-user-avatar">AL</span>
+                <div class="sidebar-user-text" data-comment="estimates-create-sidebar-user-text">
+                  <span class="sidebar-user-name" data-comment="estimates-create-sidebar-user-name" id="sidebar-user-name">Anna Lee</span>
+                  <span class="sidebar-user-email" data-comment="estimates-create-sidebar-user-email" id="sidebar-user-email">anna@lapp.com</span>
+                </div>
+              </div>
+              <button class="sidebar-user-logout" data-comment="estimates-create-sidebar-user-logout" id="sidebar-user-logout" title="Log out" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main" data-comment="estimates-create-main">
+          <div class="main-content" data-comment="estimates-create-main-content">
+            <header class="page-header" data-comment="estimates-create-page-header">
+              <div class="page-header-title-wrap" data-comment="estimates-create-page-header-title-wrap">
+                <h1 class="page-header-title" data-comment="estimates-create-page-header-title">New Estimate</h1>
+              </div>
+              <div class="page-header-actions" data-comment="estimates-create-page-header-actions">
+                <button type="button" class="btn btn-ghost btn-sm" data-comment="estimates-create-back-btn" data-component="button" id="estimates-create-back-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                  Back
+                </button>
+              </div>
+            </header>
+
+            <form id="estimates-create-form" data-comment="estimates-create-form" data-component="form" class="form-body" novalidate>
+              <div id="estimates-create-form-error" data-comment="estimates-create-form-error" class="form-error-banner" style="display:none"></div>
+
+              <!-- ───── Section 1: Estimate Details ───── -->
+              <div class="section" data-comment="estimates-create-section-estimate-details">
+                <h3 class="section-title" data-comment="estimates-create-section-estimate-details-title">Estimate Details</h3>
+                <div class="section-blocks" data-comment="estimates-create-section-estimate-details-blocks">
+
+                  <!-- Customer block -->
+                  <div class="card" data-comment="estimates-create-block-customer" data-component="card">
+                    <div class="card-header" data-comment="estimates-create-block-customer-header">
+                      <div class="card-title" data-comment="estimates-create-block-customer-title">Customer</div>
+                    </div>
+                    <div class="card-content" data-comment="estimates-create-block-customer-content">
+                      <div class="card-grid" data-comment="estimates-create-block-customer-grid">
+                        <div class="field" data-comment="estimates-create-field-customer">
+                          <label class="field-label" data-comment="estimates-create-field-customer-label" for="estimates-create-customer-trigger">
+                            Customer<span class="required" data-comment="estimates-create-field-customer-required">*</span>
+                          </label>
+                          <div class="input-with-button" data-comment="estimates-create-field-customer-input-wrap">
+                            <div class="combobox-popover" data-comment="estimates-create-customer-popover">
+                              <button type="button"
+                                class="combobox-trigger"
+                                data-comment="estimates-create-customer-trigger"
+                                data-component="button"
+                                id="estimates-create-customer-trigger"
+                                aria-expanded="false">
+                                <span class="combobox-trigger-label" data-comment="estimates-create-customer-trigger-label" id="estimates-create-customer-trigger-label"></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                              </button>
+                              <div class="combobox-dropdown" data-comment="estimates-create-customer-dropdown" id="estimates-create-customer-dropdown">
+                                <div class="combobox-search" data-comment="estimates-create-customer-search-wrap">
+                                  <input type="text" data-comment="estimates-create-customer-search-input" data-component="input" id="estimates-create-customer-search-input" placeholder="Search customer..." />
+                                </div>
+                                <ul class="combobox-list" data-comment="estimates-create-customer-list" id="estimates-create-customer-list"></ul>
+                              </div>
+                            </div>
+                            <button type="button" class="btn btn-outline btn-icon" data-comment="estimates-create-customer-add-btn" data-component="button" id="estimates-create-customer-add-btn" title="Add new customer">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                            </button>
+                          </div>
+                          <p class="field-error" data-comment="estimates-create-field-customer-error" id="estimates-create-field-customer-error" style="display:none">Customer is required.</p>
+                        </div>
+
+                        <div class="field" data-comment="estimates-create-field-ebms-id">
+                          <label class="field-label" data-comment="estimates-create-field-ebms-id-label" for="estimates-create-ebms-id">Name in EBMS</label>
+                          <input type="text" class="input" data-comment="estimates-create-input-ebms-id" data-component="input" id="estimates-create-ebms-id" name="ebms_id" placeholder="Selected from customer" disabled />
+                        </div>
+
+                        <div class="field" data-comment="estimates-create-field-po-number">
+                          <label class="field-label" data-comment="estimates-create-field-po-number-label" for="estimates-create-po-number">P.O. Number</label>
+                          <input type="text" class="input" data-comment="estimates-create-input-po-number" data-component="input" id="estimates-create-po-number" name="po_number" placeholder="Enter P.O. number" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Contact & Shipping Address card -->
+                  <div class="card" data-comment="estimates-create-block-address" data-component="card">
+                    <div class="card-header" data-comment="estimates-create-block-address-header">
+                      <div class="card-title" data-comment="estimates-create-block-address-title">Contact &amp; Shipping Address</div>
+                    </div>
+                    <div class="card-content" data-comment="estimates-create-block-address-content">
+                      <div class="card-grid" data-comment="estimates-create-block-address-grid" style="gap:24px">
+                        <div class="phone-grid" data-comment="estimates-create-address-phones">
+                          <div class="phone-row" data-comment="estimates-create-address-phone-primary">
+                            <p class="phone-row-label" data-comment="estimates-create-address-phone-primary-label">Phone</p>
+                            <p class="phone-row-value" data-comment="estimates-create-address-phone-primary-value" id="estimates-create-address-phone-primary-value">—</p>
+                          </div>
+                          <div class="phone-row" data-comment="estimates-create-address-phone-secondary">
+                            <p class="phone-row-label" data-comment="estimates-create-address-phone-secondary-label">Secondary Phone</p>
+                            <p class="phone-row-value" data-comment="estimates-create-address-phone-secondary-value" id="estimates-create-address-phone-secondary-value">—</p>
+                          </div>
+                        </div>
+                        <div class="card-grid cols-2" data-comment="estimates-create-address-pair">
+                          <div class="address-block" data-comment="estimates-create-billing-address">
+                            <div class="address-block-header" data-comment="estimates-create-billing-address-header">
+                              <p class="address-block-label" data-comment="estimates-create-billing-address-label">Billing Address</p>
+                              <button type="button" class="btn btn-ghost btn-icon btn-sm" data-comment="estimates-create-billing-address-edit" data-component="button" id="estimates-create-billing-address-edit" disabled title="Edit billing address">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                              </button>
+                            </div>
+                            <div data-comment="estimates-create-billing-address-body" id="estimates-create-billing-address-body"></div>
+                          </div>
+                          <div class="address-block" data-comment="estimates-create-shipping-address">
+                            <div class="address-block-header" data-comment="estimates-create-shipping-address-header">
+                              <p class="address-block-label" data-comment="estimates-create-shipping-address-label">Shipping Address</p>
+                              <button type="button" class="btn btn-ghost btn-icon btn-sm" data-comment="estimates-create-shipping-address-edit" data-component="button" id="estimates-create-shipping-address-edit" disabled title="Edit shipping address">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                              </button>
+                            </div>
+                            <div data-comment="estimates-create-shipping-address-body" id="estimates-create-shipping-address-body"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Options block -->
+                  <div class="card" data-comment="estimates-create-block-options" data-component="card">
+                    <div class="card-header" data-comment="estimates-create-block-options-header">
+                      <div class="card-title" data-comment="estimates-create-block-options-title">Options</div>
+                    </div>
+                    <div class="card-content" data-comment="estimates-create-block-options-content">
+                      <div class="card-grid" data-comment="estimates-create-block-options-grid">
+                        <div class="checkbox-row" data-comment="estimates-create-checkbox-built-onsite-row">
+                          <input type="checkbox" class="checkbox" data-comment="estimates-create-checkbox-built-onsite" data-component="checkbox" id="estimates-create-checkbox-built-onsite" name="built_onsite" />
+                          <label class="checkbox-label" data-comment="estimates-create-checkbox-built-onsite-label" for="estimates-create-checkbox-built-onsite">Build onsite</label>
+                        </div>
+                        <div class="checkbox-row" data-comment="estimates-create-checkbox-site-check-row">
+                          <input type="checkbox" class="checkbox" data-comment="estimates-create-checkbox-site-check" data-component="checkbox" id="estimates-create-checkbox-site-check" name="site_check" />
+                          <label class="checkbox-label" data-comment="estimates-create-checkbox-site-check-label" for="estimates-create-checkbox-site-check">Site Check</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Estimate block -->
+                  <div class="card" data-comment="estimates-create-block-estimate" data-component="card">
+                    <div class="card-header" data-comment="estimates-create-block-estimate-header">
+                      <div class="card-title" data-comment="estimates-create-block-estimate-title">Estimate</div>
+                    </div>
+                    <div class="card-content" data-comment="estimates-create-block-estimate-content">
+                      <div class="card-grid" data-comment="estimates-create-block-estimate-grid">
+                        <div class="field" data-comment="estimates-create-field-category">
+                          <label class="field-label" data-comment="estimates-create-field-category-label" for="estimates-create-category">
+                            Product Category<span class="required" data-comment="estimates-create-field-category-required">*</span>
+                          </label>
+                          <select class="select" data-comment="estimates-create-select-category" data-component="select" id="estimates-create-category" name="category_id">
+                            <option value="" data-comment="estimates-create-select-category-placeholder">Choose...</option>
+                          </select>
+                          <p class="field-error" data-comment="estimates-create-field-category-error" id="estimates-create-field-category-error" style="display:none">Product Category is required.</p>
+                        </div>
+
+                        <div class="field" data-comment="estimates-create-field-name">
+                          <label class="field-label" data-comment="estimates-create-field-name-label" for="estimates-create-name">
+                            Estimate name<span class="required" data-comment="estimates-create-field-name-required">*</span>
+                          </label>
+                          <input type="text" class="input" data-comment="estimates-create-input-name" data-component="input" id="estimates-create-name" name="name" placeholder="Enter name" />
+                          <p class="field-error" data-comment="estimates-create-field-name-error" id="estimates-create-field-name-error" style="display:none">Estimate name is required.</p>
+                        </div>
+
+                        <div class="field" data-comment="estimates-create-field-delivery-method">
+                          <label class="field-label" data-comment="estimates-create-field-delivery-method-label" for="estimates-create-delivery-method">Delivery Method</label>
+                          <select class="select" data-comment="estimates-create-select-delivery-method" data-component="select" id="estimates-create-delivery-method" name="delivery_method">
+                            <option value="" data-comment="estimates-create-select-delivery-method-placeholder">Choose...</option>
+                          </select>
+                        </div>
+
+                        <div class="field" data-comment="estimates-create-field-validity">
+                          <span class="field-label" data-comment="estimates-create-field-validity-label">Estimate Validity</span>
+                          <div class="validity-grid" data-comment="estimates-create-validity-grid">
+                            <div class="field" data-comment="estimates-create-field-order-date">
+                              <label class="field-label" data-comment="estimates-create-field-order-date-label" for="estimates-create-order-date">
+                                Estimate Date<span class="required" data-comment="estimates-create-field-order-date-required">*</span>
+                              </label>
+                              <input type="date" class="input" data-comment="estimates-create-input-order-date" data-component="input" id="estimates-create-order-date" name="order_date" />
+                            </div>
+                            <div class="field" data-comment="estimates-create-field-valid-days">
+                              <label class="field-label" data-comment="estimates-create-field-valid-days-label" for="estimates-create-valid-days">Valid For (Days)</label>
+                              <input type="number" class="input" data-comment="estimates-create-input-valid-days" data-component="input" id="estimates-create-valid-days" name="valid_for_days" min="1" value="30" />
+                            </div>
+                          </div>
+                          <div class="field" data-comment="estimates-create-field-expiration-date" style="margin-top:8px">
+                            <div style="display:flex;align-items:center;gap:6px">
+                              <label class="field-label" data-comment="estimates-create-field-expiration-date-label" for="estimates-create-expiration-date">Expiration Date</label>
+                              <span class="manual-badge" data-comment="estimates-create-field-expiration-date-manual" id="estimates-create-field-expiration-date-manual" style="display:none">Manual</span>
+                            </div>
+                            <input type="date" class="input" data-comment="estimates-create-input-expiration-date" data-component="input" id="estimates-create-expiration-date" name="expiration_date" placeholder="Auto-calculated" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Classification block -->
+                  <div class="card" data-comment="estimates-create-block-classification" data-component="card">
+                    <div class="card-header" data-comment="estimates-create-block-classification-header">
+                      <div class="card-title" data-comment="estimates-create-block-classification-title">Classification</div>
+                    </div>
+                    <div class="card-content" data-comment="estimates-create-block-classification-content">
+                      <div class="card-grid" data-comment="estimates-create-block-classification-grid">
+                        <div class="field" data-comment="estimates-create-field-sales-rep">
+                          <label class="field-label" data-comment="estimates-create-field-sales-rep-label" for="estimates-create-sales-rep">Sales Rep</label>
+                          <select class="select" data-comment="estimates-create-select-sales-rep" data-component="select" id="estimates-create-sales-rep" name="sales_rep">
+                            <option value="" data-comment="estimates-create-select-sales-rep-placeholder">Choose...</option>
+                          </select>
+                        </div>
+
+                        <div class="field" data-comment="estimates-create-field-tags">
+                          <span class="field-label" data-comment="estimates-create-field-tags-label">Tags</span>
+                          <div class="tag-list" data-comment="estimates-create-tags-list" id="estimates-create-tags-list"></div>
+                        </div>
+
+                        <div class="field" data-comment="estimates-create-field-location">
+                          <label class="field-label" data-comment="estimates-create-field-location-label" for="estimates-create-location">Location (Class)</label>
+                          <select class="select" data-comment="estimates-create-select-location" data-component="select" id="estimates-create-location" name="location">
+                            <option value="" data-comment="estimates-create-select-location-placeholder">Choose...</option>
+                          </select>
+                        </div>
+
+                        <div class="field" data-comment="estimates-create-field-terms">
+                          <label class="field-label" data-comment="estimates-create-field-terms-label" for="estimates-create-terms">Terms</label>
+                          <select class="select" data-comment="estimates-create-select-terms" data-component="select" id="estimates-create-terms" name="terms">
+                            <option value="" data-comment="estimates-create-select-terms-placeholder">Choose...</option>
+                          </select>
+                        </div>
+
+                        <div class="field" data-comment="estimates-create-field-campaign">
+                          <label class="field-label" data-comment="estimates-create-field-campaign-label" for="estimates-create-campaign">Campaign</label>
+                          <select class="select" data-comment="estimates-create-select-campaign" data-component="select" id="estimates-create-campaign" name="campaign">
+                            <option value="" data-comment="estimates-create-select-campaign-placeholder">Choose...</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Notes block -->
+                  <div class="card" data-comment="estimates-create-block-notes" data-component="card">
+                    <div class="card-header" data-comment="estimates-create-block-notes-header">
+                      <div class="card-title" data-comment="estimates-create-block-notes-title">Notes</div>
+                    </div>
+                    <div class="card-content" data-comment="estimates-create-block-notes-content">
+                      <div class="card-grid" data-comment="estimates-create-block-notes-grid">
+                        <div class="field" data-comment="estimates-create-field-mgf-instructions">
+                          <label class="field-label" data-comment="estimates-create-field-mgf-instructions-label" for="estimates-create-mgf-instructions">Special Mgf Instructions</label>
+                          <textarea class="textarea" data-comment="estimates-create-textarea-mgf-instructions" data-component="textarea" id="estimates-create-mgf-instructions" name="special_mgf_instructions" placeholder="Enter special manufacturing instructions"></textarea>
+                        </div>
+                        <div class="field" data-comment="estimates-create-field-memo">
+                          <label class="field-label" data-comment="estimates-create-field-memo-label" for="estimates-create-memo">Memo (Internal)</label>
+                          <textarea class="textarea" data-comment="estimates-create-textarea-memo" data-component="textarea" id="estimates-create-memo" name="memo" placeholder="Enter internal memo"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Attachments block -->
+                  <div class="card" data-comment="estimates-create-block-attachments" data-component="card">
+                    <div class="card-content" data-comment="estimates-create-block-attachments-content">
+                      <div class="field" data-comment="estimates-create-field-attachments">
+                        <span class="field-label" data-comment="estimates-create-field-attachments-label">Attachments</span>
+                        <label class="image-upload" data-comment="estimates-create-image-upload" for="estimates-create-image-input">
+                          <span class="image-upload-icon" data-comment="estimates-create-image-upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                          </span>
+                          <span class="image-upload-text" data-comment="estimates-create-image-upload-text">Click or drop files to upload</span>
+                          <span class="image-upload-hint" data-comment="estimates-create-image-upload-hint">PNG, JPG, PDF — up to 10MB each</span>
+                          <input type="file" data-comment="estimates-create-image-input" id="estimates-create-image-input" multiple accept="image/*,.pdf" style="display:none" />
+                        </label>
+                        <div class="image-upload-grid" data-comment="estimates-create-image-upload-grid" id="estimates-create-image-upload-grid"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- ───── Line Items section ───── -->
+              <div class="section" data-comment="estimates-create-section-line-items">
+                <h3 class="section-title" data-comment="estimates-create-section-line-items-title">Line Items</h3>
+                <div class="line-items-card" data-comment="estimates-create-line-items-card">
+                  <div class="line-items-scroll" data-comment="estimates-create-line-items-scroll">
+                    <table class="line-items-table" data-comment="estimates-create-line-items-table" data-component="table">
+                      <thead data-comment="estimates-create-line-items-thead">
+                        <tr data-comment="estimates-create-line-items-header-row">
+                          <th class="qty-col" data-comment="estimates-create-line-items-th-qty">QTY</th>
+                          <th data-comment="estimates-create-line-items-th-item">Item</th>
+                          <th data-comment="estimates-create-line-items-th-description">Description</th>
+                          <th class="rate-col right" data-comment="estimates-create-line-items-th-rate">Rate</th>
+                          <th class="total-col right" data-comment="estimates-create-line-items-th-total">Total</th>
+                          <th class="tax-col center" data-comment="estimates-create-line-items-th-tax">Tax</th>
+                          <th class="action-col" data-comment="estimates-create-line-items-th-action"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="estimates-create-line-items-tbody" data-comment="estimates-create-line-items-tbody"></tbody>
+                    </table>
+                  </div>
+                  <button type="button" class="btn btn-ghost btn-sm li-add-btn" data-comment="estimates-create-line-items-add-btn" data-component="button" id="estimates-create-line-items-add-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Add line item
+                  </button>
+                  <p class="field-error" data-comment="estimates-create-line-items-error" id="estimates-create-line-items-error" style="display:none;margin-top:6px">At least one line item is required.</p>
+                </div>
+              </div>
+            </form>
+
+            <!-- Footer -->
+            <div class="form-footer" data-comment="estimates-create-form-footer">
+              <div class="summary-card" data-comment="estimates-create-summary-card" data-component="card">
+                <div class="summary-rows" data-comment="estimates-create-summary-rows">
+                  <div class="summary-row" data-comment="estimates-create-summary-subtotal-row">
+                    <span class="label" data-comment="estimates-create-summary-subtotal-label">Subtotal</span>
+                    <span class="value" data-comment="estimates-create-summary-subtotal-value" id="estimates-create-summary-subtotal-value">$0.00</span>
+                  </div>
+                  <div class="summary-row" data-comment="estimates-create-summary-tax-row">
+                    <span class="label" data-comment="estimates-create-summary-tax-label">Tax (<span data-comment="estimates-create-summary-tax-rate" id="estimates-create-summary-tax-rate">0.00</span>%)</span>
+                    <span class="value" data-comment="estimates-create-summary-tax-value" id="estimates-create-summary-tax-value">$0.00</span>
+                  </div>
+                  <div class="summary-divider" data-comment="estimates-create-summary-divider">
+                    <div class="summary-total" data-comment="estimates-create-summary-total-row">
+                      <span class="label" data-comment="estimates-create-summary-total-label">Total</span>
+                      <span class="value" data-comment="estimates-create-summary-total-value" id="estimates-create-summary-total-value">$0.00</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="actions-row" data-comment="estimates-create-actions-row">
+                <div class="actions-row-end" data-comment="estimates-create-actions-row-end">
+                  <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-action-cancel" data-component="button" id="estimates-create-action-cancel">Cancel</button>
+                  <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-action-save-draft" data-component="button" id="estimates-create-action-save-draft">Save as Draft</button>
+                  <button type="submit" form="estimates-create-form" class="btn btn-primary btn-sm" data-comment="estimates-create-action-submit" data-component="button" id="estimates-create-action-submit">Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" data-comment="estimates-create-toast" id="estimates-create-toast" role="status" aria-live="polite"></div>
+
+    <script>
+      /* ───── Store ───── */
+      function createStore(initialState) {
+        let state = structuredClone(initialState);
+        const listeners = new Set();
+        return {
+          get: () => state,
+          set(updater) {
+            state = typeof updater === "function" ? updater(state) : { ...state, ...updater };
+            listeners.forEach((fn) => fn(state));
+          },
+          subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+        };
+      }
+
+      /* ───── Icons ───── */
+      const ICONS = {
+        list: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>',
+        userRound: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+        clipboardList: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>',
+        mapPin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+        users: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        clipboardCheck: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+        layers2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>',
+        check: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+        x: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+        trash2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+        fileIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+      };
+
+      /* ───── Navigation config ───── */
+      const NAV_BY_ROLE = {
+        admin: [{ items: [
+          { label: "Customers", path: "customers.html", icon: "userRound" },
+          { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+          { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+          { label: "Sales Orders", path: "orders.html", icon: "list" },
+          { label: "Users", path: "users.html", icon: "users" },
+          { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
+          { label: "Options List", path: "attributes.html", icon: "layers2" },
+        ]}],
+      };
+
+      /* ───── Seed: customers (8 — consistent w/ customers.html) ───── */
+      const SEED_CUSTOMERS = [
+        { id: 1, first_name: "Anna", last_name: "Lee", email: "anna@example.com", primary_phone: "7175551020", secondary_phone: "7175551021",
+          addresses: [
+            { type: "billing",  street: "120 Maple Ave", city: "Lancaster",  state: "PA", zip_code: "17601", country: "USA" },
+            { type: "shipping", street: "120 Maple Ave", city: "Lancaster",  state: "PA", zip_code: "17601", country: "USA" },
+          ]},
+        { id: 2, first_name: "Mark", last_name: "Chen", email: "mark@example.com", primary_phone: "7175552233",
+          addresses: [
+            { type: "billing",  street: "88 Oak Street",    city: "York", state: "PA", zip_code: "17402", country: "USA" },
+            { type: "shipping", street: "455 Industrial Rd", city: "York", state: "PA", zip_code: "17404", country: "USA" },
+          ]},
+        { id: 3, first_name: "Sarah", last_name: "Johnson", email: "sarah.j@example.com", primary_phone: "7175557788",
+          addresses: [
+            { type: "billing",  street: "32 Front Street", city: "Harrisburg", state: "PA", zip_code: "17101", country: "USA" },
+            { type: "shipping", street: "32 Front Street", city: "Harrisburg", state: "PA", zip_code: "17101", country: "USA" },
+          ]},
+        { id: 4, first_name: "David", last_name: "Smith", email: "david.smith@example.com", primary_phone: "6105554455",
+          addresses: [
+            { type: "billing", street: "14 Penn Ave", city: "Reading", state: "PA", zip_code: "19601", country: "USA" },
+          ]},
+        { id: 5, first_name: "Emma", last_name: "Garcia", email: "emma.g@example.com", primary_phone: "7175558899",
+          addresses: [
+            { type: "billing",  street: "210 Lime Street", city: "Lancaster", state: "PA", zip_code: "17602", country: "USA" },
+            { type: "shipping", street: "210 Lime Street", city: "Lancaster", state: "PA", zip_code: "17602", country: "USA" },
+          ]},
+        { id: 6, first_name: "James", last_name: "Wilson", email: "jwilson@example.com", primary_phone: "7175553311" },
+        { id: 7, first_name: "Olivia", last_name: "Brown", email: "olivia@example.com", primary_phone: "7175554422" },
+        { id: 8, first_name: "Michael", last_name: "Davis", email: "michael.d@example.com", primary_phone: "6105556677" },
+      ];
+
+      /* ───── Seed: options & lookups ───── */
+      const SEED_CATEGORIES = [
+        { id: 1, name: "Sheds" },
+        { id: 2, name: "Mini Barns" },
+        { id: 3, name: "Garages" },
+        { id: 4, name: "Cabins" },
+      ];
+      const SEED_DELIVERY_METHODS = ["Delivery", "Customer Pickup", "Build Onsite"];
+      const SEED_SALES_REPS = ["Tom Brady", "Linda Park", "Marcus Yu", "Sophia Martinez", "Lucas White"];
+      const SEED_LOCATIONS = ["Lancaster, PA", "York, PA", "Harrisburg, PA", "Reading, PA", "Allentown, PA"];
+      const SEED_TERMS = ["Net 15", "Net 30", "Net 60", "Due on Receipt"];
+      const SEED_CAMPAIGNS = ["Spring 2025", "Summer 2025", "Fall 2025", "None"];
+      const SEED_TAGS = [
+        { id: 1, name: "VIP",       hex_color: "#7c3aed" },
+        { id: 2, name: "Dealer",    hex_color: "#2563eb" },
+        { id: 3, name: "Repeat",    hex_color: "#16a34a" },
+        { id: 4, name: "Builder",   hex_color: "#ea580c" },
+        { id: 5, name: "Rush",      hex_color: "#dc2626" },
+        { id: 6, name: "New",       hex_color: "#0891b2" },
+      ];
+      const SEED_TAX_RATES = { PA: 6.0, NY: 4.0, NJ: 6.625, OH: 5.75 };
+      const SEED_ITEMS = [
+        { code: "SH-8x10",     description: "8x10 Garden Shed",                            rate: 1840.00 },
+        { code: "SH-10x12",    description: "10x12 Single Slope Shed",                     rate: 2680.00 },
+        { code: "SH-12x16-SS", description: "12x16 Single Slope Shed — base build",        rate: 4200.00 },
+        { code: "MB-10x12",    description: "10x12 Mini Barn — vinyl siding, charcoal roof", rate: 3210.00 },
+        { code: "GAR-14x24",   description: "14x24 Garage — onsite build",                 rate: 11200.00 },
+        { code: "GAR-20x30",   description: "20x30 Garage — custom build",                 rate: 22500.00 },
+        { code: "WIN-2x3",     description: "2x3 Window with screens",                     rate: 185.00 },
+        { code: "DOOR-36",     description: "36\" Steel walk-in door",                     rate: 380.00 },
+        { code: "GAR-DR-8x7",  description: "8x7 Overhead garage door",                    rate: 880.00 },
+        { code: "SHT-METAL",   description: "Standing seam metal roofing panels",          rate: 218.625 },
+        { code: "INSULATE",    description: "Wall + ceiling insulation package",           rate: 2150.00 },
+      ];
+
+      /* ───── URL param ───── */
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialCustomerIdParam = Number(urlParams.get("customerId"));
+      const initialCustomer = Number.isFinite(initialCustomerIdParam) && initialCustomerIdParam > 0
+        ? SEED_CUSTOMERS.find((c) => c.id === initialCustomerIdParam) || null
+        : null;
+
+      function todayISO() {
+        const d = new Date();
+        return d.toISOString().slice(0, 10);
+      }
+      function addDays(iso, days) {
+        const d = new Date(iso + "T00:00:00");
+        d.setDate(d.getDate() + Number(days || 0));
+        return d.toISOString().slice(0, 10);
+      }
+
+      /* ───── Store ───── */
+      const store = createStore({
+        user: { id: 1, name: "Anna Lee", email: "anna@lapp.com", role: "admin" },
+        collapsed: false,
+        searchOpen: false,
+        searchTerm: "",
+        customers: SEED_CUSTOMERS,
+        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        currentPath: "estimates.html",
+
+        /* form draft */
+        estimates: [],
+        draft: {
+          customer_id: initialCustomer ? initialCustomer.id : null,
+          ebms_id: initialCustomer ? `${initialCustomer.first_name} ${initialCustomer.last_name}` : "",
+          po_number: "",
+          built_onsite: false,
+          site_check: false,
+          category_id: "",
+          name: "",
+          delivery_method: "",
+          order_date: todayISO(),
+          valid_for_days: 30,
+          expiration_date: addDays(todayISO(), 30),
+          expiration_manual: false,
+          sales_rep: "",
+          tags: [],
+          location: "",
+          terms: "",
+          campaign: "",
+          special_mgf_instructions: "",
+          memo: "",
+          attachments: [],
+          lineItems: [],
+        },
+        customerPickerOpen: false,
+        customerPickerSearch: "",
+        submitAttempted: false,
+        errors: {},
+      });
+
+      /* ───── Utils ───── */
+      function escapeHtml(s) {
+        return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+        }[c]));
+      }
+      function formatMoney(n) {
+        return Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+      function formatPhone(p) {
+        if (!p) return "";
+        const s = String(p).replace(/\D/g, "");
+        if (s.length === 10) return `(${s.slice(0,3)}) ${s.slice(3,6)}-${s.slice(6)}`;
+        return p;
+      }
+      function getCustomer(id) {
+        return store.get().customers.find((c) => c.id === id) || null;
+      }
+      function getAddress(customer, type) {
+        return (customer?.addresses || []).find((a) => a.type === type) || null;
+      }
+      function formatAddressLines(addr) {
+        if (!addr) return [];
+        const lines = [];
+        if (addr.street) lines.push(addr.street);
+        const csz = [addr.city, addr.state, addr.zip_code].filter(Boolean).join(", ");
+        if (csz) lines.push(csz);
+        if (addr.country) lines.push(addr.country);
+        return lines;
+      }
+
+      /* ───── Sidebar renderers (copied from home.html pattern) ───── */
+      function renderSidebarNav() {
+        const s = store.get();
+        const nav = document.getElementById("sidebar-nav");
+        const sections = NAV_BY_ROLE[s.user.role] || [];
+        nav.innerHTML = sections.map((section, sectionIdx) => `
+          <div class="sidebar-section" data-comment="estimates-create-sidebar-section-${sectionIdx}">
+            ${section.items.map((item) => {
+              const isActive = item.path === s.currentPath;
+              const slug = item.label.toLowerCase().replace(/\s+/g, "-");
+              const badges = item.badge && !s.collapsed
+                ? `<span class="sidebar-nav-link-badge" data-comment="estimates-create-sidebar-nav-link-${slug}-badges">
+                    ${s.reviewBadges.not_pricing_reviewed > 0 ? `<span class="sidebar-badge amber" data-comment="estimates-create-sidebar-nav-link-${slug}-badge-pricing">${s.reviewBadges.not_pricing_reviewed}</span>` : ""}
+                    ${s.reviewBadges.not_shop_reviewed > 0 ? `<span class="sidebar-badge blue" data-comment="estimates-create-sidebar-nav-link-${slug}-badge-shop">${s.reviewBadges.not_shop_reviewed}</span>` : ""}
+                  </span>` : "";
+              return `
+                <a class="sidebar-nav-link ${isActive ? "active" : ""}" data-comment="estimates-create-sidebar-nav-link-${slug}" href="${item.path}" title="${item.label}">
+                  <span class="sidebar-nav-link-icon" data-comment="estimates-create-sidebar-nav-link-${slug}-icon">${ICONS[item.icon] || ""}</span>
+                  <span class="sidebar-nav-link-label" data-comment="estimates-create-sidebar-nav-link-${slug}-label">${item.label}</span>
+                  ${badges}
+                </a>
+              `;
+            }).join("")}
+          </div>
+        `).join("");
+      }
+
+      function renderUser() {
+        const { user } = store.get();
+        document.getElementById("sidebar-user-name").textContent = user.name;
+        document.getElementById("sidebar-user-email").textContent = user.email;
+        document.getElementById("sidebar-user-avatar").textContent = user.name
+          .split(" ").slice(0,2).map((w) => (w[0] || "").toUpperCase()).join("");
+      }
+      function renderCollapse() {
+        const s = store.get();
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("collapsed", s.collapsed);
+        document.getElementById("icon-collapse").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("icon-expand").style.display = s.collapsed ? "block" : "none";
+        document.getElementById("sidebar-search-wrap").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("sidebar-search-collapsed").style.display = s.collapsed ? "flex" : "none";
+      }
+      function renderSidebarSearch() {
+        const s = store.get();
+        const wrap = document.getElementById("sidebar-search-input-wrap");
+        wrap.classList.toggle("is-open", s.searchOpen);
+        const showDropdown = s.searchOpen && s.searchTerm.trim().length > 0;
+        const dropdown = document.getElementById("sidebar-search-dropdown");
+        dropdown.style.display = showDropdown ? "block" : "none";
+        if (!showDropdown) return;
+        const term = s.searchTerm.trim().toLowerCase();
+        const filtered = s.customers.filter((c) => {
+          const full = `${c.first_name} ${c.last_name}`.toLowerCase();
+          return full.includes(term) || (c.email && c.email.toLowerCase().includes(term));
+        });
+        const empty = document.getElementById("sidebar-search-empty");
+        const list = document.getElementById("sidebar-search-list");
+        if (filtered.length === 0) {
+          empty.style.display = "block"; list.style.display = "none";
+        } else {
+          empty.style.display = "none"; list.style.display = "block";
+          list.innerHTML = filtered.slice(0, 8).map((c) => `
+            <li data-comment="estimates-create-sidebar-search-item-${c.id}">
+              <button type="button"
+                class="sidebar-search-dropdown-item"
+                data-comment="estimates-create-sidebar-search-item-${c.id}-button"
+                data-customer-id="${c.id}">
+                <div class="sidebar-search-dropdown-item-name" data-comment="estimates-create-sidebar-search-item-${c.id}-name">${escapeHtml(c.first_name)} ${escapeHtml(c.last_name)}</div>
+                ${c.email ? `<div class="sidebar-search-dropdown-item-email" data-comment="estimates-create-sidebar-search-item-${c.id}-email">${escapeHtml(c.email)}</div>` : ""}
+              </button>
+            </li>
+          `).join("");
+        }
+      }
+
+      /* ───── Lookups -> populate selects ───── */
+      function populateOptions(selectId, items, valueOf, labelOf) {
+        const sel = document.getElementById(selectId);
+        const placeholder = sel.querySelector("option");
+        const placeholderHtml = placeholder ? placeholder.outerHTML : "";
+        sel.innerHTML = placeholderHtml + items.map((it) => {
+          const value = escapeHtml(String(valueOf(it)));
+          const label = escapeHtml(String(labelOf(it)));
+          const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          return `<option value="${value}" data-comment="${selectId}-opt-${slug}">${label}</option>`;
+        }).join("");
+      }
+
+      function populateLookups() {
+        populateOptions("estimates-create-category",       SEED_CATEGORIES,        (x) => x.id, (x) => x.name);
+        populateOptions("estimates-create-delivery-method", SEED_DELIVERY_METHODS, (x) => x,    (x) => x);
+        populateOptions("estimates-create-sales-rep",      SEED_SALES_REPS,        (x) => x,    (x) => x);
+        populateOptions("estimates-create-location",       SEED_LOCATIONS,         (x) => x,    (x) => x);
+        populateOptions("estimates-create-terms",          SEED_TERMS,             (x) => x,    (x) => x);
+        populateOptions("estimates-create-campaign",       SEED_CAMPAIGNS,         (x) => x,    (x) => x);
+      }
+
+      /* ───── Tag chips ───── */
+      function renderTags() {
+        const { draft } = store.get();
+        const list = document.getElementById("estimates-create-tags-list");
+        list.innerHTML = SEED_TAGS.map((t) => {
+          const isSelected = draft.tags.includes(t.id);
+          const slug = t.name.toLowerCase();
+          const bg = isSelected ? `${t.hex_color}22` : "var(--muted)";
+          const color = isSelected ? t.hex_color : "var(--muted-foreground)";
+          return `
+            <button type="button" class="tag-chip ${isSelected ? "is-selected" : ""}"
+              data-comment="estimates-create-tag-chip-${slug}"
+              data-component="badge"
+              data-tag-id="${t.id}"
+              style="background:${bg};color:${color}">
+              <span data-comment="estimates-create-tag-chip-${slug}-name">${escapeHtml(t.name)}</span>
+              ${isSelected ? `<span class="tag-chip-remove" data-comment="estimates-create-tag-chip-${slug}-remove">${ICONS.x}</span>` : ""}
+            </button>
+          `;
+        }).join("");
+      }
+
+      /* ───── Customer picker ───── */
+      function renderCustomerPicker() {
+        const s = store.get();
+        const dd = document.getElementById("estimates-create-customer-dropdown");
+        dd.classList.toggle("is-open", s.customerPickerOpen);
+        const trigger = document.getElementById("estimates-create-customer-trigger");
+        trigger.setAttribute("aria-expanded", String(s.customerPickerOpen));
+
+        const labelEl = document.getElementById("estimates-create-customer-trigger-label");
+        const cust = getCustomer(s.draft.customer_id);
+        labelEl.innerHTML = cust
+          ? `${escapeHtml(`${cust.first_name} ${cust.last_name}`.trim())}`
+          : `<span class="combobox-trigger-placeholder" data-comment="estimates-create-customer-trigger-placeholder">Select Customer...</span>`;
+
+        const term = s.customerPickerSearch.trim().toLowerCase();
+        const filtered = s.customers.filter((c) => {
+          if (!term) return true;
+          const full = `${c.first_name} ${c.last_name}`.toLowerCase();
+          return full.includes(term) || (c.email && c.email.toLowerCase().includes(term));
+        });
+        const list = document.getElementById("estimates-create-customer-list");
+        if (filtered.length === 0) {
+          list.innerHTML = `<li class="combobox-empty" data-comment="estimates-create-customer-list-empty">No customer found.</li>`;
+          return;
+        }
+        list.innerHTML = filtered.map((c) => {
+          const isSel = s.draft.customer_id === c.id;
+          return `
+            <li data-comment="estimates-create-customer-list-item-${c.id}">
+              <button type="button" class="combobox-item"
+                data-comment="estimates-create-customer-list-item-${c.id}-button"
+                data-customer-pick-id="${c.id}">
+                <span class="combobox-item-check ${isSel ? "" : "is-hidden"}" data-comment="estimates-create-customer-list-item-${c.id}-check">${ICONS.check}</span>
+                <span class="combobox-item-text" data-comment="estimates-create-customer-list-item-${c.id}-text">
+                  <span class="combobox-item-name" data-comment="estimates-create-customer-list-item-${c.id}-name">${escapeHtml(c.first_name)} ${escapeHtml(c.last_name)}</span>
+                  ${c.email ? `<span class="combobox-item-email" data-comment="estimates-create-customer-list-item-${c.id}-email">${escapeHtml(c.email)}</span>` : ""}
+                </span>
+              </button>
+            </li>
+          `;
+        }).join("");
+      }
+
+      /* ───── Address card ───── */
+      function renderAddressCard() {
+        const s = store.get();
+        const cust = getCustomer(s.draft.customer_id);
+        document.getElementById("estimates-create-address-phone-primary-value").textContent = formatPhone(cust?.primary_phone) || "—";
+        document.getElementById("estimates-create-address-phone-secondary-value").textContent = formatPhone(cust?.secondary_phone) || "—";
+
+        const billing  = getAddress(cust, "billing");
+        const shipping = getAddress(cust, "shipping");
+        const billingBody  = document.getElementById("estimates-create-billing-address-body");
+        const shippingBody = document.getElementById("estimates-create-shipping-address-body");
+        const billLines  = formatAddressLines(billing);
+        const shipLines  = formatAddressLines(shipping);
+
+        billingBody.innerHTML = billLines.length
+          ? billLines.map((l, i) => `<span data-comment="estimates-create-billing-address-line-${i + 1}" style="display:block">${escapeHtml(l)}</span>`).join("")
+          : `<span data-comment="estimates-create-billing-address-empty">No billing address</span>`;
+
+        shippingBody.innerHTML = shipLines.length
+          ? shipLines.map((l, i) => `<span data-comment="estimates-create-shipping-address-line-${i + 1}" style="display:block">${escapeHtml(l)}</span>`).join("")
+          : `<span data-comment="estimates-create-shipping-address-empty">No shipping address</span>`;
+
+        document.getElementById("estimates-create-billing-address-edit").disabled = !cust;
+        document.getElementById("estimates-create-shipping-address-edit").disabled = !cust;
+      }
+
+      /* ───── Line items table ───── */
+      function renderLineItems() {
+        const { draft, errors } = store.get();
+        const tbody = document.getElementById("estimates-create-line-items-tbody");
+        if (!draft.lineItems.length) {
+          tbody.innerHTML = `
+            <tr data-comment="estimates-create-line-items-empty-row">
+              <td class="line-items-empty" data-comment="estimates-create-line-items-empty" colspan="7">No line items</td>
+            </tr>
+          `;
+        } else {
+          tbody.innerHTML = draft.lineItems.map((row, idx) => {
+            const i = idx + 1;
+            const rowErr = errors.lineItems && errors.lineItems[idx];
+            return `
+              <tr data-comment="estimates-create-line-item-${i}" class="${rowErr ? "li-row-error" : ""}">
+                <td data-comment="estimates-create-line-item-${i}-qty-cell">
+                  <input type="number" min="0" step="1" class="li-cell-input center"
+                    data-comment="estimates-create-line-item-${i}-qty"
+                    data-component="input"
+                    data-li-idx="${idx}" data-li-field="qty"
+                    value="${row.qty}" />
+                </td>
+                <td data-comment="estimates-create-line-item-${i}-item-cell">
+                  <input type="text" class="li-cell-input"
+                    data-comment="estimates-create-line-item-${i}-item"
+                    data-component="input"
+                    data-li-idx="${idx}" data-li-field="itemCode"
+                    list="estimates-create-items-datalist"
+                    placeholder="Search item..."
+                    value="${escapeHtml(row.itemCode)}" />
+                </td>
+                <td data-comment="estimates-create-line-item-${i}-description-cell">
+                  <textarea class="li-cell-textarea" rows="1"
+                    data-comment="estimates-create-line-item-${i}-description"
+                    data-component="textarea"
+                    data-li-idx="${idx}" data-li-field="description">${escapeHtml(row.description)}</textarea>
+                </td>
+                <td data-comment="estimates-create-line-item-${i}-rate-cell">
+                  <input type="number" min="0" step="0.01" class="li-cell-input right"
+                    data-comment="estimates-create-line-item-${i}-rate"
+                    data-component="input"
+                    data-li-idx="${idx}" data-li-field="rate"
+                    value="${row.rate}" />
+                </td>
+                <td data-comment="estimates-create-line-item-${i}-total-cell">
+                  <input type="text" readonly tabindex="-1"
+                    class="li-cell-input right readonly"
+                    data-comment="estimates-create-line-item-${i}-total"
+                    value="${(row.qty * row.rate).toFixed(2)}" />
+                </td>
+                <td data-comment="estimates-create-line-item-${i}-tax-cell">
+                  <select class="li-cell-select"
+                    data-comment="estimates-create-line-item-${i}-tax"
+                    data-component="select"
+                    data-li-idx="${idx}" data-li-field="tax">
+                    <option value="Tax" ${row.tax === "Tax" ? "selected" : ""} data-comment="estimates-create-line-item-${i}-tax-opt-tax">Tax</option>
+                    <option value="No Tax" ${row.tax === "No Tax" ? "selected" : ""} data-comment="estimates-create-line-item-${i}-tax-opt-no-tax">No Tax</option>
+                  </select>
+                </td>
+                <td class="action-cell" data-comment="estimates-create-line-item-${i}-action-cell">
+                  <button type="button" class="btn btn-ghost btn-icon btn-sm"
+                    data-comment="estimates-create-line-item-${i}-remove"
+                    data-component="button"
+                    data-li-remove="${idx}"
+                    title="Remove line">${ICONS.trash2}</button>
+                </td>
+              </tr>
+            `;
+          }).join("");
+        }
+
+        /* datalist */
+        let dl = document.getElementById("estimates-create-items-datalist");
+        if (!dl) {
+          dl = document.createElement("datalist");
+          dl.id = "estimates-create-items-datalist";
+          document.body.appendChild(dl);
+        }
+        dl.innerHTML = SEED_ITEMS.map((it) => `<option value="${escapeHtml(it.code)}" label="${escapeHtml(it.description)}"></option>`).join("");
+
+        renderSummary();
+      }
+
+      /* ───── Summary ───── */
+      function getTaxRate() {
+        const cust = getCustomer(store.get().draft.customer_id);
+        const billing = getAddress(cust, "billing");
+        const state = billing?.state;
+        return SEED_TAX_RATES[state] || 0;
+      }
+      function renderSummary() {
+        const { draft } = store.get();
+        const subtotal = draft.lineItems.reduce((sum, r) => sum + (Number(r.qty) || 0) * (Number(r.rate) || 0), 0);
+        const taxable  = draft.lineItems.reduce((sum, r) => r.tax === "Tax" ? sum + (Number(r.qty) || 0) * (Number(r.rate) || 0) : sum, 0);
+        const rate     = getTaxRate();
+        const tax      = taxable * (rate / 100);
+        const total    = subtotal + tax;
+        document.getElementById("estimates-create-summary-subtotal-value").textContent = "$" + formatMoney(subtotal);
+        document.getElementById("estimates-create-summary-tax-rate").textContent = rate.toFixed(2);
+        document.getElementById("estimates-create-summary-tax-value").textContent = "$" + formatMoney(tax);
+        document.getElementById("estimates-create-summary-total-value").textContent = "$" + formatMoney(total);
+      }
+
+      /* ───── Attachments ───── */
+      function renderAttachments() {
+        const { draft } = store.get();
+        const grid = document.getElementById("estimates-create-image-upload-grid");
+        grid.innerHTML = draft.attachments.map((f, i) => `
+          <div class="image-upload-item" data-comment="estimates-create-image-upload-item-${i + 1}">
+            <span class="image-upload-item-icon" data-comment="estimates-create-image-upload-item-${i + 1}-icon">${ICONS.fileIcon}</span>
+            <span class="image-upload-item-name" data-comment="estimates-create-image-upload-item-${i + 1}-name">${escapeHtml(f.name)}</span>
+            <button type="button" class="image-upload-item-remove"
+              data-comment="estimates-create-image-upload-item-${i + 1}-remove"
+              data-component="button"
+              data-attachment-idx="${i}" title="Remove">${ICONS.x}</button>
+          </div>
+        `).join("");
+      }
+
+      /* ───── Errors / customer field ───── */
+      function renderErrors() {
+        const { errors, submitAttempted } = store.get();
+        const showBanner = submitAttempted && Object.keys(errors).length > 0;
+        const banner = document.getElementById("estimates-create-form-error");
+        if (showBanner) {
+          banner.style.display = "block";
+          banner.textContent = "Please fix the highlighted fields before saving.";
+        } else {
+          banner.style.display = "none";
+        }
+        const errCust = document.getElementById("estimates-create-field-customer-error");
+        const errName = document.getElementById("estimates-create-field-name-error");
+        const errCat  = document.getElementById("estimates-create-field-category-error");
+        const errLi   = document.getElementById("estimates-create-line-items-error");
+        errCust.style.display = errors.customer  ? "block" : "none";
+        errName.style.display = errors.name      ? "block" : "none";
+        errCat.style.display  = errors.category  ? "block" : "none";
+        errLi.style.display   = errors.lineItems_required ? "block" : "none";
+
+        const trig = document.getElementById("estimates-create-customer-trigger");
+        if (errors.customer) trig.setAttribute("aria-invalid", "true"); else trig.removeAttribute("aria-invalid");
+        const nameInp = document.getElementById("estimates-create-name");
+        if (errors.name) nameInp.setAttribute("aria-invalid", "true"); else nameInp.removeAttribute("aria-invalid");
+        const catSel  = document.getElementById("estimates-create-category");
+        if (errors.category) catSel.setAttribute("aria-invalid", "true"); else catSel.removeAttribute("aria-invalid");
+      }
+
+      /* ───── Form value <-> DOM sync ───── */
+      function renderFormFields() {
+        const { draft } = store.get();
+        const map = {
+          "estimates-create-ebms-id": draft.ebms_id,
+          "estimates-create-po-number": draft.po_number,
+          "estimates-create-name": draft.name,
+          "estimates-create-mgf-instructions": draft.special_mgf_instructions,
+          "estimates-create-memo": draft.memo,
+        };
+        Object.entries(map).forEach(([id, value]) => {
+          const el = document.getElementById(id);
+          if (el && el.value !== value) el.value = value;
+        });
+        const selectMap = {
+          "estimates-create-category": String(draft.category_id || ""),
+          "estimates-create-delivery-method": draft.delivery_method,
+          "estimates-create-sales-rep": draft.sales_rep,
+          "estimates-create-location": draft.location,
+          "estimates-create-terms": draft.terms,
+          "estimates-create-campaign": draft.campaign,
+        };
+        Object.entries(selectMap).forEach(([id, value]) => {
+          const el = document.getElementById(id);
+          if (el && el.value !== value) el.value = value;
+        });
+        document.getElementById("estimates-create-checkbox-built-onsite").checked = !!draft.built_onsite;
+        document.getElementById("estimates-create-checkbox-site-check").checked = !!draft.site_check;
+
+        document.getElementById("estimates-create-order-date").value = draft.order_date || "";
+        document.getElementById("estimates-create-valid-days").value = draft.valid_for_days || "";
+        document.getElementById("estimates-create-expiration-date").value = draft.expiration_date || "";
+        document.getElementById("estimates-create-field-expiration-date-manual").style.display = draft.expiration_manual ? "inline-flex" : "none";
+      }
+
+      /* ───── Toast ───── */
+      function showToast(msg) {
+        const el = document.getElementById("estimates-create-toast");
+        el.textContent = msg;
+        el.classList.add("is-visible");
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => el.classList.remove("is-visible"), 1500);
+      }
+
+      /* ───── Subscriptions ───── */
+      store.subscribe(renderSidebarNav);
+      store.subscribe(renderUser);
+      store.subscribe(renderCollapse);
+      store.subscribe(renderSidebarSearch);
+      store.subscribe(renderTags);
+      store.subscribe(renderCustomerPicker);
+      store.subscribe(renderAddressCard);
+      store.subscribe(renderLineItems);
+      store.subscribe(renderAttachments);
+      store.subscribe(renderErrors);
+      store.subscribe(renderFormFields);
+
+      /* ───── Initial render ───── */
+      populateLookups();
+      renderSidebarNav();
+      renderUser();
+      renderCollapse();
+      renderSidebarSearch();
+      renderTags();
+      renderCustomerPicker();
+      renderAddressCard();
+      renderLineItems();
+      renderAttachments();
+      renderErrors();
+      renderFormFields();
+
+      /* ───── Actions ───── */
+      function selectCustomer(id) {
+        const cust = getCustomer(id);
+        store.set((s) => ({
+          draft: {
+            ...s.draft,
+            customer_id: id,
+            ebms_id: cust ? `${cust.first_name} ${cust.last_name}` : "",
+          },
+          customerPickerOpen: false,
+          customerPickerSearch: "",
+          errors: { ...s.errors, customer: false },
+        }));
+      }
+      function setDraftField(field, value) {
+        store.set((s) => ({ draft: { ...s.draft, [field]: value } }));
+      }
+      function toggleTag(id) {
+        store.set((s) => {
+          const has = s.draft.tags.includes(id);
+          return { draft: { ...s.draft, tags: has ? s.draft.tags.filter((t) => t !== id) : [...s.draft.tags, id] } };
+        });
+      }
+      function addLineItem() {
+        store.set((s) => ({
+          draft: { ...s.draft, lineItems: [
+            ...s.draft.lineItems,
+            { qty: 1, itemCode: "", description: "", rate: 0, tax: "Tax" },
+          ]},
+          errors: { ...s.errors, lineItems_required: false },
+        }));
+      }
+      function removeLineItem(idx) {
+        store.set((s) => ({ draft: { ...s.draft, lineItems: s.draft.lineItems.filter((_, i) => i !== idx) } }));
+      }
+      function updateLineItem(idx, field, value) {
+        store.set((s) => ({
+          draft: {
+            ...s.draft,
+            lineItems: s.draft.lineItems.map((row, i) => {
+              if (i !== idx) return row;
+              const updated = { ...row, [field]: value };
+              if (field === "itemCode") {
+                const match = SEED_ITEMS.find((it) => it.code.toLowerCase() === String(value).toLowerCase());
+                if (match) { updated.description = match.description; updated.rate = match.rate; }
+              }
+              return updated;
+            }),
+          },
+        }));
+      }
+      function recalcExpiration() {
+        store.set((s) => {
+          if (s.draft.expiration_manual) return {};
+          if (!s.draft.order_date || !s.draft.valid_for_days) return {};
+          return { draft: { ...s.draft, expiration_date: addDays(s.draft.order_date, s.draft.valid_for_days) } };
+        });
+      }
+
+      function validate() {
+        const { draft } = store.get();
+        const errors = {};
+        if (!draft.customer_id) errors.customer = true;
+        if (!String(draft.name || "").trim()) errors.name = true;
+        if (!String(draft.category_id || "").trim()) errors.category = true;
+        if (draft.lineItems.length === 0) errors.lineItems_required = true;
+        return errors;
+      }
+      function saveEstimate(status) {
+        store.set((s) => ({ submitAttempted: true }));
+        const errors = validate();
+        store.set({ errors });
+        if (Object.keys(errors).length > 0) {
+          showToast("Please fix errors before saving");
+          return false;
+        }
+        store.set((s) => {
+          const id = 10000 + s.estimates.length + 1;
+          return {
+            estimates: [...s.estimates, { ...s.draft, id, status }],
+          };
+        });
+        showToast(status === "draft" ? "Draft saved" : "Estimate saved");
+        setTimeout(() => { window.location.href = "estimates.html"; }, 700);
+        return true;
+      }
+
+      /* ───── Event handlers ───── */
+      document.getElementById("sidebar-collapse-btn").addEventListener("click", () => {
+        store.set((s) => ({ collapsed: !s.collapsed }));
+      });
+      const sidebarSearchInput = document.getElementById("sidebar-search-input");
+      sidebarSearchInput.addEventListener("focus", () => store.set({ searchOpen: true }));
+      sidebarSearchInput.addEventListener("blur", () => setTimeout(() => store.set({ searchOpen: false }), 150));
+      sidebarSearchInput.addEventListener("input", (e) => store.set({ searchTerm: e.target.value }));
+      document.getElementById("sidebar-search-list").addEventListener("mousedown", (e) => {
+        const btn = e.target.closest("[data-customer-id]");
+        if (!btn) return;
+        const id = btn.dataset.customerId;
+        sidebarSearchInput.value = "";
+        store.set({ searchOpen: false, searchTerm: "" });
+        window.location.href = `customer-detail.html?id=${id}`;
+      });
+      document.getElementById("sidebar-user-logout").addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+
+      /* Back button */
+      document.getElementById("estimates-create-back-btn").addEventListener("click", () => {
+        const initial = initialCustomer ? `customer-detail.html?id=${initialCustomer.id}` : "estimates.html";
+        window.location.href = initial;
+      });
+
+      /* Customer picker */
+      const custTrigger = document.getElementById("estimates-create-customer-trigger");
+      custTrigger.addEventListener("click", () => {
+        store.set((s) => ({ customerPickerOpen: !s.customerPickerOpen }));
+        if (store.get().customerPickerOpen) {
+          setTimeout(() => document.getElementById("estimates-create-customer-search-input").focus(), 30);
+        }
+      });
+      document.getElementById("estimates-create-customer-search-input").addEventListener("input", (e) => {
+        store.set({ customerPickerSearch: e.target.value });
+      });
+      document.getElementById("estimates-create-customer-list").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-customer-pick-id]");
+        if (!btn) return;
+        const id = Number(btn.dataset.customerPickId);
+        const current = store.get().draft.customer_id;
+        selectCustomer(current === id ? null : id);
+      });
+      document.addEventListener("click", (e) => {
+        const inside = e.target.closest("#estimates-create-customer-trigger, #estimates-create-customer-dropdown");
+        if (!inside && store.get().customerPickerOpen) {
+          store.set({ customerPickerOpen: false });
+        }
+      });
+      document.getElementById("estimates-create-customer-add-btn").addEventListener("click", () => {
+        showToast("New customer dialog stub");
+      });
+
+      /* Tag chips */
+      document.getElementById("estimates-create-tags-list").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-tag-id]");
+        if (!btn) return;
+        toggleTag(Number(btn.dataset.tagId));
+      });
+
+      /* Simple field bindings */
+      const bind = (id, field, parse) => {
+        document.getElementById(id).addEventListener("input", (e) => {
+          const val = parse ? parse(e.target.value) : e.target.value;
+          setDraftField(field, val);
+          if (field === "name") store.set((s) => ({ errors: { ...s.errors, name: false } }));
+          if (field === "category_id") store.set((s) => ({ errors: { ...s.errors, category: false } }));
+        });
+      };
+      bind("estimates-create-po-number", "po_number");
+      bind("estimates-create-name", "name");
+      bind("estimates-create-mgf-instructions", "special_mgf_instructions");
+      bind("estimates-create-memo", "memo");
+
+      const bindChange = (id, field, parse) => {
+        document.getElementById(id).addEventListener("change", (e) => {
+          const val = parse ? parse(e.target.value) : e.target.value;
+          setDraftField(field, val);
+          if (field === "category_id") store.set((s) => ({ errors: { ...s.errors, category: false } }));
+        });
+      };
+      bindChange("estimates-create-category", "category_id");
+      bindChange("estimates-create-delivery-method", "delivery_method");
+      bindChange("estimates-create-sales-rep", "sales_rep");
+      bindChange("estimates-create-location", "location");
+      bindChange("estimates-create-terms", "terms");
+      bindChange("estimates-create-campaign", "campaign");
+
+      document.getElementById("estimates-create-checkbox-built-onsite").addEventListener("change", (e) => {
+        setDraftField("built_onsite", e.target.checked);
+      });
+      document.getElementById("estimates-create-checkbox-site-check").addEventListener("change", (e) => {
+        setDraftField("site_check", e.target.checked);
+      });
+
+      document.getElementById("estimates-create-order-date").addEventListener("change", (e) => {
+        setDraftField("order_date", e.target.value); recalcExpiration();
+      });
+      document.getElementById("estimates-create-valid-days").addEventListener("input", (e) => {
+        setDraftField("valid_for_days", Number(e.target.value) || 0); recalcExpiration();
+      });
+      document.getElementById("estimates-create-expiration-date").addEventListener("change", (e) => {
+        store.set((s) => ({ draft: { ...s.draft, expiration_date: e.target.value, expiration_manual: true } }));
+      });
+
+      /* Image upload */
+      document.getElementById("estimates-create-image-input").addEventListener("change", (e) => {
+        const newFiles = Array.from(e.target.files || []).map((f) => ({ name: f.name, size: f.size }));
+        store.set((s) => ({ draft: { ...s.draft, attachments: [...s.draft.attachments, ...newFiles] } }));
+        e.target.value = "";
+      });
+      document.getElementById("estimates-create-image-upload-grid").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-attachment-idx]");
+        if (!btn) return;
+        const idx = Number(btn.dataset.attachmentIdx);
+        store.set((s) => ({ draft: { ...s.draft, attachments: s.draft.attachments.filter((_, i) => i !== idx) } }));
+      });
+
+      /* Line items */
+      document.getElementById("estimates-create-line-items-add-btn").addEventListener("click", addLineItem);
+      const tbody = document.getElementById("estimates-create-line-items-tbody");
+      tbody.addEventListener("input", (e) => {
+        const el = e.target.closest("[data-li-idx]");
+        if (!el) return;
+        const idx = Number(el.dataset.liIdx);
+        const field = el.dataset.liField;
+        let value = el.value;
+        if (field === "qty" || field === "rate") value = parseFloat(value) || 0;
+        updateLineItem(idx, field, value);
+      });
+      tbody.addEventListener("change", (e) => {
+        const sel = e.target.closest("select[data-li-idx]");
+        if (!sel) return;
+        const idx = Number(sel.dataset.liIdx);
+        updateLineItem(idx, sel.dataset.liField, sel.value);
+      });
+      tbody.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-li-remove]");
+        if (!btn) return;
+        removeLineItem(Number(btn.dataset.liRemove));
+      });
+
+      /* Submit / draft / cancel */
+      document.getElementById("estimates-create-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        saveEstimate("pending");
+      });
+      document.getElementById("estimates-create-action-submit").addEventListener("click", () => {
+        store.set({ submitAttempted: true });
+      });
+      document.getElementById("estimates-create-action-save-draft").addEventListener("click", () => {
+        saveEstimate("draft");
+      });
+      document.getElementById("estimates-create-action-cancel").addEventListener("click", () => {
+        const target = initialCustomer ? `customer-detail.html?id=${initialCustomer.id}` : "estimates.html";
+        window.location.href = target;
+      });
+
+      /* Address edit stubs */
+      document.getElementById("estimates-create-billing-address-edit").addEventListener("click", () => {
+        showToast("Billing address dialog stub");
+      });
+      document.getElementById("estimates-create-shipping-address-edit").addEventListener("click", () => {
+        showToast("Shipping address dialog stub");
+      });
+    </script>
+  </body>
+</html>

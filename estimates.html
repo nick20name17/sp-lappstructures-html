@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapp Structures — Estimates</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --radius: 0.5rem;
+        --background: oklch(0.93 0.011 257);
+        --background-secondary: oklch(98.837% 0.00143 285.197);
+        --foreground: oklch(0.14 0.033 262);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.22 0.03 255);
+        --popover: oklch(1 0 0);
+        --primary: oklch(0.53 0.18 260);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.97 0.005 250);
+        --secondary-foreground: oklch(0.14 0.033 262);
+        --secondary-hover: oklch(0.93 0.011 257);
+        --muted: oklch(0.97 0.005 250);
+        --muted-foreground: oklch(0.56 0.023 255);
+        --accent: oklch(0.96 0.03 260);
+        --accent-foreground: oklch(0.53 0.18 260);
+        --destructive: oklch(0.50 0.19 25);
+        --success: oklch(0.58 0.16 150);
+        --border: oklch(0.93 0.011 257);
+        --input: oklch(0.92 0.01 250);
+        --ring: oklch(0.53 0.18 260);
+
+        --sidebar: oklch(1 0 0);
+        --sidebar-foreground: oklch(0.55 0.02 255);
+        --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-accent: oklch(0.97 0.005 250);
+        --sidebar-accent-foreground: oklch(0.14 0.033 262);
+        --sidebar-border: oklch(0.92 0.01 250);
+
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
+      }
+
+      html, body { height: 100%; }
+      body {
+        font-family: var(--font-body);
+        background: var(--background);
+        color: var(--foreground);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        overflow: hidden;
+      }
+      button { cursor: pointer; font-family: inherit; border: 0; background: transparent; }
+      a { color: inherit; text-decoration: none; }
+
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb {
+        background: color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+      }
+
+      .app-shell {
+        background: var(--background);
+        padding: 16px;
+        height: 100vh;
+      }
+      .app-frame {
+        display: flex;
+        height: calc(100vh - 32px);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      /* Sidebar (same as home.html) */
+      .sidebar {
+        display: flex; flex-direction: column;
+        background: var(--sidebar);
+        border-right: 1px solid var(--border);
+        flex-shrink: 0; overflow: hidden;
+        width: 240px;
+        transition: width 0.2s ease;
+      }
+      .sidebar.collapsed { width: 56px; }
+      .sidebar-logo {
+        display: flex; align-items: flex-end; gap: 10px;
+        padding: 0 16px 16px; height: 64px;
+        flex-shrink: 0;
+        transition: opacity 0.15s ease;
+      }
+      .sidebar-logo:hover { opacity: 0.9; }
+      .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 0 0 16px; gap: 0; }
+      .sidebar-logo-mark { display: flex; width: 32px; height: 32px; align-items: center; justify-content: center; flex-shrink: 0; }
+      .sidebar-logo-mark img { width: 24px; height: 24px; }
+      .sidebar-logo-text {
+        font-family: var(--font-display);
+        font-size: 1.25rem; line-height: 1.2;
+        font-weight: 500; letter-spacing: 0.025em;
+        color: var(--brand-navy);
+        white-space: nowrap; overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-logo-text { width: 0; opacity: 0; }
+
+      .sidebar-search { position: relative; padding: 0 8px 4px; }
+      .sidebar-search-input-wrap {
+        display: flex; align-items: center; gap: 8px;
+        border-radius: 6px; border: 1px solid transparent;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        padding: 6px 10px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .sidebar-search-input-wrap:hover,
+      .sidebar-search-input-wrap.is-open {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-search-input-wrap.is-open {
+        border-color: color-mix(in oklch, var(--sidebar-foreground) 20%, transparent);
+      }
+      .sidebar-search-icon {
+        width: 14px; height: 14px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        flex-shrink: 0;
+      }
+      .sidebar-search-input {
+        flex: 1; min-width: 0; background: transparent;
+        font-size: 0.875rem; font-family: inherit;
+        color: var(--sidebar-foreground);
+        border: 0; outline: none;
+      }
+      .sidebar-search-input::placeholder {
+        color: color-mix(in oklch, var(--sidebar-foreground) 40%, transparent);
+      }
+      .sidebar-search-dropdown {
+        position: absolute; bottom: 100%; left: 4px; right: 4px;
+        margin-bottom: 4px; border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--popover);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        overflow: hidden; z-index: 50;
+      }
+      .sidebar-search-dropdown-empty {
+        padding: 16px 12px; text-align: center;
+        font-size: 0.75rem; color: var(--muted-foreground);
+      }
+      .sidebar-search-dropdown ul {
+        list-style: none; max-height: 224px; overflow-y: auto; padding: 4px 0;
+      }
+      .sidebar-search-dropdown-item {
+        display: block; width: 100%; padding: 8px 12px;
+        text-align: left; font-family: inherit; cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .sidebar-search-dropdown-item:hover { background: var(--accent); }
+      .sidebar-search-dropdown-item-name { font-size: 0.875rem; font-weight: 500; line-height: 1.2; }
+      .sidebar-search-dropdown-item-email {
+        margin-top: 2px; font-size: 0.75rem;
+        color: var(--muted-foreground); line-height: 1.2;
+      }
+      .sidebar.collapsed .sidebar-search { padding: 0 8px 4px; }
+      .sidebar.collapsed .sidebar-search-collapsed {
+        height: 34px; padding-bottom: 4px;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        margin: 0 8px;
+        display: flex; border: 1px solid var(--border);
+        border-radius: 6px; justify-content: center; align-items: center;
+      }
+
+      .sidebar-nav {
+        flex: 1; overflow-y: auto; padding: 16px 8px;
+        display: flex; flex-direction: column; gap: 24px;
+      }
+      .sidebar-section-title {
+        padding: 0 12px; margin-bottom: 8px;
+        font-size: 11px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.05em;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap; overflow: hidden;
+        transition: opacity 0.2s ease, height 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-section-title { opacity: 0; height: 0; margin-bottom: 0; }
+      .sidebar-section { display: flex; flex-direction: column; gap: 4px; }
+      .sidebar-nav-link {
+        display: flex; align-items: center; gap: 12px;
+        padding: 6px 10px 6px 6px; border-radius: 6px;
+        font-size: 0.875rem; font-weight: 500;
+        color: var(--sidebar-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-nav-link:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-nav-link.active {
+        background: var(--sidebar-accent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-nav-link-icon {
+        padding: 4px; border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.15s ease;
+      }
+      .sidebar-nav-link.active .sidebar-nav-link-icon { background: var(--sidebar); }
+      .sidebar-nav-link-icon svg { width: 16px; height: 16px; }
+      .sidebar-nav-link-label {
+        white-space: nowrap; overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-nav-link-label { width: 0; opacity: 0; }
+      .sidebar-nav-link-badge { margin-left: auto; display: inline-flex; gap: 4px; }
+      .sidebar.collapsed .sidebar-nav-link-badge { display: none; }
+      .sidebar-badge {
+        display: inline-flex; width: 20px; height: 20px;
+        align-items: center; justify-content: center;
+        border-radius: 9999px;
+        font-size: 10px; font-weight: 600; line-height: 1;
+        font-variant-numeric: tabular-nums; padding: 0 4px;
+      }
+      .sidebar-badge.amber { background: rgba(245, 158, 11, 0.2); color: rgb(180, 83, 9); }
+      .sidebar-badge.blue { background: rgba(59, 130, 246, 0.2); color: rgb(29, 78, 216); }
+
+      .sidebar-bottom {
+        display: flex; flex-direction: column; gap: 4px;
+        padding: 0 8px 16px; flex-shrink: 0;
+      }
+      .sidebar-collapse-btn {
+        display: flex; align-items: center; gap: 8px; width: 100%;
+        padding: 6px 10px 6px 6px; border-radius: 6px;
+        color: var(--sidebar-foreground);
+        font-size: 0.875rem; font-weight: 500;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-collapse-btn:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+      .sidebar-collapse-btn-icon {
+        padding: 4px; border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
+      .sidebar-collapse-btn:hover .sidebar-collapse-btn-icon { background: var(--sidebar); }
+      .sidebar-collapse-btn-icon svg { width: 16px; height: 16px; }
+      .sidebar-collapse-btn-label {
+        white-space: nowrap; overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+      .sidebar.collapsed .sidebar-collapse-btn-label { width: 0; opacity: 0; }
+      .sidebar-user {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; padding: 8px 6px; border-radius: 6px;
+      }
+      .sidebar.collapsed .sidebar-user { justify-content: center; }
+      .sidebar-user-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .avatar {
+        width: 32px; height: 32px; border-radius: 9999px;
+        background: var(--primary); color: var(--primary-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 600; flex-shrink: 0;
+      }
+      .sidebar-user-text { display: flex; flex-direction: column; min-width: 0; }
+      .sidebar.collapsed .sidebar-user-text,
+      .sidebar.collapsed .sidebar-user-logout { display: none; }
+      .sidebar-user-name {
+        font-size: 0.875rem; font-weight: 500; color: var(--sidebar-foreground);
+        line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .sidebar-user-email {
+        font-size: 0.75rem; line-height: 1.2;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .sidebar-user-logout {
+        flex-shrink: 0; padding: 4px; border-radius: 6px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        transition: background 0.15s ease, color 0.15s ease;
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .sidebar-user-logout:hover {
+        color: var(--sidebar-foreground);
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+      .sidebar-user-logout svg { width: 16px; height: 16px; }
+
+      .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--background-secondary); }
+      .main-content { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+      .page-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex; flex-wrap: wrap;
+        align-items: center; justify-content: space-between;
+        gap: 8px 16px;
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) { .page-header { padding: 16px; } }
+      .page-header-title-wrap { min-width: 0; }
+      .page-header-title {
+        font-size: 1.125rem; font-weight: 500;
+        line-height: 1.2; letter-spacing: -0.025em;
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
+      }
+      @media (min-width: 640px) { .page-header-title { font-size: 1.25rem; } }
+      .page-header-description {
+        margin-top: 2px; font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+      .page-header-actions {
+        display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+      }
+
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 8px; white-space: nowrap; border-radius: 6px;
+        font-size: 0.875rem; font-weight: 500; font-family: inherit;
+        height: 36px; padding: 8px 16px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .btn:disabled { pointer-events: none; opacity: 0.5; }
+      .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+      .btn-primary:hover { background: color-mix(in oklch, var(--primary) 90%, black); }
+      .btn-outline { background: white; color: var(--foreground); border: 1px solid var(--border); }
+      .btn-outline:hover { background: var(--secondary); }
+      .btn svg { width: 16px; height: 16px; }
+      .btn-icon-sm {
+        height: 32px; width: 32px; padding: 0;
+        background: transparent; border-radius: 6px;
+        color: var(--muted-foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .btn-icon-sm:hover { background: var(--secondary); color: var(--foreground); }
+      .btn-icon-sm.danger:hover { color: var(--destructive); }
+      .btn-icon-sm svg { width: 16px; height: 16px; }
+      .btn-icon-outline {
+        height: 32px; width: 32px; padding: 0;
+        background: white; border: 1px solid var(--border);
+        border-radius: 6px; color: var(--foreground);
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .btn-icon-outline:hover { background: var(--secondary); }
+      .btn-icon-outline:disabled { pointer-events: none; opacity: 0.4; }
+      .btn-icon-outline svg { width: 16px; height: 16px; }
+
+      .body {
+        flex: 1; min-height: 0; display: flex; flex-direction: column;
+        padding: 16px; overflow: hidden;
+      }
+      .body-footer {
+        flex-shrink: 0;
+        border-top: 1px solid var(--border);
+        padding: 12px 16px;
+        background: var(--background-secondary);
+      }
+
+      .search-wrap { position: relative; width: 100%; }
+      @media (min-width: 640px) { .search-wrap { width: 224px; } }
+      .search-input {
+        width: 100%; height: 36px;
+        padding: 0 30px 0 32px;
+        border-radius: 6px; border: 1px solid var(--input);
+        background: white;
+        font-family: inherit; font-size: 0.875rem;
+        color: var(--foreground); outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .search-input:focus {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent);
+      }
+      .search-input::placeholder { color: var(--muted-foreground); }
+      .search-icon {
+        position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+        width: 16px; height: 16px;
+        color: var(--muted-foreground); pointer-events: none;
+      }
+      .search-clear {
+        position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+        width: 20px; height: 20px;
+        display: inline-flex; align-items: center; justify-content: center;
+        color: var(--muted-foreground);
+        transition: color 0.15s ease;
+      }
+      .search-clear:hover { color: var(--foreground); }
+      .search-clear svg { width: 14px; height: 14px; }
+
+      .table-shell {
+        display: flex; min-height: 0; flex: 1; flex-direction: column;
+        border-radius: 8px; border: 1px solid var(--border);
+        overflow: hidden;
+        background: var(--sidebar);
+      }
+      .table-scroll { flex: 1; min-height: 0; overflow: auto; }
+      table.data-table {
+        width: 100%; table-layout: fixed;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+      .data-table thead {
+        position: sticky; top: 0; z-index: 1;
+        background: var(--sidebar);
+      }
+      .data-table thead th {
+        text-align: left;
+        font-weight: 500;
+        color: var(--muted-foreground);
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+      }
+      .data-table thead th .th-inner {
+        display: inline-flex; align-items: center; gap: 4px;
+        text-transform: capitalize;
+      }
+      .data-table thead th.sortable .th-inner { cursor: pointer; user-select: none; }
+      .data-table thead th.sortable:hover .th-inner { color: var(--foreground); }
+      .data-table thead th svg { width: 14px; height: 14px; }
+      .data-table thead th svg.dim { opacity: 0.4; }
+      .data-table tbody td {
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        color: var(--foreground);
+        vertical-align: middle;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .data-table tbody tr:last-child td { border-bottom: 0; }
+      .data-table tbody tr.clickable { cursor: pointer; }
+      .data-table tbody tr.clickable:hover > td {
+        background: color-mix(in oklch, var(--muted) 50%, transparent);
+      }
+      .row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+      .id-cell { font-weight: 500; }
+      .customer-link { color: var(--accent-foreground); }
+      .customer-link:hover { text-decoration: underline; }
+      .empty-cell, .error-cell {
+        padding: 32px 12px !important;
+        text-align: center !important;
+        color: var(--muted-foreground);
+        white-space: normal !important;
+      }
+      .error-cell { color: var(--destructive); }
+      .skeleton-bar {
+        display: inline-block;
+        height: 14px;
+        background: linear-gradient(90deg,
+          color-mix(in oklch, var(--border) 80%, transparent) 25%,
+          color-mix(in oklch, var(--border) 40%, transparent) 50%,
+          color-mix(in oklch, var(--border) 80%, transparent) 75%);
+        background-size: 200% 100%;
+        border-radius: 4px;
+        animation: skeleton-pulse 1.5s ease-in-out infinite;
+      }
+      @keyframes skeleton-pulse {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* Estimate status badges (mirroring EstimateStatusBadge) */
+      .status-badge {
+        display: inline-flex;
+        height: 28px;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        border-radius: 9999px;
+        border: 1px solid;
+        font-size: 0.75rem;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      .status-badge.draft {
+        background: var(--muted);
+        color: var(--muted-foreground);
+        border-color: color-mix(in oklch, var(--muted-foreground) 20%, transparent);
+      }
+      .status-badge.pending {
+        background: rgb(254 243 199);
+        color: rgb(146 64 14);
+        border-color: rgb(252 211 77);
+      }
+      .status-badge.accepted {
+        background: color-mix(in oklch, var(--primary) 15%, transparent);
+        color: var(--primary);
+        border-color: color-mix(in oklch, var(--primary) 40%, transparent);
+      }
+      .status-badge.rejected {
+        background: rgb(254 226 226);
+        color: rgb(153 27 27);
+        border-color: rgb(252 165 165);
+      }
+      .status-badge.expired {
+        background: rgb(255 237 213);
+        color: rgb(154 52 18);
+        border-color: rgb(253 186 116);
+      }
+
+      /* Site check sub-badge (used inside Site Check column) */
+      .sc-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 2px 8px;
+        border-radius: 9999px;
+        border: 1px solid;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      .sc-badge .dot {
+        display: inline-block;
+        width: 8px; height: 8px;
+        border-radius: 9999px;
+      }
+      .sc-badge.pending { background: rgb(238 242 255); color: rgb(67 56 202); border-color: rgb(165 180 252); }
+      .sc-badge.pending .dot { background: rgb(99 102 241); }
+      .sc-badge.required { background: rgb(255 251 235); color: rgb(146 64 14); border-color: rgb(252 211 77); }
+      .sc-badge.required .dot { background: rgb(245 158 11); }
+      .sc-badge.in_progress { background: rgb(239 246 255); color: rgb(29 78 216); border-color: rgb(147 197 253); }
+      .sc-badge.in_progress .dot { background: rgb(59 130 246); }
+      .sc-badge.completed { background: rgb(236 253 245); color: rgb(4 120 87); border-color: rgb(110 231 183); }
+      .sc-badge.completed .dot { background: rgb(16 185 129); }
+      .sc-badge.cancelled { background: rgb(255 241 242); color: rgb(190 18 60); border-color: rgb(253 164 175); }
+      .sc-badge.cancelled .dot { background: rgb(244 63 94); }
+      .sc-badge.not_required {
+        background: color-mix(in oklch, var(--muted) 40%, transparent);
+        color: var(--muted-foreground);
+        border-color: var(--border);
+      }
+      .sc-badge.not_required .dot { background: color-mix(in oklch, var(--muted-foreground) 50%, transparent); }
+
+      /* Pagination */
+      .pagination-bar {
+        display: flex; align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+      .pagination-size { display: none; }
+      @media (min-width: 768px) {
+        .pagination-size { display: flex; align-items: center; gap: 8px; }
+      }
+      .page-size-select {
+        height: 32px; min-width: 76px;
+        padding: 0 8px;
+        border-radius: 6px;
+        border: 1px solid var(--input);
+        background: white;
+        font-family: inherit;
+        font-size: 0.875rem;
+        color: var(--foreground);
+        outline: none;
+      }
+      .page-size-select:focus {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent);
+      }
+      .pagination-controls { display: flex; align-items: center; gap: 8px; }
+      .pagination-buttons { display: flex; align-items: center; gap: 4px; }
+
+      /* Delete dialog */
+      .dialog-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center; justify-content: center;
+        padding: 16px;
+        z-index: 100;
+      }
+      .dialog-overlay.is-open { display: flex; }
+      .dialog {
+        background: var(--card);
+        border-radius: 12px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        width: 100%; max-width: 28rem;
+        padding: 24px;
+        display: flex; flex-direction: column; gap: 16px;
+      }
+      .dialog-title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; color: var(--foreground); }
+      .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
+      .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-comment="estimates-app-shell">
+      <div class="app-frame" data-comment="estimates-app-frame">
+        <!-- Sidebar -->
+        <aside
+          class="sidebar"
+          data-comment="estimates-sidebar"
+          id="sidebar"
+          aria-label="Primary navigation">
+          <a
+            class="sidebar-logo"
+            data-comment="estimates-sidebar-logo"
+            href="home.html"
+            aria-label="Go to home">
+            <span class="sidebar-logo-mark" data-comment="estimates-sidebar-logo-mark">
+              <img
+                data-comment="estimates-sidebar-logo-img"
+                src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png"
+                alt="Lapp Structures" />
+            </span>
+            <span class="sidebar-logo-text" data-comment="estimates-sidebar-logo-text"
+              >Lapp Structures</span
+            >
+          </a>
+
+          <div
+            class="sidebar-search"
+            data-comment="estimates-sidebar-search"
+            id="sidebar-search-wrap">
+            <div
+              class="sidebar-search-input-wrap"
+              data-comment="estimates-sidebar-search-input-wrap"
+              id="sidebar-search-input-wrap">
+              <svg
+                class="sidebar-search-icon"
+                data-comment="estimates-sidebar-search-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                class="sidebar-search-input"
+                data-comment="estimates-sidebar-search-input"
+                id="sidebar-search-input"
+                placeholder="Find customer..." />
+            </div>
+            <div
+              class="sidebar-search-dropdown"
+              data-comment="estimates-sidebar-search-dropdown"
+              id="sidebar-search-dropdown"
+              style="display: none">
+              <div
+                class="sidebar-search-dropdown-empty"
+                data-comment="estimates-sidebar-search-dropdown-empty"
+                id="sidebar-search-empty">
+                No customers found.
+              </div>
+              <ul
+                data-comment="estimates-sidebar-search-dropdown-list"
+                id="sidebar-search-list"
+                style="display: none"></ul>
+            </div>
+          </div>
+
+          <div
+            class="sidebar-search-collapsed"
+            data-comment="estimates-sidebar-search-collapsed"
+            id="sidebar-search-collapsed"
+            style="display: none">
+            <svg
+              class="sidebar-search-icon"
+              data-comment="estimates-sidebar-search-collapsed-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          <nav class="sidebar-nav" data-comment="estimates-sidebar-nav" id="sidebar-nav"></nav>
+
+          <div class="sidebar-bottom" data-comment="estimates-sidebar-bottom">
+            <button
+              class="sidebar-collapse-btn"
+              data-comment="estimates-sidebar-collapse-btn"
+              id="sidebar-collapse-btn"
+              type="button">
+              <span
+                class="sidebar-collapse-btn-icon"
+                data-comment="estimates-sidebar-collapse-btn-icon">
+                <svg
+                  id="icon-collapse"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m16 15-3-3 3-3" />
+                </svg>
+                <svg
+                  id="icon-expand"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"
+                  style="display: none">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m14 9 3 3-3 3" />
+                </svg>
+              </span>
+              <span
+                class="sidebar-collapse-btn-label"
+                data-comment="estimates-sidebar-collapse-btn-label"
+                >Minimize bar</span
+              >
+            </button>
+
+            <div class="sidebar-user" data-comment="estimates-sidebar-user">
+              <div
+                class="sidebar-user-info"
+                data-comment="estimates-sidebar-user-info">
+                <span
+                  class="avatar"
+                  data-comment="estimates-sidebar-user-avatar"
+                  data-component="avatar"
+                  id="sidebar-user-avatar"
+                  >AL</span
+                >
+                <div
+                  class="sidebar-user-text"
+                  data-comment="estimates-sidebar-user-text">
+                  <span
+                    class="sidebar-user-name"
+                    data-comment="estimates-sidebar-user-name"
+                    id="sidebar-user-name"
+                    >Anna Lee</span
+                  >
+                  <span
+                    class="sidebar-user-email"
+                    data-comment="estimates-sidebar-user-email"
+                    id="sidebar-user-email"
+                    >anna@lapp.com</span
+                  >
+                </div>
+              </div>
+              <button
+                class="sidebar-user-logout"
+                data-comment="estimates-sidebar-user-logout"
+                id="sidebar-user-logout"
+                title="Log out"
+                type="button">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main" data-comment="estimates-main">
+          <div class="main-content" data-comment="estimates-main-content">
+            <header class="page-header" data-comment="estimates-page-header">
+              <div
+                class="page-header-title-wrap"
+                data-comment="estimates-page-header-title-wrap">
+                <h1
+                  class="page-header-title"
+                  data-comment="estimates-page-header-title">
+                  Estimates
+                </h1>
+                <p
+                  class="page-header-description"
+                  data-comment="estimates-page-header-description">
+                  Manage estimates.
+                </p>
+              </div>
+              <div
+                class="page-header-actions"
+                data-comment="estimates-page-header-actions">
+                <div class="search-wrap" data-comment="estimates-search-wrap">
+                  <svg
+                    class="search-icon"
+                    data-comment="estimates-search-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                  </svg>
+                  <input
+                    type="text"
+                    class="search-input"
+                    data-comment="estimates-search-input"
+                    data-component="input"
+                    id="estimates-search-input"
+                    placeholder="Search..." />
+                  <button
+                    type="button"
+                    class="search-clear"
+                    data-comment="estimates-search-clear"
+                    id="estimates-search-clear"
+                    aria-label="Clear search"
+                    style="display: none">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <a
+                  class="btn btn-primary"
+                  data-comment="estimates-add-btn"
+                  data-component="button"
+                  href="estimates-create.html">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Add estimate
+                </a>
+              </div>
+            </header>
+
+            <div class="body" data-comment="estimates-body">
+              <div
+                class="table-shell"
+                data-comment="estimates-table-shell"
+                data-component="card">
+                <div class="table-scroll" data-comment="estimates-table-scroll">
+                  <table
+                    class="data-table"
+                    data-comment="estimates-table"
+                    data-component="table"
+                    id="estimates-table">
+                    <colgroup>
+                      <col style="width: 120px" />
+                      <col style="width: 270px" />
+                      <col style="width: 120px" />
+                      <col style="width: 140px" />
+                      <col style="width: 220px" />
+                      <col style="width: 160px" />
+                      <col style="width: 120px" />
+                      <col style="width: 180px" />
+                      <col style="width: 140px" />
+                      <col style="width: 240px" />
+                      <col style="width: 80px" />
+                    </colgroup>
+                    <thead data-comment="estimates-table-head">
+                      <tr data-comment="estimates-table-head-row">
+                        <th
+                          class="sortable"
+                          data-comment="estimates-table-th-id"
+                          data-sort-key="id">
+                          <span class="th-inner" data-comment="estimates-table-th-id-inner">
+                            Estimate #
+                            <svg class="sort-icon" data-comment="estimates-table-th-id-sort-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+                          </span>
+                        </th>
+                        <th
+                          class="sortable"
+                          data-comment="estimates-table-th-name"
+                          data-sort-key="name">
+                          <span class="th-inner" data-comment="estimates-table-th-name-inner">
+                            Name
+                            <svg class="sort-icon" data-comment="estimates-table-th-name-sort-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+                          </span>
+                        </th>
+                        <th data-comment="estimates-table-th-status">
+                          <span class="th-inner" data-comment="estimates-table-th-status-inner">Status</span>
+                        </th>
+                        <th
+                          class="sortable"
+                          data-comment="estimates-table-th-date"
+                          data-sort-key="order_date">
+                          <span class="th-inner" data-comment="estimates-table-th-date-inner">
+                            Date
+                            <svg class="sort-icon" data-comment="estimates-table-th-date-sort-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+                          </span>
+                        </th>
+                        <th data-comment="estimates-table-th-customer">
+                          <span class="th-inner" data-comment="estimates-table-th-customer-inner">Customer</span>
+                        </th>
+                        <th data-comment="estimates-table-th-location">
+                          <span class="th-inner" data-comment="estimates-table-th-location-inner">Location</span>
+                        </th>
+                        <th data-comment="estimates-table-th-total">
+                          <span class="th-inner" data-comment="estimates-table-th-total-inner">Total</span>
+                        </th>
+                        <th data-comment="estimates-table-th-sales-rep">
+                          <span class="th-inner" data-comment="estimates-table-th-sales-rep-inner">Sales Rep</span>
+                        </th>
+                        <th data-comment="estimates-table-th-site-check">
+                          <span class="th-inner" data-comment="estimates-table-th-site-check-inner">Site Check</span>
+                        </th>
+                        <th data-comment="estimates-table-th-memo">
+                          <span class="th-inner" data-comment="estimates-table-th-memo-inner">Memo</span>
+                        </th>
+                        <th data-comment="estimates-table-th-actions">
+                          <span class="th-inner" data-comment="estimates-table-th-actions-inner"></span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody data-comment="estimates-table-body" id="estimates-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="body-footer" data-comment="estimates-body-footer">
+              <div class="pagination-bar" data-comment="estimates-pagination">
+                <div class="pagination-size" data-comment="estimates-pagination-size">
+                  <span data-comment="estimates-pagination-size-label">Rows per page</span>
+                  <select
+                    class="page-size-select"
+                    data-comment="estimates-pagination-size-select"
+                    data-component="select"
+                    id="estimates-page-size">
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </div>
+                <div class="pagination-controls" data-comment="estimates-pagination-controls">
+                  <span
+                    data-comment="estimates-pagination-status"
+                    id="estimates-pagination-status"
+                    >Page 1 of 1</span
+                  >
+                  <div class="pagination-buttons" data-comment="estimates-pagination-buttons">
+                    <button
+                      class="btn-icon-outline"
+                      data-comment="estimates-pagination-first"
+                      data-component="button"
+                      id="estimates-page-first"
+                      aria-label="First page" type="button">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m11 17-5-5 5-5M18 17l-5-5 5-5" />
+                      </svg>
+                    </button>
+                    <button
+                      class="btn-icon-outline"
+                      data-comment="estimates-pagination-prev"
+                      data-component="button"
+                      id="estimates-page-prev"
+                      aria-label="Previous page" type="button">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                      </svg>
+                    </button>
+                    <button
+                      class="btn-icon-outline"
+                      data-comment="estimates-pagination-next"
+                      data-component="button"
+                      id="estimates-page-next"
+                      aria-label="Next page" type="button">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </button>
+                    <button
+                      class="btn-icon-outline"
+                      data-comment="estimates-pagination-last"
+                      data-component="button"
+                      id="estimates-page-last"
+                      aria-label="Last page" type="button">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m13 17 5-5-5-5M6 17l5-5-5-5" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Delete confirm dialog -->
+    <div
+      class="dialog-overlay"
+      data-comment="estimates-delete-overlay"
+      id="estimates-delete-overlay">
+      <div
+        class="dialog"
+        data-comment="estimates-delete-dialog"
+        data-component="dialog"
+        role="alertdialog"
+        aria-modal="true">
+        <div data-comment="estimates-delete-header">
+          <h2 class="dialog-title" data-comment="estimates-delete-title">
+            Delete estimate
+          </h2>
+          <p
+            class="dialog-description"
+            data-comment="estimates-delete-description"
+            id="estimates-delete-description"
+            style="margin-top: 8px">
+            Are you sure you want to delete this estimate? This action cannot be undone.
+          </p>
+        </div>
+        <div class="dialog-footer" data-comment="estimates-delete-footer">
+          <button
+            class="btn btn-outline"
+            data-comment="estimates-delete-cancel"
+            data-component="button"
+            type="button"
+            id="estimates-delete-cancel">
+            Cancel
+          </button>
+          <button
+            class="btn btn-primary"
+            data-comment="estimates-delete-confirm"
+            data-component="button"
+            type="button"
+            id="estimates-delete-confirm"
+            style="background: var(--destructive)">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function createStore(initialState) {
+        let state = structuredClone(initialState);
+        const listeners = new Set();
+        return {
+          get: () => state,
+          set(updater) {
+            state = typeof updater === "function" ? updater(state) : { ...state, ...updater };
+            listeners.forEach((fn) => fn(state));
+          },
+          subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+        };
+      }
+
+      const ICONS = {
+        list: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>',
+        userRound: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+        clipboardList: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>',
+        mapPin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+        users: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        clipboardCheck: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+        layers2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>',
+        trash2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>',
+        chevronUp: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>',
+        chevronDown: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+        chevronsUpDown: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>',
+        check: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+      };
+
+      const NAV_BY_ROLE = {
+        admin: [
+          { items: [
+            { label: "Customers", path: "customers.html", icon: "userRound" },
+            { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+            { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+            { label: "Sales Orders", path: "orders.html", icon: "list" },
+            { label: "Users", path: "users.html", icon: "users" },
+            { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
+            { label: "Options List", path: "attributes.html", icon: "layers2" },
+          ]},
+        ],
+      };
+
+      const STATUS_LABELS = {
+        draft: "Draft",
+        pending: "Pending",
+        accepted: "Approved",
+        rejected: "Rejected",
+        expired: "Expired",
+      };
+
+      const SC_LABELS = {
+        pending: "Scheduled",
+        required: "Required",
+        in_progress: "In Progress",
+        completed: "Completed",
+        cancelled: "Cancelled",
+        not_required: "Not required",
+      };
+
+      const SEED_CUSTOMERS = [
+        { id: 1, first_name: "Anna", last_name: "Lee", email: "anna@example.com", location: "Lancaster" },
+        { id: 2, first_name: "Mark", last_name: "Chen", email: "mark@example.com", location: "York" },
+        { id: 3, first_name: "Sarah", last_name: "Johnson", email: "sarah.j@example.com", location: "Harrisburg" },
+        { id: 4, first_name: "David", last_name: "Smith", email: "david.smith@example.com", location: "Reading" },
+        { id: 5, first_name: "Emma", last_name: "Garcia", email: "emma.g@example.com", location: "Lancaster" },
+        { id: 6, first_name: "James", last_name: "Wilson", email: "jwilson@example.com", location: "York" },
+        { id: 7, first_name: "Olivia", last_name: "Brown", email: "olivia@example.com", location: "Harrisburg" },
+        { id: 8, first_name: "Michael", last_name: "Davis", email: "michael.d@example.com", location: "Reading" },
+      ];
+
+      // Seed estimates — mirrors fields used by estimate-columns.tsx
+      const SEED_ESTIMATES = [
+        { id: 10024, name: "12x16 Single Slope", status: "draft",    order_date: "2025-05-12", customer_id: 1, customer: SEED_CUSTOMERS[0], total: 5824.50,  total_tax: 0,      sales_rep_name: "Michael Davis",  site_check_status: "required",     memo: "Pending customer signature." },
+        { id: 10025, name: "10x12 Mini Barn",     status: "pending",  order_date: "2025-05-10", customer_id: 2, customer: SEED_CUSTOMERS[1], total: 3210.00,  total_tax: 192.6,  sales_rep_name: "Sophia Martinez",site_check_status: "pending",      memo: "Confirm color match." },
+        { id: 10026, name: "14x24 Garage",        status: "accepted", order_date: "2025-05-08", customer_id: 3, customer: SEED_CUSTOMERS[2], total: 12480.00, total_tax: 748.8,  sales_rep_name: "Michael Davis",  site_check_status: "completed",    memo: "Awaiting build slot." },
+        { id: 10027, name: "8x10 Garden Shed",    status: "rejected", order_date: "2025-05-05", customer_id: 4, customer: SEED_CUSTOMERS[3], total: 1840.00,  total_tax: 110.4,  sales_rep_name: "Lucas White",    site_check_status: "cancelled",    memo: "Customer cancelled." },
+        { id: 10028, name: "20x30 Garage Custom", status: "expired",  order_date: "2025-03-15", customer_id: 5, customer: SEED_CUSTOMERS[4], total: 24650.00, total_tax: 1479.0, sales_rep_name: "William Anderson",site_check_status: "not_required", memo: "" },
+        { id: 10029, name: "12x20 Lofted Barn",   status: "draft",    order_date: "2025-05-14", customer_id: 6, customer: SEED_CUSTOMERS[5], total: 7320.00,  total_tax: 439.2,  sales_rep_name: "Michael Davis",  site_check_status: "required",     memo: "Site has slope." },
+        { id: 10030, name: "10x14 Run-in Shed",   status: "pending",  order_date: "2025-05-15", customer_id: 7, customer: SEED_CUSTOMERS[6], total: 4180.00,  total_tax: 250.8,  sales_rep_name: "Sophia Martinez",site_check_status: "pending",      memo: "Delivery on Friday." },
+        { id: 10031, name: "16x24 Cabin",         status: "accepted", order_date: "2025-05-02", customer_id: 8, customer: SEED_CUSTOMERS[7], total: 15890.00, total_tax: 953.4,  sales_rep_name: "Lucas White",    site_check_status: "completed",    memo: "Final inspection done." },
+        { id: 10032, name: "8x12 Vinyl Shed",     status: "draft",    order_date: "2025-05-18", customer_id: 1, customer: SEED_CUSTOMERS[0], total: 2640.00,  total_tax: 158.4,  sales_rep_name: "Michael Davis",  site_check_status: "not_required", memo: "" },
+        { id: 10033, name: "12x16 Greenhouse",    status: "pending",  order_date: "2025-05-19", customer_id: 2, customer: SEED_CUSTOMERS[1], total: 6420.00,  total_tax: 385.2,  sales_rep_name: "William Anderson",site_check_status: "in_progress",  memo: "Crew arriving Mon." },
+        { id: 10034, name: "12x24 Storage Combo", status: "accepted", order_date: "2025-04-28", customer_id: 3, customer: SEED_CUSTOMERS[2], total: 9870.00,  total_tax: 592.2,  sales_rep_name: "Sophia Martinez",site_check_status: "completed",    memo: "Build in queue." },
+        { id: 10035, name: "10x12 Chicken Coop",  status: "draft",    order_date: "2025-05-20", customer_id: 4, customer: SEED_CUSTOMERS[3], total: 1980.00,  total_tax: 118.8,  sales_rep_name: "Michael Davis",  site_check_status: "required",     memo: "Confirm gate width." },
+        { id: 10036, name: "14x20 A-Frame",       status: "expired",  order_date: "2025-02-12", customer_id: 5, customer: SEED_CUSTOMERS[4], total: 7890.00,  total_tax: 473.4,  sales_rep_name: "Lucas White",    site_check_status: "cancelled",    memo: "Past expiration date." },
+      ];
+
+      const store = createStore({
+        user: { id: 1, name: "Anna Lee", email: "anna@lapp.com", role: "admin" },
+        collapsed: false,
+        searchOpen: false,
+        searchTerm: "",
+        customers: SEED_CUSTOMERS,
+        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        currentPath: "estimates.html",
+
+        estimates: SEED_ESTIMATES,
+        estimatesLoading: true,
+        estimatesError: false,
+        listSearchInput: "",
+        listSearchTerm: "",
+        sort: { key: "id", dir: "desc" },
+        page: 1,
+        pageSize: 10,
+
+        dialog: { type: "closed" },
+      });
+
+      // ───── Sidebar (shared) ─────
+      function renderSidebarNav() {
+        const s = store.get();
+        const nav = document.getElementById("sidebar-nav");
+        const sections = NAV_BY_ROLE[s.user.role] || [];
+        nav.innerHTML = sections.map((section, sectionIdx) => `
+          <div class="sidebar-section" data-comment="estimates-sidebar-section-${sectionIdx}">
+            ${section.items.map((item) => {
+              const isActive = item.path === s.currentPath;
+              const slug = item.label.toLowerCase().replace(/\s+/g, "-");
+              const badges = item.badge && !s.collapsed
+                ? `<span class="sidebar-nav-link-badge" data-comment="estimates-sidebar-nav-link-${slug}-badges">
+                    ${s.reviewBadges.not_pricing_reviewed > 0
+                      ? `<span class="sidebar-badge amber" data-comment="estimates-sidebar-nav-link-${slug}-badge-pricing">${s.reviewBadges.not_pricing_reviewed}</span>` : ""}
+                    ${s.reviewBadges.not_shop_reviewed > 0
+                      ? `<span class="sidebar-badge blue" data-comment="estimates-sidebar-nav-link-${slug}-badge-shop">${s.reviewBadges.not_shop_reviewed}</span>` : ""}
+                  </span>` : "";
+              return `
+                <a class="sidebar-nav-link ${isActive ? "active" : ""}" data-comment="estimates-sidebar-nav-link-${slug}" href="${item.path}" title="${item.label}">
+                  <span class="sidebar-nav-link-icon" data-comment="estimates-sidebar-nav-link-${slug}-icon">${ICONS[item.icon] || ""}</span>
+                  <span class="sidebar-nav-link-label" data-comment="estimates-sidebar-nav-link-${slug}-label">${item.label}</span>
+                  ${badges}
+                </a>
+              `;
+            }).join("")}
+          </div>
+        `).join("");
+      }
+      function renderUser() {
+        const { user } = store.get();
+        document.getElementById("sidebar-user-name").textContent = user.name;
+        document.getElementById("sidebar-user-email").textContent = user.email;
+        document.getElementById("sidebar-user-avatar").textContent = user.name
+          .split(" ").slice(0, 2).map((w) => (w[0] || "").toUpperCase()).join("");
+      }
+      function renderCollapse() {
+        const s = store.get();
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("collapsed", s.collapsed);
+        document.getElementById("icon-collapse").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("icon-expand").style.display = s.collapsed ? "block" : "none";
+        document.getElementById("sidebar-search-wrap").style.display = s.collapsed ? "none" : "block";
+        document.getElementById("sidebar-search-collapsed").style.display = s.collapsed ? "flex" : "none";
+      }
+      function renderSidebarSearch() {
+        const s = store.get();
+        const wrap = document.getElementById("sidebar-search-input-wrap");
+        wrap.classList.toggle("is-open", s.searchOpen);
+        const showDropdown = s.searchOpen && s.searchTerm.trim().length > 0;
+        const dropdown = document.getElementById("sidebar-search-dropdown");
+        dropdown.style.display = showDropdown ? "block" : "none";
+        if (!showDropdown) return;
+        const term = s.searchTerm.trim().toLowerCase();
+        const filtered = s.customers.filter((c) => {
+          const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+          return fullName.includes(term) || (c.email && c.email.toLowerCase().includes(term));
+        });
+        const empty = document.getElementById("sidebar-search-empty");
+        const list = document.getElementById("sidebar-search-list");
+        if (filtered.length === 0) {
+          empty.style.display = "block"; list.style.display = "none";
+        } else {
+          empty.style.display = "none"; list.style.display = "block";
+          list.innerHTML = filtered.slice(0, 8).map((c) => `
+            <li data-comment="estimates-sidebar-search-item-${c.id}">
+              <button type="button"
+                class="sidebar-search-dropdown-item"
+                data-comment="estimates-sidebar-search-item-${c.id}-button"
+                data-customer-id="${c.id}">
+                <div class="sidebar-search-dropdown-item-name" data-comment="estimates-sidebar-search-item-${c.id}-name">${c.first_name} ${c.last_name}</div>
+                ${c.email ? `<div class="sidebar-search-dropdown-item-email" data-comment="estimates-sidebar-search-item-${c.id}-email">${c.email}</div>` : ""}
+              </button>
+            </li>
+          `).join("");
+        }
+      }
+
+      // ───── Estimate actions ─────
+      function deleteEstimate(id) {
+        store.set((s) => ({
+          estimates: s.estimates.filter((e) => e.id !== id),
+          dialog: { type: "closed" },
+        }));
+      }
+
+      // ───── Filter / sort / paginate ─────
+      function applyFilters(estimates, term) {
+        if (!term) return estimates;
+        const q = term.trim().toLowerCase();
+        return estimates.filter((e) =>
+          String(e.id).includes(q) ||
+          (e.name || "").toLowerCase().includes(q) ||
+          (STATUS_LABELS[e.status] || "").toLowerCase().includes(q) ||
+          (e.customer ? `${e.customer.first_name} ${e.customer.last_name}` : "").toLowerCase().includes(q) ||
+          (e.customer?.location || "").toLowerCase().includes(q) ||
+          (e.sales_rep_name || "").toLowerCase().includes(q) ||
+          (e.memo || "").toLowerCase().includes(q),
+        );
+      }
+      function applySort(estimates, sort) {
+        if (!sort || !sort.dir) return estimates;
+        const arr = [...estimates];
+        arr.sort((a, b) => {
+          let av, bv;
+          if (sort.key === "id") { av = a.id; bv = b.id; }
+          else if (sort.key === "name") { av = (a.name || "").toLowerCase(); bv = (b.name || "").toLowerCase(); }
+          else if (sort.key === "order_date") { av = a.order_date; bv = b.order_date; }
+          if (av < bv) return sort.dir === "asc" ? -1 : 1;
+          if (av > bv) return sort.dir === "asc" ? 1 : -1;
+          return 0;
+        });
+        return arr;
+      }
+      function paginate(items, page, pageSize) {
+        const start = (page - 1) * pageSize;
+        return items.slice(start, start + pageSize);
+      }
+
+      // ───── Render: estimates table ─────
+      function formatMoney(n) {
+        return Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+      function formatDate(iso) {
+        if (!iso) return "—";
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return "—";
+        return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "2-digit" });
+      }
+      function renderStatusBadge(status, ctx) {
+        if (!status) return `<span style="color: var(--muted-foreground)">—</span>`;
+        const label = STATUS_LABELS[status];
+        if (!label) return `<span style="color: var(--muted-foreground)">${escapeHtml(status)}</span>`;
+        return `<span class="status-badge ${status}" data-comment="${ctx}-status-badge" role="img" aria-label="Status: ${label}">${label}</span>`;
+      }
+      function renderSiteCheckBadge(status, ctx) {
+        const label = SC_LABELS[status] || status;
+        const isCompleted = status === "completed";
+        return `<span class="sc-badge ${status}" data-comment="${ctx}-site-check-badge">
+          ${isCompleted ? `<span class="sc-icon" data-comment="${ctx}-site-check-icon">${ICONS.check}</span>` : `<span class="dot" data-comment="${ctx}-site-check-dot"></span>`}
+          ${label}
+        </span>`;
+      }
+
+      function renderEstimatesTable() {
+        const s = store.get();
+        const body = document.getElementById("estimates-table-body");
+        const colCount = 11;
+
+        if (s.estimatesLoading) {
+          body.innerHTML = Array.from({ length: 5 }).map((_, r) => `
+            <tr data-comment="estimates-skeleton-row-${r + 1}">
+              <td><span class="skeleton-bar" style="width: 75%" data-comment="estimates-skeleton-row-${r + 1}-id"></span></td>
+              <td><span class="skeleton-bar" style="width: 33%" data-comment="estimates-skeleton-row-${r + 1}-name"></span></td>
+              <td><span class="skeleton-bar" style="width: 50%" data-comment="estimates-skeleton-row-${r + 1}-status"></span></td>
+              <td><span class="skeleton-bar" style="width: 66%" data-comment="estimates-skeleton-row-${r + 1}-date"></span></td>
+              <td><span class="skeleton-bar" style="width: 60%" data-comment="estimates-skeleton-row-${r + 1}-customer"></span></td>
+              <td><span class="skeleton-bar" style="width: 50%" data-comment="estimates-skeleton-row-${r + 1}-location"></span></td>
+              <td><span class="skeleton-bar" style="width: 40%" data-comment="estimates-skeleton-row-${r + 1}-total"></span></td>
+              <td><span class="skeleton-bar" style="width: 60%" data-comment="estimates-skeleton-row-${r + 1}-rep"></span></td>
+              <td><span class="skeleton-bar" style="width: 50%" data-comment="estimates-skeleton-row-${r + 1}-sc"></span></td>
+              <td><span class="skeleton-bar" style="width: 70%" data-comment="estimates-skeleton-row-${r + 1}-memo"></span></td>
+              <td></td>
+            </tr>
+          `).join("");
+          renderPagination(0);
+          return;
+        }
+        if (s.estimatesError) {
+          body.innerHTML = `<tr><td class="error-cell" data-comment="estimates-table-error" colspan="${colCount}">Failed to load estimates. Please refresh.</td></tr>`;
+          renderPagination(0);
+          return;
+        }
+
+        const filtered = applyFilters(s.estimates, s.listSearchTerm);
+        const sorted = applySort(filtered, s.sort);
+        const totalPages = Math.max(1, Math.ceil(sorted.length / s.pageSize));
+        const safePage = Math.min(s.page, totalPages);
+        const rows = paginate(sorted, safePage, s.pageSize);
+
+        if (rows.length === 0) {
+          body.innerHTML = `<tr><td class="empty-cell" data-comment="estimates-table-empty" colspan="${colCount}">No estimates yet.</td></tr>`;
+          renderPagination(totalPages);
+          return;
+        }
+
+        body.innerHTML = rows.map((e) => {
+          const ctx = `estimates-table-row-${e.id}`;
+          const total = (e.total ?? 0) + (e.total_tax ?? 0);
+          const customerName = e.customer ? `${e.customer.first_name} ${e.customer.last_name}`.trim() : "";
+          return `
+            <tr class="clickable" data-comment="${ctx}" data-estimate-id="${e.id}">
+              <td class="id-cell" data-comment="${ctx}-id">${e.id}</td>
+              <td data-comment="${ctx}-name">${escapeHtml(e.name || "—")}</td>
+              <td data-comment="${ctx}-status">${renderStatusBadge(e.status, ctx)}</td>
+              <td data-comment="${ctx}-date">${formatDate(e.order_date)}</td>
+              <td data-comment="${ctx}-customer">
+                ${e.customer
+                  ? `<a class="customer-link" data-comment="${ctx}-customer-link" href="customer-detail.html?id=${e.customer_id}" onclick="event.stopPropagation()">${escapeHtml(customerName || "—")}</a>`
+                  : "—"}
+              </td>
+              <td data-comment="${ctx}-location">${escapeHtml(e.customer?.location || "—")}</td>
+              <td data-comment="${ctx}-total">${e.total ? "$" + formatMoney(total) : "—"}</td>
+              <td data-comment="${ctx}-sales-rep">${escapeHtml(e.sales_rep_name || "—")}</td>
+              <td data-comment="${ctx}-site-check">${renderSiteCheckBadge(e.site_check_status || "not_required", ctx)}</td>
+              <td data-comment="${ctx}-memo">${escapeHtml(e.memo || "—")}</td>
+              <td data-comment="${ctx}-actions">
+                <div class="row-actions" data-comment="${ctx}-actions-wrap" onclick="event.stopPropagation()">
+                  <button type="button" class="btn-icon-sm danger" data-comment="${ctx}-delete" data-component="button" data-action="delete" data-estimate-id="${e.id}" aria-label="Delete estimate">${ICONS.trash2}</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+        renderPagination(totalPages);
+      }
+
+      function renderSortIcons() {
+        const s = store.get();
+        document.querySelectorAll(".data-table thead th.sortable").forEach((th) => {
+          const key = th.dataset.sortKey;
+          const icon = th.querySelector(".sort-icon");
+          let svg;
+          if (s.sort.key === key && s.sort.dir === "asc") svg = ICONS.chevronUp;
+          else if (s.sort.key === key && s.sort.dir === "desc") svg = ICONS.chevronDown;
+          else svg = ICONS.chevronsUpDown;
+          icon.outerHTML = svg.replace("<svg ", `<svg class="sort-icon ${(s.sort.key !== key || !s.sort.dir) ? "dim" : ""}" data-comment="${th.dataset.comment}-sort-icon" `);
+        });
+      }
+
+      function renderPagination(totalPages) {
+        const s = store.get();
+        const tp = Math.max(1, totalPages);
+        const safePage = Math.min(s.page, tp);
+        document.getElementById("estimates-pagination-status").textContent = `Page ${safePage} of ${tp}`;
+        document.getElementById("estimates-page-first").disabled = safePage <= 1;
+        document.getElementById("estimates-page-prev").disabled = safePage <= 1;
+        document.getElementById("estimates-page-next").disabled = safePage >= tp;
+        document.getElementById("estimates-page-last").disabled = safePage >= tp;
+        document.getElementById("estimates-page-size").value = String(s.pageSize);
+      }
+
+      function renderSearchInput() {
+        const s = store.get();
+        const input = document.getElementById("estimates-search-input");
+        if (input.value !== s.listSearchInput) input.value = s.listSearchInput;
+        document.getElementById("estimates-search-clear").style.display = s.listSearchInput ? "inline-flex" : "none";
+      }
+
+      function renderDialog() {
+        const s = store.get();
+        const overlay = document.getElementById("estimates-delete-overlay");
+        overlay.classList.toggle("is-open", s.dialog.type === "delete");
+      }
+
+      // ───── Subscribe + initial render ─────
+      store.subscribe(renderSidebarNav);
+      store.subscribe(renderUser);
+      store.subscribe(renderCollapse);
+      store.subscribe(renderSidebarSearch);
+      store.subscribe(renderEstimatesTable);
+      store.subscribe(renderSortIcons);
+      store.subscribe(renderSearchInput);
+      store.subscribe(renderDialog);
+
+      renderSidebarNav();
+      renderUser();
+      renderCollapse();
+      renderSidebarSearch();
+      renderEstimatesTable();
+      renderSortIcons();
+      renderSearchInput();
+      renderDialog();
+
+      setTimeout(() => store.set({ estimatesLoading: false }), 250);
+
+      // ───── Handlers: sidebar ─────
+      document.getElementById("sidebar-collapse-btn").addEventListener("click", () => {
+        store.set((s) => ({ collapsed: !s.collapsed }));
+      });
+      const sidebarSearchInput = document.getElementById("sidebar-search-input");
+      sidebarSearchInput.addEventListener("focus", () => store.set({ searchOpen: true }));
+      sidebarSearchInput.addEventListener("blur", () => setTimeout(() => store.set({ searchOpen: false }), 150));
+      sidebarSearchInput.addEventListener("input", (e) => store.set({ searchTerm: e.target.value }));
+      document.getElementById("sidebar-search-list").addEventListener("mousedown", (e) => {
+        const btn = e.target.closest("[data-customer-id]");
+        if (!btn) return;
+        const id = btn.dataset.customerId;
+        sidebarSearchInput.value = "";
+        store.set({ searchOpen: false, searchTerm: "" });
+        window.location.href = `customer-detail.html?id=${id}`;
+      });
+      document.getElementById("sidebar-user-logout").addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+
+      // ───── Handlers: search ─────
+      const listSearchInput = document.getElementById("estimates-search-input");
+      listSearchInput.addEventListener("input", (e) => store.set({ listSearchInput: e.target.value }));
+      listSearchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") store.set((s) => ({ listSearchTerm: s.listSearchInput, page: 1 }));
+      });
+      document.getElementById("estimates-search-clear").addEventListener("click", () => {
+        store.set({ listSearchInput: "", listSearchTerm: "", page: 1 });
+      });
+
+      // ───── Handlers: sort ─────
+      document.querySelectorAll(".data-table thead th.sortable").forEach((th) => {
+        th.addEventListener("click", () => {
+          const key = th.dataset.sortKey;
+          store.set((s) => {
+            if (s.sort.key !== key) return { sort: { key, dir: "asc" }, page: 1 };
+            if (s.sort.dir === "asc") return { sort: { key, dir: "desc" }, page: 1 };
+            if (s.sort.dir === "desc") return { sort: { key: null, dir: null }, page: 1 };
+            return { sort: { key, dir: "asc" }, page: 1 };
+          });
+        });
+      });
+
+      // ───── Handlers: pagination ─────
+      document.getElementById("estimates-page-first").addEventListener("click", () => store.set({ page: 1 }));
+      document.getElementById("estimates-page-prev").addEventListener("click", () => store.set((s) => ({ page: Math.max(1, s.page - 1) })));
+      document.getElementById("estimates-page-next").addEventListener("click", () => store.set((s) => {
+        const filtered = applyFilters(s.estimates, s.listSearchTerm);
+        const totalPages = Math.max(1, Math.ceil(filtered.length / s.pageSize));
+        return { page: Math.min(totalPages, s.page + 1) };
+      }));
+      document.getElementById("estimates-page-last").addEventListener("click", () => store.set((s) => {
+        const filtered = applyFilters(s.estimates, s.listSearchTerm);
+        const totalPages = Math.max(1, Math.ceil(filtered.length / s.pageSize));
+        return { page: totalPages };
+      }));
+      document.getElementById("estimates-page-size").addEventListener("change", (e) => {
+        store.set({ pageSize: Number(e.target.value), page: 1 });
+      });
+
+      // ───── Handlers: rows ─────
+      document.getElementById("estimates-table-body").addEventListener("click", (e) => {
+        const actionBtn = e.target.closest("[data-action='delete']");
+        if (actionBtn) {
+          const id = Number(actionBtn.dataset.estimateId);
+          const estimate = store.get().estimates.find((es) => es.id === id);
+          if (estimate) store.set({ dialog: { type: "delete", estimate } });
+          return;
+        }
+        const row = e.target.closest("tr.clickable");
+        if (row && row.dataset.estimateId) {
+          // Mirror onRowClick (opens detail sheet). For static, no-op.
+        }
+      });
+
+      // ───── Handlers: dialog ─────
+      document.getElementById("estimates-delete-cancel").addEventListener("click", () => {
+        store.set({ dialog: { type: "closed" } });
+      });
+      document.getElementById("estimates-delete-confirm").addEventListener("click", () => {
+        const cur = store.get().dialog;
+        if (cur.type === "delete") deleteEstimate(cur.estimate.id);
+      });
+
+      function escapeHtml(s) {
+        return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+        })[c]);
+      }
+    </script>
+  </body>
+</html>

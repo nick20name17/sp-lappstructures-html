@@ -1,0 +1,2689 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapp Structures — Customers</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      /* ───── Reset ───── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ───── Design tokens ───── */
+      :root {
+        --radius: 0.5rem;
+        --background: oklch(0.93 0.011 257);
+        --background-secondary: oklch(98.837% 0.00143 285.197);
+        --foreground: oklch(0.14 0.033 262);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.22 0.03 255);
+        --popover: oklch(1 0 0);
+        --primary: oklch(0.53 0.18 260);
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.97 0.005 250);
+        --secondary-foreground: oklch(0.14 0.033 262);
+        --secondary-hover: oklch(0.93 0.011 257);
+        --muted: oklch(0.97 0.005 250);
+        --muted-foreground: oklch(0.56 0.023 255);
+        --accent: oklch(0.96 0.03 260);
+        --accent-foreground: oklch(0.53 0.18 260);
+        --destructive: oklch(0.50 0.19 25);
+        --success: oklch(0.58 0.16 150);
+        --border: oklch(0.93 0.011 257);
+        --input: oklch(0.92 0.01 250);
+        --ring: oklch(0.53 0.18 260);
+
+        --sidebar: oklch(1 0 0);
+        --sidebar-foreground: oklch(0.55 0.02 255);
+        --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-accent: oklch(0.97 0.005 250);
+        --sidebar-accent-foreground: oklch(0.14 0.033 262);
+        --sidebar-border: oklch(0.92 0.01 250);
+
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--background);
+        color: var(--foreground);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        overflow: hidden;
+      }
+
+      button {
+        cursor: pointer;
+        font-family: inherit;
+        border: 0;
+        background: transparent;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      /* ───── Scrollbar ───── */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+      }
+
+      /* ───── App layout ───── */
+      .app-shell {
+        background: var(--background);
+        padding: 16px;
+        height: 100vh;
+      }
+
+      .app-frame {
+        display: flex;
+        height: calc(100vh - 32px);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      /* ───── Sidebar ───── */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        background: var(--sidebar);
+        border-right: 1px solid var(--border);
+        flex-shrink: 0;
+        overflow: hidden;
+        width: 240px;
+        transition: width 0.2s ease;
+      }
+
+      .sidebar.collapsed {
+        width: 56px;
+      }
+
+      .sidebar-logo {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        padding: 0 16px 16px;
+        height: 64px;
+        flex-shrink: 0;
+        transition: opacity 0.15s ease;
+      }
+
+      .sidebar-logo:hover {
+        opacity: 0.9;
+      }
+
+      .sidebar.collapsed .sidebar-logo {
+        justify-content: center;
+        padding: 0 0 16px;
+        gap: 0;
+      }
+
+      .sidebar-logo-mark {
+        display: flex;
+        width: 32px;
+        height: 32px;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar-logo-mark img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .sidebar-logo-text {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        line-height: 1.2;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+        color: var(--brand-navy);
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+
+      .sidebar.collapsed .sidebar-logo-text {
+        width: 0;
+        opacity: 0;
+      }
+
+      .sidebar-search {
+        position: relative;
+        padding: 0 8px 4px;
+      }
+
+      .sidebar-search-input-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        padding: 6px 10px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+
+      .sidebar-search-input-wrap:hover,
+      .sidebar-search-input-wrap.is-open {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+
+      .sidebar-search-input-wrap.is-open {
+        border-color: color-mix(
+          in oklch,
+          var(--sidebar-foreground) 20%,
+          transparent
+        );
+      }
+
+      .sidebar-search-icon {
+        width: 14px;
+        height: 14px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        flex-shrink: 0;
+      }
+
+      .sidebar-search-input {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        font-size: 0.875rem;
+        font-family: inherit;
+        color: var(--sidebar-foreground);
+        border: 0;
+        outline: none;
+      }
+
+      .sidebar-search-input::placeholder {
+        color: color-mix(in oklch, var(--sidebar-foreground) 40%, transparent);
+      }
+
+      .sidebar-search-dropdown {
+        position: absolute;
+        bottom: 100%;
+        left: 4px;
+        right: 4px;
+        margin-bottom: 4px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--popover);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        z-index: 50;
+      }
+
+      .sidebar-search-dropdown-empty {
+        padding: 16px 12px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+      }
+
+      .sidebar-search-dropdown ul {
+        list-style: none;
+        max-height: 224px;
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+
+      .sidebar-search-dropdown-item {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        text-align: left;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+
+      .sidebar-search-dropdown-item:hover {
+        background: var(--accent);
+      }
+
+      .sidebar-search-dropdown-item-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.2;
+      }
+
+      .sidebar-search-dropdown-item-email {
+        margin-top: 2px;
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        line-height: 1.2;
+      }
+
+      .sidebar.collapsed .sidebar-search {
+        padding: 0 8px 4px;
+      }
+
+      .sidebar.collapsed .sidebar-search-collapsed {
+        height: 34px;
+        padding-bottom: 4px;
+        background: color-mix(in oklch, var(--sidebar-accent) 40%, transparent);
+        margin: 0 8px;
+        display: flex;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .sidebar-section-title {
+        padding: 0 12px;
+        margin-bottom: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, height 0.2s ease;
+      }
+
+      .sidebar.collapsed .sidebar-section-title {
+        opacity: 0;
+        height: 0;
+        margin-bottom: 0;
+      }
+
+      .sidebar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .sidebar-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 10px 6px 6px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .sidebar-nav-link:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+
+      .sidebar-nav-link.active {
+        background: var(--sidebar-accent);
+        color: var(--sidebar-accent-foreground);
+      }
+
+      .sidebar-nav-link-icon {
+        padding: 4px;
+        border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.15s ease;
+      }
+
+      .sidebar-nav-link.active .sidebar-nav-link-icon {
+        background: var(--sidebar);
+      }
+
+      .sidebar-nav-link-icon svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .sidebar-nav-link-label {
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+
+      .sidebar.collapsed .sidebar-nav-link-label {
+        width: 0;
+        opacity: 0;
+      }
+
+      .sidebar-nav-link-badge {
+        margin-left: auto;
+        display: inline-flex;
+        gap: 4px;
+      }
+
+      .sidebar.collapsed .sidebar-nav-link-badge {
+        display: none;
+      }
+
+      .sidebar-badge {
+        display: inline-flex;
+        width: 20px;
+        height: 20px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        padding: 0 4px;
+      }
+
+      .sidebar-badge.amber {
+        background: rgba(245, 158, 11, 0.2);
+        color: rgb(180, 83, 9);
+      }
+
+      .sidebar-badge.blue {
+        background: rgba(59, 130, 246, 0.2);
+        color: rgb(29, 78, 216);
+      }
+
+      .sidebar-bottom {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 0 8px 16px;
+        flex-shrink: 0;
+      }
+
+      .sidebar-collapse-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 6px 10px 6px 6px;
+        border-radius: 6px;
+        color: var(--sidebar-foreground);
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .sidebar-collapse-btn:hover {
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+        color: var(--sidebar-accent-foreground);
+      }
+
+      .sidebar-collapse-btn-icon {
+        padding: 4px;
+        border-radius: 4px;
+        background: var(--sidebar-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar-collapse-btn:hover .sidebar-collapse-btn-icon {
+        background: var(--sidebar);
+      }
+
+      .sidebar-collapse-btn-icon svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .sidebar-collapse-btn-label {
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity 0.2s ease, width 0.2s ease;
+      }
+
+      .sidebar.collapsed .sidebar-collapse-btn-label {
+        width: 0;
+        opacity: 0;
+      }
+
+      .sidebar-user {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 6px;
+        border-radius: 6px;
+      }
+
+      .sidebar.collapsed .sidebar-user {
+        justify-content: center;
+      }
+
+      .sidebar-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 9999px;
+        background: var(--primary);
+        color: var(--primary-foreground);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .sidebar-user-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .sidebar.collapsed .sidebar-user-text,
+      .sidebar.collapsed .sidebar-user-logout {
+        display: none;
+      }
+
+      .sidebar-user-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .sidebar-user-email {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .sidebar-user-logout {
+        flex-shrink: 0;
+        padding: 4px;
+        border-radius: 6px;
+        color: color-mix(in oklch, var(--sidebar-foreground) 50%, transparent);
+        transition: background 0.15s ease, color 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .sidebar-user-logout:hover {
+        color: var(--sidebar-foreground);
+        background: color-mix(in oklch, var(--sidebar-accent) 60%, transparent);
+      }
+
+      .sidebar-user-logout svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* ───── Main ───── */
+      .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: var(--background-secondary);
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      /* ───── Page header ───── */
+      .page-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 16px;
+        background: var(--background-secondary);
+      }
+      @media (min-width: 640px) {
+        .page-header {
+          padding: 16px;
+        }
+      }
+
+      .page-header-title-wrap {
+        min-width: 0;
+      }
+
+      .page-header-title {
+        font-size: 1.125rem;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
+      }
+      @media (min-width: 640px) {
+        .page-header-title {
+          font-size: 1.25rem;
+        }
+      }
+
+      .page-header-description {
+        margin-top: 2px;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+
+      .page-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      /* ───── Buttons ───── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        white-space: nowrap;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        font-family: inherit;
+        height: 36px;
+        padding: 8px 16px;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .btn:disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+
+      .btn-primary:hover {
+        background: color-mix(in oklch, var(--primary) 90%, black);
+      }
+
+      .btn-outline {
+        background: white;
+        color: var(--foreground);
+        border: 1px solid var(--border);
+      }
+
+      .btn-outline:hover {
+        background: var(--secondary);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted-foreground);
+      }
+
+      .btn-ghost:hover {
+        background: var(--secondary);
+        color: var(--foreground);
+      }
+
+      .btn-ghost.is-destructive:hover {
+        color: var(--destructive);
+      }
+
+      .btn-icon-sm {
+        height: 28px;
+        width: 28px;
+        padding: 0;
+        border-radius: 6px;
+      }
+
+      .btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* ───── Search box ───── */
+      .search-box {
+        position: relative;
+      }
+
+      .search-box-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        color: var(--muted-foreground);
+        pointer-events: none;
+      }
+
+      .search-box-input {
+        height: 36px;
+        width: 100%;
+        padding: 0 28px 0 32px;
+        border: 1px solid var(--input);
+        background: var(--card);
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-family: inherit;
+        color: var(--foreground);
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      @media (min-width: 640px) {
+        .search-box-input {
+          width: 224px;
+        }
+      }
+
+      .search-box-input::placeholder {
+        color: var(--muted-foreground);
+      }
+
+      .search-box-input:focus {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 20%, transparent);
+      }
+
+      .search-box-clear {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 2px;
+        border-radius: 4px;
+        color: var(--muted-foreground);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .search-box-clear:hover {
+        color: var(--foreground);
+      }
+
+      .search-box-clear svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      /* ───── Body ───── */
+      .body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        padding: 16px;
+      }
+
+      .table-wrap {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--sidebar);
+      }
+
+      .table-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+      }
+
+      table.data-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+
+      .data-table thead th {
+        position: sticky;
+        top: 0;
+        background: var(--sidebar);
+        text-align: left;
+        font-weight: 500;
+        color: var(--muted-foreground);
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+        z-index: 1;
+      }
+
+      .data-table thead .th-inner {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        text-transform: capitalize;
+      }
+
+      .data-table thead .th-sortable {
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .data-table thead .th-sortable:hover {
+        color: var(--foreground);
+      }
+
+      .data-table thead .th-inner svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .data-table thead .th-inner .icon-unsorted {
+        opacity: 0.4;
+      }
+
+      .data-table tbody td {
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .data-table tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .data-table tbody tr.clickable {
+        cursor: pointer;
+      }
+
+      .data-table tbody tr.clickable:hover td {
+        background: color-mix(in oklch, var(--muted) 50%, transparent);
+      }
+
+      .data-table .col-empty,
+      .data-table .col-error {
+        padding: 32px 12px;
+        text-align: center;
+        color: var(--muted-foreground);
+        font-size: 0.875rem;
+        white-space: normal;
+      }
+
+      .cell-overflow {
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+      }
+
+      /* ───── Contact cell ───── */
+      .contact-cell {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .contact-initials {
+        display: inline-flex;
+        height: 28px;
+        width: 28px;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: var(--muted);
+        color: var(--muted-foreground);
+      }
+
+      /* ───── Tags ───── */
+      .tag-list {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        max-width: 100%;
+      }
+
+      .tag-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+
+      /* ───── Row actions ───── */
+      .row-actions {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        width: 100%;
+      }
+
+      /* ───── Skeleton ───── */
+      .skeleton {
+        display: inline-block;
+        height: 14px;
+        background: linear-gradient(
+          90deg,
+          color-mix(in oklch, var(--muted) 70%, transparent) 25%,
+          color-mix(in oklch, var(--border) 70%, transparent) 50%,
+          color-mix(in oklch, var(--muted) 70%, transparent) 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-pulse 1.4s ease-in-out infinite;
+        border-radius: 4px;
+      }
+
+      @keyframes skeleton-pulse {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* ───── Pagination ───── */
+      .pagination-bar {
+        flex-shrink: 0;
+        border-top: 1px solid var(--border);
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+
+      .pagination-size {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      @media (max-width: 767px) {
+        .pagination-size {
+          display: none;
+        }
+      }
+
+      .pagination-select {
+        height: 32px;
+        width: 80px;
+        padding: 0 8px;
+        border: 1px solid var(--input);
+        border-radius: 6px;
+        background: var(--card);
+        color: var(--foreground);
+        font-size: 0.875rem;
+        font-family: inherit;
+        outline: none;
+      }
+
+      .pagination-select:focus {
+        border-color: var(--ring);
+      }
+
+      .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .pagination-pages {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .pagination-btn {
+        height: 32px;
+        width: 32px;
+        padding: 0;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--foreground);
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s ease;
+      }
+
+      .pagination-btn:hover:not(:disabled) {
+        background: var(--secondary);
+      }
+
+      .pagination-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .pagination-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* ───── Dialog ───── */
+      .dialog-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 100;
+      }
+
+      .dialog-overlay.is-open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .dialog {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        z-index: 110;
+        pointer-events: none;
+      }
+
+      .dialog.is-open {
+        pointer-events: auto;
+      }
+
+      .dialog-panel {
+        width: 100%;
+        max-width: 480px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .dialog.is-open .dialog-panel {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .dialog-header {
+        padding: 20px 24px 0;
+      }
+
+      .dialog-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--foreground);
+      }
+
+      .dialog-description {
+        margin-top: 4px;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+
+      .dialog-body {
+        padding: 16px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .form-row label {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--foreground);
+      }
+
+      .form-row input {
+        height: 36px;
+        padding: 0 12px;
+        border: 1px solid var(--input);
+        border-radius: 6px;
+        background: var(--card);
+        color: var(--foreground);
+        font-size: 0.875rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .form-row input:focus {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 20%, transparent);
+      }
+
+      .form-row .form-error {
+        font-size: 0.75rem;
+        color: var(--destructive);
+      }
+
+      .dialog-footer {
+        padding: 12px 24px 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      /* ───── Reveal ───── */
+      .reveal {
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 400ms ease, transform 400ms ease;
+      }
+
+      .reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-comment="app-shell">
+      <div class="app-frame" data-comment="app-frame">
+        <!-- ───── Sidebar ───── -->
+        <aside
+          class="sidebar"
+          data-comment="sidebar"
+          id="sidebar"
+          aria-label="Primary navigation">
+          <a
+            class="sidebar-logo"
+            data-comment="sidebar-logo"
+            href="home.html"
+            aria-label="Go to home">
+            <span class="sidebar-logo-mark" data-comment="sidebar-logo-mark">
+              <img
+                data-comment="sidebar-logo-img"
+                src="https://raw.githubusercontent.com/nick20name17/sp-lappstructures-html/main/img/shared/logo.png"
+                alt="Lapp Structures" />
+            </span>
+            <span class="sidebar-logo-text" data-comment="sidebar-logo-text"
+              >Lapp Structures</span
+            >
+          </a>
+
+          <div
+            class="sidebar-search"
+            data-comment="sidebar-search"
+            id="sidebar-search-wrap">
+            <div
+              class="sidebar-search-input-wrap"
+              data-comment="sidebar-search-input-wrap"
+              id="sidebar-search-input-wrap">
+              <svg
+                class="sidebar-search-icon"
+                data-comment="sidebar-search-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                class="sidebar-search-input"
+                data-comment="sidebar-search-input"
+                id="sidebar-search-input"
+                placeholder="Find customer..." />
+            </div>
+            <div
+              class="sidebar-search-dropdown"
+              data-comment="sidebar-search-dropdown"
+              id="sidebar-search-dropdown"
+              style="display: none">
+              <div
+                class="sidebar-search-dropdown-empty"
+                data-comment="sidebar-search-dropdown-empty"
+                id="sidebar-search-empty">
+                No customers found.
+              </div>
+              <ul
+                data-comment="sidebar-search-dropdown-list"
+                id="sidebar-search-list"
+                style="display: none"></ul>
+            </div>
+          </div>
+
+          <div
+            class="sidebar-search-collapsed"
+            data-comment="sidebar-search-collapsed"
+            id="sidebar-search-collapsed"
+            style="display: none">
+            <svg
+              class="sidebar-search-icon"
+              data-comment="sidebar-search-collapsed-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          <nav class="sidebar-nav" data-comment="sidebar-nav" id="sidebar-nav">
+            <!-- rendered by JS -->
+          </nav>
+
+          <div class="sidebar-bottom" data-comment="sidebar-bottom">
+            <button
+              class="sidebar-collapse-btn"
+              data-comment="sidebar-collapse-btn"
+              id="sidebar-collapse-btn"
+              type="button">
+              <span
+                class="sidebar-collapse-btn-icon"
+                data-comment="sidebar-collapse-btn-icon">
+                <svg
+                  id="icon-collapse"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m16 15-3-3 3-3" />
+                </svg>
+                <svg
+                  id="icon-expand"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  style="display: none">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="m14 9 3 3-3 3" />
+                </svg>
+              </span>
+              <span
+                class="sidebar-collapse-btn-label"
+                data-comment="sidebar-collapse-btn-label"
+                >Minimize bar</span
+              >
+            </button>
+
+            <div class="sidebar-user" data-comment="sidebar-user">
+              <div
+                class="sidebar-user-info"
+                data-comment="sidebar-user-info">
+                <span
+                  class="avatar"
+                  data-comment="sidebar-user-avatar"
+                  data-component="avatar"
+                  id="sidebar-user-avatar"
+                  >AL</span
+                >
+                <div
+                  class="sidebar-user-text"
+                  data-comment="sidebar-user-text">
+                  <span
+                    class="sidebar-user-name"
+                    data-comment="sidebar-user-name"
+                    id="sidebar-user-name"
+                    >Anna Lee</span
+                  >
+                  <span
+                    class="sidebar-user-email"
+                    data-comment="sidebar-user-email"
+                    id="sidebar-user-email"
+                    >anna@lapp.com</span
+                  >
+                </div>
+              </div>
+              <button
+                class="sidebar-user-logout"
+                data-comment="sidebar-user-logout"
+                id="sidebar-user-logout"
+                title="Log out"
+                type="button">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path
+                    d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ───── Main ───── -->
+        <main class="main" data-comment="customers-main">
+          <div class="main-content" data-comment="customers-main-content">
+            <!-- Page header -->
+            <header class="page-header" data-comment="customers-page-header">
+              <div
+                class="page-header-title-wrap"
+                data-comment="customers-page-header-title-wrap">
+                <h1
+                  class="page-header-title"
+                  data-comment="customers-page-header-title">
+                  Customers
+                </h1>
+                <p
+                  class="page-header-description"
+                  data-comment="customers-page-header-description">
+                  Manage customer accounts.
+                </p>
+              </div>
+              <div
+                class="page-header-actions"
+                data-comment="customers-page-header-actions">
+                <div class="search-box" data-comment="customers-search-box">
+                  <svg
+                    class="search-box-icon"
+                    data-comment="customers-search-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                  </svg>
+                  <input
+                    type="text"
+                    class="search-box-input"
+                    data-comment="customers-search-input"
+                    data-component="input"
+                    id="customers-search-input"
+                    placeholder="Search..." />
+                  <button
+                    type="button"
+                    class="search-box-clear"
+                    data-comment="customers-search-clear"
+                    id="customers-search-clear"
+                    style="display: none"
+                    title="Clear search">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <button
+                  class="btn btn-primary"
+                  data-comment="customers-action-add"
+                  data-component="button"
+                  id="customers-action-add"
+                  type="button">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Add customer
+                </button>
+              </div>
+            </header>
+
+            <!-- Body -->
+            <div class="body" data-comment="customers-body">
+              <div class="table-wrap" data-comment="customers-table-wrap">
+                <div
+                  class="table-scroll"
+                  data-comment="customers-table-scroll">
+                  <table
+                    class="data-table"
+                    data-comment="customers-table"
+                    data-component="table"
+                    id="customers-table">
+                    <colgroup>
+                      <col style="width: 240px" />
+                      <col style="width: 140px" />
+                      <col style="width: 200px" />
+                      <col style="width: 200px" />
+                      <col style="width: 160px" />
+                      <col style="width: 240px" />
+                      <col style="width: 150px" />
+                      <col style="width: 150px" />
+                      <col style="width: 80px" />
+                    </colgroup>
+                    <thead data-comment="customers-table-head">
+                      <tr data-comment="customers-table-head-row">
+                        <th data-comment="customers-th-contact" data-sort-key="name">
+                          <span class="th-inner th-sortable">
+                            <span>Contact</span>
+                            <span class="th-sort-icon" data-sort-icon></span>
+                          </span>
+                        </th>
+                        <th data-comment="customers-th-tags">
+                          <span class="th-inner"><span>Tags</span></span>
+                        </th>
+                        <th data-comment="customers-th-billing">
+                          <span class="th-inner"><span>Billing</span></span>
+                        </th>
+                        <th data-comment="customers-th-shipping">
+                          <span class="th-inner"><span>Shipping</span></span>
+                        </th>
+                        <th data-comment="customers-th-phone">
+                          <span class="th-inner"><span>Phone</span></span>
+                        </th>
+                        <th data-comment="customers-th-email" data-sort-key="email">
+                          <span class="th-inner th-sortable">
+                            <span>Email address</span>
+                            <span class="th-sort-icon" data-sort-icon></span>
+                          </span>
+                        </th>
+                        <th data-comment="customers-th-location">
+                          <span class="th-inner"><span>Location</span></span>
+                        </th>
+                        <th data-comment="customers-th-sales-rep">
+                          <span class="th-inner"><span>Sales Rep</span></span>
+                        </th>
+                        <th data-comment="customers-th-actions">
+                          <span class="th-inner"></span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      data-comment="customers-table-body"
+                      id="customers-table-body">
+                      <!-- rendered by JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div
+                class="pagination-bar"
+                data-comment="customers-pagination-bar"
+                data-component="pagination"
+                id="customers-pagination-bar">
+                <div class="pagination-size" data-comment="customers-pagination-size">
+                  <span data-comment="customers-pagination-size-label">Rows per page</span>
+                  <select
+                    class="pagination-select"
+                    data-comment="customers-pagination-size-select"
+                    data-component="select"
+                    id="customers-pagination-size">
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </div>
+                <div
+                  class="pagination-controls"
+                  data-comment="customers-pagination-controls">
+                  <span
+                    data-comment="customers-pagination-label"
+                    id="customers-pagination-label"
+                    >Page 1 of 1</span
+                  >
+                  <div
+                    class="pagination-pages"
+                    data-comment="customers-pagination-pages">
+                    <button
+                      type="button"
+                      class="pagination-btn"
+                      data-comment="customers-pagination-first"
+                      data-component="button"
+                      id="customers-pagination-first"
+                      aria-label="First page">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="m11 17-5-5 5-5M18 17l-5-5 5-5" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="pagination-btn"
+                      data-comment="customers-pagination-prev"
+                      data-component="button"
+                      id="customers-pagination-prev"
+                      aria-label="Previous page">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="pagination-btn"
+                      data-comment="customers-pagination-next"
+                      data-component="button"
+                      id="customers-pagination-next"
+                      aria-label="Next page">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="pagination-btn"
+                      data-comment="customers-pagination-last"
+                      data-component="button"
+                      id="customers-pagination-last"
+                      aria-label="Last page">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="m13 17 5-5-5-5M6 17l5-5-5-5" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- ───── Create/Edit Customer Dialog ───── -->
+    <div
+      class="dialog-overlay"
+      data-comment="customers-dialog-overlay"
+      id="customers-dialog-overlay"></div>
+    <div
+      class="dialog"
+      data-comment="customers-dialog"
+      data-component="dialog"
+      id="customers-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true">
+      <div class="dialog-panel" data-comment="customers-dialog-panel">
+        <header class="dialog-header" data-comment="customers-dialog-header">
+          <h2
+            class="dialog-title"
+            data-comment="customers-dialog-title"
+            id="customers-dialog-title">
+            Add new customer
+          </h2>
+          <p class="dialog-description" data-comment="customers-dialog-description">
+            Enter the customer details below.
+          </p>
+        </header>
+        <div class="dialog-body" data-comment="customers-dialog-body">
+          <div class="form-row" data-comment="customers-form-first-name">
+            <label data-comment="customers-form-first-name-label" for="customer-first-name"
+              >First name</label
+            >
+            <input
+              type="text"
+              data-comment="customers-form-first-name-input"
+              data-component="input"
+              id="customer-first-name"
+              placeholder="Jane" />
+            <span
+              class="form-error"
+              data-comment="customers-form-first-name-error"
+              id="customer-first-name-error"
+              style="display: none"
+              >First name is required.</span
+            >
+          </div>
+          <div class="form-row" data-comment="customers-form-last-name">
+            <label data-comment="customers-form-last-name-label" for="customer-last-name"
+              >Last name</label
+            >
+            <input
+              type="text"
+              data-comment="customers-form-last-name-input"
+              data-component="input"
+              id="customer-last-name"
+              placeholder="Doe" />
+            <span
+              class="form-error"
+              data-comment="customers-form-last-name-error"
+              id="customer-last-name-error"
+              style="display: none"
+              >Last name is required.</span
+            >
+          </div>
+          <div class="form-row" data-comment="customers-form-email">
+            <label data-comment="customers-form-email-label" for="customer-email"
+              >Email</label
+            >
+            <input
+              type="email"
+              data-comment="customers-form-email-input"
+              data-component="input"
+              id="customer-email"
+              placeholder="jane@example.com" />
+            <span
+              class="form-error"
+              data-comment="customers-form-email-error"
+              id="customer-email-error"
+              style="display: none"
+              >Enter a valid email address.</span
+            >
+          </div>
+          <div class="form-row" data-comment="customers-form-phone">
+            <label data-comment="customers-form-phone-label" for="customer-phone"
+              >Phone</label
+            >
+            <input
+              type="tel"
+              data-comment="customers-form-phone-input"
+              data-component="input"
+              id="customer-phone"
+              placeholder="(555) 555-1234" />
+          </div>
+          <div class="form-row" data-comment="customers-form-location">
+            <label data-comment="customers-form-location-label" for="customer-location"
+              >Location</label
+            >
+            <input
+              type="text"
+              data-comment="customers-form-location-input"
+              data-component="input"
+              id="customer-location"
+              placeholder="Lancaster, PA" />
+          </div>
+        </div>
+        <footer class="dialog-footer" data-comment="customers-dialog-footer">
+          <button
+            type="button"
+            class="btn btn-outline"
+            data-comment="customers-dialog-cancel"
+            data-component="button"
+            id="customers-dialog-cancel">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-comment="customers-dialog-save"
+            data-component="button"
+            id="customers-dialog-save">
+            Save customer
+          </button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- ───── Delete Customer Dialog ───── -->
+    <div
+      class="dialog-overlay"
+      data-comment="customers-delete-overlay"
+      id="customers-delete-overlay"></div>
+    <div
+      class="dialog"
+      data-comment="customers-delete-dialog"
+      data-component="dialog"
+      id="customers-delete-dialog"
+      role="alertdialog"
+      aria-modal="true"
+      aria-hidden="true">
+      <div class="dialog-panel" data-comment="customers-delete-panel">
+        <header class="dialog-header" data-comment="customers-delete-header">
+          <h2 class="dialog-title" data-comment="customers-delete-title">
+            Delete customer?
+          </h2>
+          <p
+            class="dialog-description"
+            data-comment="customers-delete-description"
+            id="customers-delete-description">
+            This action cannot be undone.
+          </p>
+        </header>
+        <footer class="dialog-footer" data-comment="customers-delete-footer">
+          <button
+            type="button"
+            class="btn btn-outline"
+            data-comment="customers-delete-cancel"
+            data-component="button"
+            id="customers-delete-cancel">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-comment="customers-delete-confirm"
+            data-component="button"
+            id="customers-delete-confirm"
+            style="background: var(--destructive)">
+            Delete
+          </button>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      /* ───── Store ───── */
+      function createStore(initialState) {
+        let state = structuredClone(initialState);
+        const listeners = new Set();
+        return {
+          get: () => state,
+          set(updater) {
+            state =
+              typeof updater === "function"
+                ? updater(state)
+                : { ...state, ...updater };
+            listeners.forEach((fn) => fn(state));
+          },
+          subscribe(fn) {
+            listeners.add(fn);
+            return () => listeners.delete(fn);
+          },
+        };
+      }
+
+      /* ───── Icons ───── */
+      const ICONS = {
+        list: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>',
+        userRound:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+        clipboardList:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></svg>',
+        mapPin:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+        users:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        clipboardCheck:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+        layers2:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>',
+        sortUp:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>',
+        sortDown:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+        sortUnsorted:
+          '<svg class="icon-unsorted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>',
+        pencil:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
+        trash:
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+      };
+
+      /* ───── Nav config ───── */
+      const NAV_BY_ROLE = {
+        admin: [
+          {
+            items: [
+              { label: "Customers", path: "customers.html", icon: "userRound" },
+              { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
+              { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
+              { label: "Sales Orders", path: "orders.html", icon: "list" },
+              { label: "Users", path: "users.html", icon: "users" },
+              { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
+              { label: "Options List", path: "attributes.html", icon: "layers2" },
+            ],
+          },
+        ],
+      };
+
+      /* ───── Seed customers ───── */
+      const SEED_CUSTOMERS = [
+        {
+          id: 1,
+          first_name: "Anna",
+          last_name: "Lee",
+          email: "anna@example.com",
+          primary_phone: "7175550101",
+          location: "Lancaster, PA",
+          tags: [{ id: 1, name: "VIP", hex_color: "#7c3aed" }],
+          sales_rep: "Tom Brady",
+          billing: "Lancaster PA - 17601",
+          shipping: "Lancaster PA - 17601",
+        },
+        {
+          id: 2,
+          first_name: "Mark",
+          last_name: "Chen",
+          email: "mark@example.com",
+          primary_phone: "6105550102",
+          location: "Reading, PA",
+          tags: [{ id: 2, name: "Dealer", hex_color: "#2563eb" }],
+          sales_rep: "Tom Brady",
+          billing: "Reading PA - 19601",
+          shipping: "Reading PA - 19601",
+        },
+        {
+          id: 3,
+          first_name: "Sarah",
+          last_name: "Johnson",
+          email: "sarah.j@example.com",
+          primary_phone: "7175550103",
+          location: "York, PA",
+          tags: [{ id: 3, name: "Repeat", hex_color: "#16a34a" }],
+          sales_rep: "Linda Park",
+          billing: "York PA - 17402",
+          shipping: "York PA - 17402",
+        },
+        {
+          id: 4,
+          first_name: "David",
+          last_name: "Smith",
+          email: "david.smith@example.com",
+          primary_phone: "7175550104",
+          location: "Harrisburg, PA",
+          tags: [],
+          sales_rep: "Linda Park",
+          billing: "Harrisburg PA - 17101",
+          shipping: "Harrisburg PA - 17101",
+        },
+        {
+          id: 5,
+          first_name: "Emma",
+          last_name: "Garcia",
+          email: "emma.g@example.com",
+          primary_phone: "6105550105",
+          location: "Allentown, PA",
+          tags: [{ id: 1, name: "VIP", hex_color: "#7c3aed" }],
+          sales_rep: "Marcus Yu",
+          billing: "Allentown PA - 18101",
+          shipping: "Allentown PA - 18101",
+        },
+        {
+          id: 6,
+          first_name: "James",
+          last_name: "Wilson",
+          email: "jwilson@example.com",
+          primary_phone: "6105550106",
+          location: "Bethlehem, PA",
+          tags: [{ id: 4, name: "Builder", hex_color: "#ea580c" }],
+          sales_rep: "Marcus Yu",
+          billing: "Bethlehem PA - 18017",
+          shipping: "Bethlehem PA - 18017",
+        },
+        {
+          id: 7,
+          first_name: "Olivia",
+          last_name: "Brown",
+          email: "olivia@example.com",
+          primary_phone: "7175550107",
+          location: "Lebanon, PA",
+          tags: [{ id: 3, name: "Repeat", hex_color: "#16a34a" }],
+          sales_rep: "Tom Brady",
+          billing: "Lebanon PA - 17042",
+          shipping: "Lebanon PA - 17042",
+        },
+        {
+          id: 8,
+          first_name: "Michael",
+          last_name: "Davis",
+          email: "michael.d@example.com",
+          primary_phone: "4125550108",
+          location: "Pittsburgh, PA",
+          tags: [{ id: 2, name: "Dealer", hex_color: "#2563eb" }],
+          sales_rep: "Linda Park",
+          billing: "Pittsburgh PA - 15201",
+          shipping: "Pittsburgh PA - 15201",
+        },
+        {
+          id: 9,
+          first_name: "Sophia",
+          last_name: "Martinez",
+          email: "sophia.m@example.com",
+          primary_phone: "7175550109",
+          location: "Lancaster, PA",
+          tags: [],
+          sales_rep: "Marcus Yu",
+          billing: "Lancaster PA - 17603",
+          shipping: "—",
+        },
+        {
+          id: 10,
+          first_name: "Daniel",
+          last_name: "Anderson",
+          email: "dan.a@example.com",
+          primary_phone: "6105550110",
+          location: "Reading, PA",
+          tags: [{ id: 4, name: "Builder", hex_color: "#ea580c" }],
+          sales_rep: "Marcus Yu",
+          billing: "Reading PA - 19601",
+          shipping: "Reading PA - 19601",
+        },
+        {
+          id: 11,
+          first_name: "Isabella",
+          last_name: "Taylor",
+          email: "isabella@example.com",
+          primary_phone: "7175550111",
+          location: "York, PA",
+          tags: [{ id: 1, name: "VIP", hex_color: "#7c3aed" }],
+          sales_rep: "Tom Brady",
+          billing: "York PA - 17404",
+          shipping: "York PA - 17404",
+        },
+        {
+          id: 12,
+          first_name: "Ethan",
+          last_name: "Thomas",
+          email: "ethan.t@example.com",
+          primary_phone: "7175550112",
+          location: "Harrisburg, PA",
+          tags: [{ id: 3, name: "Repeat", hex_color: "#16a34a" }],
+          sales_rep: "Linda Park",
+          billing: "Harrisburg PA - 17103",
+          shipping: "Harrisburg PA - 17103",
+        },
+        {
+          id: 13,
+          first_name: "Mia",
+          last_name: "Jackson",
+          email: "mia.j@example.com",
+          primary_phone: "6105550113",
+          location: "Allentown, PA",
+          tags: [],
+          sales_rep: "Marcus Yu",
+          billing: "Allentown PA - 18103",
+          shipping: "Allentown PA - 18103",
+        },
+        {
+          id: 14,
+          first_name: "Alexander",
+          last_name: "White",
+          email: "alex.w@example.com",
+          primary_phone: "6105550114",
+          location: "Bethlehem, PA",
+          tags: [{ id: 2, name: "Dealer", hex_color: "#2563eb" }],
+          sales_rep: "Tom Brady",
+          billing: "Bethlehem PA - 18020",
+          shipping: "Bethlehem PA - 18020",
+        },
+        {
+          id: 15,
+          first_name: "Charlotte",
+          last_name: "Harris",
+          email: "charlotte.h@example.com",
+          primary_phone: "7175550115",
+          location: "Lebanon, PA",
+          tags: [{ id: 4, name: "Builder", hex_color: "#ea580c" }],
+          sales_rep: "Linda Park",
+          billing: "Lebanon PA - 17046",
+          shipping: "Lebanon PA - 17046",
+        },
+      ];
+
+      /* ───── Store ───── */
+      const store = createStore({
+        user: {
+          id: 1,
+          name: "Anna Lee",
+          email: "anna@lapp.com",
+          role: "admin",
+        },
+        collapsed: false,
+        searchOpen: false,
+        sidebarSearchTerm: "",
+        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        currentPath: "customers.html",
+
+        customers: SEED_CUSTOMERS,
+        isLoading: true,
+        searchTerm: "",
+        searchInput: "",
+        sort: { key: null, dir: null },
+        page: 1,
+        pageSize: 10,
+        dialog: { type: "closed" }, // { type: 'create' | 'edit' | 'delete', customer? }
+        formErrors: {},
+      });
+
+      /* ───── Sidebar render (mirrors home.html) ───── */
+      function renderSidebarNav() {
+        const s = store.get();
+        const nav = document.getElementById("sidebar-nav");
+        const sections = NAV_BY_ROLE[s.user.role] || [];
+        nav.innerHTML = sections
+          .map(
+            (section, sectionIdx) => `
+            <div class="sidebar-section" data-comment="sidebar-section-${sectionIdx}">
+              ${
+                section.title
+                  ? `<p class="sidebar-section-title" data-comment="sidebar-section-${sectionIdx}-title">${section.title}</p>`
+                  : ""
+              }
+              ${section.items
+                .map((item, i) => {
+                  const isActive = item.path === s.currentPath;
+                  const slug = item.label.toLowerCase().replace(/\s+/g, "-");
+                  const badges =
+                    item.badge && !s.collapsed
+                      ? `<span class="sidebar-nav-link-badge" data-comment="sidebar-nav-link-${i}-badges">
+                          ${
+                            s.reviewBadges.not_pricing_reviewed > 0
+                              ? `<span class="sidebar-badge amber" data-comment="sidebar-nav-link-${i}-badge-pricing" title="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
+                              : ""
+                          }
+                          ${
+                            s.reviewBadges.not_shop_reviewed > 0
+                              ? `<span class="sidebar-badge blue" data-comment="sidebar-nav-link-${i}-badge-shop" title="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
+                              : ""
+                          }
+                        </span>`
+                      : "";
+                  return `
+                    <a class="sidebar-nav-link ${isActive ? "active" : ""}" data-comment="sidebar-nav-link-${slug}" href="${item.path}" title="${item.label}">
+                      <span class="sidebar-nav-link-icon" data-comment="sidebar-nav-link-${slug}-icon">${ICONS[item.icon] || ""}</span>
+                      <span class="sidebar-nav-link-label" data-comment="sidebar-nav-link-${slug}-label">${item.label}</span>
+                      ${badges}
+                    </a>
+                  `;
+                })
+                .join("")}
+            </div>
+          `,
+          )
+          .join("");
+      }
+
+      function renderUser() {
+        const { user } = store.get();
+        document.getElementById("sidebar-user-name").textContent = user.name;
+        document.getElementById("sidebar-user-email").textContent = user.email;
+        document.getElementById("sidebar-user-avatar").textContent = user.name
+          .split(" ")
+          .slice(0, 2)
+          .map((w) => (w[0] || "").toUpperCase())
+          .join("");
+      }
+
+      function renderCollapse() {
+        const s = store.get();
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("collapsed", s.collapsed);
+        document.getElementById("icon-collapse").style.display = s.collapsed
+          ? "none"
+          : "block";
+        document.getElementById("icon-expand").style.display = s.collapsed
+          ? "block"
+          : "none";
+        document.getElementById("sidebar-search-wrap").style.display = s.collapsed
+          ? "none"
+          : "block";
+        document.getElementById("sidebar-search-collapsed").style.display =
+          s.collapsed ? "flex" : "none";
+      }
+
+      function renderSidebarSearch() {
+        const s = store.get();
+        const wrap = document.getElementById("sidebar-search-input-wrap");
+        wrap.classList.toggle("is-open", s.searchOpen);
+        const showDropdown = s.searchOpen && s.sidebarSearchTerm.trim().length > 0;
+        const dropdown = document.getElementById("sidebar-search-dropdown");
+        dropdown.style.display = showDropdown ? "block" : "none";
+        if (!showDropdown) return;
+        const filtered = s.customers.filter((c) => {
+          const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+          const term = s.sidebarSearchTerm.trim().toLowerCase();
+          return (
+            fullName.includes(term) ||
+            (c.email && c.email.toLowerCase().includes(term))
+          );
+        });
+        const empty = document.getElementById("sidebar-search-empty");
+        const list = document.getElementById("sidebar-search-list");
+        if (filtered.length === 0) {
+          empty.style.display = "block";
+          list.style.display = "none";
+        } else {
+          empty.style.display = "none";
+          list.style.display = "block";
+          list.innerHTML = filtered
+            .slice(0, 8)
+            .map(
+              (c) => `
+              <li data-comment="sidebar-search-item-${c.id}">
+                <button type="button"
+                  class="sidebar-search-dropdown-item"
+                  data-comment="sidebar-search-item-${c.id}-button"
+                  data-customer-id="${c.id}">
+                  <div class="sidebar-search-dropdown-item-name" data-comment="sidebar-search-item-${c.id}-name">${c.first_name} ${c.last_name}</div>
+                  ${c.email ? `<div class="sidebar-search-dropdown-item-email" data-comment="sidebar-search-item-${c.id}-email">${c.email}</div>` : ""}
+                </button>
+              </li>
+            `,
+            )
+            .join("");
+        }
+      }
+
+      /* ───── Format helpers ───── */
+      function formatPhone(p) {
+        if (!p) return "";
+        const digits = p.replace(/\D/g, "");
+        if (digits.length !== 10) return p;
+        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+      }
+
+      function esc(v) {
+        if (v == null) return "";
+        return String(v)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      /* ───── Filter + sort + paginate ───── */
+      function getFilteredCustomers() {
+        const s = store.get();
+        const term = s.searchTerm.trim().toLowerCase();
+        let rows = s.customers;
+        if (term) {
+          rows = rows.filter((c) => {
+            const name = `${c.first_name} ${c.last_name}`.toLowerCase();
+            return (
+              name.includes(term) ||
+              (c.email && c.email.toLowerCase().includes(term)) ||
+              (c.location && c.location.toLowerCase().includes(term)) ||
+              (c.primary_phone && c.primary_phone.includes(term))
+            );
+          });
+        }
+        if (s.sort.key && s.sort.dir) {
+          const { key, dir } = s.sort;
+          rows = [...rows].sort((a, b) => {
+            const av =
+              key === "name"
+                ? `${a.first_name} ${a.last_name}`.toLowerCase()
+                : (a[key] || "").toString().toLowerCase();
+            const bv =
+              key === "name"
+                ? `${b.first_name} ${b.last_name}`.toLowerCase()
+                : (b[key] || "").toString().toLowerCase();
+            if (av < bv) return dir === "asc" ? -1 : 1;
+            if (av > bv) return dir === "asc" ? 1 : -1;
+            return 0;
+          });
+        }
+        return rows;
+      }
+
+      function getPagedCustomers() {
+        const rows = getFilteredCustomers();
+        const s = store.get();
+        const start = (s.page - 1) * s.pageSize;
+        return { rows: rows.slice(start, start + s.pageSize), totalCount: rows.length };
+      }
+
+      /* ───── Action functions (CRUD) ───── */
+      function addCustomer(data) {
+        store.set((s) => ({
+          customers: [
+            ...s.customers,
+            {
+              id: Date.now(),
+              ...data,
+              tags: [],
+              billing: data.location || "—",
+              shipping: data.location || "—",
+              sales_rep: "—",
+            },
+          ],
+        }));
+      }
+
+      function updateCustomer(id, data) {
+        store.set((s) => ({
+          customers: s.customers.map((c) =>
+            c.id === id ? { ...c, ...data } : c,
+          ),
+        }));
+      }
+
+      function deleteCustomer(id) {
+        store.set((s) => ({
+          customers: s.customers.filter((c) => c.id !== id),
+        }));
+      }
+      window.deleteCustomer = deleteCustomer;
+
+      function setSearch(value) {
+        store.set({ searchInput: value, searchTerm: value, page: 1 });
+      }
+
+      function clearSearch() {
+        store.set({ searchInput: "", searchTerm: "", page: 1 });
+      }
+
+      function setSort(key) {
+        store.set((s) => {
+          if (s.sort.key !== key) return { sort: { key, dir: "asc" } };
+          if (s.sort.dir === "asc") return { sort: { key, dir: "desc" } };
+          return { sort: { key: null, dir: null } };
+        });
+      }
+
+      function setPage(n) {
+        store.set({ page: n });
+      }
+
+      function setPageSize(n) {
+        store.set({ pageSize: n, page: 1 });
+      }
+
+      function openCreateDialog() {
+        store.set({ dialog: { type: "create" }, formErrors: {} });
+      }
+
+      function openEditDialog(customer) {
+        store.set({ dialog: { type: "edit", customer }, formErrors: {} });
+      }
+
+      function openDeleteDialog(customer) {
+        store.set({ dialog: { type: "delete", customer } });
+      }
+
+      function closeDialog() {
+        store.set({ dialog: { type: "closed" }, formErrors: {} });
+      }
+
+      /* ───── Render: sort icons ───── */
+      function renderSortIcons() {
+        const s = store.get();
+        document.querySelectorAll("[data-sort-icon]").forEach((el) => {
+          const th = el.closest("th");
+          const key = th.dataset.sortKey;
+          if (!key) {
+            el.innerHTML = "";
+            return;
+          }
+          if (s.sort.key === key && s.sort.dir === "asc") el.innerHTML = ICONS.sortUp;
+          else if (s.sort.key === key && s.sort.dir === "desc")
+            el.innerHTML = ICONS.sortDown;
+          else el.innerHTML = ICONS.sortUnsorted;
+        });
+      }
+
+      /* ───── Render: rows ───── */
+      function renderRows() {
+        const s = store.get();
+        const tbody = document.getElementById("customers-table-body");
+
+        if (s.isLoading) {
+          tbody.innerHTML = Array.from({ length: 5 })
+            .map(
+              (_, i) => `
+              <tr data-comment="customers-skeleton-row-${i}">
+                <td><span class="skeleton" style="width:75%"></span></td>
+                <td><span class="skeleton" style="width:60%"></span></td>
+                <td><span class="skeleton" style="width:80%"></span></td>
+                <td><span class="skeleton" style="width:80%"></span></td>
+                <td><span class="skeleton" style="width:65%"></span></td>
+                <td><span class="skeleton" style="width:85%"></span></td>
+                <td><span class="skeleton" style="width:60%"></span></td>
+                <td><span class="skeleton" style="width:60%"></span></td>
+                <td><span class="skeleton" style="width:40%"></span></td>
+              </tr>
+            `,
+            )
+            .join("");
+          return;
+        }
+
+        const { rows } = getPagedCustomers();
+        if (rows.length === 0) {
+          tbody.innerHTML = `
+            <tr data-comment="customers-empty-row">
+              <td colspan="9" class="col-empty" data-comment="customers-empty-cell">No customers yet.</td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = rows
+          .map((c) => {
+            const name = `${c.first_name} ${c.last_name}`.trim();
+            const initials =
+              `${c.first_name?.[0] ?? ""}${c.last_name?.[0] ?? ""}`.toUpperCase();
+            const tagColor = c.tags?.[0]?.hex_color || null;
+            const tagStyle = tagColor
+              ? `style="color:${tagColor};background-color:${tagColor}33"`
+              : "";
+            const tags =
+              c.tags && c.tags.length
+                ? `<div class="tag-list" data-comment="customers-row-${c.id}-tags">${c.tags
+                    .map(
+                      (t) =>
+                        `<span class="tag-badge" data-comment="customers-row-${c.id}-tag-${t.id}" data-component="badge" style="background:${t.hex_color}22;color:${t.hex_color}">${esc(t.name)}</span>`,
+                    )
+                    .join("")}</div>`
+                : "—";
+            return `
+              <tr class="clickable" data-comment="customers-row-${c.id}" data-row-id="${c.id}">
+                <td data-comment="customers-row-${c.id}-contact">
+                  <span class="contact-cell" data-comment="customers-row-${c.id}-contact-wrap">
+                    <span class="contact-initials" data-comment="customers-row-${c.id}-initials" ${tagStyle}>${esc(initials)}</span>
+                    <span class="cell-overflow" data-comment="customers-row-${c.id}-name">${esc(name)}</span>
+                  </span>
+                </td>
+                <td data-comment="customers-row-${c.id}-tag-cell">${tags}</td>
+                <td data-comment="customers-row-${c.id}-billing"><span class="cell-overflow">${esc(c.billing || "—")}</span></td>
+                <td data-comment="customers-row-${c.id}-shipping"><span class="cell-overflow">${esc(c.shipping || "—")}</span></td>
+                <td data-comment="customers-row-${c.id}-phone"><span class="cell-overflow">${esc(formatPhone(c.primary_phone) || "—")}</span></td>
+                <td data-comment="customers-row-${c.id}-email"><span class="cell-overflow">${esc(c.email || "—")}</span></td>
+                <td data-comment="customers-row-${c.id}-location"><span class="cell-overflow">${esc(c.location || "—")}</span></td>
+                <td data-comment="customers-row-${c.id}-sales-rep"><span class="cell-overflow">${esc(c.sales_rep || "—")}</span></td>
+                <td data-comment="customers-row-${c.id}-actions">
+                  <span class="row-actions" data-comment="customers-row-${c.id}-actions-wrap">
+                    <button type="button" class="btn btn-ghost btn-icon-sm" data-comment="customers-row-${c.id}-edit" data-component="button" data-action="edit" data-id="${c.id}" aria-label="Edit customer">${ICONS.pencil}</button>
+                    <button type="button" class="btn btn-ghost btn-icon-sm is-destructive" data-comment="customers-row-${c.id}-delete" data-component="button" data-action="delete" data-id="${c.id}" aria-label="Delete customer">${ICONS.trash}</button>
+                  </span>
+                </td>
+              </tr>
+            `;
+          })
+          .join("");
+      }
+
+      function renderSearchInput() {
+        const s = store.get();
+        const input = document.getElementById("customers-search-input");
+        if (input.value !== s.searchInput) input.value = s.searchInput;
+        document.getElementById("customers-search-clear").style.display = s.searchInput
+          ? "inline-flex"
+          : "none";
+      }
+
+      function renderPagination() {
+        const s = store.get();
+        const { totalCount } = getPagedCustomers();
+        const totalPages = Math.max(1, Math.ceil(totalCount / s.pageSize));
+        const page = Math.min(s.page, totalPages);
+        if (page !== s.page) {
+          store.set({ page });
+          return;
+        }
+        document.getElementById("customers-pagination-label").textContent =
+          `Page ${page} of ${totalPages}`;
+        document.getElementById("customers-pagination-size").value = String(s.pageSize);
+        const atFirst = page <= 1;
+        const atLast = page >= totalPages;
+        document.getElementById("customers-pagination-first").disabled = atFirst;
+        document.getElementById("customers-pagination-prev").disabled = atFirst;
+        document.getElementById("customers-pagination-next").disabled = atLast;
+        document.getElementById("customers-pagination-last").disabled = atLast;
+      }
+
+      /* ───── Render: dialogs ───── */
+      function renderDialog() {
+        const s = store.get();
+        const overlay = document.getElementById("customers-dialog-overlay");
+        const dialog = document.getElementById("customers-dialog");
+        const isFormOpen = s.dialog.type === "create" || s.dialog.type === "edit";
+        overlay.classList.toggle("is-open", isFormOpen);
+        dialog.classList.toggle("is-open", isFormOpen);
+        dialog.setAttribute("aria-hidden", String(!isFormOpen));
+
+        if (isFormOpen) {
+          const isEdit = s.dialog.type === "edit";
+          document.getElementById("customers-dialog-title").textContent = isEdit
+            ? "Edit Customer"
+            : "Add new customer";
+          const c = isEdit ? s.dialog.customer : null;
+          document.getElementById("customer-first-name").value = c?.first_name || "";
+          document.getElementById("customer-last-name").value = c?.last_name || "";
+          document.getElementById("customer-email").value = c?.email || "";
+          document.getElementById("customer-phone").value = formatPhone(
+            c?.primary_phone || "",
+          );
+          document.getElementById("customer-location").value = c?.location || "";
+        }
+
+        // Field errors
+        const errors = s.formErrors || {};
+        ["first-name", "last-name", "email"].forEach((field) => {
+          const el = document.getElementById(`customer-${field}-error`);
+          if (errors[field]) {
+            el.style.display = "block";
+            el.textContent = errors[field];
+          } else {
+            el.style.display = "none";
+          }
+        });
+
+        // Delete dialog
+        const deleteOverlay = document.getElementById("customers-delete-overlay");
+        const deleteDialog = document.getElementById("customers-delete-dialog");
+        const isDeleteOpen = s.dialog.type === "delete";
+        deleteOverlay.classList.toggle("is-open", isDeleteOpen);
+        deleteDialog.classList.toggle("is-open", isDeleteOpen);
+        deleteDialog.setAttribute("aria-hidden", String(!isDeleteOpen));
+        if (isDeleteOpen) {
+          const c = s.dialog.customer;
+          document.getElementById("customers-delete-description").textContent =
+            `Delete ${c.first_name} ${c.last_name}? This action cannot be undone.`;
+        }
+      }
+
+      /* ───── Form submit ───── */
+      function handleFormSubmit() {
+        const data = {
+          first_name: document.getElementById("customer-first-name").value.trim(),
+          last_name: document.getElementById("customer-last-name").value.trim(),
+          email: document.getElementById("customer-email").value.trim(),
+          primary_phone: document
+            .getElementById("customer-phone")
+            .value.replace(/\D/g, ""),
+          location: document.getElementById("customer-location").value.trim(),
+        };
+
+        const errors = {};
+        if (!data.first_name) errors["first-name"] = "First name is required.";
+        if (!data.last_name) errors["last-name"] = "Last name is required.";
+        if (!data.email) errors.email = "Email is required.";
+        else if (!data.email.includes("@")) errors.email = "Enter a valid email address.";
+
+        if (Object.keys(errors).length > 0) {
+          store.set({ formErrors: errors });
+          return;
+        }
+
+        const s = store.get();
+        if (s.dialog.type === "edit") {
+          updateCustomer(s.dialog.customer.id, data);
+        } else {
+          addCustomer(data);
+        }
+        closeDialog();
+      }
+
+      /* ───── Subscribe ───── */
+      store.subscribe(renderSidebarNav);
+      store.subscribe(renderUser);
+      store.subscribe(renderCollapse);
+      store.subscribe(renderSidebarSearch);
+      store.subscribe(renderRows);
+      store.subscribe(renderSearchInput);
+      store.subscribe(renderPagination);
+      store.subscribe(renderSortIcons);
+      store.subscribe(renderDialog);
+
+      renderSidebarNav();
+      renderUser();
+      renderCollapse();
+      renderSidebarSearch();
+      renderRows();
+      renderSearchInput();
+      renderPagination();
+      renderSortIcons();
+      renderDialog();
+
+      /* ───── Initial loading simulation ───── */
+      setTimeout(() => store.set({ isLoading: false }), 300);
+
+      /* ───── Sidebar handlers ───── */
+      document
+        .getElementById("sidebar-collapse-btn")
+        .addEventListener("click", () => {
+          store.set((s) => ({ collapsed: !s.collapsed }));
+        });
+
+      const sidebarSearchInput = document.getElementById("sidebar-search-input");
+      sidebarSearchInput.addEventListener("focus", () =>
+        store.set({ searchOpen: true }),
+      );
+      sidebarSearchInput.addEventListener("blur", () =>
+        setTimeout(() => store.set({ searchOpen: false }), 150),
+      );
+      sidebarSearchInput.addEventListener("input", (e) =>
+        store.set({ sidebarSearchTerm: e.target.value }),
+      );
+
+      document
+        .getElementById("sidebar-search-list")
+        .addEventListener("mousedown", (e) => {
+          const btn = e.target.closest("[data-customer-id]");
+          if (!btn) return;
+          const id = btn.dataset.customerId;
+          sidebarSearchInput.value = "";
+          store.set({ searchOpen: false, sidebarSearchTerm: "" });
+          window.location.href = `customer-detail.html?id=${id}`;
+        });
+
+      document
+        .getElementById("sidebar-user-logout")
+        .addEventListener("click", () => {
+          window.location.href = "login.html";
+        });
+
+      /* ───── Page handlers ───── */
+      const customersSearchInput = document.getElementById("customers-search-input");
+      customersSearchInput.addEventListener("input", (e) => setSearch(e.target.value));
+      customersSearchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") setSearch(e.target.value);
+      });
+      document
+        .getElementById("customers-search-clear")
+        .addEventListener("click", () => {
+          clearSearch();
+          customersSearchInput.focus();
+        });
+
+      document.querySelectorAll("th[data-sort-key]").forEach((th) => {
+        th.addEventListener("click", () => setSort(th.dataset.sortKey));
+      });
+
+      document
+        .getElementById("customers-action-add")
+        .addEventListener("click", () => openCreateDialog());
+
+      document
+        .getElementById("customers-table-body")
+        .addEventListener("click", (e) => {
+          const actionBtn = e.target.closest("[data-action]");
+          if (actionBtn) {
+            e.stopPropagation();
+            const id = Number(actionBtn.dataset.id);
+            const customer = store.get().customers.find((c) => c.id === id);
+            if (!customer) return;
+            if (actionBtn.dataset.action === "edit") openEditDialog(customer);
+            else if (actionBtn.dataset.action === "delete")
+              openDeleteDialog(customer);
+            return;
+          }
+          const tr = e.target.closest("tr[data-row-id]");
+          if (!tr) return;
+          window.location.href = `customer-detail.html?id=${tr.dataset.rowId}`;
+        });
+
+      document
+        .getElementById("customers-pagination-size")
+        .addEventListener("change", (e) => setPageSize(Number(e.target.value)));
+      document
+        .getElementById("customers-pagination-first")
+        .addEventListener("click", () => setPage(1));
+      document
+        .getElementById("customers-pagination-prev")
+        .addEventListener("click", () =>
+          setPage(Math.max(1, store.get().page - 1)),
+        );
+      document
+        .getElementById("customers-pagination-next")
+        .addEventListener("click", () => {
+          const { totalCount } = getPagedCustomers();
+          const totalPages = Math.max(
+            1,
+            Math.ceil(totalCount / store.get().pageSize),
+          );
+          setPage(Math.min(totalPages, store.get().page + 1));
+        });
+      document
+        .getElementById("customers-pagination-last")
+        .addEventListener("click", () => {
+          const { totalCount } = getPagedCustomers();
+          const totalPages = Math.max(
+            1,
+            Math.ceil(totalCount / store.get().pageSize),
+          );
+          setPage(totalPages);
+        });
+
+      /* ───── Dialog handlers ───── */
+      document
+        .getElementById("customers-dialog-cancel")
+        .addEventListener("click", () => closeDialog());
+      document
+        .getElementById("customers-dialog-overlay")
+        .addEventListener("click", () => closeDialog());
+      document
+        .getElementById("customers-dialog-save")
+        .addEventListener("click", () => handleFormSubmit());
+
+      document
+        .getElementById("customers-delete-cancel")
+        .addEventListener("click", () => closeDialog());
+      document
+        .getElementById("customers-delete-overlay")
+        .addEventListener("click", () => closeDialog());
+      document
+        .getElementById("customers-delete-confirm")
+        .addEventListener("click", () => {
+          const s = store.get();
+          if (s.dialog.type === "delete") {
+            deleteCustomer(s.dialog.customer.id);
+            closeDialog();
+          }
+        });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && store.get().dialog.type !== "closed")
+          closeDialog();
+      });
+
+      /* ───── Reveal ───── */
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting)
+              entry.target.classList.add("is-visible");
+          });
+        },
+        { threshold: 0.1 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+    </script>
+  </body>
+</html>
