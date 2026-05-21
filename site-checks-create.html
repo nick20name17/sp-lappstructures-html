@@ -645,6 +645,35 @@
         margin-left: auto;
       }
 
+      /* Validation banner */
+      .form-banner {
+        display: flex; align-items: center; gap: 8px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid color-mix(in oklch, var(--destructive) 40%, transparent);
+        background: color-mix(in oklch, var(--destructive) 8%, white);
+        color: var(--destructive);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      .form-banner svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+      /* Combobox clear */
+      .select-trigger-clear {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 18px; height: 18px;
+        border-radius: 4px;
+        color: var(--muted-foreground);
+        background: transparent;
+        flex-shrink: 0;
+        position: absolute; right: 28px; top: 50%; transform: translateY(-50%);
+        cursor: pointer;
+      }
+      .select-trigger-clear:hover { background: var(--secondary); color: var(--foreground); }
+      .select-trigger-clear svg { width: 12px; height: 12px; }
+
+      .upload-size { font-size: 0.6875rem; color: var(--muted-foreground); }
+
       /* Toast */
       .toast-stack {
         position: fixed;
@@ -905,6 +934,10 @@
             </header>
 
             <form id="site-check-form" class="form-body" data-comment="site-checks-create-form" data-component="form" novalidate>
+              <div class="form-banner" id="form-banner" data-comment="site-checks-create-form-banner" style="display: none">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-comment="site-checks-create-form-banner-icon"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                <span data-comment="site-checks-create-form-banner-text">Please complete required fields.</span>
+              </div>
               <div class="form-section" data-comment="site-checks-create-form-section">
                 <!-- Assignment block -->
                 <div class="form-block" data-comment="site-checks-create-block-assignment" data-component="card">
@@ -919,6 +952,9 @@
                       <div class="search-select" data-comment="site-checks-create-field-contact-select" data-component="select">
                         <button type="button" class="select-trigger" id="contact-trigger" data-comment="site-checks-create-field-contact-trigger">
                           <span class="select-trigger-value placeholder" id="contact-trigger-value" data-comment="site-checks-create-field-contact-trigger-value">Select customer…</span>
+                          <span class="select-trigger-clear" id="contact-clear" data-comment="site-checks-create-field-contact-clear" role="button" tabindex="0" style="display: none">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                          </span>
                           <span class="select-trigger-chevron" data-comment="site-checks-create-field-contact-trigger-chevron">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                           </span>
@@ -942,6 +978,9 @@
                       <div class="search-select" data-comment="site-checks-create-field-assigned-to-select" data-component="select">
                         <button type="button" class="select-trigger" id="assigned-trigger" data-comment="site-checks-create-field-assigned-to-trigger">
                           <span class="select-trigger-value placeholder" id="assigned-trigger-value" data-comment="site-checks-create-field-assigned-to-trigger-value">Select user…</span>
+                          <span class="select-trigger-clear" id="assigned-clear" data-comment="site-checks-create-field-assigned-to-clear" role="button" tabindex="0" style="display: none">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                          </span>
                           <span class="select-trigger-chevron" data-comment="site-checks-create-field-assigned-to-trigger-chevron">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                           </span>
@@ -965,6 +1004,9 @@
                       <div class="search-select" data-comment="site-checks-create-field-estimate-select" data-component="select">
                         <button type="button" class="select-trigger" id="estimate-trigger" data-comment="site-checks-create-field-estimate-trigger">
                           <span class="select-trigger-value placeholder" id="estimate-trigger-value" data-comment="site-checks-create-field-estimate-trigger-value">Select estimate…</span>
+                          <span class="select-trigger-clear" id="estimate-clear" data-comment="site-checks-create-field-estimate-clear" role="button" tabindex="0" style="display: none">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                          </span>
                           <span class="select-trigger-chevron" data-comment="site-checks-create-field-estimate-trigger-chevron">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                           </span>
@@ -1076,7 +1118,10 @@
             <div class="form-footer" data-comment="site-checks-create-form-footer">
               <div class="footer-actions-end" data-comment="site-checks-create-form-footer-actions">
                 <a class="btn btn-outline btn-sm" data-comment="site-checks-create-cancel-btn" data-component="button" href="site-checks.html">Cancel</a>
-                <button type="submit" form="site-check-form" class="btn btn-primary btn-sm" data-comment="site-checks-create-save-btn" data-component="button" id="save-btn">Save</button>
+                <button type="submit" form="site-check-form" class="btn btn-primary btn-sm" data-comment="site-checks-create-save-btn" data-component="button" id="save-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-comment="site-checks-create-save-btn-icon"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+                  <span data-comment="site-checks-create-save-btn-label">Save</span>
+                </button>
               </div>
             </div>
           </div>
@@ -1542,6 +1587,10 @@
         if (estimate) { et.textContent = estimateLabel(estimate); et.classList.remove("placeholder"); }
         else { et.textContent = "Select estimate…"; et.classList.add("placeholder"); }
 
+        document.getElementById("contact-clear").style.display = contact ? "inline-flex" : "none";
+        document.getElementById("assigned-clear").style.display = assigned ? "inline-flex" : "none";
+        document.getElementById("estimate-clear").style.display = estimate ? "inline-flex" : "none";
+
         // Trigger open class
         document.getElementById("contact-trigger").classList.toggle("is-open", s.openPopover === "contact");
         document.getElementById("assigned-trigger").classList.toggle("is-open", s.openPopover === "assigned");
@@ -1652,6 +1701,9 @@
           errEl.style.display = hasError ? "block" : "none";
           if (hasError) errEl.textContent = s.errors[f.key];
         });
+        const banner = document.getElementById("form-banner");
+        const showBanner = s.submitAttempted && Object.keys(s.errors).length > 0;
+        banner.style.display = showBanner ? "flex" : "none";
       }
 
       // ───── Status segmented ─────
@@ -1663,6 +1715,12 @@
       }
 
       // ───── Attachments list ─────
+      function formatSize(bytes) {
+        if (bytes == null) return "";
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+        return (bytes / 1024 / 1024).toFixed(1) + " MB";
+      }
       function renderAttachments() {
         const s = store.get();
         const list = document.getElementById("upload-list");
@@ -1671,6 +1729,7 @@
           <div class="upload-item" data-comment="site-checks-create-attachment-${f.id}">
             <div class="upload-thumb" data-comment="site-checks-create-attachment-${f.id}-thumb">${ICONS.image}</div>
             <div class="upload-name" data-comment="site-checks-create-attachment-${f.id}-name">${escapeHtml(f.name)}</div>
+            <div class="upload-size" data-comment="site-checks-create-attachment-${f.id}-size">${formatSize(f.size)}</div>
             <button type="button" class="upload-remove" data-comment="site-checks-create-attachment-${f.id}-remove" data-remove-id="${f.id}" aria-label="Remove attachment">${ICONS.x}</button>
           </div>
         `).join("");
@@ -1769,6 +1828,20 @@
       document.getElementById("contact-trigger").addEventListener("click", () => toggleAndFocus("contact", "contact-search"));
       document.getElementById("assigned-trigger").addEventListener("click", () => toggleAndFocus("assigned", "assigned-search"));
       document.getElementById("estimate-trigger").addEventListener("click", () => toggleAndFocus("estimate", "estimate-search"));
+
+      // Clear buttons inside combobox triggers
+      document.getElementById("contact-clear").addEventListener("click", (e) => {
+        e.stopPropagation();
+        setContact(null);
+      });
+      document.getElementById("assigned-clear").addEventListener("click", (e) => {
+        e.stopPropagation();
+        setAssigned(null);
+      });
+      document.getElementById("estimate-clear").addEventListener("click", (e) => {
+        e.stopPropagation();
+        setEstimate(null);
+      });
 
       // Search inputs
       document.getElementById("contact-search").addEventListener("input", (e) => store.set({ contactSearch: e.target.value }));

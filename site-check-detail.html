@@ -518,16 +518,35 @@
       }
       .dialog-overlay.is-open { display: flex; }
       .dialog {
-        background: var(--card);
-        border-radius: 12px;
+        position: relative;
+        background: var(--background-secondary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        width: 100%; max-width: 28rem;
+        width: 100%; max-width: calc(100% - 2rem);
         padding: 24px;
         display: flex; flex-direction: column; gap: 16px;
       }
-      .dialog-title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; color: var(--foreground); }
+      @media (min-width: 640px) {
+        .dialog { max-width: 32rem; }
+        .dialog.dialog-md { max-width: 28rem; }
+        .dialog.dialog-sm { max-width: 24rem; }
+      }
+      .dialog-close {
+        position: absolute; top: 16px; right: 16px;
+        border-radius: 2px;
+        opacity: 0.7;
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 2px;
+        transition: opacity 0.15s ease;
+      }
+      .dialog-close:hover { opacity: 1; }
+      .dialog-close svg { width: 16px; height: 16px; }
+      .dialog-header { display: flex; flex-direction: column; gap: 8px; }
+      .dialog-title { font-size: 1.125rem; line-height: 1; font-weight: 600; color: var(--foreground); }
       .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
-      .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
+      .dialog-footer { display: flex; flex-direction: column-reverse; gap: 8px; }
+      @media (min-width: 640px) { .dialog-footer { flex-direction: row; justify-content: flex-end; } }
       .dialog-label {
         display: block; font-size: 0.875rem; font-weight: 500;
         color: var(--foreground); margin-bottom: 6px;
@@ -652,18 +671,21 @@
 
     <!-- Delete dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-delete-overlay" id="site-check-detail-delete-overlay">
-      <div class="dialog" data-comment="site-check-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
-        <div data-comment="site-check-detail-delete-header">
+      <div class="dialog dialog-sm" data-comment="site-check-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <button type="button" class="dialog-close" data-comment="site-check-detail-delete-close" data-dialog-close aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <div class="dialog-header" data-comment="site-check-detail-delete-header">
           <h2 class="dialog-title" data-comment="site-check-detail-delete-title">Delete site check</h2>
-          <p class="dialog-description" data-comment="site-check-detail-delete-description" style="margin-top: 8px">
-            Are you sure you want to delete this site check? This action cannot be undone.
+          <p class="dialog-description" data-comment="site-check-detail-delete-description">
+            Are you sure you want to delete <span id="site-check-detail-delete-id-label" data-comment="site-check-detail-delete-id-label" style="color: var(--foreground); font-weight: 500;">SC-…</span>? This action cannot be undone.
           </p>
         </div>
         <div class="dialog-footer" data-comment="site-check-detail-delete-footer">
-          <button class="btn btn-outline btn-sm" data-comment="site-check-detail-delete-cancel" data-component="button" type="button" id="site-check-detail-delete-cancel">
+          <button class="btn btn-outline" data-comment="site-check-detail-delete-cancel" data-component="button" type="button" id="site-check-detail-delete-cancel">
             Cancel
           </button>
-          <button class="btn btn-destructive btn-sm" data-comment="site-check-detail-delete-confirm" data-component="button" type="button" id="site-check-detail-delete-confirm">
+          <button class="btn btn-destructive" data-comment="site-check-detail-delete-confirm" data-component="button" type="button" id="site-check-detail-delete-confirm">
             Delete
           </button>
         </div>
@@ -672,10 +694,13 @@
 
     <!-- Mark as Done dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-done-overlay" id="site-check-detail-done-overlay">
-      <div class="dialog" data-comment="site-check-detail-done-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
-        <div data-comment="site-check-detail-done-header">
+      <div class="dialog dialog-md" data-comment="site-check-detail-done-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <button type="button" class="dialog-close" data-comment="site-check-detail-done-close" data-dialog-close aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <div class="dialog-header" data-comment="site-check-detail-done-header">
           <h2 class="dialog-title" data-comment="site-check-detail-done-title">Mark as Done</h2>
-          <p class="dialog-description" data-comment="site-check-detail-done-description" style="margin-top: 8px">
+          <p class="dialog-description" data-comment="site-check-detail-done-description">
             Are you sure you want to mark <span id="site-check-detail-done-id-label" data-comment="site-check-detail-done-id-label" style="color: var(--foreground); font-weight: 500;">SC-…</span> as completed? The date completed will be set to now.
           </p>
         </div>
@@ -692,10 +717,10 @@
             placeholder="Enter results…"></textarea>
         </div>
         <div class="dialog-footer" data-comment="site-check-detail-done-footer">
-          <button class="btn btn-outline btn-sm" data-comment="site-check-detail-done-cancel" data-component="button" type="button" id="site-check-detail-done-cancel">
+          <button class="btn btn-outline" data-comment="site-check-detail-done-cancel" data-component="button" type="button" id="site-check-detail-done-cancel">
             Cancel
           </button>
-          <button class="btn btn-success btn-sm" data-comment="site-check-detail-done-confirm" data-component="button" type="button" id="site-check-detail-done-confirm">
+          <button class="btn btn-success" data-comment="site-check-detail-done-confirm" data-component="button" type="button" id="site-check-detail-done-confirm">
             Mark as Done
           </button>
         </div>
@@ -704,18 +729,21 @@
 
     <!-- Mark as Cancelled dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-cancel-overlay" id="site-check-detail-cancel-overlay">
-      <div class="dialog" data-comment="site-check-detail-cancel-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
-        <div data-comment="site-check-detail-cancel-header">
+      <div class="dialog dialog-sm" data-comment="site-check-detail-cancel-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <button type="button" class="dialog-close" data-comment="site-check-detail-cancel-close" data-dialog-close aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <div class="dialog-header" data-comment="site-check-detail-cancel-header">
           <h2 class="dialog-title" data-comment="site-check-detail-cancel-title">Mark as Cancelled</h2>
-          <p class="dialog-description" data-comment="site-check-detail-cancel-description" style="margin-top: 8px">
+          <p class="dialog-description" data-comment="site-check-detail-cancel-description">
             Are you sure you want to cancel <span id="site-check-detail-cancel-id-label" data-comment="site-check-detail-cancel-id-label" style="color: var(--foreground); font-weight: 500;">SC-…</span>? This will mark the site check as cancelled.
           </p>
         </div>
         <div class="dialog-footer" data-comment="site-check-detail-cancel-footer">
-          <button class="btn btn-outline btn-sm" data-comment="site-check-detail-cancel-keep" data-component="button" type="button" id="site-check-detail-cancel-keep">
+          <button class="btn btn-outline" data-comment="site-check-detail-cancel-keep" data-component="button" type="button" id="site-check-detail-cancel-keep">
             Keep Open
           </button>
-          <button class="btn btn-destructive btn-sm" data-comment="site-check-detail-cancel-confirm" data-component="button" type="button" id="site-check-detail-cancel-confirm">
+          <button class="btn btn-destructive" data-comment="site-check-detail-cancel-confirm" data-component="button" type="button" id="site-check-detail-cancel-confirm">
             Mark as Cancelled
           </button>
         </div>
@@ -1265,6 +1293,7 @@
         const idText = `SC-${sc ? sc.id : s.selectedId}`;
         document.getElementById("site-check-detail-done-id-label").textContent = idText;
         document.getElementById("site-check-detail-cancel-id-label").textContent = idText;
+        document.getElementById("site-check-detail-delete-id-label").textContent = idText;
 
         const ta = document.getElementById("site-check-detail-done-results");
         if (ta && ta.value !== s.doneResults) ta.value = s.doneResults;
@@ -1343,6 +1372,18 @@
 
       document.getElementById("site-check-detail-cancel-keep").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
       document.getElementById("site-check-detail-cancel-confirm").addEventListener("click", () => markCancelled(store.get().selectedId));
+
+      // ───── Handlers: dialog close (X / overlay / Esc) ─────
+      function closeDialog() {
+        if (store.get().dialog.type !== "closed") store.set({ dialog: { type: "closed" } });
+      }
+      document.querySelectorAll(".dialog-overlay").forEach((overlay) => {
+        overlay.addEventListener("click", (e) => { if (e.target === overlay) closeDialog(); });
+      });
+      document.querySelectorAll("[data-dialog-close]").forEach((btn) => {
+        btn.addEventListener("click", closeDialog);
+      });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDialog(); });
     </script>
   </body>
 </html>

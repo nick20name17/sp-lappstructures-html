@@ -924,6 +924,8 @@
         background: var(--green-bg);
         color: var(--green-fg);
       }
+      .od-review-card-status svg { width: 12px; height: 12px; }
+      .od-review-card-reviewer { font-weight: 500; color: var(--foreground); }
       .od-review-card-meta {
         font-size: 0.75rem;
         color: var(--muted-foreground);
@@ -1044,6 +1046,23 @@
         box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
       }
       .od-dialog-title { font-size: 1.05rem; font-weight: 600; }
+      .od-dialog-header-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .od-dialog-icon-badge {
+        display: inline-flex;
+        width: 36px;
+        height: 36px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background: color-mix(in oklch, var(--primary) 10%, transparent);
+        color: var(--primary);
+        flex-shrink: 0;
+      }
+      .od-dialog-icon-badge svg { width: 20px; height: 20px; }
       .od-dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
       .od-dialog-footer {
         display: flex;
@@ -1445,7 +1464,8 @@
                   data-component="button"
                   href="orders.html">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m15 18-6-6 6-6" />
+                    <path d="m12 19-7-7 7-7" />
+                    <path d="M19 12H5" />
                   </svg>
                   Back
                 </a>
@@ -1463,31 +1483,16 @@
     <div class="od-dialog-overlay" data-comment="order-detail-payment-dialog-overlay" id="payment-dialog-overlay">
       <div class="od-dialog" data-comment="order-detail-payment-dialog" data-component="dialog" role="dialog" aria-modal="true">
         <div data-comment="order-detail-payment-dialog-header">
-          <h2 class="od-dialog-title" data-comment="order-detail-payment-dialog-title">Down payment</h2>
-          <p class="od-dialog-description" data-comment="order-detail-payment-dialog-description">Record a down payment for this order.</p>
-        </div>
-        <div class="od-form-row" data-comment="order-detail-payment-amount-row">
-          <label for="payment-amount" data-comment="order-detail-payment-amount-label">Amount</label>
-          <input type="text" id="payment-amount" data-comment="order-detail-payment-amount-input" data-component="input" placeholder="$0.00" />
-        </div>
-        <div class="od-form-row" data-comment="order-detail-payment-method-row">
-          <label for="payment-method" data-comment="order-detail-payment-method-label">Method</label>
-          <div class="select" id="payment-method" data-comment="order-detail-payment-method-select" data-component="select" data-placeholder="Choose...">
-            <button type="button" class="select-trigger" aria-expanded="false" data-comment="order-detail-payment-method-select-trigger">
-              <span class="select-trigger-label"></span>
-              <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-            <input type="hidden" value="ACH" />
-            <div class="select-popover" style="display:none" role="listbox">
-              <div class="select-item is-selected" data-value="ACH" data-comment="order-detail-payment-method-opt-ach">ACH</div>
-              <div class="select-item" data-value="Card" data-comment="order-detail-payment-method-opt-card">Card</div>
-              <div class="select-item" data-value="Check" data-comment="order-detail-payment-method-opt-check">Check</div>
-              <div class="select-item" data-value="Cash" data-comment="order-detail-payment-method-opt-cash">Cash</div>
-            </div>
+          <div class="od-dialog-header-row" data-comment="order-detail-payment-dialog-header-row">
+            <span class="od-dialog-icon-badge" data-comment="order-detail-payment-dialog-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </span>
+            <h2 class="od-dialog-title" data-comment="order-detail-payment-dialog-title">Record Down Payment</h2>
           </div>
+          <p class="od-dialog-description" data-comment="order-detail-payment-dialog-description">Verify that the customer's down payment has been received and recorded.</p>
         </div>
         <div class="od-form-row" data-comment="order-detail-payment-date-row">
-          <label for="payment-date" data-comment="order-detail-payment-date-label">Date</label>
+          <label for="payment-date" data-comment="order-detail-payment-date-label">Payment date</label>
           <div class="date-picker" data-comment="order-detail-payment-date-input" data-component="date-picker" data-value="" data-placeholder="Pick a date">
             <button type="button" class="date-picker-trigger" data-comment="order-detail-payment-date-trigger" aria-expanded="false">
               <span class="date-picker-label" data-comment="order-detail-payment-date-label-text">Pick a date</span>
@@ -1497,9 +1502,33 @@
             <div class="date-picker-popover" style="display:none"></div>
           </div>
         </div>
+        <div class="od-form-row" data-comment="order-detail-payment-method-row">
+          <label for="payment-method" data-comment="order-detail-payment-method-label">Payment method</label>
+          <div class="select" id="payment-method" data-comment="order-detail-payment-method-select" data-component="select" data-placeholder="Select payment method">
+            <button type="button" class="select-trigger" aria-expanded="false" data-comment="order-detail-payment-method-select-trigger">
+              <span class="select-trigger-label"></span>
+              <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <input type="hidden" value="" />
+            <div class="select-popover" style="display:none" role="listbox">
+              <div class="select-item" data-value="Check" data-comment="order-detail-payment-method-opt-check">Check</div>
+              <div class="select-item" data-value="Cash" data-comment="order-detail-payment-method-opt-cash">Cash</div>
+              <div class="select-item" data-value="Card" data-comment="order-detail-payment-method-opt-card">Card</div>
+              <div class="select-item" data-value="ACH" data-comment="order-detail-payment-method-opt-ach">ACH</div>
+            </div>
+          </div>
+        </div>
+        <div class="od-form-row" data-comment="order-detail-payment-amount-row">
+          <label for="payment-amount" data-comment="order-detail-payment-amount-label">Amount</label>
+          <input type="text" id="payment-amount" data-comment="order-detail-payment-amount-input" data-component="input" placeholder="0.00" />
+        </div>
+        <div class="od-form-row" data-comment="order-detail-payment-reference-row">
+          <label for="payment-reference" data-comment="order-detail-payment-reference-label">Payment reference / Receipt #</label>
+          <input type="text" id="payment-reference" data-comment="order-detail-payment-reference-input" data-component="input" placeholder="e.g. TXN-20250210-001" />
+        </div>
         <div class="od-dialog-footer" data-comment="order-detail-payment-dialog-footer">
           <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-payment-dialog-cancel" data-component="button" data-dialog-cancel="payment">Cancel</button>
-          <button type="button" class="btn btn-primary btn-sm" data-comment="order-detail-payment-dialog-save" data-component="button" data-dialog-save="payment">Save payment</button>
+          <button type="button" class="btn btn-primary btn-sm" data-comment="order-detail-payment-dialog-save" data-component="button" data-dialog-save="payment">Save Down Payment</button>
         </div>
       </div>
     </div>
@@ -1508,11 +1537,38 @@
     <div class="od-dialog-overlay" data-comment="order-detail-delivery-dialog-overlay" id="delivery-dialog-overlay">
       <div class="od-dialog" data-comment="order-detail-delivery-dialog" data-component="dialog" role="dialog" aria-modal="true">
         <div data-comment="order-detail-delivery-dialog-header">
-          <h2 class="od-dialog-title" data-comment="order-detail-delivery-dialog-title">Delivery info</h2>
-          <p class="od-dialog-description" data-comment="order-detail-delivery-dialog-description">Update delivery method and scheduled date.</p>
+          <div class="od-dialog-header-row" data-comment="order-detail-delivery-dialog-header-row">
+            <span class="od-dialog-icon-badge" data-comment="order-detail-delivery-dialog-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+            </span>
+            <h2 class="od-dialog-title" data-comment="order-detail-delivery-dialog-title">Update Delivery Information</h2>
+          </div>
+          <p class="od-dialog-description" data-comment="order-detail-delivery-dialog-description">Confirm the delivery method and any special handling details for this order.</p>
+        </div>
+        <div class="od-form-row" data-comment="order-detail-delivery-lead-time-row">
+          <label for="delivery-lead-time" data-comment="order-detail-delivery-lead-time-label">Lead time</label>
+          <div class="select" id="delivery-lead-time" data-comment="order-detail-delivery-lead-time-select" data-component="select" data-placeholder="Choose...">
+            <button type="button" class="select-trigger" aria-expanded="false" data-comment="order-detail-delivery-lead-time-select-trigger">
+              <span class="select-trigger-label"></span>
+              <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <input type="hidden" value="" />
+            <div class="select-popover" style="display:none" role="listbox">
+              <div class="select-item" data-value="None" data-comment="order-detail-delivery-lead-time-opt-none">None</div>
+              <div class="select-item" data-value="On Hold" data-comment="order-detail-delivery-lead-time-opt-on-hold">On Hold</div>
+              <div class="select-item" data-value="Less than 2 weeks" data-comment="order-detail-delivery-lead-time-opt-lt-2">Less than 2 weeks</div>
+              <div class="select-item" data-value="2-4 weeks" data-comment="order-detail-delivery-lead-time-opt-2-4">2-4 weeks</div>
+              <div class="select-item" data-value="5-7 weeks" data-comment="order-detail-delivery-lead-time-opt-5-7">5-7 weeks</div>
+              <div class="select-item" data-value="6-8 weeks" data-comment="order-detail-delivery-lead-time-opt-6-8">6-8 weeks</div>
+              <div class="select-item" data-value="9-11 weeks" data-comment="order-detail-delivery-lead-time-opt-9-11">9-11 weeks</div>
+              <div class="select-item" data-value="10-12 weeks" data-comment="order-detail-delivery-lead-time-opt-10-12">10-12 weeks</div>
+              <div class="select-item" data-value="13-15 weeks" data-comment="order-detail-delivery-lead-time-opt-13-15">13-15 weeks</div>
+              <div class="select-item" data-value="34+ weeks" data-comment="order-detail-delivery-lead-time-opt-34-plus">34+ weeks</div>
+            </div>
+          </div>
         </div>
         <div class="od-form-row" data-comment="order-detail-delivery-method-row">
-          <label for="delivery-method" data-comment="order-detail-delivery-method-label">Delivery Method</label>
+          <label for="delivery-method" data-comment="order-detail-delivery-method-label">Delivery method</label>
           <div class="select" id="delivery-method" data-comment="order-detail-delivery-method-select" data-component="select" data-placeholder="Choose...">
             <button type="button" class="select-trigger" aria-expanded="false" data-comment="order-detail-delivery-method-select-trigger">
               <span class="select-trigger-label"></span>
@@ -1527,7 +1583,7 @@
           </div>
         </div>
         <div class="od-form-row" data-comment="order-detail-delivery-scheduled-row">
-          <label for="delivery-scheduled" data-comment="order-detail-delivery-scheduled-label">Scheduled Date</label>
+          <label for="delivery-scheduled" data-comment="order-detail-delivery-scheduled-label">Scheduled date</label>
           <div class="date-picker" data-comment="order-detail-delivery-scheduled-input" data-component="date-picker" data-value="" data-placeholder="Pick a date">
             <button type="button" class="date-picker-trigger" data-comment="order-detail-delivery-scheduled-trigger" aria-expanded="false">
               <span class="date-picker-label" data-comment="order-detail-delivery-scheduled-label-text">Pick a date</span>
@@ -1538,12 +1594,16 @@
           </div>
         </div>
         <div class="od-form-row" data-comment="order-detail-delivery-instructions-row">
-          <label for="delivery-instructions" data-comment="order-detail-delivery-instructions-label">Loading Instructions</label>
+          <label for="delivery-instructions" data-comment="order-detail-delivery-instructions-label">Loading instructions</label>
           <textarea id="delivery-instructions" data-comment="order-detail-delivery-instructions-input" data-component="textarea" rows="3"></textarea>
+        </div>
+        <div class="od-form-row" data-comment="order-detail-delivery-special-row">
+          <label for="delivery-special" data-comment="order-detail-delivery-special-label">Special delivery instructions</label>
+          <textarea id="delivery-special" data-comment="order-detail-delivery-special-input" data-component="textarea" rows="3" placeholder="Gate codes, contact on arrival, accessibility notes, etc."></textarea>
         </div>
         <div class="od-dialog-footer" data-comment="order-detail-delivery-dialog-footer">
           <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-delivery-dialog-cancel" data-component="button" data-dialog-cancel="delivery">Cancel</button>
-          <button type="button" class="btn btn-primary btn-sm" data-comment="order-detail-delivery-dialog-save" data-component="button" data-dialog-save="delivery">Save</button>
+          <button type="button" class="btn btn-primary btn-sm" data-comment="order-detail-delivery-dialog-save" data-component="button" data-dialog-save="delivery">Save Delivery Info</button>
         </div>
       </div>
     </div>
@@ -1725,6 +1785,11 @@
         upload: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5-5 5 5M12 5v12"/></svg>',
         image: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>',
         alertCircle: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>',
+        dollarSign: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+        truck: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>',
+        lock: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+        arrowLeft: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>',
+        calendar: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
       };
 
       /* ───── Navigation config ───── */
@@ -2383,10 +2448,15 @@
           if (stepsDone[i]) state = "completed";
           else if (i === firstUnfinishedIdx) state = "current";
           else state = "locked";
+          let date = null;
+          if (stepsDone[i]) {
+            if (s.key === "down_payment") date = formatDate(so?.payment_date ?? o.crea_date);
+            else date = formatDate(o.crea_date);
+          }
           return {
             label: s.label,
             state,
-            date: stepsDone[i] ? formatDate(o.crea_date) : null,
+            date,
             clickable: s.key === "down_payment" && so != null,
           };
         });
@@ -2432,6 +2502,54 @@
               `;
             }).join("")}
           </ol>
+        `;
+      }
+
+      /* ───── Render: review card (Pricing / Shop) ───── */
+      function renderReviewCard(type, o) {
+        const isPricing = type === "pricing";
+        const title = isPricing ? "Pricing Review" : "Shop Review";
+        const meta = isPricing
+          ? "Verify item rates and tax codes before manufacturing."
+          : "Confirm cut lists, materials and shop instructions.";
+        const doneStatus = isPricing ? "pricing_reviewed" : "shop_reviewed";
+        const awaitingStatus = isPricing ? "awaiting_pricing_review" : "awaiting_shop_review";
+        const sIdx = statusIdx(o.status);
+        const isDone = sIdx >= statusIdx(doneStatus);
+        const isCurrent = !isDone && sIdx >= statusIdx(awaitingStatus);
+        const reviewer = isPricing ? "Alex Pricing" : "Sam Shop";
+
+        let statusBadge;
+        if (isDone) {
+          statusBadge = `<span class="od-review-card-status is-done" data-comment="order-detail-card-review-${type}-status" data-component="badge">${ICONS.check}Reviewed</span>`;
+        } else if (isCurrent) {
+          statusBadge = `<span class="od-review-card-status is-pending" data-comment="order-detail-card-review-${type}-status" data-component="badge">Pending</span>`;
+        } else {
+          statusBadge = `<span class="od-review-card-status is-pending" data-comment="order-detail-card-review-${type}-status" data-component="badge">Locked</span>`;
+        }
+
+        const doneMeta = isDone
+          ? `<p class="od-review-card-meta" data-comment="order-detail-card-review-${type}-reviewer">Reviewed by <span class="od-review-card-reviewer">${esc(reviewer)}</span></p>`
+          : "";
+
+        const actions = isCurrent
+          ? `<div class="od-review-card-actions" data-comment="order-detail-card-review-${type}-actions">
+              <button type="button" class="btn btn-primary btn-sm" data-comment="order-detail-card-review-${type}-approve" data-component="button">Approve</button>
+            </div>`
+          : "";
+
+        return `
+          <div class="od-card" data-comment="order-detail-card-review-${type}" data-component="card">
+            <div class="od-card-header" data-comment="order-detail-card-review-${type}-header">
+              <h3 class="od-card-title" data-comment="order-detail-card-review-${type}-title">${title}</h3>
+              ${statusBadge}
+            </div>
+            <div class="od-card-content" data-comment="order-detail-card-review-${type}-content">
+              <p class="od-review-card-meta" data-comment="order-detail-card-review-${type}-meta">${meta}</p>
+              ${doneMeta}
+              ${actions}
+            </div>
+          </div>
         `;
       }
 
@@ -2636,34 +2754,8 @@
           <div class="od-section" data-comment="order-detail-section-review">
             <h3 class="od-section-title" data-comment="order-detail-section-review-title">Review Process</h3>
             <div class="od-review-grid" data-comment="order-detail-review-grid">
-              <div class="od-card" data-comment="order-detail-card-review-pricing" data-component="card">
-                <div class="od-card-header" data-comment="order-detail-card-review-pricing-header">
-                  <h3 class="od-card-title" data-comment="order-detail-card-review-pricing-title">Pricing Review</h3>
-                </div>
-                <div class="od-card-content" data-comment="order-detail-card-review-pricing-content">
-                  <span class="od-review-card-status ${statusIdx(o.status) >= statusIdx("pricing_reviewed") ? "is-done" : "is-pending"}" data-comment="order-detail-card-review-pricing-status" data-component="badge">
-                    ${statusIdx(o.status) >= statusIdx("pricing_reviewed") ? "Complete" : "Pending"}
-                  </span>
-                  <p class="od-review-card-meta" data-comment="order-detail-card-review-pricing-meta">Verify item rates and tax codes before manufacturing.</p>
-                  <div class="od-review-card-actions" data-comment="order-detail-card-review-pricing-actions">
-                    <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-card-review-pricing-mark" data-component="button">Mark Reviewed</button>
-                  </div>
-                </div>
-              </div>
-              <div class="od-card" data-comment="order-detail-card-review-shop" data-component="card">
-                <div class="od-card-header" data-comment="order-detail-card-review-shop-header">
-                  <h3 class="od-card-title" data-comment="order-detail-card-review-shop-title">Shop Review</h3>
-                </div>
-                <div class="od-card-content" data-comment="order-detail-card-review-shop-content">
-                  <span class="od-review-card-status ${statusIdx(o.status) >= statusIdx("shop_reviewed") ? "is-done" : "is-pending"}" data-comment="order-detail-card-review-shop-status" data-component="badge">
-                    ${statusIdx(o.status) >= statusIdx("shop_reviewed") ? "Complete" : "Pending"}
-                  </span>
-                  <p class="od-review-card-meta" data-comment="order-detail-card-review-shop-meta">Confirm cut lists, materials and shop instructions.</p>
-                  <div class="od-review-card-actions" data-comment="order-detail-card-review-shop-actions">
-                    <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-card-review-shop-mark" data-component="button">Mark Reviewed</button>
-                  </div>
-                </div>
-              </div>
+              ${renderReviewCard("pricing", o)}
+              ${renderReviewCard("shop", o)}
             </div>
           </div>
 
@@ -2808,11 +2900,11 @@
           const which = save.dataset.dialogSave;
           if (which === "payment") {
             store.set({ paymentDialogOpen: false });
-            toast("Payment saved");
+            toast("Down payment saved.");
           }
           if (which === "delivery") {
             store.set({ deliveryDialogOpen: false });
-            toast("Delivery updated");
+            toast("Delivery info saved.");
           }
         }
       });
@@ -2823,6 +2915,16 @@
       });
       document.getElementById("delivery-dialog-overlay").addEventListener("click", (e) => {
         if (e.target === e.currentTarget) store.set({ deliveryDialogOpen: false });
+      });
+
+      // Close open dialog on Escape (only if no date-picker / select popover is open)
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        const openPopover = document.querySelector('.date-picker [aria-expanded="true"], .select .select-trigger[aria-expanded="true"]');
+        if (openPopover) return;
+        const s = store.get();
+        if (s.paymentDialogOpen) store.set({ paymentDialogOpen: false });
+        else if (s.deliveryDialogOpen) store.set({ deliveryDialogOpen: false });
       });
 
       /* ───── Date picker (shadcn-style) ───── */

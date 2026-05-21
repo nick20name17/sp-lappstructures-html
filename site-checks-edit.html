@@ -1008,9 +1008,9 @@
     <div class="dialog-overlay" data-comment="site-checks-edit-delete-overlay" id="delete-overlay">
       <div class="dialog" data-comment="site-checks-edit-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
         <div data-comment="site-checks-edit-delete-header">
-          <h2 class="dialog-title" data-comment="site-checks-edit-delete-title">Delete site check</h2>
+          <h2 class="dialog-title" data-comment="site-checks-edit-delete-title">Delete site check?</h2>
           <p class="dialog-description" data-comment="site-checks-edit-delete-description" style="margin-top: 8px">
-            Are you sure you want to delete this site check? This action cannot be undone.
+            This cannot be undone.
           </p>
         </div>
         <div class="dialog-footer" data-comment="site-checks-edit-delete-footer">
@@ -1483,7 +1483,7 @@
                     </div>
                   </div>
 
-                  <div class="form-field" data-comment="site-checks-edit-field-date-completed">
+                  <div class="form-field" data-comment="site-checks-edit-field-date-completed" id="date-completed-field" style="display: none">
                     <label class="form-label" data-comment="site-checks-edit-field-date-completed-label">Date Completed</label>
                     <div class="date-completed-display" id="date-completed-display" data-comment="site-checks-edit-field-date-completed-value">—</div>
                   </div>
@@ -1808,9 +1808,15 @@
           btn.classList.toggle("is-active", btn.dataset.value === s.form.status);
         });
         // Toggle results field visibility on completed
+        const isCompleted = s.form.status === "completed";
         const resultsField = document.getElementById("results-field");
         if (resultsField) {
-          resultsField.style.display = s.form.status === "completed" ? "" : "none";
+          resultsField.style.display = isCompleted ? "" : "none";
+        }
+        // Toggle Date Completed field visibility on completed
+        const dateCompletedField = document.getElementById("date-completed-field");
+        if (dateCompletedField) {
+          dateCompletedField.style.display = isCompleted ? "" : "none";
         }
         // Date completed display
         const display = document.getElementById("date-completed-display");
@@ -1949,7 +1955,30 @@
           return;
         }
         store.set({ isSaving: true });
-        // Mutate store (simulate update) then redirect.
+        // Mutate seed (simulate update)
+        const idx = SEED_SITE_CHECKS.findIndex((sc) => sc.id === recordId);
+        if (idx !== -1) {
+          const prev = SEED_SITE_CHECKS[idx];
+          const startISO = s.form.start_date
+            ? new Date(s.form.start_date + "T00:00:00").toISOString()
+            : prev.start_date_time;
+          SEED_SITE_CHECKS[idx] = {
+            ...prev,
+            contact_id: s.form.contact_id,
+            contact: findCustomer(s.form.contact_id) || prev.contact,
+            assigned_to_id: s.form.assigned_to_id,
+            assigned_to: findUser(s.form.assigned_to_id) || prev.assigned_to,
+            estimate_id: s.form.estimate_id,
+            type: s.form.type,
+            status: s.form.status,
+            start_date_time: startISO,
+            date_completed: s.form.status === "completed" ? (s.form.date_completed || new Date().toISOString()) : null,
+            comments: s.form.comments,
+            results_of_site_check: s.form.results_of_site_check,
+            notify_assigned_to: s.form.notify_assigned_to,
+            files: s.existingFiles,
+          };
+        }
         showToast("success", "Site check updated.");
         setTimeout(() => {
           window.location.href = "site-checks.html";
@@ -1960,6 +1989,8 @@
       function openDeleteDialog() { store.set({ deleteDialogOpen: true }); }
       function closeDeleteDialog() { store.set({ deleteDialogOpen: false }); }
       function confirmDelete() {
+        const idx = SEED_SITE_CHECKS.findIndex((sc) => sc.id === recordId);
+        if (idx !== -1) SEED_SITE_CHECKS.splice(idx, 1);
         showToast("success", "Site check deleted.");
         setTimeout(() => {
           window.location.href = "site-checks.html";

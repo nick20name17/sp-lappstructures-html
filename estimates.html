@@ -534,6 +534,9 @@
         width: 8px; height: 8px;
         border-radius: 9999px;
       }
+      .sc-badge .sc-icon { display: inline-flex; align-items: center; justify-content: center; }
+      .sc-badge .sc-icon svg { width: 14px; height: 14px; }
+      .sc-badge.completed .sc-icon { color: rgb(5 150 105); }
       .sc-badge.pending { background: rgb(238 242 255); color: rgb(67 56 202); border-color: rgb(165 180 252); }
       .sc-badge.pending .dot { background: rgb(99 102 241); }
       .sc-badge.required { background: rgb(255 251 235); color: rgb(146 64 14); border-color: rgb(252 211 77); }
@@ -602,7 +605,32 @@
       .dialog-title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; color: var(--foreground); }
       .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
       .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
-    
+
+      /* Toast notifications */
+      .toast-container {
+        position: fixed; bottom: 16px; right: 16px;
+        display: flex; flex-direction: column; gap: 8px;
+        z-index: 999; pointer-events: none;
+      }
+      .toast {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 14px;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        font-size: 0.875rem;
+        min-width: 240px;
+        color: var(--foreground);
+        pointer-events: auto;
+        animation: toast-in 0.2s ease;
+      }
+      .toast.success { border-left: 3px solid var(--success, #16a34a); }
+      .toast.error   { border-left: 3px solid var(--destructive, #dc2626); }
+      @keyframes toast-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
       /* shadcn-style select */
       .select { position: relative; display: inline-block; width: 100%; }
       .select .select-trigger {
@@ -1260,6 +1288,22 @@
         });
       });
 
+      function toast(msg, variant = "success") {
+        let c = document.querySelector(".toast-container");
+        if (!c) {
+          c = document.createElement("div");
+          c.className = "toast-container";
+          c.setAttribute("data-comment", "toast-container");
+          document.body.appendChild(c);
+        }
+        const el = document.createElement("div");
+        el.className = `toast ${variant}`;
+        el.setAttribute("data-comment", `toast-${Date.now()}`);
+        el.textContent = msg;
+        c.appendChild(el);
+        setTimeout(() => el.remove(), 2500);
+      }
+
       function createStore(initialState) {
         let state = structuredClone(initialState);
         const listeners = new Set();
@@ -1451,6 +1495,7 @@
           estimates: s.estimates.filter((e) => e.id !== id),
           dialog: { type: "closed" },
         }));
+        toast("Estimate deleted");
       }
 
       // ───── Filter / sort / paginate ─────
@@ -1572,7 +1617,7 @@
               <td data-comment="${ctx}-total">${e.total ? "$" + formatMoney(total) : "—"}</td>
               <td data-comment="${ctx}-sales-rep">${escapeHtml(e.sales_rep_name || "—")}</td>
               <td data-comment="${ctx}-site-check">${renderSiteCheckBadge(e.site_check_status || "not_required", ctx)}</td>
-              <td data-comment="${ctx}-memo">${escapeHtml(e.memo || "—")}</td>
+              <td data-comment="${ctx}-memo" title="${escapeHtml(e.memo || "")}">${escapeHtml(e.memo || "—")}</td>
               <td data-comment="${ctx}-actions">
                 <div class="row-actions" data-comment="${ctx}-actions-wrap" onclick="event.stopPropagation()">
                   <button type="button" class="btn-icon-sm danger" data-comment="${ctx}-delete" data-component="button" data-action="delete" data-estimate-id="${e.id}" aria-label="Delete estimate">${ICONS.trash2}</button>
@@ -1716,7 +1761,7 @@
         }
         const row = e.target.closest("tr.clickable");
         if (row && row.dataset.estimateId) {
-          // Mirror onRowClick (opens detail sheet). For static, no-op.
+          window.location.href = `estimate-detail.html?id=${row.dataset.estimateId}`;
         }
       });
 

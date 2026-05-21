@@ -622,11 +622,25 @@
         max-height: calc(100vh - 32px);
         overflow-y: auto;
       }
+      .dialog-header {
+        display: flex; align-items: flex-start;
+        justify-content: space-between; gap: 12px;
+      }
       .dialog-title {
         font-size: 1.125rem; font-weight: 600;
         letter-spacing: -0.025em;
         color: var(--foreground);
       }
+      .dialog-close {
+        flex-shrink: 0;
+        width: 28px; height: 28px;
+        display: inline-flex; align-items: center; justify-content: center;
+        border-radius: 6px;
+        color: var(--muted-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .dialog-close:hover { background: var(--secondary); color: var(--foreground); }
+      .dialog-close svg { width: 16px; height: 16px; }
       .dialog-description {
         font-size: 0.875rem;
         color: var(--muted-foreground);
@@ -1218,13 +1232,30 @@
         data-component="dialog"
         role="dialog"
         aria-modal="true">
-        <div data-comment="users-dialog-header">
+        <div class="dialog-header" data-comment="users-dialog-header">
           <h2
             class="dialog-title"
             data-comment="users-dialog-title"
             id="users-dialog-title">
             Add user
           </h2>
+          <button
+            type="button"
+            class="dialog-close"
+            data-comment="users-dialog-close"
+            id="users-dialog-close"
+            aria-label="Close dialog">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
         <form
           id="users-form"
@@ -1405,10 +1436,31 @@
         data-component="dialog"
         role="alertdialog"
         aria-modal="true">
-        <div data-comment="users-delete-header">
-          <h2 class="dialog-title" data-comment="users-delete-title">
-            Delete user
-          </h2>
+        <div class="dialog-header" data-comment="users-delete-header">
+          <div data-comment="users-delete-header-text">
+            <h2 class="dialog-title" data-comment="users-delete-title">
+              Delete user
+            </h2>
+          </div>
+          <button
+            type="button"
+            class="dialog-close"
+            data-comment="users-delete-close"
+            id="users-delete-close"
+            aria-label="Close dialog">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div data-comment="users-delete-body">
           <p
             class="dialog-description"
             data-comment="users-delete-description"
@@ -2145,6 +2197,22 @@
       document.getElementById("users-delete-confirm").addEventListener("click", () => {
         const cur = store.get().dialog;
         if (cur.type === "delete") deleteUser(cur.user.id);
+      });
+
+      // ───── Handlers: dialog close (X, overlay, Esc) ─────
+      function closeDialog() {
+        store.set({ dialog: { type: "closed" }, formErrors: {} });
+      }
+      document.getElementById("users-dialog-close").addEventListener("click", closeDialog);
+      document.getElementById("users-delete-close").addEventListener("click", closeDialog);
+      document.getElementById("users-dialog-overlay").addEventListener("click", (e) => {
+        if (e.target.id === "users-dialog-overlay") closeDialog();
+      });
+      document.getElementById("users-delete-overlay").addEventListener("click", (e) => {
+        if (e.target.id === "users-delete-overlay") closeDialog();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && store.get().dialog.type !== "closed") closeDialog();
       });
 
       // ───── Validation ─────

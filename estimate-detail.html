@@ -629,7 +629,7 @@
         margin-bottom: 16px;
       }
 
-      /* Dialog (delete) */
+      /* Dialog */
       .dialog-overlay {
         position: fixed; inset: 0;
         background: rgba(0, 0, 0, 0.5);
@@ -639,16 +639,75 @@
       }
       .dialog-overlay.is-open { display: flex; }
       .dialog {
-        background: var(--card);
-        border-radius: 12px;
+        position: relative;
+        background: var(--background-secondary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        width: 100%; max-width: 28rem;
+        width: 100%; max-width: 32rem;
         padding: 24px;
-        display: flex; flex-direction: column; gap: 16px;
+        display: grid; gap: 16px;
       }
-      .dialog-title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; color: var(--foreground); }
+      .dialog.size-sm { max-width: 24rem; }
+      .dialog-header {
+        display: flex; flex-direction: column;
+        gap: 8px; text-align: left;
+      }
+      .dialog-header-row {
+        display: flex; align-items: center; gap: 12px;
+      }
+      .dialog-icon-circle {
+        display: inline-flex; width: 36px; height: 36px;
+        align-items: center; justify-content: center;
+        border-radius: 9999px;
+        background: color-mix(in oklch, var(--primary) 10%, transparent);
+        color: var(--primary);
+        flex-shrink: 0;
+      }
+      .dialog-icon-circle svg { width: 20px; height: 20px; }
+      .dialog-title {
+        font-size: 1.125rem; font-weight: 600;
+        line-height: 1; letter-spacing: -0.01em;
+        color: var(--foreground);
+      }
       .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
-      .dialog-footer { display: flex; justify-content: flex-end; gap: 8px; }
+      .dialog-description .id-ref { font-weight: 500; color: var(--foreground); }
+      .dialog-footer {
+        display: flex; flex-direction: column-reverse; gap: 8px;
+      }
+      @media (min-width: 640px) {
+        .dialog-footer { flex-direction: row; justify-content: flex-end; }
+      }
+      .dialog-close-btn {
+        position: absolute; top: 16px; right: 16px;
+        padding: 2px; border-radius: 2px;
+        color: var(--foreground); opacity: 0.7;
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: opacity 0.15s ease;
+      }
+      .dialog-close-btn:hover { opacity: 1; }
+      .dialog-close-btn svg { width: 16px; height: 16px; }
+
+      /* Styled tooltip */
+      .tooltip-wrap { position: relative; display: inline-flex; }
+      .tooltip-wrap[data-has-tooltip="true"]:hover .tooltip-content,
+      .tooltip-wrap[data-has-tooltip="true"]:focus-within .tooltip-content {
+        opacity: 1; transform: translate(-50%, -4px);
+        pointer-events: auto;
+      }
+      .tooltip-content {
+        position: absolute; bottom: 100%; left: 50%;
+        transform: translate(-50%, 0);
+        opacity: 0; pointer-events: none;
+        background: var(--foreground); color: var(--background-secondary);
+        font-size: 0.75rem; font-weight: 500;
+        padding: 6px 10px; border-radius: 6px;
+        white-space: normal; max-width: 240px;
+        text-align: center; line-height: 1.3;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        z-index: 200;
+      }
     </style>
   </head>
   <body>
@@ -752,19 +811,22 @@
     </div>
 
     <!-- Delete dialog -->
-    <div class="dialog-overlay" data-comment="estimate-detail-delete-overlay" id="estimate-detail-delete-overlay">
-      <div class="dialog" data-comment="estimate-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
-        <div data-comment="estimate-detail-delete-header">
+    <div class="dialog-overlay" data-comment="estimate-detail-delete-overlay" id="estimate-detail-delete-overlay" data-dialog-type="delete">
+      <div class="dialog size-sm" data-comment="estimate-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <button type="button" class="dialog-close-btn" data-comment="estimate-detail-delete-close" data-dialog-close aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="dialog-header" data-comment="estimate-detail-delete-header">
           <h2 class="dialog-title" data-comment="estimate-detail-delete-title">Delete estimate</h2>
-          <p class="dialog-description" data-comment="estimate-detail-delete-description" style="margin-top: 8px">
-            Are you sure you want to delete this estimate? This action cannot be undone.
+          <p class="dialog-description" data-comment="estimate-detail-delete-description">
+            Are you sure you want to delete <span class="id-ref" id="estimate-detail-delete-id"></span>? This action cannot be undone.
           </p>
         </div>
         <div class="dialog-footer" data-comment="estimate-detail-delete-footer">
-          <button class="btn btn-outline btn-sm" data-comment="estimate-detail-delete-cancel" data-component="button" type="button" id="estimate-detail-delete-cancel">
+          <button class="btn btn-outline" data-comment="estimate-detail-delete-cancel" data-component="button" type="button" id="estimate-detail-delete-cancel">
             Cancel
           </button>
-          <button class="btn btn-destructive btn-sm" data-comment="estimate-detail-delete-confirm" data-component="button" type="button" id="estimate-detail-delete-confirm">
+          <button class="btn btn-destructive" data-comment="estimate-detail-delete-confirm" data-component="button" type="button" id="estimate-detail-delete-confirm">
             Delete
           </button>
         </div>
@@ -772,19 +834,27 @@
     </div>
 
     <!-- Approve dialog -->
-    <div class="dialog-overlay" data-comment="estimate-detail-approve-overlay" id="estimate-detail-approve-overlay">
+    <div class="dialog-overlay" data-comment="estimate-detail-approve-overlay" id="estimate-detail-approve-overlay" data-dialog-type="approve">
       <div class="dialog" data-comment="estimate-detail-approve-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
-        <div data-comment="estimate-detail-approve-header">
-          <h2 class="dialog-title" data-comment="estimate-detail-approve-title">Approve estimate</h2>
-          <p class="dialog-description" data-comment="estimate-detail-approve-description" style="margin-top: 8px">
-            Mark this estimate as approved? You will be able to create a sales order from it.
+        <button type="button" class="dialog-close-btn" data-comment="estimate-detail-approve-close" data-dialog-close aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="dialog-header" data-comment="estimate-detail-approve-header">
+          <div class="dialog-header-row" data-comment="estimate-detail-approve-header-row">
+            <span class="dialog-icon-circle" data-comment="estimate-detail-approve-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </span>
+            <h2 class="dialog-title" data-comment="estimate-detail-approve-title">Approve Estimate</h2>
+          </div>
+          <p class="dialog-description" data-comment="estimate-detail-approve-description">
+            Are you sure you want to approve estimate <span class="id-ref" id="estimate-detail-approve-id"></span>?
           </p>
         </div>
         <div class="dialog-footer" data-comment="estimate-detail-approve-footer">
-          <button class="btn btn-outline btn-sm" data-comment="estimate-detail-approve-cancel" data-component="button" type="button" id="estimate-detail-approve-cancel">
+          <button class="btn btn-outline" data-comment="estimate-detail-approve-cancel" data-component="button" type="button" id="estimate-detail-approve-cancel">
             Cancel
           </button>
-          <button class="btn btn-success btn-sm" data-comment="estimate-detail-approve-confirm" data-component="button" type="button" id="estimate-detail-approve-confirm">
+          <button class="btn btn-primary" data-comment="estimate-detail-approve-confirm" data-component="button" type="button" id="estimate-detail-approve-confirm">
             Approve
           </button>
         </div>
@@ -792,19 +862,27 @@
     </div>
 
     <!-- Reject dialog -->
-    <div class="dialog-overlay" data-comment="estimate-detail-reject-overlay" id="estimate-detail-reject-overlay">
+    <div class="dialog-overlay" data-comment="estimate-detail-reject-overlay" id="estimate-detail-reject-overlay" data-dialog-type="reject">
       <div class="dialog" data-comment="estimate-detail-reject-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
-        <div data-comment="estimate-detail-reject-header">
-          <h2 class="dialog-title" data-comment="estimate-detail-reject-title">Reject estimate</h2>
-          <p class="dialog-description" data-comment="estimate-detail-reject-description" style="margin-top: 8px">
-            Mark this estimate as rejected? The customer will be notified.
+        <button type="button" class="dialog-close-btn" data-comment="estimate-detail-reject-close" data-dialog-close aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="dialog-header" data-comment="estimate-detail-reject-header">
+          <div class="dialog-header-row" data-comment="estimate-detail-reject-header-row">
+            <span class="dialog-icon-circle" data-comment="estimate-detail-reject-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+            </span>
+            <h2 class="dialog-title" data-comment="estimate-detail-reject-title">Reject estimate</h2>
+          </div>
+          <p class="dialog-description" data-comment="estimate-detail-reject-description">
+            Are you sure you want to reject <span class="id-ref" id="estimate-detail-reject-id"></span>?
           </p>
         </div>
         <div class="dialog-footer" data-comment="estimate-detail-reject-footer">
-          <button class="btn btn-outline btn-sm" data-comment="estimate-detail-reject-cancel" data-component="button" type="button" id="estimate-detail-reject-cancel">
+          <button class="btn btn-outline" data-comment="estimate-detail-reject-cancel" data-component="button" type="button" id="estimate-detail-reject-cancel">
             Cancel
           </button>
-          <button class="btn btn-destructive btn-sm" data-comment="estimate-detail-reject-confirm" data-component="button" type="button" id="estimate-detail-reject-confirm">
+          <button class="btn btn-destructive" data-comment="estimate-detail-reject-confirm" data-component="button" type="button" id="estimate-detail-reject-confirm">
             Reject
           </button>
         </div>
@@ -812,19 +890,27 @@
     </div>
 
     <!-- Create Sales Order dialog -->
-    <div class="dialog-overlay" data-comment="estimate-detail-sales-overlay" id="estimate-detail-sales-overlay">
+    <div class="dialog-overlay" data-comment="estimate-detail-sales-overlay" id="estimate-detail-sales-overlay" data-dialog-type="createSalesOrder">
       <div class="dialog" data-comment="estimate-detail-sales-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
-        <div data-comment="estimate-detail-sales-header">
-          <h2 class="dialog-title" data-comment="estimate-detail-sales-title">Create sales order</h2>
-          <p class="dialog-description" data-comment="estimate-detail-sales-description" style="margin-top: 8px">
-            Convert this estimate into a sales order? Items and totals will be carried over.
+        <button type="button" class="dialog-close-btn" data-comment="estimate-detail-sales-close" data-dialog-close aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="dialog-header" data-comment="estimate-detail-sales-header">
+          <div class="dialog-header-row" data-comment="estimate-detail-sales-header-row">
+            <span class="dialog-icon-circle" data-comment="estimate-detail-sales-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+            </span>
+            <h2 class="dialog-title" data-comment="estimate-detail-sales-title">Create Sales Order</h2>
+          </div>
+          <p class="dialog-description" data-comment="estimate-detail-sales-description">
+            Are you sure you want to create a sales order in EBMS for estimate <span class="id-ref" id="estimate-detail-sales-id"></span>?
           </p>
         </div>
         <div class="dialog-footer" data-comment="estimate-detail-sales-footer">
-          <button class="btn btn-outline btn-sm" data-comment="estimate-detail-sales-cancel" data-component="button" type="button" id="estimate-detail-sales-cancel">
+          <button class="btn btn-outline" data-comment="estimate-detail-sales-cancel" data-component="button" type="button" id="estimate-detail-sales-cancel">
             Cancel
           </button>
-          <button class="btn btn-success btn-sm" data-comment="estimate-detail-sales-confirm" data-component="button" type="button" id="estimate-detail-sales-confirm">
+          <button class="btn btn-primary" data-comment="estimate-detail-sales-confirm" data-component="button" type="button" id="estimate-detail-sales-confirm">
             Create Sales Order
           </button>
         </div>
@@ -1485,9 +1571,12 @@
                     ${ICONS.x} Reject
                   </button>` : ""}
                 ${canChangeStatus ? `
-                  <button type="button" class="btn btn-success btn-sm" data-comment="estimate-detail-action-approve" data-component="button" data-action="open-approve" ${siteCheckPending ? "disabled title='Site check must be completed before approving the estimate.'" : ""}>
-                    ${ICONS.check} Approve
-                  </button>` : ""}
+                  <span class="tooltip-wrap" data-comment="estimate-detail-action-approve-wrap" data-has-tooltip="${siteCheckPending ? "true" : "false"}">
+                    <button type="button" class="btn btn-success btn-sm" data-comment="estimate-detail-action-approve" data-component="button" data-action="open-approve" ${siteCheckPending ? "disabled" : ""}>
+                      ${ICONS.check} Approve
+                    </button>
+                    ${siteCheckPending ? `<span class="tooltip-content" data-comment="estimate-detail-action-approve-tooltip" role="tooltip">Site check must be completed before approving the estimate.</span>` : ""}
+                  </span>` : ""}
                 ${(est.status === "accepted" && !est.order) ? `
                   <button type="button" class="btn btn-success btn-sm" data-comment="estimate-detail-action-create-sales-order" data-component="button" data-action="open-sales">
                     ${ICONS.check} Create Sales Order
@@ -1578,6 +1667,11 @@
       // ───── Render: dialogs ─────
       function renderDialogs() {
         const s = store.get();
+        const idText = String(s.selectedId ?? "");
+        document.getElementById("estimate-detail-delete-id").textContent = idText;
+        document.getElementById("estimate-detail-approve-id").textContent = idText;
+        document.getElementById("estimate-detail-reject-id").textContent = idText;
+        document.getElementById("estimate-detail-sales-id").textContent = idText;
         document.getElementById("estimate-detail-delete-overlay").classList.toggle("is-open", s.dialog.type === "delete");
         document.getElementById("estimate-detail-approve-overlay").classList.toggle("is-open", s.dialog.type === "approve");
         document.getElementById("estimate-detail-reject-overlay").classList.toggle("is-open", s.dialog.type === "reject");
@@ -1643,14 +1737,29 @@
       });
 
       // ───── Handlers: dialogs ─────
-      document.getElementById("estimate-detail-delete-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      const closeDialog = () => store.set({ dialog: { type: "closed" } });
+      document.getElementById("estimate-detail-delete-cancel").addEventListener("click", closeDialog);
       document.getElementById("estimate-detail-delete-confirm").addEventListener("click", () => deleteEstimate(store.get().selectedId));
-      document.getElementById("estimate-detail-approve-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      document.getElementById("estimate-detail-approve-cancel").addEventListener("click", closeDialog);
       document.getElementById("estimate-detail-approve-confirm").addEventListener("click", () => approveEstimate(store.get().selectedId));
-      document.getElementById("estimate-detail-reject-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      document.getElementById("estimate-detail-reject-cancel").addEventListener("click", closeDialog);
       document.getElementById("estimate-detail-reject-confirm").addEventListener("click", () => rejectEstimate(store.get().selectedId));
-      document.getElementById("estimate-detail-sales-cancel").addEventListener("click", () => store.set({ dialog: { type: "closed" } }));
+      document.getElementById("estimate-detail-sales-cancel").addEventListener("click", closeDialog);
       document.getElementById("estimate-detail-sales-confirm").addEventListener("click", () => createSalesOrder(store.get().selectedId));
+
+      // Overlay click + X button close
+      document.querySelectorAll(".dialog-overlay").forEach((overlay) => {
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) closeDialog();
+          const closeBtn = e.target.closest("[data-dialog-close]");
+          if (closeBtn) closeDialog();
+        });
+      });
+
+      // Esc key close
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && store.get().dialog.type !== "closed") closeDialog();
+      });
     </script>
   </body>
 </html>

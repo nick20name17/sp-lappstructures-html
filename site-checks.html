@@ -448,8 +448,8 @@
       }
       .row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
       .id-cell { font-weight: 500; }
-      .estimate-link { color: var(--accent-foreground); }
-      .estimate-link:hover { text-decoration: underline; }
+      .estimate-link, .customer-link { color: var(--accent-foreground); }
+      .estimate-link:hover, .customer-link:hover { text-decoration: underline; }
       .location-cell {
         display: inline-flex; align-items: center; gap: 6px;
       }
@@ -1488,10 +1488,14 @@
               </td>
               <td data-comment="${ctx}-estimate">
                 ${sc.estimate_id
-                  ? `<a class="estimate-link" data-comment="${ctx}-estimate-link" href="estimates.html?id=${sc.estimate_id}" onclick="event.stopPropagation()">${sc.estimate_id}</a>`
+                  ? `<a class="estimate-link" data-comment="${ctx}-estimate-link" href="estimate-detail.html?id=${sc.estimate_id}" onclick="event.stopPropagation()">${sc.estimate_id}</a>`
                   : "—"}
               </td>
-              <td data-comment="${ctx}-customer">${escapeHtml(customerName || "—")}</td>
+              <td data-comment="${ctx}-customer">
+                ${sc.contact
+                  ? `<a class="customer-link" data-comment="${ctx}-customer-link" href="customer-detail.html?id=${sc.contact.id}" onclick="event.stopPropagation()">${escapeHtml(customerName || "—")}</a>`
+                  : "—"}
+              </td>
               <td data-comment="${ctx}-status">${renderSCBadge(sc.status, ctx)}</td>
               <td data-comment="${ctx}-assigned-to">${escapeHtml(assignedName || "—")}</td>
               <td data-comment="${ctx}-start-date">${formatDate(sc.start_date_time)}</td>

@@ -1071,6 +1071,11 @@
         flex-direction: column;
       }
 
+      .dialog-panel.dialog-panel-wide {
+        max-width: 760px;
+        max-height: 90vh;
+      }
+
       .dialog.is-open .dialog-panel {
         opacity: 1;
         transform: translateY(0);
@@ -1096,6 +1101,34 @@
         padding: 16px 24px;
         display: flex;
         flex-direction: column;
+        gap: 16px;
+        overflow-y: auto;
+      }
+
+      .form-section {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .form-section-title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--muted-foreground);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 2px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .form-grid-3 {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
         gap: 12px;
       }
 
@@ -1105,15 +1138,29 @@
         gap: 4px;
       }
 
+      .form-row.col-span-2 {
+        grid-column: span 2;
+      }
+
+      .form-row.col-span-3 {
+        grid-column: span 3;
+      }
+
       .form-row label {
         font-size: 0.8125rem;
         font-weight: 500;
         color: var(--foreground);
       }
 
-      .form-row input {
-        height: 36px;
+      .form-row label .req {
+        color: var(--destructive);
+        margin-left: 2px;
+      }
+
+      .form-row input,
+      .form-row textarea {
         padding: 0 12px;
+        height: 36px;
         border: 1px solid var(--input);
         border-radius: 6px;
         background: var(--card);
@@ -1124,9 +1171,22 @@
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
       }
 
-      .form-row input:focus {
+      .form-row textarea {
+        height: auto;
+        min-height: 72px;
+        padding: 8px 12px;
+        resize: vertical;
+      }
+
+      .form-row input:focus,
+      .form-row textarea:focus {
         border-color: var(--ring);
         box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 20%, transparent);
+      }
+
+      .form-row input[aria-invalid="true"],
+      .form-row textarea[aria-invalid="true"] {
+        border-color: var(--destructive);
       }
 
       .form-row .form-error {
@@ -1134,11 +1194,92 @@
         color: var(--destructive);
       }
 
+      .form-checkbox {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8125rem;
+        color: var(--foreground);
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .form-checkbox input[type="checkbox"] {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border: 1px solid var(--input);
+        border-radius: 4px;
+        background: var(--card);
+        display: inline-grid;
+        place-items: center;
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+
+      .form-checkbox input[type="checkbox"]:checked {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+
+      .form-checkbox input[type="checkbox"]:checked::after {
+        content: "";
+        width: 8px;
+        height: 5px;
+        border-left: 2px solid #fff;
+        border-bottom: 2px solid #fff;
+        transform: rotate(-45deg) translate(1px, -1px);
+      }
+
       .dialog-footer {
         padding: 12px 24px 20px;
         display: flex;
         justify-content: flex-end;
+        align-items: center;
         gap: 8px;
+      }
+
+      .dialog-footer .footer-left {
+        margin-right: auto;
+      }
+
+      .dialog-close-x {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        color: var(--muted-foreground);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .dialog-close-x:hover {
+        background: var(--muted);
+        color: var(--foreground);
+      }
+
+      .dialog-header {
+        position: relative;
+      }
+
+      .btn-destructive {
+        background: var(--destructive);
+        color: #fff;
+      }
+
+      .btn-destructive:hover {
+        filter: brightness(0.95);
+      }
+
+      @media (max-width: 640px) {
+        .form-grid,
+        .form-grid-3 {
+          grid-template-columns: 1fr;
+        }
       }
 
       /* ───── Reveal ───── */
@@ -1711,8 +1852,9 @@
       id="customers-dialog"
       role="dialog"
       aria-modal="true"
-      aria-hidden="true">
-      <div class="dialog-panel" data-comment="customers-dialog-panel">
+      aria-hidden="true"
+      aria-labelledby="customers-dialog-title">
+      <div class="dialog-panel dialog-panel-wide" data-comment="customers-dialog-panel">
         <header class="dialog-header" data-comment="customers-dialog-header">
           <h2
             class="dialog-title"
@@ -1723,86 +1865,316 @@
           <p class="dialog-description" data-comment="customers-dialog-description">
             Enter the customer details below.
           </p>
+          <button
+            type="button"
+            class="dialog-close-x"
+            data-comment="customers-dialog-close-x"
+            id="customers-dialog-close-x"
+            aria-label="Close dialog">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
         </header>
         <div class="dialog-body" data-comment="customers-dialog-body">
-          <div class="form-row" data-comment="customers-form-first-name">
-            <label data-comment="customers-form-first-name-label" for="customer-first-name"
-              >First name</label
-            >
-            <input
-              type="text"
-              data-comment="customers-form-first-name-input"
-              data-component="input"
-              id="customer-first-name"
-              placeholder="Jane" />
-            <span
-              class="form-error"
-              data-comment="customers-form-first-name-error"
-              id="customer-first-name-error"
-              style="display: none"
-              >First name is required.</span
-            >
-          </div>
-          <div class="form-row" data-comment="customers-form-last-name">
-            <label data-comment="customers-form-last-name-label" for="customer-last-name"
-              >Last name</label
-            >
-            <input
-              type="text"
-              data-comment="customers-form-last-name-input"
-              data-component="input"
-              id="customer-last-name"
-              placeholder="Doe" />
-            <span
-              class="form-error"
-              data-comment="customers-form-last-name-error"
-              id="customer-last-name-error"
-              style="display: none"
-              >Last name is required.</span
-            >
-          </div>
-          <div class="form-row" data-comment="customers-form-email">
-            <label data-comment="customers-form-email-label" for="customer-email"
-              >Email</label
-            >
-            <input
-              type="email"
-              data-comment="customers-form-email-input"
-              data-component="input"
-              id="customer-email"
-              placeholder="jane@example.com" />
-            <span
-              class="form-error"
-              data-comment="customers-form-email-error"
-              id="customer-email-error"
-              style="display: none"
-              >Enter a valid email address.</span
-            >
-          </div>
-          <div class="form-row" data-comment="customers-form-phone">
-            <label data-comment="customers-form-phone-label" for="customer-phone"
-              >Phone</label
-            >
-            <input
-              type="tel"
-              data-comment="customers-form-phone-input"
-              data-component="input"
-              id="customer-phone"
-              placeholder="(555) 555-1234" />
-          </div>
-          <div class="form-row" data-comment="customers-form-location">
-            <label data-comment="customers-form-location-label" for="customer-location"
-              >Location</label
-            >
-            <input
-              type="text"
-              data-comment="customers-form-location-input"
-              data-component="input"
-              id="customer-location"
-              placeholder="Lancaster, PA" />
-          </div>
+          <!-- Personal info -->
+          <section class="form-section" data-comment="customers-form-section-personal">
+            <h3 class="form-section-title" data-comment="customers-form-section-personal-title">Personal</h3>
+            <div class="form-grid" data-comment="customers-form-personal-grid">
+              <div class="form-row" data-comment="customers-form-first-name">
+                <label data-comment="customers-form-first-name-label" for="customer-first-name"
+                  >First name<span class="req">*</span></label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-first-name-input"
+                  data-component="input"
+                  id="customer-first-name"
+                  placeholder="Jane" />
+                <span
+                  class="form-error"
+                  data-comment="customers-form-first-name-error"
+                  id="customer-first-name-error"
+                  style="display: none"
+                  >First name is required.</span
+                >
+              </div>
+              <div class="form-row" data-comment="customers-form-last-name">
+                <label data-comment="customers-form-last-name-label" for="customer-last-name"
+                  >Last name<span class="req">*</span></label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-last-name-input"
+                  data-component="input"
+                  id="customer-last-name"
+                  placeholder="Doe" />
+                <span
+                  class="form-error"
+                  data-comment="customers-form-last-name-error"
+                  id="customer-last-name-error"
+                  style="display: none"
+                  >Last name is required.</span
+                >
+              </div>
+              <div class="form-row" data-comment="customers-form-email">
+                <label data-comment="customers-form-email-label" for="customer-email"
+                  >Email<span class="req">*</span></label
+                >
+                <input
+                  type="email"
+                  data-comment="customers-form-email-input"
+                  data-component="input"
+                  id="customer-email"
+                  placeholder="jane@example.com" />
+                <span
+                  class="form-error"
+                  data-comment="customers-form-email-error"
+                  id="customer-email-error"
+                  style="display: none"
+                  >Enter a valid email address.</span
+                >
+              </div>
+              <div class="form-row" data-comment="customers-form-phone">
+                <label data-comment="customers-form-phone-label" for="customer-phone"
+                  >Primary phone</label
+                >
+                <input
+                  type="tel"
+                  data-comment="customers-form-phone-input"
+                  data-component="input"
+                  id="customer-phone"
+                  placeholder="(555) 555-1234" />
+              </div>
+              <div class="form-row" data-comment="customers-form-secondary-phone">
+                <label data-comment="customers-form-secondary-phone-label" for="customer-secondary-phone"
+                  >Secondary phone</label
+                >
+                <input
+                  type="tel"
+                  data-comment="customers-form-secondary-phone-input"
+                  data-component="input"
+                  id="customer-secondary-phone"
+                  placeholder="(555) 555-5678" />
+              </div>
+              <div class="form-row" data-comment="customers-form-website">
+                <label data-comment="customers-form-website-label" for="customer-website"
+                  >Website</label
+                >
+                <input
+                  type="url"
+                  data-comment="customers-form-website-input"
+                  data-component="input"
+                  id="customer-website"
+                  placeholder="https://example.com" />
+              </div>
+            </div>
+          </section>
+
+          <!-- Business info -->
+          <section class="form-section" data-comment="customers-form-section-business">
+            <h3 class="form-section-title" data-comment="customers-form-section-business-title">Business</h3>
+            <div class="form-grid" data-comment="customers-form-business-grid">
+              <div class="form-row" data-comment="customers-form-company">
+                <label data-comment="customers-form-company-label" for="customer-company"
+                  >Company</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-company-input"
+                  data-component="input"
+                  id="customer-company"
+                  placeholder="Acme Corp" />
+              </div>
+              <div class="form-row" data-comment="customers-form-position">
+                <label data-comment="customers-form-position-label" for="customer-position"
+                  >Position</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-position-input"
+                  data-component="input"
+                  id="customer-position"
+                  placeholder="Owner" />
+              </div>
+              <div class="form-row" data-comment="customers-form-location">
+                <label data-comment="customers-form-location-label" for="customer-location"
+                  >Location</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-location-input"
+                  data-component="input"
+                  id="customer-location"
+                  placeholder="Lancaster, PA" />
+              </div>
+              <div class="form-row" data-comment="customers-form-ebms-id">
+                <label data-comment="customers-form-ebms-id-label" for="customer-ebms-id"
+                  >EBMS ID</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-ebms-id-input"
+                  data-component="input"
+                  id="customer-ebms-id"
+                  placeholder="EBMS-001" />
+              </div>
+              <div class="form-row" data-comment="customers-form-sales-rep">
+                <label data-comment="customers-form-sales-rep-label" for="customer-sales-rep"
+                  >Sales Rep</label
+                >
+                <div
+                  class="select"
+                  data-comment="customers-form-sales-rep-select"
+                  data-component="select"
+                  data-placeholder="Choose..."
+                  id="customer-sales-rep">
+                  <button type="button" class="select-trigger" aria-expanded="false" data-comment="customers-form-sales-rep-trigger">
+                    <span class="select-trigger-label"></span>
+                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <input type="hidden" value="" />
+                  <div class="select-popover" style="display:none" role="listbox">
+                    <div class="select-item" data-value="" data-comment="customers-form-sales-rep-opt-none">—</div>
+                    <div class="select-item" data-value="Tom Bradley" data-comment="customers-form-sales-rep-opt-tom">Tom Bradley</div>
+                    <div class="select-item" data-value="Linda Park" data-comment="customers-form-sales-rep-opt-linda">Linda Park</div>
+                    <div class="select-item" data-value="Marcus Yu" data-comment="customers-form-sales-rep-opt-marcus">Marcus Yu</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row col-span-2" data-comment="customers-form-note">
+                <label data-comment="customers-form-note-label" for="customer-note"
+                  >Note</label
+                >
+                <textarea
+                  data-comment="customers-form-note-input"
+                  data-component="textarea"
+                  id="customer-note"
+                  placeholder="Internal notes about the customer..."></textarea>
+              </div>
+            </div>
+          </section>
+
+          <!-- Billing address -->
+          <section class="form-section" data-comment="customers-form-section-billing">
+            <h3 class="form-section-title" data-comment="customers-form-section-billing-title">Billing address</h3>
+            <div class="form-grid-3" data-comment="customers-form-billing-grid">
+              <div class="form-row col-span-3" data-comment="customers-form-billing-street">
+                <label data-comment="customers-form-billing-street-label" for="customer-billing-street"
+                  >Street</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-billing-street-input"
+                  data-component="input"
+                  id="customer-billing-street"
+                  placeholder="123 Main St" />
+              </div>
+              <div class="form-row" data-comment="customers-form-billing-city">
+                <label data-comment="customers-form-billing-city-label" for="customer-billing-city"
+                  >City</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-billing-city-input"
+                  data-component="input"
+                  id="customer-billing-city"
+                  placeholder="Lancaster" />
+              </div>
+              <div class="form-row" data-comment="customers-form-billing-state">
+                <label data-comment="customers-form-billing-state-label" for="customer-billing-state"
+                  >State</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-billing-state-input"
+                  data-component="input"
+                  id="customer-billing-state"
+                  maxlength="2"
+                  placeholder="PA" />
+              </div>
+              <div class="form-row" data-comment="customers-form-billing-zip">
+                <label data-comment="customers-form-billing-zip-label" for="customer-billing-zip"
+                  >ZIP</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-billing-zip-input"
+                  data-component="input"
+                  id="customer-billing-zip"
+                  placeholder="17601" />
+              </div>
+            </div>
+            <label class="form-checkbox" data-comment="customers-form-use-billing">
+              <input
+                type="checkbox"
+                data-comment="customers-form-use-billing-input"
+                data-component="checkbox"
+                id="customer-use-billing" />
+              <span data-comment="customers-form-use-billing-label">Use billing address as shipping</span>
+            </label>
+          </section>
+
+          <!-- Shipping address -->
+          <section class="form-section" data-comment="customers-form-section-shipping" id="customer-shipping-section">
+            <h3 class="form-section-title" data-comment="customers-form-section-shipping-title">Shipping address</h3>
+            <div class="form-grid-3" data-comment="customers-form-shipping-grid">
+              <div class="form-row col-span-3" data-comment="customers-form-shipping-street">
+                <label data-comment="customers-form-shipping-street-label" for="customer-shipping-street"
+                  >Street</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-shipping-street-input"
+                  data-component="input"
+                  id="customer-shipping-street"
+                  placeholder="123 Main St" />
+              </div>
+              <div class="form-row" data-comment="customers-form-shipping-city">
+                <label data-comment="customers-form-shipping-city-label" for="customer-shipping-city"
+                  >City</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-shipping-city-input"
+                  data-component="input"
+                  id="customer-shipping-city"
+                  placeholder="Lancaster" />
+              </div>
+              <div class="form-row" data-comment="customers-form-shipping-state">
+                <label data-comment="customers-form-shipping-state-label" for="customer-shipping-state"
+                  >State</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-shipping-state-input"
+                  data-component="input"
+                  id="customer-shipping-state"
+                  maxlength="2"
+                  placeholder="PA" />
+              </div>
+              <div class="form-row" data-comment="customers-form-shipping-zip">
+                <label data-comment="customers-form-shipping-zip-label" for="customer-shipping-zip"
+                  >ZIP</label
+                >
+                <input
+                  type="text"
+                  data-comment="customers-form-shipping-zip-input"
+                  data-component="input"
+                  id="customer-shipping-zip"
+                  placeholder="17601" />
+              </div>
+            </div>
+          </section>
         </div>
         <footer class="dialog-footer" data-comment="customers-dialog-footer">
+          <button
+            type="button"
+            class="btn btn-destructive footer-left"
+            data-comment="customers-dialog-delete"
+            data-component="button"
+            id="customers-dialog-delete"
+            style="display: none">
+            Delete
+          </button>
           <button
             type="button"
             class="btn btn-outline"
@@ -2072,187 +2444,36 @@
       };
 
       /* ───── Seed customers ───── */
+      const TAG_VIP = { id: 1, name: "VIP", hex_color: "#7c3aed" };
+      const TAG_DEALER = { id: 2, name: "Dealer", hex_color: "#2563eb" };
+      const TAG_REPEAT = { id: 3, name: "Repeat", hex_color: "#16a34a" };
+      const TAG_BUILDER = { id: 4, name: "Builder", hex_color: "#ea580c" };
+
+      function mkAddr(street, city, zip) {
+        return { street, city, state: "PA", zip };
+      }
+      function fmtAddr(a) {
+        if (!a) return "—";
+        const parts = [a.city, a.state].filter(Boolean).join(" ");
+        return a.zip ? `${parts} - ${a.zip}` : parts;
+      }
+
       const SEED_CUSTOMERS = [
-        {
-          id: 1,
-          first_name: "Anna",
-          last_name: "Lee",
-          email: "anna@example.com",
-          primary_phone: "7175550101",
-          location: "Lancaster, PA",
-          tags: [{ id: 1, name: "VIP", hex_color: "#7c3aed" }],
-          sales_rep: "Tom Bradley",
-          billing: "Lancaster PA - 17601",
-          shipping: "Lancaster PA - 17601",
-        },
-        {
-          id: 2,
-          first_name: "Mark",
-          last_name: "Chen",
-          email: "mark@example.com",
-          primary_phone: "6105550102",
-          location: "Reading, PA",
-          tags: [{ id: 2, name: "Dealer", hex_color: "#2563eb" }],
-          sales_rep: "Tom Bradley",
-          billing: "Reading PA - 19601",
-          shipping: "Reading PA - 19601",
-        },
-        {
-          id: 3,
-          first_name: "Sarah",
-          last_name: "Johnson",
-          email: "sarah.j@example.com",
-          primary_phone: "7175550103",
-          location: "York, PA",
-          tags: [{ id: 3, name: "Repeat", hex_color: "#16a34a" }],
-          sales_rep: "Linda Park",
-          billing: "York PA - 17402",
-          shipping: "York PA - 17402",
-        },
-        {
-          id: 4,
-          first_name: "David",
-          last_name: "Smith",
-          email: "david.smith@example.com",
-          primary_phone: "7175550104",
-          location: "Harrisburg, PA",
-          tags: [],
-          sales_rep: "Linda Park",
-          billing: "Harrisburg PA - 17101",
-          shipping: "Harrisburg PA - 17101",
-        },
-        {
-          id: 5,
-          first_name: "Emma",
-          last_name: "Garcia",
-          email: "emma.g@example.com",
-          primary_phone: "6105550105",
-          location: "Allentown, PA",
-          tags: [{ id: 1, name: "VIP", hex_color: "#7c3aed" }],
-          sales_rep: "Marcus Yu",
-          billing: "Allentown PA - 18101",
-          shipping: "Allentown PA - 18101",
-        },
-        {
-          id: 6,
-          first_name: "James",
-          last_name: "Wilson",
-          email: "jwilson@example.com",
-          primary_phone: "6105550106",
-          location: "Bethlehem, PA",
-          tags: [{ id: 4, name: "Builder", hex_color: "#ea580c" }],
-          sales_rep: "Marcus Yu",
-          billing: "Bethlehem PA - 18017",
-          shipping: "Bethlehem PA - 18017",
-        },
-        {
-          id: 7,
-          first_name: "Olivia",
-          last_name: "Brown",
-          email: "olivia@example.com",
-          primary_phone: "7175550107",
-          location: "Lebanon, PA",
-          tags: [{ id: 3, name: "Repeat", hex_color: "#16a34a" }],
-          sales_rep: "Tom Bradley",
-          billing: "Lebanon PA - 17042",
-          shipping: "Lebanon PA - 17042",
-        },
-        {
-          id: 8,
-          first_name: "Michael",
-          last_name: "Davis",
-          email: "michael.d@example.com",
-          primary_phone: "4125550108",
-          location: "Pittsburgh, PA",
-          tags: [{ id: 2, name: "Dealer", hex_color: "#2563eb" }],
-          sales_rep: "Linda Park",
-          billing: "Pittsburgh PA - 15201",
-          shipping: "Pittsburgh PA - 15201",
-        },
-        {
-          id: 9,
-          first_name: "Sophia",
-          last_name: "Martinez",
-          email: "sophia.m@example.com",
-          primary_phone: "7175550109",
-          location: "Lancaster, PA",
-          tags: [],
-          sales_rep: "Marcus Yu",
-          billing: "Lancaster PA - 17603",
-          shipping: "—",
-        },
-        {
-          id: 10,
-          first_name: "Daniel",
-          last_name: "Anderson",
-          email: "dan.a@example.com",
-          primary_phone: "6105550110",
-          location: "Reading, PA",
-          tags: [{ id: 4, name: "Builder", hex_color: "#ea580c" }],
-          sales_rep: "Marcus Yu",
-          billing: "Reading PA - 19601",
-          shipping: "Reading PA - 19601",
-        },
-        {
-          id: 11,
-          first_name: "Isabella",
-          last_name: "Taylor",
-          email: "isabella@example.com",
-          primary_phone: "7175550111",
-          location: "York, PA",
-          tags: [{ id: 1, name: "VIP", hex_color: "#7c3aed" }],
-          sales_rep: "Tom Bradley",
-          billing: "York PA - 17404",
-          shipping: "York PA - 17404",
-        },
-        {
-          id: 12,
-          first_name: "Ethan",
-          last_name: "Thomas",
-          email: "ethan.t@example.com",
-          primary_phone: "7175550112",
-          location: "Harrisburg, PA",
-          tags: [{ id: 3, name: "Repeat", hex_color: "#16a34a" }],
-          sales_rep: "Linda Park",
-          billing: "Harrisburg PA - 17103",
-          shipping: "Harrisburg PA - 17103",
-        },
-        {
-          id: 13,
-          first_name: "Mia",
-          last_name: "Jackson",
-          email: "mia.j@example.com",
-          primary_phone: "6105550113",
-          location: "Allentown, PA",
-          tags: [],
-          sales_rep: "Marcus Yu",
-          billing: "Allentown PA - 18103",
-          shipping: "Allentown PA - 18103",
-        },
-        {
-          id: 14,
-          first_name: "Alexander",
-          last_name: "White",
-          email: "alex.w@example.com",
-          primary_phone: "6105550114",
-          location: "Bethlehem, PA",
-          tags: [{ id: 2, name: "Dealer", hex_color: "#2563eb" }],
-          sales_rep: "Tom Bradley",
-          billing: "Bethlehem PA - 18020",
-          shipping: "Bethlehem PA - 18020",
-        },
-        {
-          id: 15,
-          first_name: "Charlotte",
-          last_name: "Harris",
-          email: "charlotte.h@example.com",
-          primary_phone: "7175550115",
-          location: "Lebanon, PA",
-          tags: [{ id: 4, name: "Builder", hex_color: "#ea580c" }],
-          sales_rep: "Linda Park",
-          billing: "Lebanon PA - 17046",
-          shipping: "Lebanon PA - 17046",
-        },
+        { id: 1, first_name: "Anna", last_name: "Lee", email: "anna.lee@oakbrook.example", primary_phone: "7175550101", secondary_phone: "", website: "https://oakbrook.example", company: "Oakbrook Construction", position: "Owner", ebms_id: "EBMS-1001", location: "Lancaster, PA", note: "Prefers email contact.", tags: [TAG_VIP], sales_rep: "Tom Bradley", billing_address: mkAddr("120 Orange St", "Lancaster", "17601"), shipping_address: mkAddr("120 Orange St", "Lancaster", "17601") },
+        { id: 2, first_name: "Mark", last_name: "Chen", email: "mark.chen@reading-supply.example", primary_phone: "6105550102", secondary_phone: "6105559902", website: "", company: "Reading Supply Co.", position: "Buyer", ebms_id: "EBMS-1002", location: "Reading, PA", note: "", tags: [TAG_DEALER], sales_rep: "Tom Bradley", billing_address: mkAddr("88 Penn Ave", "Reading", "19601"), shipping_address: mkAddr("88 Penn Ave", "Reading", "19601") },
+        { id: 3, first_name: "Sarah", last_name: "Johnson", email: "sarah.johnson@example.com", primary_phone: "7175550103", secondary_phone: "", website: "", company: "Johnson Homes", position: "Project Manager", ebms_id: "EBMS-1003", location: "York, PA", note: "", tags: [TAG_REPEAT], sales_rep: "Linda Park", billing_address: mkAddr("412 Market St", "York", "17402"), shipping_address: mkAddr("412 Market St", "York", "17402") },
+        { id: 4, first_name: "David", last_name: "Smith", email: "david.smith@example.com", primary_phone: "7175550104", secondary_phone: "", website: "", company: "", position: "", ebms_id: "", location: "Harrisburg, PA", note: "", tags: [], sales_rep: "Linda Park", billing_address: mkAddr("19 State St", "Harrisburg", "17101"), shipping_address: mkAddr("19 State St", "Harrisburg", "17101") },
+        { id: 5, first_name: "Emma", last_name: "Garcia", email: "emma.garcia@valleyforge.example", primary_phone: "6105550105", secondary_phone: "", website: "https://valleyforge.example", company: "Valley Forge Estates", position: "Owner", ebms_id: "EBMS-1005", location: "Allentown, PA", note: "Long-term VIP.", tags: [TAG_VIP], sales_rep: "Marcus Yu", billing_address: mkAddr("221 Hamilton Blvd", "Allentown", "18101"), shipping_address: mkAddr("221 Hamilton Blvd", "Allentown", "18101") },
+        { id: 6, first_name: "James", last_name: "Wilson", email: "jwilson@wilsonbuild.example", primary_phone: "6105550106", secondary_phone: "", website: "https://wilsonbuild.example", company: "Wilson Build LLC", position: "General Contractor", ebms_id: "EBMS-1006", location: "Bethlehem, PA", note: "", tags: [TAG_BUILDER], sales_rep: "Marcus Yu", billing_address: mkAddr("7 Main St", "Bethlehem", "18017"), shipping_address: mkAddr("550 Industrial Dr", "Bethlehem", "18017") },
+        { id: 7, first_name: "Olivia", last_name: "Brown", email: "olivia.brown@example.com", primary_phone: "7175550107", secondary_phone: "", website: "", company: "Brown Family Farm", position: "Owner", ebms_id: "EBMS-1007", location: "Lebanon, PA", note: "", tags: [TAG_REPEAT], sales_rep: "Tom Bradley", billing_address: mkAddr("1004 Cumberland St", "Lebanon", "17042"), shipping_address: mkAddr("1004 Cumberland St", "Lebanon", "17042") },
+        { id: 8, first_name: "Michael", last_name: "Davis", email: "michael.davis@steelcityparts.example", primary_phone: "4125550108", secondary_phone: "", website: "https://steelcityparts.example", company: "Steel City Parts", position: "Buyer", ebms_id: "EBMS-1008", location: "Pittsburgh, PA", note: "", tags: [TAG_DEALER], sales_rep: "Linda Park", billing_address: mkAddr("330 Liberty Ave", "Pittsburgh", "15201"), shipping_address: mkAddr("330 Liberty Ave", "Pittsburgh", "15201") },
+        { id: 9, first_name: "Sophia", last_name: "Martinez", email: "sophia.m@example.com", primary_phone: "7175550109", secondary_phone: "", website: "", company: "", position: "", ebms_id: "", location: "Lancaster, PA", note: "", tags: [], sales_rep: "Marcus Yu", billing_address: mkAddr("66 N Queen St", "Lancaster", "17603"), shipping_address: null },
+        { id: 10, first_name: "Daniel", last_name: "Anderson", email: "dan.anderson@andersonbuilders.example", primary_phone: "6105550110", secondary_phone: "", website: "https://andersonbuilders.example", company: "Anderson Builders", position: "Owner", ebms_id: "EBMS-1010", location: "Reading, PA", note: "", tags: [TAG_BUILDER], sales_rep: "Marcus Yu", billing_address: mkAddr("914 Lancaster Ave", "Reading", "19601"), shipping_address: mkAddr("914 Lancaster Ave", "Reading", "19601") },
+        { id: 11, first_name: "Isabella", last_name: "Taylor", email: "isabella.taylor@example.com", primary_phone: "7175550111", secondary_phone: "", website: "", company: "Taylor Architects", position: "Principal", ebms_id: "EBMS-1011", location: "York, PA", note: "VIP for 5 years.", tags: [TAG_VIP], sales_rep: "Tom Bradley", billing_address: mkAddr("48 W Market St", "York", "17404"), shipping_address: mkAddr("48 W Market St", "York", "17404") },
+        { id: 12, first_name: "Ethan", last_name: "Thomas", email: "ethan.thomas@example.com", primary_phone: "7175550112", secondary_phone: "", website: "", company: "Thomas Roofing", position: "Foreman", ebms_id: "EBMS-1012", location: "Harrisburg, PA", note: "", tags: [TAG_REPEAT], sales_rep: "Linda Park", billing_address: mkAddr("215 Front St", "Harrisburg", "17103"), shipping_address: mkAddr("215 Front St", "Harrisburg", "17103") },
+        { id: 13, first_name: "Mia", last_name: "Jackson", email: "mia.jackson@example.com", primary_phone: "6105550113", secondary_phone: "", website: "", company: "", position: "", ebms_id: "", location: "Allentown, PA", note: "", tags: [], sales_rep: "Marcus Yu", billing_address: mkAddr("802 Tilghman St", "Allentown", "18103"), shipping_address: mkAddr("802 Tilghman St", "Allentown", "18103") },
+        { id: 14, first_name: "Alexander", last_name: "White", email: "alex.white@whitewaresupply.example", primary_phone: "6105550114", secondary_phone: "", website: "https://whitewaresupply.example", company: "Whiteware Supply", position: "Account Manager", ebms_id: "EBMS-1014", location: "Bethlehem, PA", note: "", tags: [TAG_DEALER], sales_rep: "Tom Bradley", billing_address: mkAddr("120 Stefko Blvd", "Bethlehem", "18020"), shipping_address: mkAddr("120 Stefko Blvd", "Bethlehem", "18020") },
+        { id: 15, first_name: "Charlotte", last_name: "Harris", email: "charlotte.harris@harrishomes.example", primary_phone: "7175550115", secondary_phone: "", website: "https://harrishomes.example", company: "Harris Homes", position: "Owner", ebms_id: "EBMS-1015", location: "Lebanon, PA", note: "", tags: [TAG_BUILDER], sales_rep: "Linda Park", billing_address: mkAddr("315 N 8th St", "Lebanon", "17046"), shipping_address: mkAddr("315 N 8th St", "Lebanon", "17046") },
       ];
 
       /* ───── Store ───── */
@@ -2465,11 +2686,8 @@
             ...s.customers,
             {
               id: Date.now(),
-              ...data,
               tags: [],
-              billing: data.location || "—",
-              shipping: data.location || "—",
-              sales_rep: "—",
+              ...data,
             },
           ],
         }));
@@ -2613,8 +2831,8 @@
                   </span>
                 </td>
                 <td data-comment="customers-row-${c.id}-tag-cell">${tags}</td>
-                <td data-comment="customers-row-${c.id}-billing"><span class="cell-overflow">${esc(c.billing || "—")}</span></td>
-                <td data-comment="customers-row-${c.id}-shipping"><span class="cell-overflow">${esc(c.shipping || "—")}</span></td>
+                <td data-comment="customers-row-${c.id}-billing"><span class="cell-overflow">${esc(fmtAddr(c.billing_address))}</span></td>
+                <td data-comment="customers-row-${c.id}-shipping"><span class="cell-overflow">${esc(fmtAddr(c.shipping_address))}</span></td>
                 <td data-comment="customers-row-${c.id}-phone"><span class="cell-overflow">${esc(formatPhone(c.primary_phone) || "—")}</span></td>
                 <td data-comment="customers-row-${c.id}-email"><span class="cell-overflow">${esc(c.email || "—")}</span></td>
                 <td data-comment="customers-row-${c.id}-location"><span class="cell-overflow">${esc(c.location || "—")}</span></td>
@@ -2661,6 +2879,96 @@
       }
 
       /* ───── Render: dialogs ───── */
+      const FORM_FIELDS = [
+        ["customer-first-name", "first_name"],
+        ["customer-last-name", "last_name"],
+        ["customer-email", "email"],
+        ["customer-phone", "primary_phone"],
+        ["customer-secondary-phone", "secondary_phone"],
+        ["customer-website", "website"],
+        ["customer-company", "company"],
+        ["customer-position", "position"],
+        ["customer-location", "location"],
+        ["customer-ebms-id", "ebms_id"],
+        ["customer-note", "note"],
+        ["customer-billing-street", "billing_street"],
+        ["customer-billing-city", "billing_city"],
+        ["customer-billing-state", "billing_state"],
+        ["customer-billing-zip", "billing_zip"],
+        ["customer-shipping-street", "shipping_street"],
+        ["customer-shipping-city", "shipping_city"],
+        ["customer-shipping-state", "shipping_state"],
+        ["customer-shipping-zip", "shipping_zip"],
+      ];
+
+      function setSelectValue(selectEl, value) {
+        if (!selectEl) return;
+        const items = selectEl.querySelectorAll(".select-item");
+        let matched = null;
+        items.forEach((item) => {
+          const isMatch = (item.dataset.value || "") === (value || "");
+          item.classList.toggle("is-selected", isMatch);
+          if (isMatch) matched = item;
+        });
+        const hidden = selectEl.querySelector('input[type="hidden"]');
+        if (hidden) hidden.value = value || "";
+        const label = selectEl.querySelector(".select-trigger-label");
+        const trigger = selectEl.querySelector(".select-trigger");
+        if (matched && matched.dataset.value) {
+          if (label) label.textContent = matched.textContent.trim();
+          if (trigger) trigger.removeAttribute("data-placeholder");
+        } else {
+          if (label) label.textContent = selectEl.dataset.placeholder || "Choose...";
+          if (trigger) trigger.setAttribute("data-placeholder", "true");
+        }
+      }
+
+      function fillForm(c) {
+        document.getElementById("customer-first-name").value = c?.first_name || "";
+        document.getElementById("customer-last-name").value = c?.last_name || "";
+        document.getElementById("customer-email").value = c?.email || "";
+        document.getElementById("customer-phone").value = formatPhone(c?.primary_phone || "");
+        document.getElementById("customer-secondary-phone").value = formatPhone(c?.secondary_phone || "");
+        document.getElementById("customer-website").value = c?.website || "";
+        document.getElementById("customer-company").value = c?.company || "";
+        document.getElementById("customer-position").value = c?.position || "";
+        document.getElementById("customer-location").value = c?.location || "";
+        document.getElementById("customer-ebms-id").value = c?.ebms_id || "";
+        document.getElementById("customer-note").value = c?.note || "";
+
+        const b = c?.billing_address || {};
+        document.getElementById("customer-billing-street").value = b.street || "";
+        document.getElementById("customer-billing-city").value = b.city || "";
+        document.getElementById("customer-billing-state").value = b.state || "";
+        document.getElementById("customer-billing-zip").value = b.zip || "";
+
+        const ship = c?.shipping_address || {};
+        document.getElementById("customer-shipping-street").value = ship.street || "";
+        document.getElementById("customer-shipping-city").value = ship.city || "";
+        document.getElementById("customer-shipping-state").value = ship.state || "";
+        document.getElementById("customer-shipping-zip").value = ship.zip || "";
+
+        const sameAddr =
+          !!c?.shipping_address &&
+          !!c?.billing_address &&
+          c.billing_address.street === c.shipping_address.street &&
+          c.billing_address.city === c.shipping_address.city &&
+          c.billing_address.state === c.shipping_address.state &&
+          c.billing_address.zip === c.shipping_address.zip;
+        document.getElementById("customer-use-billing").checked = sameAddr;
+        toggleShippingSection(sameAddr);
+
+        setSelectValue(
+          document.getElementById("customer-sales-rep"),
+          c?.sales_rep || "",
+        );
+      }
+
+      function toggleShippingSection(useBilling) {
+        const sec = document.getElementById("customer-shipping-section");
+        sec.style.display = useBilling ? "none" : "";
+      }
+
       function renderDialog() {
         const s = store.get();
         const overlay = document.getElementById("customers-dialog-overlay");
@@ -2675,25 +2983,25 @@
           document.getElementById("customers-dialog-title").textContent = isEdit
             ? "Edit Customer"
             : "Add new customer";
+          document.getElementById("customers-dialog-delete").style.display = isEdit
+            ? "inline-flex"
+            : "none";
           const c = isEdit ? s.dialog.customer : null;
-          document.getElementById("customer-first-name").value = c?.first_name || "";
-          document.getElementById("customer-last-name").value = c?.last_name || "";
-          document.getElementById("customer-email").value = c?.email || "";
-          document.getElementById("customer-phone").value = formatPhone(
-            c?.primary_phone || "",
-          );
-          document.getElementById("customer-location").value = c?.location || "";
+          fillForm(c);
         }
 
         // Field errors
         const errors = s.formErrors || {};
         ["first-name", "last-name", "email"].forEach((field) => {
           const el = document.getElementById(`customer-${field}-error`);
+          const input = document.getElementById(`customer-${field}`);
           if (errors[field]) {
             el.style.display = "block";
             el.textContent = errors[field];
+            if (input) input.setAttribute("aria-invalid", "true");
           } else {
             el.style.display = "none";
+            if (input) input.removeAttribute("aria-invalid");
           }
         });
 
@@ -2712,22 +3020,56 @@
       }
 
       /* ───── Form submit ───── */
+      const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
       function handleFormSubmit() {
+        const v = (id) => document.getElementById(id).value.trim();
+        const phoneDigits = (id) => document.getElementById(id).value.replace(/\D/g, "");
+        const useBilling = document.getElementById("customer-use-billing").checked;
+        const billing_address = {
+          street: v("customer-billing-street"),
+          city: v("customer-billing-city"),
+          state: v("customer-billing-state"),
+          zip: v("customer-billing-zip"),
+        };
+        const shipping_address = useBilling
+          ? { ...billing_address }
+          : {
+              street: v("customer-shipping-street"),
+              city: v("customer-shipping-city"),
+              state: v("customer-shipping-state"),
+              zip: v("customer-shipping-zip"),
+            };
+        const hasBilling = Object.values(billing_address).some(Boolean);
+        const hasShipping = Object.values(shipping_address).some(Boolean);
+
+        const salesRepHidden = document
+          .getElementById("customer-sales-rep")
+          .querySelector('input[type="hidden"]');
+
         const data = {
-          first_name: document.getElementById("customer-first-name").value.trim(),
-          last_name: document.getElementById("customer-last-name").value.trim(),
-          email: document.getElementById("customer-email").value.trim(),
-          primary_phone: document
-            .getElementById("customer-phone")
-            .value.replace(/\D/g, ""),
-          location: document.getElementById("customer-location").value.trim(),
+          first_name: v("customer-first-name"),
+          last_name: v("customer-last-name"),
+          email: v("customer-email"),
+          primary_phone: phoneDigits("customer-phone"),
+          secondary_phone: phoneDigits("customer-secondary-phone"),
+          website: v("customer-website"),
+          company: v("customer-company"),
+          position: v("customer-position"),
+          location: v("customer-location"),
+          ebms_id: v("customer-ebms-id"),
+          note: v("customer-note"),
+          sales_rep: salesRepHidden ? salesRepHidden.value : "",
+          billing_address: hasBilling ? billing_address : null,
+          shipping_address: hasShipping ? shipping_address : null,
         };
 
         const errors = {};
         if (!data.first_name) errors["first-name"] = "First name is required.";
         if (!data.last_name) errors["last-name"] = "Last name is required.";
         if (!data.email) errors.email = "Email is required.";
-        else if (!data.email.includes("@")) errors.email = "Enter a valid email address.";
+        else if (!EMAIL_RE.test(data.email))
+          errors.email = "Enter a valid email address.";
 
         if (Object.keys(errors).length > 0) {
           store.set({ formErrors: errors });
@@ -2880,11 +3222,25 @@
         .getElementById("customers-dialog-cancel")
         .addEventListener("click", () => closeDialog());
       document
+        .getElementById("customers-dialog-close-x")
+        .addEventListener("click", () => closeDialog());
+      document
         .getElementById("customers-dialog-overlay")
         .addEventListener("click", () => closeDialog());
       document
         .getElementById("customers-dialog-save")
         .addEventListener("click", () => handleFormSubmit());
+
+      document
+        .getElementById("customers-dialog-delete")
+        .addEventListener("click", () => {
+          const s = store.get();
+          if (s.dialog.type === "edit") openDeleteDialog(s.dialog.customer);
+        });
+
+      document
+        .getElementById("customer-use-billing")
+        .addEventListener("change", (e) => toggleShippingSection(e.target.checked));
 
       document
         .getElementById("customers-delete-cancel")

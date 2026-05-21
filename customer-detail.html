@@ -822,25 +822,46 @@
         background: var(--card);
         border-radius: 14px;
         padding: 22px;
-        max-width: 480px;
+        max-width: 720px;
         width: 100%;
+        max-height: 90vh;
         display: flex;
         flex-direction: column;
         gap: 14px;
         box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
       }
+      .cd-dialog-body {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+      .cd-dialog-section-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted-foreground);
+        margin-top: 4px;
+      }
       .cd-dialog-title { font-size: 1.05rem; font-weight: 600; }
       .cd-dialog-desc { font-size: 0.875rem; color: var(--muted-foreground); }
       .cd-dialog-footer {
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
+        align-items: center;
         gap: 8px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
       }
+      .cd-dialog-footer-right { display: flex; gap: 8px; }
       .cd-form-row { display: flex; flex-direction: column; gap: 4px; }
       .cd-form-row label {
         font-size: 0.8125rem;
         font-weight: 500;
       }
+      .cd-form-row label .required-star { color: var(--destructive); margin-left: 2px; }
       .cd-form-row input,
       .cd-form-row textarea {
         height: 36px;
@@ -856,11 +877,31 @@
       .cd-form-row textarea { height: auto; min-height: 64px; padding: 8px 10px; resize: vertical; }
       .cd-form-row input:focus,
       .cd-form-row textarea:focus { border-color: var(--ring); }
+      .cd-form-row.has-error input,
+      .cd-form-row.has-error textarea { border-color: var(--destructive); }
+      .cd-form-error {
+        font-size: 0.75rem;
+        color: var(--destructive);
+      }
       .cd-form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
       }
+      .cd-form-grid-4 {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 10px;
+      }
+      .cd-form-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .cd-form-checkbox input { width: 16px; height: 16px; }
 
       /* ───── Empty / error state ───── */
       .cd-empty {
@@ -1059,32 +1100,116 @@
           <h2 class="cd-dialog-title" data-comment="customer-detail-edit-dialog-title">Edit Customer</h2>
           <p class="cd-dialog-desc" data-comment="customer-detail-edit-dialog-description">Update customer info.</p>
         </div>
-        <div class="cd-form-grid" data-comment="customer-detail-edit-form-grid">
-          <div class="cd-form-row" data-comment="customer-detail-edit-row-first-name">
-            <label for="cd-edit-first-name" data-comment="customer-detail-edit-row-first-name-label">First Name</label>
-            <input id="cd-edit-first-name" data-comment="customer-detail-edit-row-first-name-input" data-component="input" type="text" />
+        <div class="cd-dialog-body" data-comment="customer-detail-edit-dialog-body">
+          <p class="cd-dialog-section-title" data-comment="customer-detail-edit-section-personal">Personal</p>
+          <div class="cd-form-grid" data-comment="customer-detail-edit-form-grid-personal">
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-first-name">
+              <label for="cd-edit-first-name" data-comment="customer-detail-edit-row-first-name-label">First Name<span class="required-star">*</span></label>
+              <input id="cd-edit-first-name" data-comment="customer-detail-edit-row-first-name-input" data-component="input" type="text" />
+              <span class="cd-form-error" data-comment="customer-detail-edit-row-first-name-error" data-error-for="cd-edit-first-name"></span>
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-last-name">
+              <label for="cd-edit-last-name" data-comment="customer-detail-edit-row-last-name-label">Last Name<span class="required-star">*</span></label>
+              <input id="cd-edit-last-name" data-comment="customer-detail-edit-row-last-name-input" data-component="input" type="text" />
+              <span class="cd-form-error" data-comment="customer-detail-edit-row-last-name-error" data-error-for="cd-edit-last-name"></span>
+            </div>
           </div>
-          <div class="cd-form-row" data-comment="customer-detail-edit-row-last-name">
-            <label for="cd-edit-last-name" data-comment="customer-detail-edit-row-last-name-label">Last Name</label>
-            <input id="cd-edit-last-name" data-comment="customer-detail-edit-row-last-name-input" data-component="input" type="text" />
+          <div class="cd-form-row" data-comment="customer-detail-edit-row-email">
+            <label for="cd-edit-email" data-comment="customer-detail-edit-row-email-label">Email<span class="required-star">*</span></label>
+            <input id="cd-edit-email" data-comment="customer-detail-edit-row-email-input" data-component="input" type="email" />
+            <span class="cd-form-error" data-comment="customer-detail-edit-row-email-error" data-error-for="cd-edit-email"></span>
+          </div>
+          <div class="cd-form-grid" data-comment="customer-detail-edit-form-grid-phones">
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-primary-phone">
+              <label for="cd-edit-primary-phone" data-comment="customer-detail-edit-row-primary-phone-label">Primary Phone</label>
+              <input id="cd-edit-primary-phone" data-comment="customer-detail-edit-row-primary-phone-input" data-component="input" type="tel" placeholder="(973)-467-9365" />
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-secondary-phone">
+              <label for="cd-edit-secondary-phone" data-comment="customer-detail-edit-row-secondary-phone-label">Secondary Phone</label>
+              <input id="cd-edit-secondary-phone" data-comment="customer-detail-edit-row-secondary-phone-input" data-component="input" type="tel" placeholder="(973)-467-9365" />
+            </div>
+          </div>
+          <div class="cd-form-grid" data-comment="customer-detail-edit-form-grid-web-location">
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-website">
+              <label for="cd-edit-website" data-comment="customer-detail-edit-row-website-label">Website URL</label>
+              <input id="cd-edit-website" data-comment="customer-detail-edit-row-website-input" data-component="input" type="text" placeholder="https://example.com" />
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-location">
+              <label for="cd-edit-location" data-comment="customer-detail-edit-row-location-label">Location</label>
+              <input id="cd-edit-location" data-comment="customer-detail-edit-row-location-input" data-component="input" type="text" placeholder="Lancaster, PA" />
+            </div>
+          </div>
+          <div class="cd-form-grid" data-comment="customer-detail-edit-form-grid-ebms-company">
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-ebms-id">
+              <label for="cd-edit-ebms-id" data-comment="customer-detail-edit-row-ebms-id-label">EBMS customer ID</label>
+              <input id="cd-edit-ebms-id" data-comment="customer-detail-edit-row-ebms-id-input" data-component="input" type="text" placeholder="Enter EBMS ID" />
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-company">
+              <label for="cd-edit-company" data-comment="customer-detail-edit-row-company-label">Company name</label>
+              <input id="cd-edit-company" data-comment="customer-detail-edit-row-company-input" data-component="input" type="text" placeholder="Enter company name" />
+            </div>
+          </div>
+          <div class="cd-form-row" data-comment="customer-detail-edit-row-position">
+            <label for="cd-edit-position" data-comment="customer-detail-edit-row-position-label">Title or Position</label>
+            <input id="cd-edit-position" data-comment="customer-detail-edit-row-position-input" data-component="input" type="text" placeholder="Enter title or position" />
+          </div>
+          <div class="cd-form-row" data-comment="customer-detail-edit-row-note">
+            <label for="cd-edit-note" data-comment="customer-detail-edit-row-note-label">Note</label>
+            <textarea id="cd-edit-note" data-comment="customer-detail-edit-row-note-input" data-component="textarea" rows="2" placeholder="Enter note"></textarea>
+          </div>
+
+          <p class="cd-dialog-section-title" data-comment="customer-detail-edit-section-billing">Billing Address</p>
+          <div class="cd-form-grid-4" data-comment="customer-detail-edit-form-grid-billing">
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-street">
+              <label for="cd-edit-billing-street" data-comment="customer-detail-edit-row-billing-street-label">Street</label>
+              <input id="cd-edit-billing-street" data-comment="customer-detail-edit-row-billing-street-input" data-component="input" type="text" placeholder="Enter street" />
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-city">
+              <label for="cd-edit-billing-city" data-comment="customer-detail-edit-row-billing-city-label">City</label>
+              <input id="cd-edit-billing-city" data-comment="customer-detail-edit-row-billing-city-input" data-component="input" type="text" placeholder="City" />
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-state">
+              <label for="cd-edit-billing-state" data-comment="customer-detail-edit-row-billing-state-label">State</label>
+              <input id="cd-edit-billing-state" data-comment="customer-detail-edit-row-billing-state-input" data-component="input" type="text" placeholder="State" />
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-billing-zip">
+              <label for="cd-edit-billing-zip" data-comment="customer-detail-edit-row-billing-zip-label">Zip</label>
+              <input id="cd-edit-billing-zip" data-comment="customer-detail-edit-row-billing-zip-input" data-component="input" type="text" placeholder="Postal code" />
+            </div>
+          </div>
+
+          <label class="cd-form-checkbox" data-comment="customer-detail-edit-row-same-as-billing">
+            <input id="cd-edit-same-as-billing" data-comment="customer-detail-edit-row-same-as-billing-input" data-component="input" type="checkbox" />
+            Use billing as shipping
+          </label>
+
+          <p class="cd-dialog-section-title" data-comment="customer-detail-edit-section-shipping">Shipping Address</p>
+          <div class="cd-form-grid-4" data-comment="customer-detail-edit-form-grid-shipping">
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-shipping-street">
+              <label for="cd-edit-shipping-street" data-comment="customer-detail-edit-row-shipping-street-label">Street</label>
+              <input id="cd-edit-shipping-street" data-comment="customer-detail-edit-row-shipping-street-input" data-component="input" type="text" placeholder="Enter street" />
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-shipping-city">
+              <label for="cd-edit-shipping-city" data-comment="customer-detail-edit-row-shipping-city-label">City</label>
+              <input id="cd-edit-shipping-city" data-comment="customer-detail-edit-row-shipping-city-input" data-component="input" type="text" placeholder="City" />
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-shipping-state">
+              <label for="cd-edit-shipping-state" data-comment="customer-detail-edit-row-shipping-state-label">State</label>
+              <input id="cd-edit-shipping-state" data-comment="customer-detail-edit-row-shipping-state-input" data-component="input" type="text" placeholder="State" />
+            </div>
+            <div class="cd-form-row" data-comment="customer-detail-edit-row-shipping-zip">
+              <label for="cd-edit-shipping-zip" data-comment="customer-detail-edit-row-shipping-zip-label">Zip</label>
+              <input id="cd-edit-shipping-zip" data-comment="customer-detail-edit-row-shipping-zip-input" data-component="input" type="text" placeholder="Postal code" />
+            </div>
           </div>
         </div>
-        <div class="cd-form-row" data-comment="customer-detail-edit-row-email">
-          <label for="cd-edit-email" data-comment="customer-detail-edit-row-email-label">Email</label>
-          <input id="cd-edit-email" data-comment="customer-detail-edit-row-email-input" data-component="input" type="email" />
-        </div>
-        <div class="cd-form-row" data-comment="customer-detail-edit-row-phone">
-          <label for="cd-edit-phone" data-comment="customer-detail-edit-row-phone-label">Phone</label>
-          <input id="cd-edit-phone" data-comment="customer-detail-edit-row-phone-input" data-component="input" type="tel" />
-        </div>
-        <div class="cd-form-row" data-comment="customer-detail-edit-row-note">
-          <label for="cd-edit-note" data-comment="customer-detail-edit-row-note-label">Note</label>
-          <textarea id="cd-edit-note" data-comment="customer-detail-edit-row-note-input" data-component="textarea" rows="2"></textarea>
-        </div>
+
         <div class="cd-dialog-footer" data-comment="customer-detail-edit-dialog-footer">
           <button type="button" class="btn btn-destructive btn-sm" data-comment="customer-detail-edit-dialog-delete" data-component="button" data-dialog-delete>Delete</button>
-          <button type="button" class="btn btn-outline btn-sm" data-comment="customer-detail-edit-dialog-cancel" data-component="button" data-dialog-cancel="edit">Cancel</button>
-          <button type="button" class="btn btn-primary btn-sm" data-comment="customer-detail-edit-dialog-save" data-component="button" data-dialog-save="edit">Save</button>
+          <div class="cd-dialog-footer-right" data-comment="customer-detail-edit-dialog-footer-right">
+            <button type="button" class="btn btn-outline btn-sm" data-comment="customer-detail-edit-dialog-cancel" data-component="button" data-dialog-cancel="edit">Cancel</button>
+            <button type="button" class="btn btn-primary btn-sm" data-comment="customer-detail-edit-dialog-save" data-component="button" data-dialog-save="edit">Save</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1877,8 +2002,26 @@
         document.getElementById("cd-edit-first-name").value = c.first_name || "";
         document.getElementById("cd-edit-last-name").value = c.last_name || "";
         document.getElementById("cd-edit-email").value = c.email || "";
-        document.getElementById("cd-edit-phone").value = formatPhone(c.primary_phone) || "";
+        document.getElementById("cd-edit-primary-phone").value = formatPhone(c.primary_phone) || "";
+        document.getElementById("cd-edit-secondary-phone").value = formatPhone(c.secondary_phone) || "";
+        document.getElementById("cd-edit-website").value = c.website_url || "";
+        document.getElementById("cd-edit-location").value = c.location || "";
+        document.getElementById("cd-edit-ebms-id").value = c.ebms_id || "";
+        document.getElementById("cd-edit-company").value = c.company || "";
+        document.getElementById("cd-edit-position").value = c.position || "";
         document.getElementById("cd-edit-note").value = c.note || "";
+        document.getElementById("cd-edit-billing-street").value = c.billing?.street || "";
+        document.getElementById("cd-edit-billing-city").value = c.billing?.city || "";
+        document.getElementById("cd-edit-billing-state").value = c.billing?.state || "";
+        document.getElementById("cd-edit-billing-zip").value = c.billing?.zip_code || "";
+        document.getElementById("cd-edit-shipping-street").value = c.shipping?.street || "";
+        document.getElementById("cd-edit-shipping-city").value = c.shipping?.city || "";
+        document.getElementById("cd-edit-shipping-state").value = c.shipping?.state || "";
+        document.getElementById("cd-edit-shipping-zip").value = c.shipping?.zip_code || "";
+        document.getElementById("cd-edit-same-as-billing").checked = false;
+        // clear errors
+        document.querySelectorAll("#edit-dialog-overlay .cd-form-row").forEach((r) => r.classList.remove("has-error"));
+        document.querySelectorAll("#edit-dialog-overlay [data-error-for]").forEach((e) => (e.textContent = ""));
         // delete dialog name
         const desc = document.getElementById("customer-detail-delete-dialog-description-text");
         desc.textContent = `Delete ${c.first_name} ${c.last_name}? This action cannot be undone.`;
@@ -1963,27 +2106,62 @@
         if (save) {
           const which = save.dataset.dialogSave;
           if (which === "edit") {
-            // Apply edits to active customer in store
             const c = getActiveCustomer();
-            if (c) {
-              const updates = {
-                first_name: document.getElementById("cd-edit-first-name").value.trim(),
-                last_name: document.getElementById("cd-edit-last-name").value.trim(),
-                email: document.getElementById("cd-edit-email").value.trim(),
-                primary_phone: document.getElementById("cd-edit-phone").value.replace(/\D/g, ""),
-                note: document.getElementById("cd-edit-note").value.trim(),
-              };
-              // Minimal validation
-              if (!updates.first_name || !updates.last_name || !updates.email || !updates.email.includes("@")) {
-                if (typeof toast === "function") toast("Please fill in name and a valid email", "error");
-                return;
-              }
-              store.set((s) => ({
-                customers: s.customers.map((cc) => (cc.id === c.id ? { ...cc, ...updates } : cc)),
-                editDialogOpen: false,
-              }));
-              if (typeof toast === "function") toast("Customer updated");
+            if (!c) return;
+            const sameAsBilling = document.getElementById("cd-edit-same-as-billing").checked;
+            const billing = {
+              street: document.getElementById("cd-edit-billing-street").value.trim(),
+              city: document.getElementById("cd-edit-billing-city").value.trim(),
+              state: document.getElementById("cd-edit-billing-state").value.trim(),
+              zip_code: document.getElementById("cd-edit-billing-zip").value.trim(),
+            };
+            const shipping = sameAsBilling
+              ? { ...billing }
+              : {
+                  street: document.getElementById("cd-edit-shipping-street").value.trim(),
+                  city: document.getElementById("cd-edit-shipping-city").value.trim(),
+                  state: document.getElementById("cd-edit-shipping-state").value.trim(),
+                  zip_code: document.getElementById("cd-edit-shipping-zip").value.trim(),
+                };
+            const updates = {
+              first_name: document.getElementById("cd-edit-first-name").value.trim(),
+              last_name: document.getElementById("cd-edit-last-name").value.trim(),
+              email: document.getElementById("cd-edit-email").value.trim(),
+              primary_phone: document.getElementById("cd-edit-primary-phone").value.replace(/\D/g, "") || null,
+              secondary_phone: document.getElementById("cd-edit-secondary-phone").value.replace(/\D/g, "") || null,
+              website_url: document.getElementById("cd-edit-website").value.trim() || null,
+              location: document.getElementById("cd-edit-location").value.trim() || null,
+              ebms_id: document.getElementById("cd-edit-ebms-id").value.trim() || null,
+              company: document.getElementById("cd-edit-company").value.trim() || null,
+              position: document.getElementById("cd-edit-position").value.trim() || null,
+              note: document.getElementById("cd-edit-note").value.trim() || null,
+              billing: Object.values(billing).some(Boolean) ? billing : null,
+              shipping: Object.values(shipping).some(Boolean) ? shipping : null,
+            };
+            // Validate
+            const errors = {};
+            if (!updates.first_name) errors["cd-edit-first-name"] = "First name is required";
+            if (!updates.last_name) errors["cd-edit-last-name"] = "Last name is required";
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!updates.email) errors["cd-edit-email"] = "Email is required";
+            else if (!emailPattern.test(updates.email)) errors["cd-edit-email"] = "Invalid email";
+            // Render errors
+            document.querySelectorAll("#edit-dialog-overlay .cd-form-row").forEach((r) => r.classList.remove("has-error"));
+            document.querySelectorAll("#edit-dialog-overlay [data-error-for]").forEach((el) => {
+              const fieldId = el.dataset.errorFor;
+              const msg = errors[fieldId] || "";
+              el.textContent = msg;
+              if (msg) el.closest(".cd-form-row").classList.add("has-error");
+            });
+            if (Object.keys(errors).length > 0) {
+              if (typeof toast === "function") toast("Please fix the errors", "error");
+              return;
             }
+            store.set((s) => ({
+              customers: s.customers.map((cc) => (cc.id === c.id ? { ...cc, ...updates } : cc)),
+              editDialogOpen: false,
+            }));
+            if (typeof toast === "function") toast("Customer updated");
           }
           return;
         }
@@ -2008,6 +2186,16 @@
 
       document.getElementById("edit-dialog-overlay").addEventListener("click", (e) => {
         if (e.target === e.currentTarget) store.set({ editDialogOpen: false });
+      });
+      document.getElementById("cd-edit-same-as-billing").addEventListener("change", (e) => {
+        const checked = e.target.checked;
+        ["street", "city", "state", "zip"].forEach((k) => {
+          const shipEl = document.getElementById(`cd-edit-shipping-${k}`);
+          const billEl = document.getElementById(`cd-edit-billing-${k}`);
+          if (!shipEl || !billEl) return;
+          shipEl.disabled = checked;
+          if (checked) shipEl.value = billEl.value;
+        });
       });
       document.getElementById("delete-dialog-overlay").addEventListener("click", (e) => {
         if (e.target === e.currentTarget) store.set({ deleteDialogOpen: false });

@@ -607,8 +607,8 @@
             <div class="library-grid" data-comment="editor-library-grid" id="library-grid"></div>
             <div class="library-footer" data-comment="editor-library-footer">
               <span data-comment="editor-library-count" id="library-count">0 elements</span>
-              <button class="btn btn-ghost" data-comment="editor-library-upload-image" data-component="button" onclick="showToast('Image upload mocked.', 'info')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+              <button class="btn btn-ghost" data-comment="editor-library-upload-image" data-component="button" title="Upload image to canvas" onclick="showToast('Image upload mocked.', 'info')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                 Upload image
               </button>
             </div>
@@ -624,7 +624,7 @@
               Exit
             </button>
             <div style="margin-left:auto; display:flex; align-items:center; gap:8px;" data-comment="editor-top-actions">
-              <button class="btn btn-success" data-comment="editor-save-btn" data-component="button" onclick="openFileNameDialog('save')">
+              <button class="btn btn-success" data-comment="editor-save-btn" data-component="button" id="editor-save-btn" onclick="openFileNameDialog('save')" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
                 Save
               </button>
@@ -633,7 +633,7 @@
                 Download PDF
               </button>
               <button class="btn btn-outline" data-comment="editor-download-jpeg-btn" data-component="button" onclick="openFileNameDialog('jpeg')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><path d="M14 14v4"/></svg>
                 Download JPEG
               </button>
             </div>
@@ -680,6 +680,7 @@
                 <button class="tb-btn" data-comment="editor-send-backward" data-component="button" title="Send backward" onclick="reorderSelected('backward')">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
                 </button>
+                <!-- React order: BringToFront, ArrowUp, ArrowDown, SendToBack -->
                 <button class="tb-btn" data-comment="editor-send-to-back" data-component="button" title="Send to back" onclick="reorderSelected('back')">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="12" height="12" rx="2"/><path d="M10 20h8a2 2 0 0 0 2-2v-8"/></svg>
                 </button>
@@ -859,6 +860,7 @@
       <div class="dialog" data-comment="editor-file-name-dialog" data-component="dialog" onclick="event.stopPropagation()">
         <div class="dialog-header" data-comment="editor-file-name-header">
           <div class="dialog-icon" data-comment="editor-file-name-icon" id="file-name-icon">
+            <!-- Icon is swapped between Save and Download in openFileNameDialog() -->
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
           </div>
           <h3 class="dialog-title" data-comment="editor-file-name-title" id="file-name-title">Save to Sales Order</h3>
@@ -1835,6 +1837,8 @@
       }
 
       /* ───── File name dialog ───── */
+      const SAVE_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>';
+      const DOWNLOAD_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
       let fileNameAction = null;
       function openFileNameDialog(action) {
         fileNameAction = action;
@@ -1843,6 +1847,7 @@
             ? (estimateId ? "Save to Estimate" : "Save to Sales Order")
             : action === "pdf" ? "Download PDF" : "Download JPEG";
         document.getElementById("file-name-confirm").textContent = action === "save" ? "Save" : "Download";
+        document.getElementById("file-name-icon").innerHTML = action === "save" ? SAVE_ICON_SVG : DOWNLOAD_ICON_SVG;
         document.getElementById("file-name-input").value = "mockup";
         document.getElementById("file-name-backdrop").classList.add("is-open");
         setTimeout(() => document.getElementById("file-name-input").select(), 50);
@@ -1894,6 +1899,12 @@
       /* ───── Keyboard ───── */
       const TOOL_KEYS = { v: "select", r: "rectangle", c: "circle", p: "pen", l: "line", t: "text", e: "eraser" };
       document.addEventListener("keydown", (e) => {
+        // Escape closes open dialog regardless of focus
+        if (e.key === "Escape" && document.getElementById("file-name-backdrop").classList.contains("is-open")) {
+          e.preventDefault();
+          closeFileNameDialog();
+          return;
+        }
         if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
         if (e.ctrlKey || e.metaKey) {
           if (e.key === "z") { e.preventDefault(); undo(); }
@@ -1917,6 +1928,10 @@
       }, { passive: false });
 
       /* ───── Initial render ───── */
+      // Save button visible only when sales-order/estimate target present (matches React)
+      if (salesOrderId || estimateId) {
+        document.getElementById("editor-save-btn").style.display = "";
+      }
       store.subscribe(() => render());
       renderLibraryNav();
       renderLibraryGrid();
