@@ -838,6 +838,23 @@
       .drawer-detail-row { display: flex; flex-direction: column; gap: 2px; }
       .drawer-detail-label { font-size: 0.8125rem; font-weight: 500; }
       .drawer-detail-value { font-size: 0.875rem; color: var(--muted-foreground); }
+      .drawer-footer { flex-shrink: 0; border-top: 1px solid var(--border); background: var(--background-secondary); padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+      .rv-timeline { list-style: none; padding: 0; margin: 0; }
+      .rv-timeline li { display: flex; gap: 10px; align-items: center; padding: 6px 0; font-size: 0.875rem; }
+      .rv-timeline li .icon { width: 20px; height: 20px; border-radius: 999px; border: 2px solid var(--border); background: var(--card); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+      .rv-timeline li.complete .icon { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+      .rv-timeline li.current .icon { border-color: var(--primary); }
+      .rv-timeline li.current .icon::after { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--primary); }
+      .rv-timeline li svg { width: 12px; height: 12px; }
+      .rv-timeline li .label { flex: 1; font-weight: 500; }
+      .rv-timeline li.locked .label { color: var(--muted-foreground); font-weight: 400; }
+      .rv-timeline li .meta { font-size: 0.75rem; color: var(--muted-foreground); }
+      .rv-sheet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      @media (max-width: 720px) { .rv-sheet-grid { grid-template-columns: 1fr; } }
+      .rv-review-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:0.75rem; font-weight:500; border:1px solid var(--border); }
+      .rv-review-badge.approved { background: rgba(22,163,74,0.1); color:#16a34a; border-color:#16a34a; }
+      .rv-review-badge.pending { background: rgba(245,158,11,0.1); color:#d97706; border-color:#f59e0b; }
+      .rv-review-badge.locked { color: var(--muted-foreground); }
 
       /* Reveal */
       .reveal {
@@ -940,7 +957,25 @@
         body.sidebar-open .sidebar-backdrop { display:block; }
         .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
       }
-</style>
+
+      /* ───── Cosmetic parity utilities ───── */
+      .overflow-text { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+      [data-tooltip] { position:relative; }
+      [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
+        content: attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+        background:var(--popover, #1f2937); color:var(--popover-foreground, #fff);
+        padding:4px 8px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
+        pointer-events:none; z-index:60; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        animation:tooltip-in 0.15s ease-out;
+      }
+      @keyframes tooltip-in { from { opacity:0; transform:translateX(-50%) translateY(2px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+      .sheet-overlay, .dialog-overlay { transition: opacity 0.2s ease; }
+      .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+      .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
+
+    </style>
   </head>
   <body>
     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -1014,7 +1049,7 @@
                   <span class="sidebar-user-email" data-comment="sidebar-user-email" id="sidebar-user-email">anna@lapp.com</span>
                 </div>
               </div>
-              <button class="sidebar-user-logout" data-comment="sidebar-user-logout" id="sidebar-user-logout" title="Log out" type="button">
+              <button class="sidebar-user-logout" data-comment="sidebar-user-logout" id="sidebar-user-logout" data-tooltip="Log out" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -1175,6 +1210,7 @@
         </button>
       </header>
       <div class="drawer-body" data-comment="reviews-drawer-body" id="reviews-drawer-body"></div>
+      <footer class="drawer-footer" data-comment="reviews-drawer-footer" id="reviews-drawer-footer"></footer>
     </aside>
 
     <!-- ───── Approve Dialog ───── -->
@@ -1759,10 +1795,10 @@
               const badges = item.badge && !s.collapsed
                 ? `<span class="sidebar-nav-link-badge" data-comment="sidebar-nav-link-${slug}-badges">
                     ${s.reviewBadges.not_pricing_reviewed > 0
-                      ? `<span class="sidebar-badge amber" data-comment="sidebar-nav-link-${slug}-badge-pricing" title="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
+                      ? `<span class="sidebar-badge amber" data-comment="sidebar-nav-link-${slug}-badge-pricing" data-tooltip="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
                       : ""}
                     ${s.reviewBadges.not_shop_reviewed > 0
-                      ? `<span class="sidebar-badge blue" data-comment="sidebar-nav-link-${slug}-badge-shop" title="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
+                      ? `<span class="sidebar-badge blue" data-comment="sidebar-nav-link-${slug}-badge-shop" data-tooltip="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
                       : ""}
                   </span>`
                 : "";
@@ -1860,12 +1896,12 @@
       }
 
       function renderSkeletonRows() {
-        const cols = ["w-3/4", "w-4/5", "w-2/3", "w-2/3", "w-3/5", "w-1/2", "w-3/4", "w-2/3", "w-2/3"];
+        const widths = [16, 28, 18, 16, 16, 20, 18, 16, 0];
         return Array.from({ length: 6 }).map((_, i) => `
           <tr data-comment="reviews-skeleton-row-${i + 1}">
-            ${cols.map((w, j) => `
+            ${widths.map((w, j) => `
               <td data-comment="reviews-skeleton-row-${i + 1}-cell-${j + 1}">
-                <div class="skeleton" style="width:${[75,80,66,66,60,50,75,66,66][j]}%"></div>
+                ${w ? `<div class="skeleton" style="width:${w}%"></div>` : ""}
               </td>
             `).join("")}
           </tr>
@@ -1895,7 +1931,7 @@
         if (so.is_shop_reviewed) {
           shopCell = renderApprovedCell(so.audit_logs, "is_shop_reviewed", order.id, "shop", notes.shop);
         } else if (!so.is_pricing_reviewed) {
-          shopCell = `<div class="locked-cell" data-comment="reviews-row-${order.id}-shop-locked" title="Pending pricing review">${ICONS.lock} Locked</div>`;
+          shopCell = `<div class="locked-cell" data-comment="reviews-row-${order.id}-shop-locked" data-tooltip="Pending pricing review">${ICONS.lock} Locked</div>`;
         } else {
           shopCell = `<button type="button" class="btn btn-secondary btn-sm"
               data-comment="reviews-row-${order.id}-shop-approve"
@@ -2002,66 +2038,102 @@
         overlay.classList.toggle("is-open", open);
         drawer.classList.toggle("is-open", open);
         drawer.setAttribute("aria-hidden", String(!open));
-        if (!open) { body.innerHTML = ""; return; }
+        const footerEl = document.getElementById("reviews-drawer-footer");
+        if (!open) { body.innerHTML = ""; if (footerEl) footerEl.innerHTML = ""; return; }
         const o = s.orders.find((x) => x.id === s.previewOrderId);
-        if (!o) { body.innerHTML = ""; return; }
+        if (!o) { body.innerHTML = ""; if (footerEl) footerEl.innerHTML = ""; return; }
         const so = o.sales_order || {};
-        const eff = deriveEffectiveStatus(o);
         const cat = (so.category && so.category.name) || "—";
         const dim = (so.dimension && so.dimension.name) || "—";
         const invoice = o.invoice || o.autoid;
-        document.getElementById("reviews-drawer-title").textContent = `Sales Order ${invoice}`;
+
+        // Review type from context: prefer pricing if pending, else shop
+        const pricingApproved = !!so.is_pricing_reviewed;
+        const shopApproved = !!so.is_shop_reviewed;
+        const reviewType = !pricingApproved ? "Pricing" : "Shop";
+        document.getElementById("reviews-drawer-title").textContent = `Order #${invoice} — ${reviewType} Review`;
+
+        // Build timeline
+        const created = formatDate(o.crea_date);
+        const steps = [
+          { label: "Order created", state: "complete", date: created },
+          { label: "Down-payment", state: "complete", date: created },
+          { label: "Customer Signature", state: "locked", date: "—" },
+          { label: "Pricing Review", state: pricingApproved ? "complete" : "current", date: pricingApproved ? created : "—" },
+          { label: "Shop Review", state: shopApproved ? "complete" : (pricingApproved ? "current" : "locked"), date: shopApproved ? created : "—" },
+        ];
+
+        // Find reviewer notes from audit logs if available
+        const logs = so.audit_logs || [];
+        const pricingEntry = logs.filter((e) => e.model_field === "is_pricing_reviewed" && e.new_data === "True").at(-1);
+        const shopEntry = logs.filter((e) => e.model_field === "is_shop_reviewed" && e.new_data === "True").at(-1);
+        const pricingNote = (so.pricing_review && so.pricing_review.note) || so.pricing_review_note || "";
+        const shopNote = (so.shop_review && so.shop_review.note) || so.shop_review_note || "";
+        const pricingBy = reviewerName(pricingEntry);
+        const shopBy = reviewerName(shopEntry);
+
         body.innerHTML = `
-          <section class="drawer-card" data-comment="reviews-drawer-summary-card" data-component="card">
-            <h3 class="drawer-card-title" data-comment="reviews-drawer-summary-title">Order Summary</h3>
-            <div class="drawer-detail-grid" data-comment="reviews-drawer-summary-grid">
-              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-invoice">
-                <span class="drawer-detail-label">Invoice</span>
-                <span class="drawer-detail-value">${escapeText(invoice)}</span>
+          <div class="rv-sheet-grid" data-comment="reviews-drawer-grid">
+            <section class="drawer-card" data-comment="reviews-drawer-timeline-card" data-component="card">
+              <h3 class="drawer-card-title" data-comment="reviews-drawer-timeline-title">Order Status</h3>
+              <ol class="rv-timeline" data-comment="reviews-drawer-timeline-list">
+                ${steps.map((st, i) => `
+                  <li class="${st.state}" data-comment="reviews-drawer-timeline-step-${i}">
+                    <span class="icon">${st.state === "complete" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' : ""}</span>
+                    <span class="label">${escapeText(st.label)}</span>
+                    <span class="meta">${escapeText(st.date)}</span>
+                  </li>`).join("")}
+              </ol>
+            </section>
+            <section class="drawer-card" data-comment="reviews-drawer-product-card" data-component="card">
+              <h3 class="drawer-card-title">Product details</h3>
+              <div class="drawer-detail-grid" data-comment="reviews-drawer-product-grid" style="grid-template-columns: 1fr;">
+                <div class="drawer-detail-row"><span class="drawer-detail-label">Invoice</span><span class="drawer-detail-value">${escapeText(invoice)}</span></div>
+                <div class="drawer-detail-row"><span class="drawer-detail-label">Customer</span><span class="drawer-detail-value">${escapeText(o.customer || "—")}</span></div>
+                <div class="drawer-detail-row"><span class="drawer-detail-label">Category</span><span class="drawer-detail-value">${escapeText(cat)}</span></div>
+                <div class="drawer-detail-row"><span class="drawer-detail-label">Dimension</span><span class="drawer-detail-value">${escapeText(dim)}</span></div>
+                <div class="drawer-detail-row"><span class="drawer-detail-label">Total</span><span class="drawer-detail-value">${escapeText(formatCurrency(o.total))}</span></div>
+                <div class="drawer-detail-row"><span class="drawer-detail-label">Created</span><span class="drawer-detail-value">${escapeText(formatDate(o.crea_date))}</span></div>
               </div>
-              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-created">
-                <span class="drawer-detail-label">Created</span>
-                <span class="drawer-detail-value">${escapeText(formatDate(o.crea_date))}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-customer">
-                <span class="drawer-detail-label">Customer</span>
-                <span class="drawer-detail-value">${escapeText(o.customer || "—")}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-category">
-                <span class="drawer-detail-label">Category</span>
-                <span class="drawer-detail-value">${escapeText(cat)}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-dimension">
-                <span class="drawer-detail-label">Dimension</span>
-                <span class="drawer-detail-value">${escapeText(dim)}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-total">
-                <span class="drawer-detail-label">Total</span>
-                <span class="drawer-detail-value">${escapeText(formatCurrency(o.total))}</span>
-              </div>
-            </div>
-          </section>
-          <section class="drawer-card" data-comment="reviews-drawer-stage-card" data-component="card">
-            <h3 class="drawer-card-title" data-comment="reviews-drawer-stage-title">Workflow Stage</h3>
-            <div class="stage-badge" data-comment="reviews-drawer-stage-badge" role="img" aria-label="Stage: ${escapeAttr(eff.label)} (${eff.progress}%)">
-              <div class="stage-badge-progress" style="width:${eff.progress}%"></div>
-              <span class="stage-badge-label">${escapeText(eff.label)}</span>
-            </div>
-          </section>
-          <section class="drawer-card" data-comment="reviews-drawer-review-card" data-component="card">
-            <h3 class="drawer-card-title" data-comment="reviews-drawer-review-title">Review Status</h3>
-            <div class="drawer-detail-grid">
-              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-pricing-status">
-                <span class="drawer-detail-label">Pricing</span>
-                <span class="drawer-detail-value">${so.is_pricing_reviewed ? "Approved" : "Pending"}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="reviews-drawer-detail-shop-status">
-                <span class="drawer-detail-label">Shop</span>
-                <span class="drawer-detail-value">${so.is_shop_reviewed ? "Approved" : (so.is_pricing_reviewed ? "Pending" : "Locked")}</span>
-              </div>
-            </div>
-          </section>
+            </section>
+            <section class="drawer-card" data-comment="reviews-drawer-pricing-card" data-component="card">
+              <h3 class="drawer-card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                Pricing Review
+                <span class="rv-review-badge ${pricingApproved ? "approved" : "pending"}" data-comment="reviews-drawer-pricing-badge">${pricingApproved ? "Approved" : "Pending"}</span>
+              </h3>
+              ${pricingBy ? `<div class="drawer-detail-row"><span class="drawer-detail-label">Approved by</span><span class="drawer-detail-value">${escapeText(pricingBy)}</span></div>` : ""}
+              ${pricingNote ? `<div class="drawer-detail-row"><span class="drawer-detail-label">Reviewer notes</span><span class="drawer-detail-value">${escapeText(pricingNote)}</span></div>` : `<div class="drawer-detail-value">No reviewer notes.</div>`}
+            </section>
+            <section class="drawer-card" data-comment="reviews-drawer-shop-card" data-component="card">
+              <h3 class="drawer-card-title" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                Shop Review
+                <span class="rv-review-badge ${shopApproved ? "approved" : (pricingApproved ? "pending" : "locked")}" data-comment="reviews-drawer-shop-badge">${shopApproved ? "Approved" : (pricingApproved ? "Pending" : "Locked")}</span>
+              </h3>
+              ${shopBy ? `<div class="drawer-detail-row"><span class="drawer-detail-label">Approved by</span><span class="drawer-detail-value">${escapeText(shopBy)}</span></div>` : ""}
+              ${shopNote ? `<div class="drawer-detail-row"><span class="drawer-detail-label">Reviewer notes</span><span class="drawer-detail-value">${escapeText(shopNote)}</span></div>` : `<div class="drawer-detail-value">${pricingApproved ? "No reviewer notes." : "Waiting on pricing review."}</div>`}
+            </section>
+          </div>
         `;
+        if (footerEl) {
+          const showApprovePricing = !pricingApproved;
+          const showApproveShop = pricingApproved && !shopApproved;
+          footerEl.innerHTML = `
+            <a class="drawer-open-full" href="order-detail.html?id=${o.id}" data-comment="reviews-drawer-footer-open-full" style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; height:32px; font-size:0.8125rem; border-radius:6px; border:1px solid var(--border); background:var(--card); color:var(--foreground); text-decoration:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>
+              Open full page
+            </a>
+            ${showApprovePricing ? `<button type="button" data-approve-order="${o.id}" data-approve-type="pricing" data-comment="reviews-drawer-footer-approve-pricing" style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; height:32px; font-size:0.8125rem; border-radius:6px; background:#16a34a; color:white; border:0; cursor:pointer;">Approve Pricing</button>` : ""}
+            ${showApproveShop ? `<button type="button" data-approve-order="${o.id}" data-approve-type="shop" data-comment="reviews-drawer-footer-approve-shop" style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; height:32px; font-size:0.8125rem; border-radius:6px; background:#16a34a; color:white; border:0; cursor:pointer;">Approve Shop</button>` : ""}
+          `;
+          footerEl.querySelectorAll("[data-approve-order]").forEach((btn) => {
+            btn.addEventListener("click", (ev) => {
+              ev.stopPropagation();
+              const orderId = Number(btn.dataset.approveOrder);
+              const type = btn.dataset.approveType;
+              store.set({ approveDialog: { orderId, type }, approveComment: "" });
+            });
+          });
+        }
       }
 
       // Subscribe
@@ -2220,7 +2292,7 @@
       if (!document.getElementById("toast-animation-style")) {
         const s = document.createElement("style");
         s.id = "toast-animation-style";
-        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}";
         document.head.appendChild(s);
       }
     </script>

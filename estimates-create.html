@@ -979,7 +979,25 @@
         body.sidebar-open .sidebar-backdrop { display:block; }
         .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
       }
-</style>
+
+      /* ───── Cosmetic parity utilities ───── */
+      .overflow-text { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+      [data-tooltip] { position:relative; }
+      [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
+        content: attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+        background:var(--popover, #1f2937); color:var(--popover-foreground, #fff);
+        padding:4px 8px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
+        pointer-events:none; z-index:60; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        animation:tooltip-in 0.15s ease-out;
+      }
+      @keyframes tooltip-in { from { opacity:0; transform:translateX(-50%) translateY(2px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+      .sheet-overlay, .dialog-overlay { transition: opacity 0.2s ease; }
+      .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+      .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
+
+    </style>
   </head>
   <body>
     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -1037,7 +1055,7 @@
                   <span class="sidebar-user-email" data-comment="estimates-create-sidebar-user-email" id="sidebar-user-email">anna@lapp.com</span>
                 </div>
               </div>
-              <button class="sidebar-user-logout" data-comment="estimates-create-sidebar-user-logout" id="sidebar-user-logout" title="Log out" type="button">
+              <button class="sidebar-user-logout" data-comment="estimates-create-sidebar-user-logout" id="sidebar-user-logout" data-tooltip="Log out" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                 </svg>
@@ -2531,8 +2549,46 @@
       document.getElementById("estimates-create-action-submit").addEventListener("click", () => {
         store.set({ submitAttempted: true });
       });
-      document.getElementById("estimates-create-action-cancel").addEventListener("click", () => {
+      /* Dirty tracking + discard confirm */
+      let formDirty = false;
+      (function () {
+        const form = document.getElementById("estimates-create-form");
+        if (!form) return;
+        const markDirty = () => { formDirty = true; };
+        form.addEventListener("input", markDirty);
+        form.addEventListener("change", markDirty);
+      })();
+      function confirmDiscardChanges() {
+        return new Promise((resolve) => {
+          const existing = document.getElementById("estimates-create-discard-overlay");
+          if (existing) existing.remove();
+          const overlay = document.createElement("div");
+          overlay.id = "estimates-create-discard-overlay";
+          overlay.className = "dialog-overlay is-open";
+          overlay.setAttribute("data-comment", "estimates-create-discard-overlay");
+          overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:200;";
+          overlay.innerHTML = `
+            <div class="dialog is-open" role="dialog" aria-modal="true" data-comment="estimates-create-discard-dialog" style="background:var(--card,#fff);border-radius:12px;padding:24px;max-width:420px;width:calc(100% - 32px);box-shadow:0 20px 50px -10px rgba(0,0,0,0.25);">
+              <h3 style="margin:0 0 8px;font-size:18px;font-weight:600;">Discard changes?</h3>
+              <p style="margin:0 0 20px;color:var(--muted-foreground,#6b7280);font-size:14px;">You have unsaved changes. Are you sure you want to leave this page?</p>
+              <div style="display:flex;justify-content:flex-end;gap:8px;">
+                <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-discard-cancel" id="estimates-create-discard-cancel">Keep editing</button>
+                <button type="button" class="btn btn-sm" data-comment="estimates-create-discard-confirm" id="estimates-create-discard-confirm" style="background:var(--destructive,#dc2626);color:#fff;">Discard</button>
+              </div>
+            </div>`;
+          document.body.appendChild(overlay);
+          const cleanup = (v) => { overlay.remove(); resolve(v); };
+          overlay.querySelector("#estimates-create-discard-cancel").addEventListener("click", () => cleanup(false));
+          overlay.querySelector("#estimates-create-discard-confirm").addEventListener("click", () => cleanup(true));
+          overlay.addEventListener("click", (e) => { if (e.target === overlay) cleanup(false); });
+        });
+      }
+      document.getElementById("estimates-create-action-cancel").addEventListener("click", async () => {
         const target = initialCustomer ? `customer-detail.html?id=${initialCustomer.id}` : "estimates.html";
+        if (formDirty) {
+          const ok = await confirmDiscardChanges();
+          if (!ok) return;
+        }
         window.location.href = target;
       });
 

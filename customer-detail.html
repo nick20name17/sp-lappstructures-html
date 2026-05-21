@@ -1014,7 +1014,7 @@
         position: fixed;
         top: 0; right: 0; bottom: 0;
         width: 100%;
-        max-width: 480px;
+        max-width: 720px;
         background: var(--card);
         border-left: 1px solid var(--border);
         box-shadow: -10px 0 30px rgba(0,0,0,0.15);
@@ -1069,13 +1069,34 @@
       }
       .cd-drawer-close:hover { background: var(--secondary); color: var(--foreground); }
       .cd-drawer-close svg { width: 16px; height: 16px; }
+      .cd-sheet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      @media (max-width: 640px) { .cd-sheet-grid { grid-template-columns: 1fr; } }
+      .cd-sheet-card { background: var(--card); border:1px solid var(--border); border-radius: 12px; padding: 12px 14px; display:flex; flex-direction:column; gap:8px; }
+      .cd-sheet-card.full { grid-column: 1 / -1; }
+      .cd-sheet-card-title { font-size: 0.8125rem; font-weight: 600; color: var(--foreground); }
+      .cd-sheet-row { display:flex; justify-content:space-between; gap: 12px; padding: 3px 0; font-size: 0.8125rem; }
+      .cd-sheet-row .label { color: var(--muted-foreground); }
+      .cd-sheet-row .value { color: var(--foreground); text-align: right; overflow-wrap: anywhere; }
+      .cd-timeline { list-style:none; padding:0; margin:0; }
+      .cd-timeline li { display:flex; gap:10px; align-items:center; padding:6px 0; font-size:0.8125rem; position:relative; }
+      .cd-timeline li .icon { width:18px; height:18px; border-radius:999px; border:2px solid var(--border); background:var(--card); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+      .cd-timeline li.complete .icon { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+      .cd-timeline li.current .icon { border-color: var(--primary); }
+      .cd-timeline li.current .icon::after { content:''; width:7px; height:7px; border-radius:999px; background: var(--primary); }
+      .cd-timeline li svg { width:10px; height:10px; }
+      .cd-timeline li .label { flex:1; font-weight:500; }
+      .cd-timeline li.locked .label { color: var(--muted-foreground); font-weight: 400; }
+      .cd-timeline li .meta { font-size: 0.6875rem; color: var(--muted-foreground); }
+      .cd-footer-summary { display:flex; flex-direction:column; gap:3px; min-width: 200px; font-size: 0.8125rem; margin-right:auto; }
+      .cd-footer-summary .row { display:flex; justify-content:space-between; }
+      .cd-footer-summary .row.total { border-top:1px solid var(--border); padding-top:5px; margin-top:4px; font-weight:600; }
 
       /* ───── Toast ───── */
       .toast-container { position: fixed; bottom: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 999; pointer-events: none; }
       .toast { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); font-size: 0.875rem; min-width: 240px; animation: toast-in 0.2s ease; pointer-events: auto; color: var(--foreground); }
       .toast.success { border-left: 3px solid var(--success, #16a34a); }
       .toast.error { border-left: 3px solid var(--destructive, #dc2626); }
-      @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes toast-in { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
     
       /* Mobile menu */
       .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
@@ -1088,7 +1109,25 @@
         body.sidebar-open .sidebar-backdrop { display:block; }
         .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
       }
-</style>
+
+      /* ───── Cosmetic parity utilities ───── */
+      .overflow-text { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+      [data-tooltip] { position:relative; }
+      [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
+        content: attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+        background:var(--popover, #1f2937); color:var(--popover-foreground, #fff);
+        padding:4px 8px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
+        pointer-events:none; z-index:60; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        animation:tooltip-in 0.15s ease-out;
+      }
+      @keyframes tooltip-in { from { opacity:0; transform:translateX(-50%) translateY(2px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+      .sheet-overlay, .dialog-overlay { transition: opacity 0.2s ease; }
+      .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+      .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
+
+    </style>
   </head>
   <body>
     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -1217,7 +1256,7 @@
                 class="sidebar-user-logout"
                 data-comment="customer-detail-sidebar-user-logout"
                 id="sidebar-user-logout"
-                title="Log out"
+                data-tooltip="Log out"
                 type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -1931,12 +1970,12 @@
                       ? `<span class="sidebar-nav-link-badge" data-comment="customer-detail-sidebar-nav-link-${slug}-badges">
                           ${
                             s.reviewBadges.not_pricing_reviewed > 0
-                              ? `<span class="sidebar-badge amber" data-comment="customer-detail-sidebar-nav-link-${slug}-badge-pricing" title="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
+                              ? `<span class="sidebar-badge amber" data-comment="customer-detail-sidebar-nav-link-${slug}-badge-pricing" data-tooltip="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
                               : ""
                           }
                           ${
                             s.reviewBadges.not_shop_reviewed > 0
-                              ? `<span class="sidebar-badge blue" data-comment="customer-detail-sidebar-nav-link-${slug}-badge-shop" title="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
+                              ? `<span class="sidebar-badge blue" data-comment="customer-detail-sidebar-nav-link-${slug}-badge-shop" data-tooltip="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
                               : ""
                           }
                         </span>`
@@ -2681,33 +2720,144 @@
         }
       });
 
-      /* ───── Estimate row click → drawer ───── */
+      /* ───── Estimate row click → drawer (rich) ───── */
       function openEstimateDrawer(estimate) {
         const body = document.getElementById("estimate-drawer-body");
-        document.getElementById("estimate-drawer-title").textContent = estimate.name;
+        const customer = (store.get().customers || []).find((c) => c.id === estimate.customer_id) || {};
+        const customerName = customer ? `${customer.first_name || ""} ${customer.last_name || ""}`.trim() : "—";
+        const shipping = customer && customer.addresses ? customer.addresses.find((a) => a.type === "shipping") : null;
+        const shipAddr = formatAddress(shipping) || "—";
+        const subtotal = estimate.total || 0;
+        const tax = subtotal * 0.06;
+        const total = subtotal + tax;
+        const validDays = estimate.valid_days || 30;
+        const expDate = estimate.crea_date ? (() => { const d = new Date(estimate.crea_date); d.setDate(d.getDate() + validDays); return formatDate(d.toISOString()); })() : "—";
+        document.getElementById("estimate-drawer-title").textContent = `Estimate ${estimate.name}`;
         body.innerHTML = `
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Estimate #</div><div class="cd-drawer-row-value">${esc(estimate.name)}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Status</div><div class="cd-drawer-row-value">${esc(estimate.status)}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Date</div><div class="cd-drawer-row-value">${formatDate(estimate.crea_date)}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Total</div><div class="cd-drawer-row-value">${formatCurrency(estimate.total)}</div></div>
+          <div class="cd-sheet-grid" data-comment="customer-detail-estimate-drawer-grid">
+            <section class="cd-sheet-card" data-comment="customer-detail-estimate-drawer-product">
+              <div class="cd-sheet-card-title">Product details</div>
+              <div class="cd-sheet-row"><span class="label">Category</span><span class="value">${esc(estimate.category || "Shed")}</span></div>
+              <div class="cd-sheet-row"><span class="label">Description</span><span class="value">${esc(estimate.name || "—")}</span></div>
+              <div class="cd-sheet-row"><span class="label">Memo</span><span class="value">${esc(estimate.memo || "—")}</span></div>
+            </section>
+            <section class="cd-sheet-card" data-comment="customer-detail-estimate-drawer-main">
+              <div class="cd-sheet-card-title">Main</div>
+              <div class="cd-sheet-row"><span class="label">Customer</span><span class="value">${esc(customerName)}</span></div>
+              <div class="cd-sheet-row"><span class="label">Location</span><span class="value">${esc(customer.location || "—")}</span></div>
+              <div class="cd-sheet-row"><span class="label">P.O. Number</span><span class="value">${esc(estimate.po_no || "—")}</span></div>
+              <div class="cd-sheet-row"><span class="label">Sales Rep</span><span class="value">${esc(estimate.sales_rep_name || "—")}</span></div>
+              <div class="cd-sheet-row"><span class="label">Status</span><span class="value">${esc(estimate.status)}</span></div>
+            </section>
+            <section class="cd-sheet-card" data-comment="customer-detail-estimate-drawer-validity">
+              <div class="cd-sheet-card-title">Estimate Validity</div>
+              <div class="cd-sheet-row"><span class="label">Order Date</span><span class="value">${formatDate(estimate.crea_date)}</span></div>
+              <div class="cd-sheet-row"><span class="label">Valid Days</span><span class="value">${validDays}</span></div>
+              <div class="cd-sheet-row"><span class="label">Expiration</span><span class="value">${expDate}</span></div>
+            </section>
+            <section class="cd-sheet-card" data-comment="customer-detail-estimate-drawer-contact">
+              <div class="cd-sheet-card-title">Contact &amp; Shipping</div>
+              <div class="cd-sheet-row"><span class="label">Phone</span><span class="value">${esc(formatPhone(customer.primary_phone))||"—"}</span></div>
+              <div class="cd-sheet-row"><span class="label">Email</span><span class="value">${esc(customer.email || "—")}</span></div>
+              <div class="cd-sheet-row"><span class="label">Shipping</span><span class="value">${esc(shipAddr)}</span></div>
+            </section>
+          </div>
         `;
+        const footer = document.getElementById("estimate-drawer-overlay").nextElementSibling.querySelector(".cd-drawer-footer");
+        if (footer) {
+          footer.innerHTML = `
+            <div class="cd-footer-summary" data-comment="customer-detail-estimate-drawer-summary">
+              <div class="row"><span style="color:var(--muted-foreground);">Created at</span><span>${formatDate(estimate.crea_date)}</span></div>
+              <div class="row"><span style="color:var(--muted-foreground);">Subtotal</span><span>${formatCurrency(subtotal)}</span></div>
+              <div class="row"><span style="color:var(--muted-foreground);">Tax</span><span>${formatCurrency(tax)}</span></div>
+              <div class="row total"><span>Total</span><span>${formatCurrency(total)}</span></div>
+            </div>
+            <a class="btn btn-outline btn-sm" href="estimate-detail.html?id=${estimate.id}" data-comment="customer-detail-estimate-drawer-edit">Edit</a>
+            <button type="button" class="btn btn-outline btn-sm" data-estimate-action="approve" data-estimate-id="${estimate.id}" data-comment="customer-detail-estimate-drawer-approve">Approve</button>
+            <button type="button" class="btn btn-outline btn-sm" data-estimate-action="reject" data-estimate-id="${estimate.id}" data-comment="customer-detail-estimate-drawer-reject">Reject</button>
+            <button type="button" class="btn btn-primary btn-sm" data-estimate-action="createSO" data-estimate-id="${estimate.id}" data-comment="customer-detail-estimate-drawer-cso">Create Sales Order</button>
+            <button type="button" class="btn btn-outline btn-sm" data-drawer-close="estimate">Close</button>
+          `;
+        }
         document.getElementById("estimate-drawer-overlay").classList.add("is-open");
         document.getElementById("estimate-drawer").classList.add("is-open");
       }
       function openOrderDrawer(order) {
         const body = document.getElementById("order-drawer-body");
-        document.getElementById("order-drawer-title").textContent = order.invoice;
+        const customer = (store.get().customers || []).find((c) => c.id === order.customer_id) || {};
+        const customerName = customer ? `${customer.first_name || ""} ${customer.last_name || ""}`.trim() : (order.customer || "—");
+        const shipping = customer && customer.addresses ? customer.addresses.find((a) => a.type === "shipping") : null;
+        const shipAddr = formatAddress(shipping) || order.address || "—";
+        const STATUS_ORDER = ["awaiting_down_payment","down_payment_received","awaiting_signature","signed","awaiting_pricing_review","pricing_reviewed","awaiting_shop_review","shop_reviewed"];
+        const idx = STATUS_ORDER.indexOf(order.status);
+        const dpDone = idx >= STATUS_ORDER.indexOf("down_payment_received");
+        const priDone = idx >= STATUS_ORDER.indexOf("pricing_reviewed");
+        const shopDone = idx >= STATUS_ORDER.indexOf("shop_reviewed");
+        const created = formatDate(order.crea_date);
+        const steps = [
+          { label: "Order created", state: "complete", date: created },
+          { label: "Down-payment", state: dpDone ? "complete" : "current", date: dpDone ? created : "—" },
+          { label: "Customer Signature", state: "locked", date: "—" },
+          { label: "Pricing Review", state: priDone ? "complete" : (dpDone ? "current" : "locked"), date: priDone ? created : "—" },
+          { label: "Shop Review", state: shopDone ? "complete" : (priDone ? "current" : "locked"), date: shopDone ? created : "—" },
+        ];
+        const subtotal = order.total / 1.06;
+        const tax = order.total - subtotal;
+        document.getElementById("order-drawer-title").textContent = `Sales Order ${order.invoice}`;
         body.innerHTML = `
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Invoice</div><div class="cd-drawer-row-value">${esc(order.invoice)}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Category</div><div class="cd-drawer-row-value">${esc(order.category || "—")}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Dimension</div><div class="cd-drawer-row-value">${esc(order.dimension || "—")}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">PO #</div><div class="cd-drawer-row-value">${esc(order.po_number || "—")}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Address</div><div class="cd-drawer-row-value">${esc(order.address || "—")}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Memo</div><div class="cd-drawer-row-value">${esc(order.memo || "—")}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Ship Type</div><div class="cd-drawer-row-value">${esc(order.ship_type || "—")}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Scheduled</div><div class="cd-drawer-row-value">${formatDate(order.dp_estprod)}</div></div>
-          <div class="cd-drawer-row"><div class="cd-drawer-row-label">Total</div><div class="cd-drawer-row-value">${formatCurrency(order.total)}</div></div>
+          <div class="cd-sheet-grid" data-comment="customer-detail-order-drawer-grid">
+            <section class="cd-sheet-card" data-comment="customer-detail-order-drawer-timeline">
+              <div class="cd-sheet-card-title">Order Status</div>
+              <ol class="cd-timeline">
+                ${steps.map((s) => `
+                  <li class="${s.state}">
+                    <span class="icon">${s.state === "complete" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' : ""}</span>
+                    <span class="label">${esc(s.label)}</span>
+                    <span class="meta">${esc(s.date)}</span>
+                  </li>`).join("")}
+              </ol>
+            </section>
+            <section class="cd-sheet-card" data-comment="customer-detail-order-drawer-product">
+              <div class="cd-sheet-card-title">Product details</div>
+              <div class="cd-sheet-row"><span class="label">Category</span><span class="value">${esc(order.category || "—")}</span></div>
+              <div class="cd-sheet-row"><span class="label">Description</span><span class="value">${esc(order.dimension || "—")}</span></div>
+              <div class="cd-sheet-row"><span class="label">Memo</span><span class="value">${esc(order.memo || "—")}</span></div>
+            </section>
+            <section class="cd-sheet-card" data-comment="customer-detail-order-drawer-main">
+              <div class="cd-sheet-card-title">Main</div>
+              <div class="cd-sheet-row"><span class="label">Customer</span><span class="value">${esc(customerName)}</span></div>
+              <div class="cd-sheet-row"><span class="label">Location</span><span class="value">${esc(customer.location || "—")}</span></div>
+              <div class="cd-sheet-row"><span class="label">P.O. Number</span><span class="value">${esc(order.po_number || "—")}</span></div>
+              <div class="cd-sheet-row"><span class="label">Build On Site</span><span class="value">${order.built_onsite ? "Yes" : "No"}</span></div>
+            </section>
+            <section class="cd-sheet-card" data-comment="customer-detail-order-drawer-delivery">
+              <div class="cd-sheet-card-title">Delivery</div>
+              <div class="cd-sheet-row"><span class="label">Lead Time</span><span class="value">${esc(order.lead_time || "6-8 weeks")}</span></div>
+              <div class="cd-sheet-row"><span class="label">Scheduled Date</span><span class="value">${formatDate(order.dp_estprod)}</span></div>
+              <div class="cd-sheet-row"><span class="label">Method</span><span class="value">${esc(order.ship_type || "—")}</span></div>
+            </section>
+            <section class="cd-sheet-card full" data-comment="customer-detail-order-drawer-contact">
+              <div class="cd-sheet-card-title">Contact &amp; Shipping Address</div>
+              <div class="cd-sheet-row"><span class="label">Phone</span><span class="value">${esc(formatPhone(customer.primary_phone))||"—"}</span></div>
+              <div class="cd-sheet-row"><span class="label">Email</span><span class="value">${esc(customer.email || "—")}</span></div>
+              <div class="cd-sheet-row"><span class="label">Shipping</span><span class="value">${esc(shipAddr)}</span></div>
+            </section>
+          </div>
         `;
+        const drawerEl = document.getElementById("order-drawer");
+        const footer = drawerEl.querySelector(".cd-drawer-footer");
+        if (footer) {
+          footer.innerHTML = `
+            <div class="cd-footer-summary" data-comment="customer-detail-order-drawer-summary">
+              <div class="row"><span style="color:var(--muted-foreground);">Created at</span><span>${formatDate(order.crea_date)}</span></div>
+              <div class="row"><span style="color:var(--muted-foreground);">Subtotal</span><span>${formatCurrency(subtotal)}</span></div>
+              <div class="row"><span style="color:var(--muted-foreground);">Tax</span><span>${formatCurrency(tax)}</span></div>
+              <div class="row total"><span>Order Balance</span><span>${formatCurrency(order.total)}</span></div>
+            </div>
+            <a class="btn btn-outline btn-sm" href="order-detail.html?id=${order.autoid}" data-comment="customer-detail-order-drawer-view">View Order</a>
+            <button type="button" class="btn btn-outline btn-sm" data-drawer-close="order">Close</button>
+          `;
+        }
         document.getElementById("order-drawer-overlay").classList.add("is-open");
         document.getElementById("order-drawer").classList.add("is-open");
       }
@@ -2822,7 +2972,7 @@
       if (!document.getElementById("toast-animation-style")) {
         const s = document.createElement("style");
         s.id = "toast-animation-style";
-        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}";
         document.head.appendChild(s);
       }
     </script>

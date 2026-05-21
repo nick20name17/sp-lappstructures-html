@@ -597,7 +597,25 @@
         body.sidebar-open .sidebar-backdrop { display:block; }
         .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
       }
-</style>
+
+      /* ───── Cosmetic parity utilities ───── */
+      .overflow-text { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+      [data-tooltip] { position:relative; }
+      [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
+        content: attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+        background:var(--popover, #1f2937); color:var(--popover-foreground, #fff);
+        padding:4px 8px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
+        pointer-events:none; z-index:60; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        animation:tooltip-in 0.15s ease-out;
+      }
+      @keyframes tooltip-in { from { opacity:0; transform:translateX(-50%) translateY(2px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+      .sheet-overlay, .dialog-overlay { transition: opacity 0.2s ease; }
+      .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+      .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
+
+    </style>
   </head>
   <body>
     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -661,7 +679,7 @@
                   <span class="sidebar-user-email" data-comment="site-check-detail-sidebar-user-email" id="sidebar-user-email">anna@lapp.com</span>
                 </div>
               </div>
-              <button class="sidebar-user-logout" data-comment="site-check-detail-sidebar-user-logout" id="sidebar-user-logout" title="Log out" type="button">
+              <button class="sidebar-user-logout" data-comment="site-check-detail-sidebar-user-logout" id="sidebar-user-logout" data-tooltip="Log out" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                 </svg>
@@ -1553,7 +1571,7 @@
         else if (action === "open-done")    store.set({ dialog: { type: "done" }, doneResults: "" });
         else if (action === "open-cancel")  store.set({ dialog: { type: "cancelled" } });
         else if (action === "edit")         startEdit();
-        else if (action === "print")        window.print();
+        else if (action === "print")        { renderPrintable(); window.print(); }
         else if (action === "edit-cancel") {
           if (s.editDirty) store.set({ pendingDiscard: "exit" });
           else store.set({ editing: false, editForm: null, editDirty: false });
@@ -1611,7 +1629,7 @@
       if (!document.getElementById("toast-animation-style")) {
         const s = document.createElement("style");
         s.id = "toast-animation-style";
-        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}";
         document.head.appendChild(s);
       }
     </script>
@@ -1619,6 +1637,106 @@
       document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
       document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
       document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+
+    <style>
+      .printable { display: none; }
+      @media print {
+        @page { size: letter; margin: 0.6in; }
+        html, body { background: #fff !important; color: #000 !important; }
+        body > *:not(.printable) { display: none !important; }
+        .printable { display: block !important; }
+        .dialog-overlay, .sheet, .drawer, .dialog { display: none !important; }
+      }
+      .printable {
+        font-family: "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        font-size: 12pt;
+        color: #000;
+        line-height: 1.4;
+      }
+      .printable * { box-sizing: border-box; }
+      .pr-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; }
+      .pr-brand { font-size: 14pt; font-weight: 700; letter-spacing: 0.5px; }
+      .pr-company { font-size: 9pt; color: #333; line-height: 1.35; margin-top: 4px; }
+      .pr-title { font-size: 20pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-align: right; }
+      .pr-subtitle { font-size: 10pt; color: #333; text-align: right; margin-top: 2px; }
+      .pr-meta-row { display: flex; justify-content: space-between; background: #f4f4f4; padding: 6px 10px; border: 1px solid #ccc; font-size: 10pt; margin-bottom: 12px; }
+      .pr-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+      .pr-col { border: 1px solid #ccc; padding: 8px; }
+      .pr-col h4 { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.8px; color: #555; margin: 0 0 4px; }
+      .pr-row { display: flex; justify-content: space-between; font-size: 10pt; padding: 2px 0; border-bottom: 1px dotted #ccc; }
+      .pr-row:last-child { border-bottom: none; }
+      .pr-row b { color: #555; font-weight: 600; }
+      .pr-section { margin-bottom: 12px; page-break-inside: avoid; }
+      .pr-section h3 { font-size: 11pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #000; padding-bottom: 3px; margin: 0 0 6px; }
+      .pr-block { font-size: 10pt; padding: 6px 8px; border: 1px solid #ccc; background: #fafafa; min-height: 32px; }
+      .pr-footer { margin-top: 16px; padding-top: 6px; border-top: 1px solid #ccc; text-align: center; font-size: 8pt; color: #555; }
+    </style>
+
+    <div id="printable-site-check" class="printable" data-comment="site-check-detail-printable">
+      <div id="printable-site-check-body" data-comment="site-check-detail-printable-body"></div>
+    </div>
+
+    <script>
+      function renderPrintable() {
+        const sc = getSiteCheck(store.get().selectedId);
+        if (!sc) return;
+        const contact = sc.contact || {};
+        const contactName = `${contact.first_name || ""} ${contact.last_name || ""}`.trim() || "—";
+        const assigned = sc.assigned_to;
+        const assignedName = assigned ? `${assigned.first_name || ""} ${assigned.last_name || ""}`.trim() : "—";
+        const statusLabel = SC_LABELS[sc.status] || sc.status || "—";
+        const typeLabel = TYPE_LABELS[sc.type] || sc.type || "—";
+        const files = sc.files || [];
+        const commentsText = String(sc.comments || "").replace(/<[^>]+>/g, "").trim();
+
+        const html = `
+          <div class="pr-header">
+            <div>
+              <div class="pr-brand">LAPP STRUCTURES</div>
+              <div class="pr-company">220 Jalyn Drive<br>New Holland, PA 17557<br>717-354-7433</div>
+            </div>
+            <div>
+              <div class="pr-title">Site Check SC-${escapeHtml(sc.id)}</div>
+              <div class="pr-subtitle">${escapeHtml(formatDate(sc.created_at))}</div>
+            </div>
+          </div>
+          <div class="pr-meta-row">
+            <span>Status: <b>${escapeHtml(statusLabel)}</b></span>
+            <span>Type: <b>${escapeHtml(typeLabel)}</b></span>
+          </div>
+          <div class="pr-grid2">
+            <div class="pr-col">
+              <h4>Customer</h4>
+              <div class="pr-row"><b>Name</b><span>${escapeHtml(contactName)}</span></div>
+              ${contact.email ? `<div class="pr-row"><b>Email</b><span>${escapeHtml(contact.email)}</span></div>` : ""}
+              ${contact.location ? `<div class="pr-row"><b>Retail Location</b><span>${escapeHtml(contact.location)}</span></div>` : ""}
+            </div>
+            <div class="pr-col">
+              <h4>Assignment</h4>
+              <div class="pr-row"><b>Assigned To</b><span>${escapeHtml(assignedName)}</span></div>
+              <div class="pr-row"><b>Scheduled Start</b><span>${escapeHtml(formatDate(sc.start_date_time))}</span></div>
+              <div class="pr-row"><b>Date Completed</b><span>${escapeHtml(formatDate(sc.date_completed))}</span></div>
+              ${sc.estimate_id ? `<div class="pr-row"><b>Estimate</b><span>#${escapeHtml(sc.estimate_id)}</span></div>` : ""}
+            </div>
+          </div>
+          <div class="pr-section">
+            <h3>Comments</h3>
+            <div class="pr-block">${commentsText ? escapeHtml(commentsText) : "—"}</div>
+          </div>
+          <div class="pr-section">
+            <h3>Results</h3>
+            <div class="pr-block">${sc.results_of_site_check ? escapeHtml(sc.results_of_site_check) : "—"}</div>
+          </div>
+          ${files.length ? `
+            <div class="pr-section">
+              <h3>Attachments</h3>
+              ${files.map(f => `<div style="font-size:10pt">• ${escapeHtml(f.name)}</div>`).join("")}
+            </div>` : ""}
+          <div class="pr-footer">Lapp Structures &middot; 220 Jalyn Drive, New Holland, PA 17557 &middot; 717-354-7433</div>
+        `;
+        document.getElementById("printable-site-check-body").innerHTML = html;
+      }
     </script>
 </body>
 </html>

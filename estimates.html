@@ -627,8 +627,8 @@
       .toast.success { border-left: 3px solid var(--success, #16a34a); }
       .toast.error   { border-left: 3px solid var(--destructive, #dc2626); }
       @keyframes toast-in {
-        from { opacity: 0; transform: translateY(8px); }
-        to   { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateX(20px); }
+        to   { opacity: 1; transform: translateX(0); }
       }
 
       /* shadcn-style select */
@@ -757,6 +757,18 @@
       .info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); font-weight:600; }
       .info-value { font-size: 0.9rem; color: var(--foreground); overflow-wrap:anywhere; }
       .drawer-section-title { font-size: 0.8rem; font-weight:600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; }
+      .sheet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      @media (max-width: 720px) { .sheet-grid { grid-template-columns: 1fr; } }
+      .sheet-card { background: var(--card); border:1px solid var(--border); border-radius: 12px; padding: 14px; display:flex; flex-direction:column; gap:10px; }
+      .sheet-card-title { font-size: 0.875rem; font-weight: 600; color: var(--foreground); }
+      .sheet-row { display:flex; justify-content:space-between; gap: 12px; padding: 4px 0; font-size: 0.875rem; }
+      .sheet-row dt { color: var(--muted-foreground); margin: 0; }
+      .sheet-row dd { color: var(--foreground); text-align: right; margin: 0; overflow-wrap: anywhere; }
+      .sheet-footer-meta { margin-right: auto; font-size: 0.8125rem; color: var(--muted-foreground); display:flex; flex-direction:column; gap:2px; }
+      .sheet-footer-meta-title { font-weight: 600; color: var(--foreground); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+      .sheet-summary { display:flex; flex-direction:column; gap:4px; min-width:220px; font-size:0.875rem; }
+      .sheet-summary-row { display:flex; justify-content:space-between; }
+      .sheet-summary-row.total { border-top:1px solid var(--border); padding-top:6px; margin-top:4px; font-weight:600; }
       .btn-destructive { background: var(--destructive); color: white; }
       .btn-destructive:hover { background: color-mix(in oklch, var(--destructive) 88%, black); }
       .btn-success { background: var(--success); color: white; }
@@ -779,7 +791,25 @@
         body.sidebar-open .sidebar-backdrop { display:block; }
         .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
       }
-</style>
+
+      /* ───── Cosmetic parity utilities ───── */
+      .overflow-text { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+      [data-tooltip] { position:relative; }
+      [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
+        content: attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+        background:var(--popover, #1f2937); color:var(--popover-foreground, #fff);
+        padding:4px 8px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
+        pointer-events:none; z-index:60; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        animation:tooltip-in 0.15s ease-out;
+      }
+      @keyframes tooltip-in { from { opacity:0; transform:translateX(-50%) translateY(2px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+      .sheet-overlay, .dialog-overlay { transition: opacity 0.2s ease; }
+      .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+      .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
+
+    </style>
   </head>
   <body>
     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -940,7 +970,7 @@
                 class="sidebar-user-logout"
                 data-comment="estimates-sidebar-user-logout"
                 id="sidebar-user-logout"
-                title="Log out"
+                data-tooltip="Log out"
                 type="button">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -1672,6 +1702,11 @@
       function formatMoney(n) {
         return Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       }
+      function fmtMoney(value) {
+        const n = Number(value);
+        if (!isFinite(n)) return "—";
+        return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      }
       function formatDate(iso) {
         if (!iso) return "—";
         const d = new Date(iso);
@@ -1701,16 +1736,16 @@
         if (s.estimatesLoading) {
           body.innerHTML = Array.from({ length: 5 }).map((_, r) => `
             <tr data-comment="estimates-skeleton-row-${r + 1}">
-              <td><span class="skeleton-bar" style="width: 75%" data-comment="estimates-skeleton-row-${r + 1}-id"></span></td>
-              <td><span class="skeleton-bar" style="width: 33%" data-comment="estimates-skeleton-row-${r + 1}-name"></span></td>
-              <td><span class="skeleton-bar" style="width: 50%" data-comment="estimates-skeleton-row-${r + 1}-status"></span></td>
-              <td><span class="skeleton-bar" style="width: 66%" data-comment="estimates-skeleton-row-${r + 1}-date"></span></td>
-              <td><span class="skeleton-bar" style="width: 60%" data-comment="estimates-skeleton-row-${r + 1}-customer"></span></td>
-              <td><span class="skeleton-bar" style="width: 50%" data-comment="estimates-skeleton-row-${r + 1}-location"></span></td>
-              <td><span class="skeleton-bar" style="width: 40%" data-comment="estimates-skeleton-row-${r + 1}-total"></span></td>
-              <td><span class="skeleton-bar" style="width: 60%" data-comment="estimates-skeleton-row-${r + 1}-rep"></span></td>
-              <td><span class="skeleton-bar" style="width: 50%" data-comment="estimates-skeleton-row-${r + 1}-sc"></span></td>
-              <td><span class="skeleton-bar" style="width: 70%" data-comment="estimates-skeleton-row-${r + 1}-memo"></span></td>
+              <td><span class="skeleton-bar" style="width:10%" data-comment="estimates-skeleton-row-${r + 1}-id"></span></td>
+              <td><span class="skeleton-bar" style="width:18%" data-comment="estimates-skeleton-row-${r + 1}-name"></span></td>
+              <td><span class="skeleton-bar" style="width:30%" data-comment="estimates-skeleton-row-${r + 1}-status"></span></td>
+              <td><span class="skeleton-bar" style="width:15%" data-comment="estimates-skeleton-row-${r + 1}-date"></span></td>
+              <td><span class="skeleton-bar" style="width:18%" data-comment="estimates-skeleton-row-${r + 1}-customer"></span></td>
+              <td><span class="skeleton-bar" style="width:16%" data-comment="estimates-skeleton-row-${r + 1}-location"></span></td>
+              <td><span class="skeleton-bar" style="width:16%" data-comment="estimates-skeleton-row-${r + 1}-total"></span></td>
+              <td><span class="skeleton-bar" style="width:15%" data-comment="estimates-skeleton-row-${r + 1}-rep"></span></td>
+              <td><span class="skeleton-bar" style="width:16%" data-comment="estimates-skeleton-row-${r + 1}-sc"></span></td>
+              <td><span class="skeleton-bar" style="width:12%" data-comment="estimates-skeleton-row-${r + 1}-memo"></span></td>
               <td></td>
             </tr>
           `).join("");
@@ -1751,7 +1786,7 @@
                   : "—"}
               </td>
               <td class="hide-mobile" data-comment="${ctx}-location">${escapeHtml(e.customer?.location || "—")}</td>
-              <td data-comment="${ctx}-total">${e.total ? "$" + formatMoney(total) : "—"}</td>
+              <td data-comment="${ctx}-total">${e.total ? fmtMoney(total) : "—"}</td>
               <td class="hide-mobile" data-comment="${ctx}-sales-rep">${escapeHtml(e.sales_rep_name || "—")}</td>
               <td class="hide-mobile" data-role-hide-col="dealer" data-comment="${ctx}-site-check">${renderSiteCheckBadge(e.site_check_status || "not_required", ctx)}</td>
               <td data-comment="${ctx}-memo" title="${escapeHtml(e.memo || "")}">${escapeHtml(e.memo || "—")}</td>
@@ -1834,32 +1869,67 @@
         if (!open) return;
         const e = s.estimates.find((x) => x.id === s.drawer.estimateId);
         if (!e) return;
-        const total = (e.total ?? 0) + (e.total_tax ?? 0);
+        const subtotal = e.total ?? 0;
+        const tax = e.total_tax ?? 0;
+        const total = subtotal + tax;
         const customerName = e.customer ? `${e.customer.first_name} ${e.customer.last_name}`.trim() : "—";
+        const validDays = e.valid_days || 30;
+        const expDate = e.order_date ? (() => { const d = new Date(e.order_date); d.setDate(d.getDate() + validDays); return formatDate(d.toISOString()); })() : "—";
+        const shipping = e.customer?.addresses?.find?.((a) => a.type === "shipping");
+        const shipAddr = shipping ? [shipping.street, [shipping.city, shipping.state].filter(Boolean).join(" "), shipping.zip_code].filter(Boolean).join(", ") : (e.customer?.location || "—");
         document.getElementById("estimates-drawer-title-text").textContent = `Estimate ${e.id}`;
         document.getElementById("estimates-drawer-status").innerHTML = renderStatusBadge(e.status, "estimates-drawer");
         document.getElementById("estimates-drawer-body").innerHTML = `
-          <div data-comment="estimates-drawer-info">
-            <div class="drawer-section-title" style="margin-bottom:8px" data-comment="estimates-drawer-section-overview">Overview</div>
-            <div class="info-grid" data-comment="estimates-drawer-info-grid">
-              <div class="info-item"><div class="info-label">Name</div><div class="info-value">${escapeHtml(e.name || "—")}</div></div>
-              <div class="info-item"><div class="info-label">Date</div><div class="info-value">${formatDate(e.order_date)}</div></div>
-              <div class="info-item"><div class="info-label">Customer</div><div class="info-value">${escapeHtml(customerName)}</div></div>
-              <div class="info-item"><div class="info-label">Location</div><div class="info-value">${escapeHtml(e.customer?.location || "—")}</div></div>
-              <div class="info-item"><div class="info-label">Sales Rep</div><div class="info-value">${escapeHtml(e.sales_rep_name || "—")}</div></div>
-              <div class="info-item"><div class="info-label">Site Check</div><div class="info-value">${renderSiteCheckBadge(e.site_check_status || "not_required", "estimates-drawer")}</div></div>
-              <div class="info-item" style="grid-column: 1 / -1;"><div class="info-label">Total</div><div class="info-value" style="font-size:1.1rem; font-weight:600;">${e.total ? "$" + formatMoney(total) : "—"}</div></div>
-              ${e.memo ? `<div class="info-item" style="grid-column: 1 / -1;"><div class="info-label">Memo</div><div class="info-value">${escapeHtml(e.memo)}</div></div>` : ""}
-            </div>
-          </div>
-          <div data-comment="estimates-drawer-line-items">
-            <div class="drawer-section-title" style="margin-bottom:8px">Line items</div>
-            <div class="info-value" style="color: var(--muted-foreground); font-size:0.85rem;">Open full estimate to view line items.</div>
+          <div class="sheet-grid" data-comment="estimates-drawer-grid">
+            <section class="sheet-card" data-comment="estimates-drawer-product-card" data-component="card">
+              <h3 class="sheet-card-title">Product details</h3>
+              <dl style="margin:0;">
+                <div class="sheet-row"><dt>Category</dt><dd>${escapeHtml(e.category || "Shed")}</dd></div>
+                <div class="sheet-row"><dt>Description</dt><dd>${escapeHtml(e.name || "—")}</dd></div>
+                <div class="sheet-row"><dt>Memo (internal)</dt><dd>${escapeHtml(e.memo || "—")}</dd></div>
+              </dl>
+            </section>
+            <section class="sheet-card" data-comment="estimates-drawer-main-card" data-component="card">
+              <h3 class="sheet-card-title">Main</h3>
+              <dl style="margin:0;">
+                <div class="sheet-row"><dt>Customer</dt><dd>${escapeHtml(customerName)}</dd></div>
+                <div class="sheet-row"><dt>Location (Class)</dt><dd>${escapeHtml(e.customer?.location || "—")}</dd></div>
+                <div class="sheet-row"><dt>P.O. Number</dt><dd>${escapeHtml(e.po_no || "—")}</dd></div>
+                <div class="sheet-row"><dt>Sales Rep</dt><dd>${escapeHtml(e.sales_rep_name || "—")}</dd></div>
+                <div class="sheet-row"><dt>Site Check</dt><dd>${renderSiteCheckBadge(e.site_check_status || "not_required", "estimates-drawer")}</dd></div>
+              </dl>
+            </section>
+            <section class="sheet-card" data-comment="estimates-drawer-validity-card" data-component="card">
+              <h3 class="sheet-card-title">Estimate Validity</h3>
+              <dl style="margin:0;">
+                <div class="sheet-row"><dt>Order Date</dt><dd>${formatDate(e.order_date)}</dd></div>
+                <div class="sheet-row"><dt>Valid Days</dt><dd>${validDays}</dd></div>
+                <div class="sheet-row"><dt>Expiration Date</dt><dd>${expDate}</dd></div>
+              </dl>
+            </section>
+            <section class="sheet-card" data-comment="estimates-drawer-contact-card" data-component="card">
+              <h3 class="sheet-card-title">Contact &amp; Shipping Address</h3>
+              <dl style="margin:0;">
+                <div class="sheet-row"><dt>Phone</dt><dd>${escapeHtml(e.customer?.primary_phone || "—")}</dd></div>
+                <div class="sheet-row"><dt>Email</dt><dd>${escapeHtml(e.customer?.email || "—")}</dd></div>
+                <div class="sheet-row"><dt>Shipping</dt><dd>${escapeHtml(shipAddr)}</dd></div>
+              </dl>
+            </section>
           </div>
         `;
         const isSales = currentRole() === "sales";
         document.getElementById("estimates-drawer-footer").innerHTML = `
+          <div class="sheet-footer-meta" data-comment="estimates-drawer-footer-meta">
+            <span class="sheet-footer-meta-title">Estimate Details</span>
+            <span>Created at: <strong>${formatDate(e.order_date)}</strong></span>
+            <div class="sheet-summary" style="margin-top:6px;">
+              <div class="sheet-summary-row"><span style="color:var(--muted-foreground);">Subtotal</span><span style="font-variant-numeric:tabular-nums;">${fmtMoney(subtotal)}</span></div>
+              <div class="sheet-summary-row"><span style="color:var(--muted-foreground);">Tax</span><span style="font-variant-numeric:tabular-nums;">${fmtMoney(tax)}</span></div>
+              <div class="sheet-summary-row total"><span>Total</span><span style="font-variant-numeric:tabular-nums;">${fmtMoney(total)}</span></div>
+            </div>
+          </div>
           <a class="btn btn-outline" href="estimate-detail.html?id=${e.id}" data-comment="estimates-drawer-edit">Edit</a>
+          <button type="button" class="btn btn-outline" data-drawer-action="print" data-comment="estimates-drawer-print">Print PDF</button>
           ${isSales ? "" : `
             <button type="button" class="btn btn-outline" data-drawer-action="approve" data-comment="estimates-drawer-approve">Approve</button>
             <button type="button" class="btn btn-outline" data-drawer-action="reject" data-comment="estimates-drawer-reject">Reject</button>
@@ -2030,6 +2100,7 @@
         const estimate = store.get().estimates.find((es) => es.id === id);
         if (!estimate) return;
         if (action === "delete") { store.set({ dialog: { type: "delete", estimate } }); return; }
+        if (action === "print") { window.location.href = `estimate-detail.html?id=${estimate.id}&print=1`; return; }
         store.set({ dialog: { type: action, estimate } });
       });
 
@@ -2074,7 +2145,7 @@
       if (!document.getElementById("toast-animation-style")) {
         const s = document.createElement("style");
         s.id = "toast-animation-style";
-        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}";
         document.head.appendChild(s);
       }
     </script>

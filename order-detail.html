@@ -1308,7 +1308,7 @@
       .toast { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); font-size: 0.875rem; min-width: 240px; animation: toast-in 0.2s ease; pointer-events: auto; color: var(--foreground); }
       .toast.success { border-left: 3px solid var(--success, #16a34a); }
       .toast.error { border-left: 3px solid var(--destructive, #dc2626); }
-      @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes toast-in { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
     
       /* Mobile menu */
       .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
@@ -1321,7 +1321,25 @@
         body.sidebar-open .sidebar-backdrop { display:block; }
         .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
       }
-</style>
+
+      /* ───── Cosmetic parity utilities ───── */
+      .overflow-text { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+      [data-tooltip] { position:relative; }
+      [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
+        content: attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+        background:var(--popover, #1f2937); color:var(--popover-foreground, #fff);
+        padding:4px 8px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
+        pointer-events:none; z-index:60; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        animation:tooltip-in 0.15s ease-out;
+      }
+      @keyframes tooltip-in { from { opacity:0; transform:translateX(-50%) translateY(2px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+      .sheet-overlay, .dialog-overlay { transition: opacity 0.2s ease; }
+      .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+      .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
+
+    </style>
   </head>
   <body>
     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -1450,7 +1468,7 @@
                 class="sidebar-user-logout"
                 data-comment="order-detail-sidebar-user-logout"
                 id="sidebar-user-logout"
-                title="Log out"
+                data-tooltip="Log out"
                 type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="m16 17 5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -2288,12 +2306,12 @@
                       ? `<span class="sidebar-nav-link-badge" data-comment="order-detail-sidebar-nav-link-${slug}-badges">
                           ${
                             s.reviewBadges.not_pricing_reviewed > 0
-                              ? `<span class="sidebar-badge amber" data-comment="order-detail-sidebar-nav-link-${slug}-badge-pricing" title="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
+                              ? `<span class="sidebar-badge amber" data-comment="order-detail-sidebar-nav-link-${slug}-badge-pricing" data-tooltip="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
                               : ""
                           }
                           ${
                             s.reviewBadges.not_shop_reviewed > 0
-                              ? `<span class="sidebar-badge blue" data-comment="order-detail-sidebar-nav-link-${slug}-badge-shop" title="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
+                              ? `<span class="sidebar-badge blue" data-comment="order-detail-sidebar-nav-link-${slug}-badge-shop" data-tooltip="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
                               : ""
                           }
                         </span>`
@@ -2862,7 +2880,7 @@
                   ${ICONS.fileText}
                   View Estimate
                 </a>` : ""}
-              <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-footer-action-print" data-component="button" onclick="window.print()">
+              <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-footer-action-print" data-component="button" onclick="renderPrintable(); window.print();">
                 ${ICONS.printer}
                 Print PDF
               </button>
@@ -3202,7 +3220,7 @@
       if (!document.getElementById("toast-animation-style")) {
         const s = document.createElement("style");
         s.id = "toast-animation-style";
-        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}";
         document.head.appendChild(s);
       }
     </script>
@@ -3210,6 +3228,186 @@
       document.getElementById("mobile-menu-btn") && document.getElementById("mobile-menu-btn").addEventListener("click", function(){ document.body.classList.toggle("sidebar-open"); });
       document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
       document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
+    </script>
+
+    <style>
+      .printable { display: none; }
+      @media print {
+        @page { size: letter; margin: 0.6in; }
+        html, body { background: #fff !important; color: #000 !important; }
+        body > *:not(.printable) { display: none !important; }
+        .printable { display: block !important; }
+        .dialog-overlay, .sheet, .drawer, .dialog { display: none !important; }
+      }
+      .printable {
+        font-family: "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        font-size: 12pt;
+        color: #000;
+        line-height: 1.4;
+      }
+      .printable * { box-sizing: border-box; }
+      .pr-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; }
+      .pr-brand { font-size: 14pt; font-weight: 700; letter-spacing: 0.5px; }
+      .pr-company { font-size: 9pt; color: #333; line-height: 1.35; margin-top: 4px; }
+      .pr-title { font-size: 22pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-align: right; }
+      .pr-subtitle { font-size: 10pt; color: #333; text-align: right; margin-top: 2px; }
+      .pr-meta-row { display: flex; justify-content: space-between; background: #f4f4f4; padding: 6px 10px; border: 1px solid #ccc; font-size: 10pt; margin-bottom: 10px; }
+      .pr-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+      .pr-col { border: 1px solid #ccc; padding: 8px; }
+      .pr-col h4 { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.8px; color: #555; margin: 0 0 4px; }
+      .pr-col .pr-name { font-weight: 700; font-size: 11pt; }
+      .pr-col .pr-line { font-size: 10pt; }
+      .pr-row { display: flex; justify-content: space-between; font-size: 10pt; padding: 1px 0; border-bottom: 1px dotted #ccc; }
+      .pr-row:last-child { border-bottom: none; }
+      .pr-row b { color: #555; font-weight: 600; }
+      .pr-section { margin-bottom: 12px; page-break-inside: avoid; }
+      .pr-section h3 { font-size: 11pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #000; padding-bottom: 3px; margin: 0 0 6px; }
+      .pr-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; font-size: 10pt; }
+      .pr-grid2 b { color: #555; font-weight: 600; }
+      .pr-table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+      .pr-table th { background: #eee; text-align: left; padding: 5px 6px; border: 1px solid #999; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.4px; }
+      .pr-table td { padding: 4px 6px; border: 1px solid #ccc; vertical-align: top; }
+      .pr-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+      .pr-table .ctr { text-align: center; }
+      .pr-summary { width: 260px; margin-left: auto; margin-top: 8px; font-size: 10pt; }
+      .pr-summary .pr-row { padding: 3px 0; }
+      .pr-summary .pr-total { border-top: 2px solid #000; padding-top: 5px; margin-top: 3px; font-weight: 700; font-size: 11pt; }
+      .pr-status { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+      .pr-status-step { border: 1px solid #ccc; padding: 6px; font-size: 9pt; text-align: center; }
+      .pr-status-step.done { background: #f0f0f0; font-weight: 700; }
+      .pr-status-step .pr-step-label { display: block; }
+      .pr-status-step .pr-step-date { font-size: 8pt; color: #555; }
+      .pr-footer { margin-top: 16px; padding-top: 6px; border-top: 1px solid #ccc; text-align: center; font-size: 8pt; color: #555; }
+    </style>
+
+    <div id="printable-order" class="printable" data-comment="order-detail-printable">
+      <div id="printable-order-body" data-comment="order-detail-printable-body"></div>
+    </div>
+
+    <script>
+      function renderPrintable() {
+        const o = getActiveOrder();
+        if (!o) return;
+        const so = o.sales_order || {};
+        const customer = so.customer || {};
+        const billing = (customer.addresses || []).find(a => a.type === "billing") || null;
+        const billLines = billing ? [billing.street, [billing.city, billing.state, billing.zip_code].filter(Boolean).join(", "), billing.country].filter(Boolean) : [];
+        const shipLines = [o.ship_address, [o.ship_city, o.ship_state, o.ship_zip].filter(Boolean).join(", "), o.ship_country].filter(Boolean);
+        const details = o.details || [];
+        const subtotal = Number(o.subtotal ?? 0);
+        const total = Number(o.total ?? 0);
+        const tax = total - subtotal;
+        const payment = Number(so.payment ?? 0);
+        const balance = total - payment;
+        const status = so.status ?? o.status;
+        const sIdx = (typeof statusIdx === "function") ? statusIdx(status) : 0;
+
+        const steps = [
+          { label: "Order Created", date: formatDate(o.crea_date), done: true },
+          { label: "Down Payment", date: payment > 0 ? formatDate(so.payment_date) : "", done: payment > 0 || sIdx >= 2 },
+          { label: "Customer Signature", date: "", done: sIdx >= 3 },
+          { label: "Pricing Review", date: sIdx >= 4 ? formatDate(o.crea_date) : "", done: sIdx >= 4 },
+          { label: "Shop Review", date: sIdx >= 5 ? formatDate(o.crea_date) : "", done: sIdx >= 5 },
+        ];
+
+        const escFn = (typeof esc === "function") ? esc : (v => String(v ?? ""));
+        const money = (typeof formatCurrency === "function") ? formatCurrency : (v => "$" + Number(v||0).toFixed(2));
+
+        const html = `
+          <div class="pr-header">
+            <div>
+              <div class="pr-brand">LAPP STRUCTURES</div>
+              <div class="pr-company">220 Jalyn Drive<br>New Holland, PA 17557<br>717-354-7433</div>
+            </div>
+            <div>
+              <div class="pr-title">Sales Order</div>
+              <div class="pr-subtitle">${escFn(formatDate(o.crea_date))}</div>
+            </div>
+          </div>
+          <div class="pr-meta-row">
+            <span>Invoice #: <b>${escFn(o.invoice || "")}</b></span>
+            <span>Status: <b>${escFn((typeof STATUS_LABELS !== "undefined" && STATUS_LABELS[status]) || status || "—")}</b></span>
+          </div>
+          <div class="pr-cols">
+            <div class="pr-col">
+              <h4>Bill To</h4>
+              <div class="pr-name">${escFn(o.customer || "—")}</div>
+              ${billLines.map(l => `<div class="pr-line">${escFn(l)}</div>`).join("")}
+              ${customer.email ? `<div class="pr-line">${escFn(customer.email)}</div>` : ""}
+              ${customer.primary_phone ? `<div class="pr-line">${escFn(formatPhone(customer.primary_phone))}</div>` : ""}
+            </div>
+            <div class="pr-col">
+              <h4>Ship To</h4>
+              <div class="pr-name">${escFn(o.customer || "—")}</div>
+              ${shipLines.map(l => `<div class="pr-line">${escFn(l)}</div>`).join("")}
+              ${o.ship_type ? `<div class="pr-line"><b>Method:</b> ${escFn(o.ship_type)}</div>` : ""}
+            </div>
+            <div class="pr-col">
+              <h4>Details</h4>
+              ${o.po_no ? `<div class="pr-row"><b>PO #</b><span>${escFn(o.po_no)}</span></div>` : ""}
+              ${so.lead_time ? `<div class="pr-row"><b>Lead Time</b><span>${escFn(so.lead_time)}</span></div>` : ""}
+              ${o.dp_estprod ? `<div class="pr-row"><b>Est. Delivery</b><span>${escFn(formatDate(o.dp_estprod))}</span></div>` : ""}
+              ${o.category ? `<div class="pr-row"><b>Category</b><span>${escFn(o.category)}</span></div>` : ""}
+              ${o.dimension ? `<div class="pr-row"><b>Dimension</b><span>${escFn(o.dimension)}</span></div>` : ""}
+            </div>
+          </div>
+          ${o.descr ? `
+            <div class="pr-section">
+              <h3>Product</h3>
+              <div style="font-size:10pt">${escFn(o.descr)}</div>
+            </div>` : ""}
+          <div class="pr-section">
+            <h3>Line Items</h3>
+            <table class="pr-table">
+              <thead>
+                <tr>
+                  <th class="ctr" style="width:38px">Qty</th>
+                  <th style="width:140px">Item</th>
+                  <th>Description</th>
+                  <th class="num" style="width:80px">Rate</th>
+                  <th class="num" style="width:90px">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${details.length ? details.map(d => `
+                  <tr>
+                    <td class="ctr">${escFn(d.quan)}</td>
+                    <td>${escFn(d.inven || "")}</td>
+                    <td>${escFn(d.descr || "")}</td>
+                    <td class="num">${money(d.price)}</td>
+                    <td class="num">${money(d.so_amount)}</td>
+                  </tr>`).join("") : `<tr><td colspan="5" class="ctr">No line items</td></tr>`}
+              </tbody>
+            </table>
+            <div class="pr-summary">
+              <div class="pr-row"><span>Subtotal</span><span class="num">${money(subtotal)}</span></div>
+              <div class="pr-row"><span>Sales Tax</span><span class="num">${money(tax)}</span></div>
+              <div class="pr-row pr-total"><span>Total</span><span class="num">${money(total)}</span></div>
+              <div class="pr-row"><span>Payments</span><span class="num">${money(payment)}</span></div>
+              <div class="pr-row" style="font-weight:700"><span>Balance Due</span><span class="num">${money(balance)}</span></div>
+            </div>
+          </div>
+          <div class="pr-section">
+            <h3>Order Status</h3>
+            <div class="pr-status">
+              ${steps.map(st => `
+                <div class="pr-status-step ${st.done ? "done" : ""}">
+                  <span class="pr-step-label">${escFn(st.label)}</span>
+                  <span class="pr-step-date">${escFn(st.date || (st.done ? "✓" : "—"))}</span>
+                </div>`).join("")}
+            </div>
+          </div>
+          ${(o.memo || so.special_mgf_instructions || so.loading_instructions) ? `
+            <div class="pr-section">
+              <h3>Notes</h3>
+              ${so.loading_instructions ? `<div style="font-size:10pt"><b>Loading:</b> ${escFn(so.loading_instructions)}</div>` : ""}
+              ${so.special_mgf_instructions ? `<div style="font-size:10pt"><b>Mfg Instructions:</b> ${escFn(so.special_mgf_instructions)}</div>` : ""}
+              ${o.memo ? `<div style="font-size:10pt"><b>Memo:</b> ${escFn(o.memo)}</div>` : ""}
+            </div>` : ""}
+          <div class="pr-footer">Lapp Structures &middot; 220 Jalyn Drive, New Holland, PA 17557 &middot; 717-354-7433</div>
+        `;
+        document.getElementById("printable-order-body").innerHTML = html;
+      }
     </script>
 </body>
 </html>

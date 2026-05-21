@@ -1230,7 +1230,81 @@
         font-weight: 600;
       }
 
-      /* ───── Reveal ───── */
+      /* ───── Sheet rich layout ───── */
+      .sheet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      @media (max-width: 720px) { .sheet-grid { grid-template-columns: 1fr; } }
+      .sheet-section-title { font-size: 0.875rem; font-weight: 600; color: var(--muted-foreground); margin-bottom: 10px; }
+      .sheet-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 0.875rem; }
+      .sheet-row dt { color: var(--muted-foreground); margin: 0; }
+      .sheet-row dd { color: var(--foreground); text-align: right; margin: 0; }
+      .sheet-footer {
+        flex-shrink: 0;
+        border-top: 1px solid var(--border);
+        background: var(--background-secondary);
+        padding: 12px 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      .sheet-footer .footer-meta {
+        margin-right: auto;
+        font-size: 0.8125rem;
+        color: var(--muted-foreground);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .sheet-footer .footer-meta-title { font-weight: 600; color: var(--foreground); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+      .sheet-footer-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        height: 32px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--foreground);
+        cursor: pointer;
+        transition: background 0.12s ease;
+      }
+      .sheet-footer-btn:hover { background: var(--secondary); }
+      .sheet-footer-btn svg { width: 14px; height: 14px; }
+      .sheet-footer-btn.primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+      .sheet-footer-btn.primary:hover { opacity: 0.9; background: var(--primary); }
+      .sheet-footer-btn.success { background: #16a34a; color: white; border-color: #16a34a; }
+      .sheet-footer-btn.success:hover { opacity: 0.9; background: #16a34a; }
+      .sheet-footer-btn.danger { color: #dc2626; border-color: #fecaca; }
+      .sheet-footer-btn.danger:hover { background: #fef2f2; }
+
+      /* Timeline */
+      .timeline { list-style: none; padding: 0; margin: 0; }
+      .timeline-step { display: flex; gap: 10px; align-items: center; padding: 6px 0; position: relative; }
+      .timeline-step .step-icon {
+        width: 20px; height: 20px; border-radius: 999px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; border: 2px solid var(--border); background: var(--card);
+      }
+      .timeline-step.complete .step-icon { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+      .timeline-step.current .step-icon { border-color: var(--primary); }
+      .timeline-step.current .step-icon::after { content:''; width:8px; height:8px; border-radius:999px; background: var(--primary); }
+      .timeline-step .step-icon svg { width: 12px; height: 12px; }
+      .timeline-step .step-label { flex: 1; font-size: 0.875rem; font-weight: 500; }
+      .timeline-step.current .step-label { color: var(--primary); }
+      .timeline-step.locked .step-label { color: var(--muted-foreground); font-weight: 400; }
+      .timeline-step .step-date { font-size: 0.75rem; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+      .timeline-step .step-status { font-size: 0.75rem; font-weight: 500; color: var(--muted-foreground); width: 70px; text-align: right; }
+      .timeline-step.complete .step-status { color: var(--foreground); }
+      .timeline-step.current .step-status { color: var(--primary); }
+      .timeline-step::before {
+        content: ''; position: absolute; left: 9px; top: 22px; bottom: -8px; width: 2px; background: var(--border);
+      }
+      .timeline-step.complete::before { background: var(--primary); }
+      .timeline-step:last-child::before { display: none; }
+
       .reveal {
         opacity: 0;
         transform: translateY(12px);
@@ -1337,7 +1411,25 @@
         body.sidebar-open .sidebar-backdrop { display:block; }
         .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
       }
-</style>
+
+      /* ───── Cosmetic parity utilities ───── */
+      .overflow-text { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+      [data-tooltip] { position:relative; }
+      [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
+        content: attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+        background:var(--popover, #1f2937); color:var(--popover-foreground, #fff);
+        padding:4px 8px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
+        pointer-events:none; z-index:60; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        animation:tooltip-in 0.15s ease-out;
+      }
+      @keyframes tooltip-in { from { opacity:0; transform:translateX(-50%) translateY(2px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+      .sheet-overlay, .dialog-overlay { transition: opacity 0.2s ease; }
+      .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+      .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
+
+    </style>
   </head>
   <body>
     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -1512,7 +1604,7 @@
                 class="sidebar-user-logout"
                 data-comment="sidebar-user-logout"
                 id="sidebar-user-logout"
-                title="Log out"
+                data-tooltip="Log out"
                 type="button">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -1579,7 +1671,7 @@
                     data-comment="orders-search-clear"
                     id="orders-search-clear"
                     style="display: none"
-                    title="Clear search">
+                    data-tooltip="Clear search">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -1878,6 +1970,9 @@
         id="orders-drawer-body">
         <!-- rendered by JS -->
       </div>
+      <footer class="sheet-footer" data-comment="orders-drawer-footer" id="orders-drawer-footer">
+        <!-- rendered by JS -->
+      </footer>
     </aside>
 
     <script>
@@ -2461,12 +2556,12 @@
                       ? `<span class="sidebar-nav-link-badge" data-comment="sidebar-nav-link-${i}-badges">
                           ${
                             s.reviewBadges.not_pricing_reviewed > 0
-                              ? `<span class="sidebar-badge amber" data-comment="sidebar-nav-link-${i}-badge-pricing" title="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
+                              ? `<span class="sidebar-badge amber" data-comment="sidebar-nav-link-${i}-badge-pricing" data-tooltip="Awaiting pricing review">${s.reviewBadges.not_pricing_reviewed}</span>`
                               : ""
                           }
                           ${
                             s.reviewBadges.not_shop_reviewed > 0
-                              ? `<span class="sidebar-badge blue" data-comment="sidebar-nav-link-${i}-badge-shop" title="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
+                              ? `<span class="sidebar-badge blue" data-comment="sidebar-nav-link-${i}-badge-shop" data-tooltip="Awaiting shop review">${s.reviewBadges.not_shop_reviewed}</span>`
                               : ""
                           }
                         </span>`
@@ -2723,18 +2818,18 @@
             .map(
               (_, i) => `
               <tr data-comment="orders-skeleton-row-${i}">
-                <td><span class="skeleton" style="width:80%"></span></td>
-                <td><span class="skeleton" style="width:70%"></span></td>
-                <td><span class="skeleton" style="width:70%"></span></td>
-                <td><span class="skeleton" style="width:60%"></span></td>
-                <td><span class="skeleton" style="width:55%"></span></td>
-                <td><span class="skeleton" style="width:85%"></span></td>
-                <td class="hide-mobile"><span class="skeleton" style="width:60%"></span></td>
-                <td class="hide-mobile"><span class="skeleton" style="width:65%"></span></td>
-                <td><span class="skeleton" style="width:60%"></span></td>
-                <td><span class="skeleton" style="width:75%"></span></td>
-                <td class="hide-mobile"><span class="skeleton" style="width:50%"></span></td>
-                <td><span class="skeleton" style="width:80%"></span></td>
+                <td><span class="skeleton" style="width:12%"></span></td>
+                <td><span class="skeleton" style="width:18%"></span></td>
+                <td><span class="skeleton" style="width:28%"></span></td>
+                <td><span class="skeleton" style="width:12%"></span></td>
+                <td><span class="skeleton" style="width:18%"></span></td>
+                <td><span class="skeleton" style="width:16%"></span></td>
+                <td class="hide-mobile"><span class="skeleton" style="width:12%"></span></td>
+                <td class="hide-mobile"><span class="skeleton" style="width:18%"></span></td>
+                <td><span class="skeleton" style="width:18%"></span></td>
+                <td><span class="skeleton" style="width:30%"></span></td>
+                <td class="hide-mobile"><span class="skeleton" style="width:14%"></span></td>
+                <td><span class="skeleton" style="width:26%"></span></td>
               </tr>
             `,
             )
@@ -2809,18 +2904,52 @@
         document.getElementById("orders-pagination-last").disabled = atLast;
       }
 
+      /* ───── Order timeline helper ───── */
+      function renderOrderTimeline(o) {
+        const created = formatDate(o.crea_date);
+        const statusIdx = STATUS_ORDER.indexOf(o.status);
+        const dpDone = statusIdx >= STATUS_ORDER.indexOf("down_payment_received");
+        const priDone = statusIdx >= STATUS_ORDER.indexOf("pricing_reviewed");
+        const shopDone = statusIdx >= STATUS_ORDER.indexOf("shop_reviewed");
+        const items = [
+          { label: "Order created", state: "complete", date: created },
+          { label: "Down-payment", state: dpDone ? "complete" : "current", date: dpDone ? created : null },
+          { label: "Customer Signature", state: "locked", date: null },
+          { label: "Pricing Review", state: priDone ? "complete" : (dpDone ? "current" : "locked"), date: priDone ? created : null },
+          { label: "Shop Review", state: shopDone ? "complete" : (priDone ? "current" : "locked"), date: shopDone ? created : null },
+        ];
+        // promote first non-complete to current
+        let promoted = false;
+        items.forEach((it) => {
+          if (it.state === "complete") return;
+          if (!promoted && it.state !== "locked") { promoted = true; return; }
+          if (!promoted) { it.state = "current"; promoted = true; }
+        });
+        return `<ol class="timeline" data-comment="orders-drawer-timeline">${items.map((it, i) => `
+          <li class="timeline-step ${it.state}" data-comment="orders-drawer-timeline-step-${i}">
+            <span class="step-icon" data-comment="orders-drawer-timeline-icon-${i}">
+              ${it.state === "complete" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' : ""}
+            </span>
+            <span class="step-label">${esc(it.label)}</span>
+            <span class="step-date">${esc(it.date || "—")}</span>
+            <span class="step-status">${it.state === "complete" ? "Complete" : (it.state === "current" ? "Waiting" : "Waiting")}</span>
+          </li>`).join("")}</ol>`;
+      }
+
       /* ───── Render: drawer ───── */
       function renderDrawer() {
         const s = store.get();
         const overlay = document.getElementById("orders-drawer-overlay");
         const drawer = document.getElementById("orders-drawer");
         const body = document.getElementById("orders-drawer-body");
+        const footer = document.getElementById("orders-drawer-footer");
         const open = s.previewOrder !== null;
         overlay.classList.toggle("is-open", open);
         drawer.classList.toggle("is-open", open);
         drawer.setAttribute("aria-hidden", String(!open));
         if (!open) {
           body.innerHTML = "";
+          footer.innerHTML = "";
           return;
         }
         const o = s.previewOrder;
@@ -2831,89 +2960,103 @@
         const statusLabel = o.status ? STATUS_LABELS[o.status] : "—";
         const subtotal = o.total / 1.06;
         const tax = o.total - subtotal;
+        const shipAddr = getShippingAddress(o);
 
         body.innerHTML = `
-          <section class="drawer-card" data-comment="orders-drawer-summary-card" data-component="card">
-            <h3 class="drawer-card-title" data-comment="orders-drawer-summary-title">Order Summary</h3>
-            <div class="drawer-detail-grid" data-comment="orders-drawer-summary-grid">
-              <div class="drawer-detail-row" data-comment="orders-drawer-detail-invoice">
-                <span class="drawer-detail-label" data-comment="orders-drawer-detail-invoice-label">Invoice</span>
-                <span class="drawer-detail-value" data-comment="orders-drawer-detail-invoice-value">${esc(o.invoice)}</span>
+          <div class="sheet-grid" data-comment="orders-drawer-grid">
+            <section class="drawer-card" data-comment="orders-drawer-timeline-card" data-component="card">
+              <h3 class="drawer-card-title" data-comment="orders-drawer-timeline-title">Order Status</h3>
+              ${renderOrderTimeline(o)}
+            </section>
+            <section class="drawer-card" data-comment="orders-drawer-product-card" data-component="card">
+              <h3 class="drawer-card-title" data-comment="orders-drawer-product-title">Product details</h3>
+              <dl style="margin:0;">
+                <div class="sheet-row" data-comment="orders-drawer-product-category"><dt>Category</dt><dd>${esc(o.category || "—")}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-product-description"><dt>Description</dt><dd>${esc(o.dimension || "—")}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-product-memo"><dt>Memo (internal)</dt><dd>${esc(o.memo || "—")}</dd></div>
+              </dl>
+            </section>
+            <section class="drawer-card" data-comment="orders-drawer-main-card" data-component="card">
+              <h3 class="drawer-card-title" data-comment="orders-drawer-main-title">Main</h3>
+              <dl style="margin:0;">
+                <div class="sheet-row" data-comment="orders-drawer-main-customer"><dt>Customer</dt><dd>${esc(o.customer || "—")}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-main-location"><dt>Location (Class)</dt><dd>${esc(o.ship_city || "—")}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-main-po"><dt>P.O. Number</dt><dd>${esc(o.po_no || "—")}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-main-onsite"><dt>Build On Site</dt><dd>${o.built_onsite ? "Yes" : "No"}</dd></div>
+              </dl>
+            </section>
+            <section class="drawer-card" data-comment="orders-drawer-delivery-card" data-component="card">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <h3 class="drawer-card-title" data-comment="orders-drawer-delivery-title">Delivery</h3>
+                <button type="button" class="sheet-footer-btn" data-comment="orders-drawer-delivery-edit" data-component="button" id="orders-drawer-delivery-edit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                  Edit
+                </button>
               </div>
-              <div class="drawer-detail-row" data-comment="orders-drawer-detail-created">
-                <span class="drawer-detail-label" data-comment="orders-drawer-detail-created-label">Created</span>
-                <span class="drawer-detail-value" data-comment="orders-drawer-detail-created-value">${esc(formatDate(o.crea_date))}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="orders-drawer-detail-customer">
-                <span class="drawer-detail-label" data-comment="orders-drawer-detail-customer-label">Customer</span>
-                <span class="drawer-detail-value" data-comment="orders-drawer-detail-customer-value">${esc(o.customer || "—")}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="orders-drawer-detail-po">
-                <span class="drawer-detail-label" data-comment="orders-drawer-detail-po-label">PO #</span>
-                <span class="drawer-detail-value" data-comment="orders-drawer-detail-po-value">${esc(o.po_no || "—")}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="orders-drawer-detail-category">
-                <span class="drawer-detail-label" data-comment="orders-drawer-detail-category-label">Category</span>
-                <span class="drawer-detail-value" data-comment="orders-drawer-detail-category-value">${esc(o.category || "—")}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="orders-drawer-detail-dimension">
-                <span class="drawer-detail-label" data-comment="orders-drawer-detail-dimension-label">Dimension</span>
-                <span class="drawer-detail-value" data-comment="orders-drawer-detail-dimension-value">${esc(o.dimension || "—")}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="orders-drawer-detail-status">
-                <span class="drawer-detail-label" data-comment="orders-drawer-detail-status-label">Status</span>
-                <span class="drawer-detail-value" data-comment="orders-drawer-detail-status-value">
-                  ${
-                    statusColor
-                      ? `<span class="status-pill ${statusColor}" data-comment="orders-drawer-detail-status-pill" data-component="badge">${esc(statusLabel)}</span>`
-                      : esc(statusLabel)
-                  }
-                </span>
-              </div>
-              <div class="drawer-detail-row" data-comment="orders-drawer-detail-scheduled">
-                <span class="drawer-detail-label" data-comment="orders-drawer-detail-scheduled-label">Scheduled Delivery</span>
-                <span class="drawer-detail-value" data-comment="orders-drawer-detail-scheduled-value">${esc(formatDate(o.dp_estprod))}</span>
-              </div>
-              <div class="drawer-detail-row" data-comment="orders-drawer-detail-ship-type">
-                <span class="drawer-detail-label" data-comment="orders-drawer-detail-ship-type-label">Ship Type</span>
-                <span class="drawer-detail-value" data-comment="orders-drawer-detail-ship-type-value">${esc(o.ship_type || "—")}</span>
-              </div>
-            </div>
-          </section>
-
-          <section class="drawer-card" data-comment="orders-drawer-stage-card" data-component="card">
-            <h3 class="drawer-card-title" data-comment="orders-drawer-stage-title">Workflow Stage</h3>
-            ${renderStageBadge(o.status, "orders-drawer-stage-badge")}
-          </section>
-
-          <section class="drawer-card" data-comment="orders-drawer-shipping-card" data-component="card">
-            <h3 class="drawer-card-title" data-comment="orders-drawer-shipping-title">Shipping Address</h3>
-            <p class="drawer-detail-value" data-comment="orders-drawer-shipping-value">${esc(getShippingAddress(o))}</p>
-          </section>
-
-          <section class="drawer-card" data-comment="orders-drawer-memo-card" data-component="card">
-            <h3 class="drawer-card-title" data-comment="orders-drawer-memo-title">Memo</h3>
-            <p class="drawer-detail-value" data-comment="orders-drawer-memo-value">${esc(o.memo || "—")}</p>
-          </section>
-
-          <section class="drawer-card" data-comment="orders-drawer-totals-card" data-component="card">
-            <h3 class="drawer-card-title" data-comment="orders-drawer-totals-title">Totals</h3>
-            <div class="drawer-summary" data-comment="orders-drawer-totals-summary">
-              <div class="drawer-summary-row" data-comment="orders-drawer-totals-subtotal">
-                <span class="label" data-comment="orders-drawer-totals-subtotal-label">Subtotal</span>
-                <span class="value" data-comment="orders-drawer-totals-subtotal-value">${esc(formatCurrency(subtotal))}</span>
-              </div>
-              <div class="drawer-summary-row" data-comment="orders-drawer-totals-tax">
-                <span class="label" data-comment="orders-drawer-totals-tax-label">Tax (6%)</span>
-                <span class="value" data-comment="orders-drawer-totals-tax-value">${esc(formatCurrency(tax))}</span>
-              </div>
-              <div class="drawer-summary-row total" data-comment="orders-drawer-totals-grand">
-                <span class="label" data-comment="orders-drawer-totals-grand-label">Total</span>
-                <span class="value" data-comment="orders-drawer-totals-grand-value">${esc(formatCurrency(o.total))}</span>
-              </div>
-            </div>
-          </section>
+              <dl style="margin:0;">
+                <div class="sheet-row" data-comment="orders-drawer-delivery-lead"><dt>Order Lead Time</dt><dd>${esc(o.lead_time || "6-8 weeks")}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-delivery-date"><dt>Scheduled Delivery Date</dt><dd>${esc(formatDate(o.dp_estprod))}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-delivery-method"><dt>Delivery Method</dt><dd>${esc(o.delivery_method || o.ship_type || "—")}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-delivery-loading"><dt>Loading Instructions</dt><dd>${esc(o.loading_instructions || "Not Applicable")}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-delivery-special"><dt>Special Delivery Instructions</dt><dd>${esc(o.special_delivery_instructions || "—")}</dd></div>
+              </dl>
+            </section>
+            <section class="drawer-card" data-comment="orders-drawer-contact-card" data-component="card" style="grid-column: 1 / -1;">
+              <h3 class="drawer-card-title" data-comment="orders-drawer-contact-title">Contact &amp; Shipping Address</h3>
+              <dl style="margin:0;">
+                <div class="sheet-row" data-comment="orders-drawer-contact-phone"><dt>Primary Phone</dt><dd>${esc(o.primary_phone || "—")}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-contact-email"><dt>Email</dt><dd>${esc(o.email || "—")}</dd></div>
+                <div class="sheet-row" data-comment="orders-drawer-contact-ship"><dt>Shipping Address</dt><dd>${esc(shipAddr)}</dd></div>
+              </dl>
+            </section>
+          </div>
         `;
+
+        footer.innerHTML = `
+          <div class="footer-meta" data-comment="orders-drawer-footer-meta">
+            <span class="footer-meta-title" data-comment="orders-drawer-footer-meta-title">Order Details</span>
+            <span data-comment="orders-drawer-footer-meta-created">Created at: <strong>${esc(formatDate(o.crea_date))}</strong></span>
+            <div class="drawer-summary" data-comment="orders-drawer-footer-summary" style="margin-top:6px; min-width:220px;">
+              <div class="drawer-summary-row"><span class="label">Subtotal</span><span class="value">${esc(formatCurrency(subtotal))}</span></div>
+              <div class="drawer-summary-row"><span class="label">Tax</span><span class="value">${esc(formatCurrency(tax))}</span></div>
+              <div class="drawer-summary-row"><span class="label">Total</span><span class="value">${esc(formatCurrency(o.total))}</span></div>
+              <div class="drawer-summary-row total"><span class="label">Order Balance</span><span class="value">${esc(formatCurrency(o.total))}</span></div>
+            </div>
+          </div>
+          <button type="button" class="sheet-footer-btn" data-comment="orders-drawer-action-estimate" id="orders-drawer-action-estimate">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            View Estimate
+          </button>
+          <button type="button" class="sheet-footer-btn" data-comment="orders-drawer-action-print" id="orders-drawer-action-print">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print PDF
+          </button>
+          <button type="button" class="sheet-footer-btn" data-comment="orders-drawer-action-drawing" id="orders-drawer-action-drawing">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 0 0-2.82 0L8 7l9 9 1.59-1.59a2 2 0 0 0 0-2.82L17 10l4.37-4.37a2.12 2.12 0 1 0-3-3Z"/><path d="M9 8 5 4l-3 3 4 4"/><path d="M14.5 17.5 4.5 7.5"/></svg>
+            Add Drawing
+          </button>
+          <button type="button" class="sheet-footer-btn primary" data-comment="orders-drawer-action-payment" id="orders-drawer-action-payment">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            View Down Payment
+          </button>
+        `;
+
+        // Wire footer/edit handlers
+        const goToDetail = () => { window.location.href = `order-detail.html?id=${o.autoid}`; };
+        const editBtn = document.getElementById("orders-drawer-delivery-edit");
+        if (editBtn) editBtn.addEventListener("click", goToDetail);
+        const estBtn = document.getElementById("orders-drawer-action-estimate");
+        if (estBtn) estBtn.addEventListener("click", () => {
+          if (o.estimate_id) window.location.href = `estimate-detail.html?id=${o.estimate_id}`;
+          else window.showToast && window.showToast("No related estimate.", "error");
+        });
+        const printBtn = document.getElementById("orders-drawer-action-print");
+        if (printBtn) printBtn.addEventListener("click", () => { goToDetail(); });
+        const drawBtn = document.getElementById("orders-drawer-action-drawing");
+        if (drawBtn) drawBtn.addEventListener("click", () => { window.location.href = `editor-create-mockup.html?salesOrderId=${o.autoid}`; });
+        const payBtn = document.getElementById("orders-drawer-action-payment");
+        if (payBtn) payBtn.addEventListener("click", goToDetail);
+
       }
 
       /* ───── Role visibility ───── */
@@ -3131,7 +3274,7 @@
       if (!document.getElementById("toast-animation-style")) {
         const s = document.createElement("style");
         s.id = "toast-animation-style";
-        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}";
         document.head.appendChild(s);
       }
     </script>

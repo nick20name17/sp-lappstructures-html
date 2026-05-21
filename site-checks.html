@@ -712,7 +712,25 @@
         body.sidebar-open .sidebar-backdrop { display:block; }
         .app-main, .main-content, .app-shell, .layout-main { margin-left:0 !important; padding-top:60px; }
       }
-</style>
+
+      /* ───── Cosmetic parity utilities ───── */
+      .overflow-text { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+      [data-tooltip] { position:relative; }
+      [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
+        content: attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+        background:var(--popover, #1f2937); color:var(--popover-foreground, #fff);
+        padding:4px 8px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
+        pointer-events:none; z-index:60; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        animation:tooltip-in 0.15s ease-out;
+      }
+      @keyframes tooltip-in { from { opacity:0; transform:translateX(-50%) translateY(2px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+      .sheet-overlay, .dialog-overlay { transition: opacity 0.2s ease; }
+      .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+      .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
+
+    </style>
   </head>
   <body>
     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -873,7 +891,7 @@
                 class="sidebar-user-logout"
                 data-comment="site-checks-sidebar-user-logout"
                 id="sidebar-user-logout"
-                title="Log out"
+                data-tooltip="Log out"
                 type="button">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -1108,6 +1126,10 @@
       <div class="sheet-header" data-comment="site-checks-sheet-header">
         <h2 class="sheet-title" data-comment="site-checks-sheet-title" id="site-checks-sheet-title">Site Check</h2>
         <span data-comment="site-checks-sheet-badge-slot" id="site-checks-sheet-badge"></span>
+        <button type="button" class="sheet-open-full" id="site-checks-sheet-open-full" data-comment="site-checks-sheet-open-full" style="margin-left:auto; display:inline-flex; align-items:center; gap:6px; padding:6px 10px; height:32px; font-size:0.875rem; font-weight:500; color:var(--muted-foreground); border-radius:6px; background:transparent; border:0; cursor:pointer;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>
+          Open full page
+        </button>
         <button type="button" class="sheet-close" id="site-checks-sheet-close" data-comment="site-checks-sheet-close" aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -1754,6 +1776,8 @@
         const contactName = sc.contact ? `${sc.contact.first_name} ${sc.contact.last_name}`.trim() : "—";
         const assignedName = sc.assigned_to ? `${sc.assigned_to.first_name} ${sc.assigned_to.last_name}`.trim() : "—";
         const body = document.getElementById("site-checks-sheet-body");
+        const TYPE_LABELS = { site_check: "Site Check", follow_up: "Follow Up", phone_call: "Phone Call", other: "Other" };
+        const attachments = sc.files || sc.attachments || [];
         body.innerHTML = `
           <div class="sc-card" data-comment="site-checks-sheet-assignment-card">
             <div class="sc-card-title" data-comment="site-checks-sheet-assignment-title">Assignment</div>
@@ -1773,13 +1797,17 @@
                 <div class="sc-row-label">Assigned To</div>
                 <div class="sc-row-val">${escapeHtml(assignedName)}</div>
               </div>
+              <div data-comment="site-checks-sheet-row-type">
+                <div class="sc-row-label">Type</div>
+                <div class="sc-row-val">${escapeHtml(TYPE_LABELS[sc.type] || sc.type || "Site Check")}</div>
+              </div>
               ${sc.estimate_id ? `
                 <div data-comment="site-checks-sheet-row-estimate">
                   <div class="sc-row-label">Related Estimate</div>
                   <a class="sc-row-val link" href="estimate-detail.html?id=${sc.estimate_id}">${sc.estimate_id}</a>
                 </div>` : ""}
               <div data-comment="site-checks-sheet-row-start-date">
-                <div class="sc-row-label">Start Date</div>
+                <div class="sc-row-label">Scheduled Start</div>
                 <div class="sc-row-val">${formatDate(sc.start_date_time)}</div>
               </div>
               <div data-comment="site-checks-sheet-row-completed">
@@ -1788,6 +1816,21 @@
               </div>
             </div>
           </div>
+          ${sc.comments ? `
+            <div class="sc-card" data-comment="site-checks-sheet-comments-card">
+              <div class="sc-card-title">Comments</div>
+              <div class="sc-row-val" style="white-space:pre-wrap">${escapeHtml(sc.comments)}</div>
+            </div>` : ""}
+          ${attachments.length ? `
+            <div class="sc-card" data-comment="site-checks-sheet-attachments-card">
+              <div class="sc-card-title">Attachments</div>
+              <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap:8px;">
+                ${attachments.map((a, i) => `
+                  <a href="${escapeHtml(a.url || a.src || "#")}" target="_blank" data-comment="site-checks-sheet-attachment-${i}" style="display:block; border:1px solid var(--border); border-radius:8px; overflow:hidden; aspect-ratio:1; background:var(--muted);">
+                    ${a.url || a.src ? `<img src="${escapeHtml(a.url || a.src)}" alt="${escapeHtml(a.name || "")}" style="width:100%; height:100%; object-fit:cover;" />` : `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:0.75rem; color:var(--muted-foreground);">${escapeHtml(a.name || "file")}</div>`}
+                  </a>`).join("")}
+              </div>
+            </div>` : ""}
           ${sc.results_of_site_check ? `
             <div class="sc-card" data-comment="site-checks-sheet-results-card">
               <div class="sc-card-title">Results of Site Check</div>
@@ -1911,6 +1954,10 @@
 
       // ───── Drawer handlers ─────
       document.getElementById("site-checks-sheet-close").addEventListener("click", () => store.set({ drawerId: null }));
+      document.getElementById("site-checks-sheet-open-full").addEventListener("click", () => {
+        const id = store.get().drawerId;
+        if (id) window.location.href = `site-check-detail.html?id=${id}`;
+      });
       document.getElementById("site-checks-sheet-overlay").addEventListener("click", () => store.set({ drawerId: null }));
       document.getElementById("site-checks-sheet-footer").addEventListener("click", (e) => {
         const btn = e.target.closest("[data-drawer-action]");
@@ -1979,7 +2026,7 @@
       if (!document.getElementById("toast-animation-style")) {
         const s = document.createElement("style");
         s.id = "toast-animation-style";
-        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+        s.textContent = "@keyframes toast-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}";
         document.head.appendChild(s);
       }
     </script>
