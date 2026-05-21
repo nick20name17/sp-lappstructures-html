@@ -1635,6 +1635,11 @@
           if (sc) store.set({ dialog: { type: "delete", siteCheck: sc } });
           return;
         }
+        // Row click → navigate to detail
+        const row = e.target.closest("tr.clickable[data-site-check-id]");
+        if (row) {
+          window.location.href = `site-check-detail.html?id=${row.dataset.siteCheckId}`;
+        }
       });
 
       // ───── Dialog ─────
@@ -1644,6 +1649,15 @@
       document.getElementById("site-checks-delete-confirm").addEventListener("click", () => {
         const cur = store.get().dialog;
         if (cur.type === "delete") deleteSiteCheck(cur.siteCheck.id);
+      });
+      // Esc + backdrop close
+      document.getElementById("site-checks-delete-overlay").addEventListener("click", (e) => {
+        if (e.target.id === "site-checks-delete-overlay") store.set({ dialog: { type: "closed" } });
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && store.get().dialog.type === "delete") {
+          store.set({ dialog: { type: "closed" } });
+        }
       });
 
       function escapeHtml(s) {

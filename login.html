@@ -539,14 +539,12 @@
       });
 
       // ── Actions
+      // Mock: any valid email + non-empty password succeeds and lands on the dashboard.
       function loginApi({ email, password }) {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
-            if (email === "demo@lapp.com" && password === "password") {
-              resolve({ ok: true });
-            } else {
-              reject(new Error("Invalid email or password. Please try again."));
-            }
+            if (email && password) resolve({ ok: true });
+            else reject(new Error("Invalid email or password. Please try again."));
           }, 700);
         });
       }
@@ -659,12 +657,10 @@
           setSubmitting(true);
           try {
             await loginApi({ email, password });
-            // Mock: in real platform would redirect by role
             setServerError(null);
-            setSubmitting(false);
-            // Visual success — short delay then "redirect"
             const btnText = document.getElementById("submit-text");
             btnText.textContent = "Success — redirecting…";
+            setTimeout(() => { window.location.href = "home.html"; }, 400);
           } catch (err) {
             setServerError(err.message);
             setSubmitting(false);
