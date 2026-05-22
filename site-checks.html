@@ -482,6 +482,12 @@
         100% { background-position: -200% 0; }
       }
 
+      /* ───── State card (empty/error) ───── */
+      .state-card { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px; text-align:center; gap:12px; min-height:280px; }
+      .state-card svg { width:48px; height:48px; color:var(--muted-foreground); }
+      .state-title { font-size:1.125rem; font-weight:600; color:var(--foreground); }
+      .state-desc { font-size:0.875rem; color:var(--muted-foreground); }
+
       /* Site check badges (mirror SiteCheckStatusBadge) */
       .sc-badge {
         display: inline-flex;
@@ -1628,6 +1634,18 @@
         const body = document.getElementById("site-checks-table-body");
         const colCount = 8;
 
+        if (window.__SIMULATE_LOAD_ERROR || s.siteChecksError) {
+          body.innerHTML = `<tr data-comment="site-checks-error-row"><td colspan="${colCount}" data-comment="site-checks-error-cell">
+            <div class="state-card" data-comment="site-checks-error-state">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <div class="state-title" data-comment="site-checks-error-title">Failed to load. Please refresh.</div>
+              <button type="button" class="btn btn-primary btn-sm" data-comment="site-checks-error-retry" data-component="button" onclick="window.__SIMULATE_LOAD_ERROR=false;store.set({siteChecksError:false});">Retry</button>
+            </div>
+          </td></tr>`;
+          renderPagination(0);
+          return;
+        }
+
         if (s.siteChecksLoading) {
           // skeleton widths spec: ["w-1/4","w-1/3","w-1/4","w-1/2","w-1/3",""]
           body.innerHTML = Array.from({ length: 5 }).map((_, r) => `
@@ -1645,12 +1663,6 @@
           renderPagination(0);
           return;
         }
-        if (s.siteChecksError) {
-          body.innerHTML = `<tr><td class="error-cell" data-comment="site-checks-table-error" colspan="${colCount}">Failed to load site checks. Please refresh.</td></tr>`;
-          renderPagination(0);
-          return;
-        }
-
         const filtered = applyFilters(s.siteChecks, s.listSearchTerm);
         const sorted = applySort(filtered, s.sort);
         const totalPages = Math.max(1, Math.ceil(sorted.length / s.pageSize));
@@ -1658,7 +1670,14 @@
         const rows = paginate(sorted, safePage, s.pageSize);
 
         if (rows.length === 0) {
-          body.innerHTML = `<tr><td class="empty-cell" data-comment="site-checks-table-empty" colspan="${colCount}">No site checks yet.</td></tr>`;
+          body.innerHTML = `<tr data-comment="site-checks-empty-row"><td colspan="${colCount}" data-comment="site-checks-empty-cell">
+            <div class="state-card" data-comment="site-checks-empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <div class="state-title" data-comment="site-checks-empty-title">No site checks found</div>
+              <div class="state-desc" data-comment="site-checks-empty-desc">Try adjusting your search or filters.</div>
+              <button type="button" class="btn btn-outline btn-sm" data-comment="site-checks-empty-clear" data-component="button" onclick="store.set({ listSearchInput:'', listSearchTerm:'', sort:{key:'start_date_time',dir:'desc'}, page:1 })">Clear filters</button>
+            </div>
+          </td></tr>`;
           renderPagination(totalPages);
           return;
         }
@@ -1873,7 +1892,7 @@
       renderDrawer();
       initSelects();
 
-      setTimeout(() => store.set({ siteChecksLoading: false }), 250);
+      setTimeout(() => store.set({ siteChecksLoading: false }), 600);
 
       // ───── Handlers: sidebar ─────
       document.getElementById("sidebar-collapse-btn").addEventListener("click", () => {

@@ -1130,6 +1130,40 @@
           files: [] },
       ];
 
+      /* ───── Synthesize missing estimates so every list row opens ───── */
+      (function extendEstimates() {
+        const template = SEED_ESTIMATES[0];
+        const extras = [
+          { id: 10029, name: "12x20 Lofted Barn",   status: "draft",    order_date: "2025-05-14", customer_id: 6, total: 7320.00,  total_tax: 439.2,  sales_rep: "Michael Davis",   memo: "Site has slope." },
+          { id: 10030, name: "10x14 Run-in Shed",   status: "pending",  order_date: "2025-05-15", customer_id: 7, total: 4180.00,  total_tax: 250.8,  sales_rep: "Sophia Martinez", memo: "Delivery on Friday." },
+          { id: 10031, name: "16x24 Cabin",         status: "accepted", order_date: "2025-05-02", customer_id: 8, total: 15890.00, total_tax: 953.4,  sales_rep: "Lucas White",     memo: "Final inspection done." },
+          { id: 10032, name: "8x12 Vinyl Shed",     status: "draft",    order_date: "2025-05-18", customer_id: 1, total: 2640.00,  total_tax: 158.4,  sales_rep: "Michael Davis",   memo: "" },
+          { id: 10033, name: "12x16 Greenhouse",    status: "pending",  order_date: "2025-05-19", customer_id: 2, total: 6420.00,  total_tax: 385.2,  sales_rep: "William Anderson",memo: "Crew arriving Mon." },
+          { id: 10034, name: "12x24 Storage Combo", status: "accepted", order_date: "2025-04-28", customer_id: 3, total: 9870.00,  total_tax: 592.2,  sales_rep: "Sophia Martinez", memo: "Build in queue." },
+          { id: 10035, name: "10x12 Chicken Coop",  status: "draft",    order_date: "2025-05-20", customer_id: 4, total: 1980.00,  total_tax: 118.8,  sales_rep: "Michael Davis",   memo: "Confirm gate width." },
+          { id: 10036, name: "14x20 A-Frame",       status: "expired",  order_date: "2025-02-12", customer_id: 5, total: 7890.00,  total_tax: 473.4,  sales_rep: "Lucas White",     memo: "Past expiration date." },
+        ];
+        extras.forEach((x) => {
+          const base = JSON.parse(JSON.stringify(template));
+          base.id = x.id;
+          base.name = x.name;
+          base.status = x.status;
+          base.order_date = x.order_date;
+          base.customer_id = x.customer_id;
+          base.customer = SEED_CUSTOMERS[(x.customer_id - 1) % SEED_CUSTOMERS.length];
+          base.total = x.total;
+          base.total_tax = x.total_tax;
+          base.sales_rep_name = x.sales_rep;
+          base.memo = x.memo;
+          base.activity = null;
+          base.order = null;
+          base.po_number = "";
+          base.details = [{ quantity: 1, inven: x.name.split(" ")[0], description: x.name, price: +(x.total - x.total_tax).toFixed(2), tax_group: "Taxable" }];
+          base.files = [];
+          SEED_ESTIMATES.push(base);
+        });
+      })();
+
       // ───── Form template (mirrors ESTIMATE_FORM_TEMPLATE — view portion) ─────
       const DETAIL_TEMPLATE = [
         {

@@ -2242,6 +2242,44 @@
           { invoice: "SO-1014", customer: "William Lee", category: "Garages", dimension: "20x24", total: 16800.00, status: "awaiting_signature", po_no: null },
           { invoice: "SO-1015", customer: "Isabella Lopez", category: "Sheds", dimension: "10x14", total: 6450.00, status: "pricing_review", po_no: "PO-77127" },
         ];
+        const reviewExtras = [
+          { invoice: "INV-1001", customer: "Riverbend Construction LLC", category: "Lofted Barns", dimension: "12x16", total: 12450.0, status: "down_payment_received", po_no: "PO-RV001" },
+          { invoice: "INV-1002", customer: "Hillcrest Farms",             category: "Storage Sheds",dimension: "10x12", total: 8975.5,  status: "pricing_reviewed",       po_no: "PO-RV002" },
+          { invoice: "INV-1003", customer: "Karen Whitmore",              category: "Garages",      dimension: "16x32", total: 24300.0, status: "down_payment_received",  po_no: "PO-RV003" },
+          { invoice: "INV-1004", customer: "Maple & Pine Properties",     category: "Cabins",       dimension: "12x20", total: 6280.75, status: "pricing_reviewed",       po_no: "PO-RV004" },
+          { invoice: "INV-1005", customer: "Bryan Holloway",              category: "Workshops",    dimension: "14x28", total: 14820.0, status: "down_payment_received",  po_no: "PO-RV005" },
+          { invoice: "INV-1006", customer: "Stillwater Retreats",         category: "Cabins",       dimension: "16x32", total: 32150.0, status: "pricing_reviewed",       po_no: "PO-RV006" },
+          { invoice: "INV-1007", customer: "Greenleaf Homestead",         category: "Storage Sheds",dimension: "10x14", total: 4895.0,  status: "down_payment_received",  po_no: "PO-RV007" },
+          { invoice: "INV-1008", customer: "Northbrook Builders",         category: "Garages",      dimension: "20x24", total: 18640.0, status: "shop_reviewed",          po_no: "PO-RV008" },
+          { invoice: "INV-1009", customer: "Sundown Properties",          category: "Cabins",       dimension: "14x24", total: 21300.0, status: "down_payment_received",  po_no: "PO-RV009" },
+          { invoice: "INV-1010", customer: "Linda Park Holdings",         category: "Lofted Barns", dimension: "12x20", total: 9820.0,  status: "pricing_reviewed",       po_no: "PO-RV010" },
+          { invoice: "INV-1011", customer: "Apex Outdoor Co",             category: "Workshops",    dimension: "16x20", total: 16450.0, status: "down_payment_received",  po_no: "PO-RV011" },
+          { invoice: "INV-1012", customer: "Hollow Creek Estates",        category: "Cabins",       dimension: "12x16", total: 11875.0, status: "shop_reviewed",          po_no: "PO-RV012" },
+        ];
+        reviewExtras.forEach((x, j) => {
+          const base = JSON.parse(JSON.stringify(template));
+          base.autoid = "AO-" + (1001 + j);
+          base.invoice = x.invoice;
+          base.customer = x.customer;
+          base.customer_id = 100 + j;
+          base.category = x.category;
+          base.dimension = x.dimension;
+          base.descr = `${x.dimension} ${x.category.toLowerCase()} build.`;
+          base.memo = base.descr;
+          base.total = x.total;
+          base.subtotal = +(x.total / 1.06).toFixed(2);
+          base.status = x.status;
+          base.po_no = x.po_no;
+          if (base.sales_order) {
+            base.sales_order.id = 100 + j;
+            base.sales_order.memo = base.descr;
+            base.sales_order.category = { name: x.category };
+            base.sales_order.customer.email = (x.customer.split(" ")[0] || "user").toLowerCase() + "@example.com";
+          }
+          base.details = [{ quan: 1, inven: `${x.category.slice(0,4).toUpperCase()}-${x.dimension}`, descr: base.descr, price: base.subtotal, so_amount: base.subtotal, tax_group: "Taxable" }];
+          SEED_ORDERS.push(base);
+        });
+
         extras.forEach((x, i) => {
           const base = JSON.parse(JSON.stringify(template));
           base.autoid = "ORD-" + (1007 + i);

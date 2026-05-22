@@ -1866,6 +1866,40 @@
         },
       ];
 
+      /* ───── Synthesize missing customers so every list row opens ───── */
+      (function extendCustomers() {
+        const template = SEED_CUSTOMERS[0];
+        const extras = [
+          { id: 9,  first_name: "Sophia",    last_name: "Martinez", email: "sophia.m@example.com",                primary_phone: "7175550109", company: "",                position: "",                  ebms: "",           location: "Lancaster, PA",  tags: [],                                                       sales_rep: "Marcus Yu",  street: "66 N Queen St",     city: "Lancaster",  state: "PA", zip: "17603" },
+          { id: 10, first_name: "Daniel",    last_name: "Anderson", email: "dan.anderson@andersonbuilders.example",primary_phone: "6105550110", company: "Anderson Builders",position: "Owner",            ebms: "EBMS-1010",   location: "Reading, PA",    tags: [{ id: 4, name: "Builder", hex_color: "#ea580c" }],       sales_rep: "Marcus Yu",  street: "914 Lancaster Ave", city: "Reading",    state: "PA", zip: "19601" },
+          { id: 11, first_name: "Isabella",  last_name: "Taylor",   email: "isabella.taylor@example.com",          primary_phone: "7175550111", company: "Taylor Architects",position: "Principal",        ebms: "EBMS-1011",   location: "York, PA",       tags: [{ id: 1, name: "VIP",     hex_color: "#7c3aed" }],       sales_rep: "Tom Bradley",street: "48 W Market St",    city: "York",       state: "PA", zip: "17404" },
+          { id: 12, first_name: "Ethan",     last_name: "Thomas",   email: "ethan.thomas@example.com",             primary_phone: "7175550112", company: "Thomas Roofing",   position: "Foreman",          ebms: "EBMS-1012",   location: "Harrisburg, PA", tags: [{ id: 3, name: "Repeat",  hex_color: "#16a34a" }],       sales_rep: "Linda Park", street: "215 Front St",      city: "Harrisburg", state: "PA", zip: "17103" },
+          { id: 13, first_name: "Mia",       last_name: "Jackson",  email: "mia.jackson@example.com",              primary_phone: "6105550113", company: "",                position: "",                  ebms: "",           location: "Allentown, PA",  tags: [],                                                       sales_rep: "Marcus Yu",  street: "802 Tilghman St",   city: "Allentown",  state: "PA", zip: "18103" },
+          { id: 14, first_name: "Alexander", last_name: "White",    email: "alex.white@whitewaresupply.example",   primary_phone: "6105550114", company: "Whiteware Supply", position: "Account Manager",  ebms: "EBMS-1014",   location: "Bethlehem, PA",  tags: [{ id: 2, name: "Dealer",  hex_color: "#2563eb" }],       sales_rep: "Tom Bradley",street: "120 Stefko Blvd",   city: "Bethlehem",  state: "PA", zip: "18020" },
+          { id: 15, first_name: "Charlotte", last_name: "Harris",   email: "charlotte.harris@harrishomes.example", primary_phone: "7175550115", company: "Harris Homes",    position: "Owner",             ebms: "EBMS-1015",   location: "Lebanon, PA",    tags: [{ id: 4, name: "Builder", hex_color: "#ea580c" }],       sales_rep: "Linda Park", street: "315 N 8th St",      city: "Lebanon",    state: "PA", zip: "17046" },
+        ];
+        extras.forEach((x) => {
+          const base = JSON.parse(JSON.stringify(template));
+          base.id = x.id;
+          base.first_name = x.first_name;
+          base.last_name = x.last_name;
+          base.email = x.email;
+          base.primary_phone = x.primary_phone;
+          base.secondary_phone = null;
+          base.website_url = null;
+          base.location = x.location;
+          base.ebms_id = x.ebms;
+          base.company = x.company;
+          base.position = x.position;
+          base.note = null;
+          base.tags = x.tags;
+          base.sales_rep = x.sales_rep;
+          base.billing = { street: x.street, city: x.city, state: x.state, zip_code: x.zip };
+          base.shipping = { street: x.street, city: x.city, state: x.state, zip_code: x.zip };
+          SEED_CUSTOMERS.push(base);
+        });
+      })();
+
       /* ───── Seed orders + estimates per customer ───── */
       const SEED_ORDERS = [
         { autoid: "ORD-1001", invoice: "SO-1001", crea_date: "2025-04-22", customer: "Anna Lee", customer_id: 1, dp_estprod: "2025-05-15", category: "Sheds", ship_type: "Local Delivery", total: 8420.5, status: "shop_reviewed" },
@@ -1880,12 +1914,12 @@
       ];
 
       const SEED_ESTIMATES = [
-        { id: 5012, name: "EST-5012", crea_date: "2025-04-10", customer_id: 1, status: "Approved", total: 8420.5 },
-        { id: 5018, name: "EST-5018", crea_date: "2025-04-15", customer_id: 2, status: "Approved", total: 18750.0 },
-        { id: 5023, name: "EST-5023", crea_date: "2025-04-20", customer_id: 3, status: "Approved", total: 14990.0 },
-        { id: 5024, name: "EST-5024", crea_date: "2025-04-22", customer_id: 1, status: "Pending", total: 3200.0 },
-        { id: 5031, name: "EST-5031", crea_date: "2025-04-28", customer_id: 5, status: "Approved", total: 28640.0 },
-        { id: 5039, name: "EST-5039", crea_date: "2025-05-01", customer_id: 6, status: "Pending", total: 7320.0 },
+        { id: 10024, name: "EST-10024", crea_date: "2025-04-10", customer_id: 1, status: "Approved", total: 8420.5 },
+        { id: 10025, name: "EST-10025", crea_date: "2025-04-15", customer_id: 2, status: "Approved", total: 18750.0 },
+        { id: 10026, name: "EST-10026", crea_date: "2025-04-20", customer_id: 3, status: "Approved", total: 14990.0 },
+        { id: 10032, name: "EST-10032", crea_date: "2025-04-22", customer_id: 1, status: "Pending", total: 3200.0 },
+        { id: 10028, name: "EST-10028", crea_date: "2025-04-28", customer_id: 5, status: "Approved", total: 28640.0 },
+        { id: 10029, name: "EST-10029", crea_date: "2025-05-01", customer_id: 6, status: "Pending", total: 7320.0 },
       ];
 
       /* ───── Format helpers ───── */

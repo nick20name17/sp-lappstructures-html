@@ -2118,7 +2118,7 @@
           const showApprovePricing = !pricingApproved;
           const showApproveShop = pricingApproved && !shopApproved;
           footerEl.innerHTML = `
-            <a class="drawer-open-full" href="order-detail.html?id=${o.id}" data-comment="reviews-drawer-footer-open-full" style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; height:32px; font-size:0.8125rem; border-radius:6px; border:1px solid var(--border); background:var(--card); color:var(--foreground); text-decoration:none;">
+            <a class="drawer-open-full" href="order-detail.html?id=${o.invoice}" data-comment="reviews-drawer-footer-open-full" style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; height:32px; font-size:0.8125rem; border-radius:6px; border:1px solid var(--border); background:var(--card); color:var(--foreground); text-decoration:none;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>
               Open full page
             </a>
@@ -2219,7 +2219,10 @@
       });
       document.getElementById("reviews-drawer-open-full").addEventListener("click", () => {
         const s = store.get();
-        if (s.previewOrderId != null) window.location.href = `order-detail.html?id=${s.previewOrderId}`;
+        if (s.previewOrderId != null) {
+          const o = s.orders.find((x) => x.id === s.previewOrderId);
+          if (o) window.location.href = `order-detail.html?id=${o.invoice}`;
+        }
       });
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && store.get().previewOrderId !== null) {

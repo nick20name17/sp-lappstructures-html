@@ -997,6 +997,41 @@
       .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
       .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
 
+      /* Address card hover (clickable) */
+      .address-block[data-clickable="true"] { cursor: pointer; border-radius:8px; padding:8px; margin:-8px; transition: background 0.15s ease; }
+      .address-block[data-clickable="true"]:hover { background: var(--accent, #f3f4f6); }
+
+      /* Generic dialog shell (used by address/customer/site-check dialogs) */
+      .ec-dialog-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:200; }
+      .ec-dialog-overlay.is-open { display:flex; }
+      .ec-dialog { background:var(--card,#fff); border-radius:12px; padding:24px; max-width:520px; width:calc(100% - 32px); box-shadow:0 20px 50px -10px rgba(0,0,0,0.25); max-height:calc(100vh - 32px); overflow-y:auto; }
+      .ec-dialog.is-wide { max-width:640px; }
+      .ec-dialog-title { margin:0 0 4px; font-size:18px; font-weight:600; color:var(--foreground,#0f172a); }
+      .ec-dialog-desc { margin:0 0 16px; color:var(--muted-foreground,#6b7280); font-size:14px; }
+      .ec-dialog-body { display:flex; flex-direction:column; gap:12px; }
+      .ec-dialog-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+      .ec-dialog-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+      .ec-field { display:flex; flex-direction:column; gap:4px; }
+      .ec-field label { font-size:13px; font-weight:500; color:var(--foreground,#0f172a); }
+      .ec-field input, .ec-field select { width:100%; padding:8px 10px; border:1px solid var(--border,#e5e7eb); border-radius:6px; font-size:14px; background:var(--background,#fff); color:var(--foreground,#0f172a); }
+      .ec-dialog-footer { display:flex; justify-content:flex-end; gap:8px; margin-top:20px; }
+
+      /* Item search dropdown */
+      .item-search-wrap { position:relative; }
+      .item-search-dropdown {
+        position:absolute; top:100%; left:0; right:0; z-index:80;
+        margin-top:2px; background:var(--card,#fff);
+        border:1px solid var(--border,#e5e7eb); border-radius:6px;
+        max-height:220px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.12);
+        display:none;
+      }
+      .item-search-dropdown.is-open { display:block; }
+      .item-search-item { padding:6px 10px; cursor:pointer; font-size:13px; display:flex; justify-content:space-between; gap:8px; }
+      .item-search-item:hover, .item-search-item.is-active { background:var(--accent,#f3f4f6); }
+      .item-search-item-code { font-weight:500; color:var(--foreground,#0f172a); }
+      .item-search-item-name { color:var(--muted-foreground,#6b7280); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .item-search-empty { padding:8px 10px; font-size:13px; color:var(--muted-foreground,#6b7280); }
+
     </style>
   </head>
   <body>
@@ -1456,6 +1491,131 @@
       </div>
     </div>
 
+    <!-- Address edit dialog (billing or shipping) -->
+    <div class="ec-dialog-overlay" data-comment="estimates-create-address-dialog-overlay" id="estimates-create-address-dialog-overlay">
+      <div class="ec-dialog" role="dialog" aria-modal="true" data-comment="estimates-create-address-dialog">
+        <h3 class="ec-dialog-title" data-comment="estimates-create-address-dialog-title" id="estimates-create-address-dialog-title">Edit Address</h3>
+        <p class="ec-dialog-desc" data-comment="estimates-create-address-dialog-desc">Updates this estimate only.</p>
+        <div class="ec-dialog-body" data-comment="estimates-create-address-dialog-body">
+          <div class="ec-field" data-comment="estimates-create-address-dialog-street-field">
+            <label for="estimates-create-address-dialog-street">Street</label>
+            <input id="estimates-create-address-dialog-street" data-comment="estimates-create-address-dialog-street" type="text" />
+          </div>
+          <div class="ec-dialog-grid-2">
+            <div class="ec-field" data-comment="estimates-create-address-dialog-city-field">
+              <label for="estimates-create-address-dialog-city">City</label>
+              <input id="estimates-create-address-dialog-city" data-comment="estimates-create-address-dialog-city" type="text" />
+            </div>
+            <div class="ec-field" data-comment="estimates-create-address-dialog-state-field">
+              <label for="estimates-create-address-dialog-state">State</label>
+              <input id="estimates-create-address-dialog-state" data-comment="estimates-create-address-dialog-state" type="text" maxlength="2" />
+            </div>
+          </div>
+          <div class="ec-dialog-grid-2">
+            <div class="ec-field" data-comment="estimates-create-address-dialog-zip-field">
+              <label for="estimates-create-address-dialog-zip">Postal Code</label>
+              <input id="estimates-create-address-dialog-zip" data-comment="estimates-create-address-dialog-zip" type="text" />
+            </div>
+            <div class="ec-field" data-comment="estimates-create-address-dialog-country-field">
+              <label for="estimates-create-address-dialog-country">Country</label>
+              <input id="estimates-create-address-dialog-country" data-comment="estimates-create-address-dialog-country" type="text" />
+            </div>
+          </div>
+          <input type="hidden" id="estimates-create-address-dialog-type" data-comment="estimates-create-address-dialog-type" value="billing" />
+        </div>
+        <div class="ec-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-address-dialog-cancel" id="estimates-create-address-dialog-cancel">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" data-comment="estimates-create-address-dialog-save" id="estimates-create-address-dialog-save">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New customer dialog -->
+    <div class="ec-dialog-overlay" data-comment="estimates-create-new-customer-overlay" id="estimates-create-new-customer-overlay">
+      <div class="ec-dialog is-wide" role="dialog" aria-modal="true" data-comment="estimates-create-new-customer-dialog">
+        <h3 class="ec-dialog-title" data-comment="estimates-create-new-customer-title">Add new customer</h3>
+        <p class="ec-dialog-desc" data-comment="estimates-create-new-customer-desc">Create a customer and select them for this estimate.</p>
+        <div class="ec-dialog-body" data-comment="estimates-create-new-customer-body">
+          <div class="ec-dialog-grid-2">
+            <div class="ec-field" data-comment="estimates-create-new-customer-first-name-field">
+              <label for="estimates-create-new-customer-first-name">First name *</label>
+              <input id="estimates-create-new-customer-first-name" data-comment="estimates-create-new-customer-first-name" type="text" />
+            </div>
+            <div class="ec-field" data-comment="estimates-create-new-customer-last-name-field">
+              <label for="estimates-create-new-customer-last-name">Last name *</label>
+              <input id="estimates-create-new-customer-last-name" data-comment="estimates-create-new-customer-last-name" type="text" />
+            </div>
+          </div>
+          <div class="ec-dialog-grid-2">
+            <div class="ec-field" data-comment="estimates-create-new-customer-email-field">
+              <label for="estimates-create-new-customer-email">Email *</label>
+              <input id="estimates-create-new-customer-email" data-comment="estimates-create-new-customer-email" type="email" />
+            </div>
+            <div class="ec-field" data-comment="estimates-create-new-customer-phone-field">
+              <label for="estimates-create-new-customer-phone">Primary phone *</label>
+              <input id="estimates-create-new-customer-phone" data-comment="estimates-create-new-customer-phone" type="tel" />
+            </div>
+          </div>
+
+          <p class="ec-dialog-desc" style="margin:8px 0 0; font-weight:600; color:var(--foreground,#0f172a);" data-comment="estimates-create-new-customer-billing-heading">Billing address</p>
+          <div class="ec-field" data-comment="estimates-create-new-customer-billing-street-field">
+            <label for="estimates-create-new-customer-billing-street">Street</label>
+            <input id="estimates-create-new-customer-billing-street" data-comment="estimates-create-new-customer-billing-street" type="text" />
+          </div>
+          <div class="ec-dialog-grid-3">
+            <div class="ec-field" data-comment="estimates-create-new-customer-billing-city-field">
+              <label for="estimates-create-new-customer-billing-city">City</label>
+              <input id="estimates-create-new-customer-billing-city" data-comment="estimates-create-new-customer-billing-city" type="text" />
+            </div>
+            <div class="ec-field" data-comment="estimates-create-new-customer-billing-state-field">
+              <label for="estimates-create-new-customer-billing-state">State</label>
+              <input id="estimates-create-new-customer-billing-state" data-comment="estimates-create-new-customer-billing-state" type="text" maxlength="2" />
+            </div>
+            <div class="ec-field" data-comment="estimates-create-new-customer-billing-zip-field">
+              <label for="estimates-create-new-customer-billing-zip">Postal code</label>
+              <input id="estimates-create-new-customer-billing-zip" data-comment="estimates-create-new-customer-billing-zip" type="text" />
+            </div>
+          </div>
+
+          <p class="ec-dialog-desc" style="margin:8px 0 0; font-weight:600; color:var(--foreground,#0f172a);" data-comment="estimates-create-new-customer-shipping-heading">Shipping address</p>
+          <div class="ec-field" data-comment="estimates-create-new-customer-shipping-street-field">
+            <label for="estimates-create-new-customer-shipping-street">Street</label>
+            <input id="estimates-create-new-customer-shipping-street" data-comment="estimates-create-new-customer-shipping-street" type="text" />
+          </div>
+          <div class="ec-dialog-grid-3">
+            <div class="ec-field" data-comment="estimates-create-new-customer-shipping-city-field">
+              <label for="estimates-create-new-customer-shipping-city">City</label>
+              <input id="estimates-create-new-customer-shipping-city" data-comment="estimates-create-new-customer-shipping-city" type="text" />
+            </div>
+            <div class="ec-field" data-comment="estimates-create-new-customer-shipping-state-field">
+              <label for="estimates-create-new-customer-shipping-state">State</label>
+              <input id="estimates-create-new-customer-shipping-state" data-comment="estimates-create-new-customer-shipping-state" type="text" maxlength="2" />
+            </div>
+            <div class="ec-field" data-comment="estimates-create-new-customer-shipping-zip-field">
+              <label for="estimates-create-new-customer-shipping-zip">Postal code</label>
+              <input id="estimates-create-new-customer-shipping-zip" data-comment="estimates-create-new-customer-shipping-zip" type="text" />
+            </div>
+          </div>
+        </div>
+        <div class="ec-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-new-customer-cancel" id="estimates-create-new-customer-cancel">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" data-comment="estimates-create-new-customer-save" id="estimates-create-new-customer-save">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Site-check proposal dialog -->
+    <div class="ec-dialog-overlay" data-comment="estimates-create-site-check-overlay" id="estimates-create-site-check-overlay">
+      <div class="ec-dialog" role="dialog" aria-modal="true" data-comment="estimates-create-site-check-dialog">
+        <h3 class="ec-dialog-title" data-comment="estimates-create-site-check-title">Create a site check?</h3>
+        <p class="ec-dialog-desc" data-comment="estimates-create-site-check-desc">Schedule a site visit to verify measurements before production.</p>
+        <div class="ec-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-site-check-no" id="estimates-create-site-check-no">Not now</button>
+          <button type="button" class="btn btn-primary btn-sm" data-comment="estimates-create-site-check-yes" id="estimates-create-site-check-yes">Create site check</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast" data-comment="estimates-create-toast" id="estimates-create-toast" role="status" aria-live="polite"></div>
 
     <script>
@@ -1688,20 +1848,30 @@
         { id: 5, name: "Rush",      hex_color: "#dc2626" },
         { id: 6, name: "New",       hex_color: "#0891b2" },
       ];
-      const SEED_TAX_RATES = { PA: 6.0, NY: 4.0, NJ: 6.625, OH: 5.75 };
-      const SEED_ITEMS = [
-        { code: "SH-8x10",     description: "8x10 Garden Shed",                            rate: 1840.00 },
-        { code: "SH-10x12",    description: "10x12 Single Slope Shed",                     rate: 2680.00 },
-        { code: "SH-12x16-SS", description: "12x16 Single Slope Shed — base build",        rate: 4200.00 },
-        { code: "MB-10x12",    description: "10x12 Mini Barn — vinyl siding, charcoal roof", rate: 3210.00 },
-        { code: "GAR-14x24",   description: "14x24 Garage — onsite build",                 rate: 11200.00 },
-        { code: "GAR-20x30",   description: "20x30 Garage — custom build",                 rate: 22500.00 },
-        { code: "WIN-2x3",     description: "2x3 Window with screens",                     rate: 185.00 },
-        { code: "DOOR-36",     description: "36\" Steel walk-in door",                     rate: 380.00 },
-        { code: "GAR-DR-8x7",  description: "8x7 Overhead garage door",                    rate: 880.00 },
-        { code: "SHT-METAL",   description: "Standing seam metal roofing panels",          rate: 218.625 },
-        { code: "INSULATE",    description: "Wall + ceiling insulation package",           rate: 2150.00 },
+      /* Tax rate by billing state (decimal fractions). React-parity. */
+      const TAX_RATES_BY_STATE = { PA: 0.06, NY: 0.08, NJ: 0.0663, FL: 0.06 };
+      function getTaxRateForState(state) {
+        if (!state) return 0;
+        const key = String(state).trim().toUpperCase();
+        return TAX_RATES_BY_STATE[key] ?? 0;
+      }
+      /* Inventory catalog used by line-item type-ahead. React-parity. */
+      const INVENTORY = [
+        { code: "SHED-8X10",    name: "8x10 Standard Shed",              rate: 3580 },
+        { code: "SHED-8X12",    name: "8x12 Standard Shed",              rate: 4120 },
+        { code: "SHED-10X12",   name: "10x12 Standard Shed",             rate: 4890 },
+        { code: "SHED-10X16",   name: "10x16 Lofted Barn",               rate: 6450 },
+        { code: "SHED-12X16",   name: "12x16 Lofted Barn",               rate: 7280 },
+        { code: "SHED-12X20",   name: "12x20 Garden Shed",               rate: 8650 },
+        { code: "GAR-14X24",    name: "14x24 Single-Car Garage",         rate: 12400 },
+        { code: "GAR-20X30",    name: "20x30 Two-Car Garage",            rate: 22500 },
+        { code: "CABIN-12X24",  name: "12x24 Cabin Shell",               rate: 14800 },
+        { code: "WIN-2X3",      name: "2x3 Window w/ Screen",            rate: 185 },
+        { code: "DOOR-36",      name: '36" Steel Walk-in Door',          rate: 380 },
+        { code: "DOOR-GAR-8X7", name: "8x7 Overhead Garage Door",        rate: 880 },
       ];
+      /* legacy alias used elsewhere */
+      const SEED_ITEMS = INVENTORY.map(i => ({ code: i.code, description: i.name, rate: i.rate }));
 
       /* ───── URL param ───── */
       const urlParams = new URLSearchParams(window.location.search);
@@ -1754,6 +1924,8 @@
           memo: "",
           attachments: [],
           lineItems: [],
+          billingOverride: null,
+          shippingOverride: null,
         },
         customerPickerOpen: false,
         customerPickerSearch: "",
@@ -2029,8 +2201,8 @@
         document.getElementById("estimates-create-address-phone-primary-value").textContent = formatPhone(cust?.primary_phone) || "—";
         document.getElementById("estimates-create-address-phone-secondary-value").textContent = formatPhone(cust?.secondary_phone) || "—";
 
-        const billing  = getAddress(cust, "billing");
-        const shipping = getAddress(cust, "shipping");
+        const billing  = getEffectiveBilling();
+        const shipping = getEffectiveShipping();
         const billingBody  = document.getElementById("estimates-create-billing-address-body");
         const shippingBody = document.getElementById("estimates-create-shipping-address-body");
         const billLines  = formatAddressLines(billing);
@@ -2046,6 +2218,11 @@
 
         document.getElementById("estimates-create-billing-address-edit").disabled = !cust;
         document.getElementById("estimates-create-shipping-address-edit").disabled = !cust;
+        /* Make whole cards clickable when a customer is selected */
+        const billingCard  = document.querySelector('[data-comment="estimates-create-billing-address"]');
+        const shippingCard = document.querySelector('[data-comment="estimates-create-shipping-address"]');
+        if (billingCard)  billingCard.dataset.clickable  = cust ? "true" : "false";
+        if (shippingCard) shippingCard.dataset.clickable = cust ? "true" : "false";
       }
 
       /* ───── Line items table ───── */
@@ -2072,13 +2249,17 @@
                     value="${row.qty}" />
                 </td>
                 <td data-comment="estimates-create-line-item-${i}-item-cell">
-                  <input type="text" class="li-cell-input"
-                    data-comment="estimates-create-line-item-${i}-item"
-                    data-component="input"
-                    data-li-idx="${idx}" data-li-field="itemCode"
-                    list="estimates-create-items-datalist"
-                    placeholder="Search item..."
-                    value="${escapeHtml(row.itemCode)}" />
+                  <div class="item-search-wrap" data-comment="estimates-create-line-item-${i}-item-wrap" data-item-search-wrap="${idx}">
+                    <input type="text" class="li-cell-input"
+                      data-comment="estimates-create-line-item-${i}-item"
+                      data-component="input"
+                      data-li-idx="${idx}" data-li-field="itemCode"
+                      data-item-search-input="${idx}"
+                      autocomplete="off"
+                      placeholder="Search item..."
+                      value="${escapeHtml(row.itemCode)}" />
+                    <div class="item-search-dropdown" data-comment="estimates-create-line-item-${i}-item-dropdown" data-item-search-dropdown="${idx}"></div>
+                  </div>
                 </td>
                 <td data-comment="estimates-create-line-item-${i}-description-cell">
                   <textarea class="li-cell-textarea" rows="1"
@@ -2128,35 +2309,33 @@
           }).join("");
         }
 
-        /* datalist */
-        let dl = document.getElementById("estimates-create-items-datalist");
-        if (!dl) {
-          dl = document.createElement("datalist");
-          dl.id = "estimates-create-items-datalist";
-          document.body.appendChild(dl);
-        }
-        dl.innerHTML = SEED_ITEMS.map((it) => `<option value="${escapeHtml(it.code)}" label="${escapeHtml(it.description)}"></option>`).join("");
-
         initSelects(tbody);
         renderSummary();
       }
 
       /* ───── Summary ───── */
+      function getEffectiveBilling() {
+        const s = store.get();
+        if (s.draft.billingOverride) return s.draft.billingOverride;
+        return getAddress(getCustomer(s.draft.customer_id), "billing");
+      }
+      function getEffectiveShipping() {
+        const s = store.get();
+        if (s.draft.shippingOverride) return s.draft.shippingOverride;
+        return getAddress(getCustomer(s.draft.customer_id), "shipping");
+      }
       function getTaxRate() {
-        const cust = getCustomer(store.get().draft.customer_id);
-        const billing = getAddress(cust, "billing");
-        const state = billing?.state;
-        return SEED_TAX_RATES[state] || 0;
+        return getTaxRateForState(getEffectiveBilling()?.state);
       }
       function renderSummary() {
         const { draft } = store.get();
         const subtotal = draft.lineItems.reduce((sum, r) => sum + (Number(r.qty) || 0) * (Number(r.rate) || 0), 0);
         const taxable  = draft.lineItems.reduce((sum, r) => r.tax === "Tax" ? sum + (Number(r.qty) || 0) * (Number(r.rate) || 0) : sum, 0);
-        const rate     = getTaxRate();
-        const tax      = taxable * (rate / 100);
+        const rate     = getTaxRate(); /* decimal e.g. 0.06 */
+        const tax      = taxable * rate;
         const total    = subtotal + tax;
         document.getElementById("estimates-create-summary-subtotal-value").textContent = "$" + formatMoney(subtotal);
-        document.getElementById("estimates-create-summary-tax-rate").textContent = rate.toFixed(2);
+        document.getElementById("estimates-create-summary-tax-rate").textContent = (rate * 100).toFixed(2);
         document.getElementById("estimates-create-summary-tax-value").textContent = "$" + formatMoney(tax);
         document.getElementById("estimates-create-summary-total-value").textContent = "$" + formatMoney(total);
       }
@@ -2287,6 +2466,8 @@
             ...s.draft,
             customer_id: id,
             ebms_id: cust ? `${cust.first_name} ${cust.last_name}` : "",
+            billingOverride: null,
+            shippingOverride: null,
           },
           customerPickerOpen: false,
           customerPickerSearch: "",
@@ -2384,14 +2565,7 @@
         showToast(status === "draft" ? "Draft saved" : "Estimate saved");
         // Site-check proposal
         if (!draft.site_check) {
-          setTimeout(() => {
-            if (window.confirm("Create a site check for this estimate?")) {
-              window.location.href = "site-checks-create.html?estimateId=" + newEstId;
-              return;
-            } else {
-              window.location.href = "estimates.html";
-            }
-          }, 400);
+          setTimeout(() => showSiteCheckDialog(newEstId), 400);
         } else {
           setTimeout(() => { window.location.href = "estimates.html"; }, 700);
         }
@@ -2449,7 +2623,7 @@
         }
       });
       document.getElementById("estimates-create-customer-add-btn").addEventListener("click", () => {
-        showToast("New customer dialog stub");
+        openNewCustomerDialog();
       });
 
       /* Tag chips */
@@ -2592,13 +2766,189 @@
         window.location.href = target;
       });
 
-      /* Address edit stubs */
-      document.getElementById("estimates-create-billing-address-edit").addEventListener("click", () => {
-        showToast("Billing address dialog stub");
+      /* Address edit — open dialog on icon click OR clicking the card */
+      document.getElementById("estimates-create-billing-address-edit").addEventListener("click", (e) => {
+        e.stopPropagation();
+        openAddressDialog("billing");
       });
-      document.getElementById("estimates-create-shipping-address-edit").addEventListener("click", () => {
-        showToast("Shipping address dialog stub");
+      document.getElementById("estimates-create-shipping-address-edit").addEventListener("click", (e) => {
+        e.stopPropagation();
+        openAddressDialog("shipping");
       });
+      document.querySelector('[data-comment="estimates-create-billing-address"]').addEventListener("click", () => {
+        if (!store.get().draft.customer_id) return;
+        openAddressDialog("billing");
+      });
+      document.querySelector('[data-comment="estimates-create-shipping-address"]').addEventListener("click", () => {
+        if (!store.get().draft.customer_id) return;
+        openAddressDialog("shipping");
+      });
+
+      /* ───── Address dialog ───── */
+      function openAddressDialog(type) {
+        const current = type === "billing" ? getEffectiveBilling() : getEffectiveShipping();
+        document.getElementById("estimates-create-address-dialog-title").textContent =
+          type === "billing" ? "Edit Billing Address" : "Edit Shipping Address";
+        document.getElementById("estimates-create-address-dialog-type").value = type;
+        document.getElementById("estimates-create-address-dialog-street").value  = current?.street    || "";
+        document.getElementById("estimates-create-address-dialog-city").value    = current?.city      || "";
+        document.getElementById("estimates-create-address-dialog-state").value   = current?.state     || "";
+        document.getElementById("estimates-create-address-dialog-zip").value     = current?.zip_code  || "";
+        document.getElementById("estimates-create-address-dialog-country").value = current?.country   || "USA";
+        document.getElementById("estimates-create-address-dialog-overlay").classList.add("is-open");
+      }
+      function closeAddressDialog() {
+        document.getElementById("estimates-create-address-dialog-overlay").classList.remove("is-open");
+      }
+      document.getElementById("estimates-create-address-dialog-cancel").addEventListener("click", closeAddressDialog);
+      document.getElementById("estimates-create-address-dialog-overlay").addEventListener("click", (e) => {
+        if (e.target.id === "estimates-create-address-dialog-overlay") closeAddressDialog();
+      });
+      document.getElementById("estimates-create-address-dialog-save").addEventListener("click", () => {
+        const type = document.getElementById("estimates-create-address-dialog-type").value;
+        const next = {
+          type,
+          street:   document.getElementById("estimates-create-address-dialog-street").value.trim(),
+          city:     document.getElementById("estimates-create-address-dialog-city").value.trim(),
+          state:    document.getElementById("estimates-create-address-dialog-state").value.trim().toUpperCase(),
+          zip_code: document.getElementById("estimates-create-address-dialog-zip").value.trim(),
+          country:  document.getElementById("estimates-create-address-dialog-country").value.trim(),
+        };
+        store.set((s) => ({
+          draft: {
+            ...s.draft,
+            ...(type === "billing"  ? { billingOverride:  next } : {}),
+            ...(type === "shipping" ? { shippingOverride: next } : {}),
+          },
+        }));
+        closeAddressDialog();
+        showToast("Address updated");
+      });
+
+      /* ───── New customer dialog ───── */
+      const NEW_CUSTOMER_FIELDS = [
+        "first-name","last-name","email","phone",
+        "billing-street","billing-city","billing-state","billing-zip",
+        "shipping-street","shipping-city","shipping-state","shipping-zip",
+      ];
+      function openNewCustomerDialog() {
+        NEW_CUSTOMER_FIELDS.forEach((k) => {
+          const el = document.getElementById("estimates-create-new-customer-" + k);
+          if (el) el.value = "";
+        });
+        document.getElementById("estimates-create-new-customer-overlay").classList.add("is-open");
+      }
+      function closeNewCustomerDialog() {
+        document.getElementById("estimates-create-new-customer-overlay").classList.remove("is-open");
+      }
+      document.getElementById("estimates-create-new-customer-cancel").addEventListener("click", closeNewCustomerDialog);
+      document.getElementById("estimates-create-new-customer-overlay").addEventListener("click", (e) => {
+        if (e.target.id === "estimates-create-new-customer-overlay") closeNewCustomerDialog();
+      });
+      document.getElementById("estimates-create-new-customer-save").addEventListener("click", () => {
+        const get = (k) => document.getElementById("estimates-create-new-customer-" + k).value.trim();
+        const first_name = get("first-name");
+        const last_name  = get("last-name");
+        const email      = get("email");
+        const phone      = get("phone").replace(/\D/g, "");
+        if (!first_name || !last_name || !email || !phone) {
+          showToast("First name, last name, email, phone are required");
+          return;
+        }
+        const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!emailOk) { showToast("Invalid email"); return; }
+
+        const addresses = [];
+        const b = { street: get("billing-street"), city: get("billing-city"), state: get("billing-state").toUpperCase(), zip_code: get("billing-zip"), country: "USA" };
+        if (b.street || b.city || b.state || b.zip_code) addresses.push({ type: "billing", ...b });
+        const sh = { street: get("shipping-street"), city: get("shipping-city"), state: get("shipping-state").toUpperCase(), zip_code: get("shipping-zip"), country: "USA" };
+        if (sh.street || sh.city || sh.state || sh.zip_code) addresses.push({ type: "shipping", ...sh });
+
+        const newId = Math.max(0, ...store.get().customers.map((c) => c.id)) + 1;
+        const newCust = { id: newId, first_name, last_name, email, primary_phone: phone, addresses };
+
+        store.set((s) => ({ customers: [...s.customers, newCust] }));
+        selectCustomer(newId);
+        closeNewCustomerDialog();
+        showToast("Customer created");
+      });
+
+      /* ───── Item search dropdown (line items) ───── */
+      function renderItemSearchDropdown(idx, query) {
+        const dd = tbody.querySelector(`[data-item-search-dropdown="${idx}"]`);
+        if (!dd) return;
+        const q = String(query || "").trim().toLowerCase();
+        const matches = q
+          ? INVENTORY.filter((it) =>
+              it.code.toLowerCase().includes(q) || it.name.toLowerCase().includes(q))
+          : INVENTORY.slice(0, 8);
+        if (!matches.length) {
+          dd.innerHTML = `<div class="item-search-empty" data-comment="estimates-create-line-item-${idx + 1}-item-empty">No matches</div>`;
+        } else {
+          dd.innerHTML = matches.map((it) => `
+            <div class="item-search-item" data-item-pick="${escapeHtml(it.code)}" data-item-pick-idx="${idx}" data-comment="estimates-create-line-item-${idx + 1}-item-opt-${escapeHtml(it.code)}">
+              <span class="item-search-item-code">${escapeHtml(it.code)}</span>
+              <span class="item-search-item-name">${escapeHtml(it.name)}</span>
+              <span class="item-search-item-code">$${formatMoney(it.rate)}</span>
+            </div>`).join("");
+        }
+        dd.classList.add("is-open");
+      }
+      function closeAllItemSearchDropdowns() {
+        tbody.querySelectorAll(".item-search-dropdown.is-open").forEach((d) => d.classList.remove("is-open"));
+      }
+      tbody.addEventListener("focusin", (e) => {
+        const input = e.target.closest("[data-item-search-input]");
+        if (!input) return;
+        const idx = Number(input.dataset.itemSearchInput);
+        renderItemSearchDropdown(idx, input.value);
+      });
+      tbody.addEventListener("input", (e) => {
+        const input = e.target.closest("[data-item-search-input]");
+        if (!input) return;
+        const idx = Number(input.dataset.itemSearchInput);
+        renderItemSearchDropdown(idx, input.value);
+      });
+      tbody.addEventListener("mousedown", (e) => {
+        const pick = e.target.closest("[data-item-pick]");
+        if (!pick) return;
+        e.preventDefault();
+        const idx = Number(pick.dataset.itemPickIdx);
+        const code = pick.dataset.itemPick;
+        const item = INVENTORY.find((it) => it.code === code);
+        if (!item) return;
+        store.set((s) => ({
+          draft: {
+            ...s.draft,
+            lineItems: s.draft.lineItems.map((row, i) =>
+              i === idx ? { ...row, itemCode: item.code, description: item.name, rate: item.rate } : row),
+          },
+        }));
+        closeAllItemSearchDropdowns();
+      });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("[data-item-search-wrap]")) closeAllItemSearchDropdowns();
+      });
+
+      /* ───── Site-check proposal dialog ───── */
+      function showSiteCheckDialog(estimateId) {
+        const overlay = document.getElementById("estimates-create-site-check-overlay");
+        overlay.classList.add("is-open");
+        const yes = document.getElementById("estimates-create-site-check-yes");
+        const no  = document.getElementById("estimates-create-site-check-no");
+        function cleanup() {
+          overlay.classList.remove("is-open");
+          yes.removeEventListener("click", onYes);
+          no.removeEventListener("click", onNo);
+          overlay.removeEventListener("click", onBackdrop);
+        }
+        function onYes() { cleanup(); window.location.href = "site-checks-create.html?estimateId=" + estimateId; }
+        function onNo()  { cleanup(); window.location.href = "estimates.html"; }
+        function onBackdrop(e) { if (e.target === overlay) onNo(); }
+        yes.addEventListener("click", onYes);
+        no.addEventListener("click", onNo);
+        overlay.addEventListener("click", onBackdrop);
+      }
 
       /* ───── Date picker (shadcn-style) ───── */
       (function () {

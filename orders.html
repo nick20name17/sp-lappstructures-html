@@ -911,6 +911,12 @@
         100% { background-position: -200% 0; }
       }
 
+      /* ───── State card (empty/error) ───── */
+      .state-card { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px; text-align:center; gap:12px; min-height:280px; }
+      .state-card svg { width:48px; height:48px; color:var(--muted-foreground); }
+      .state-title { font-size:1.125rem; font-weight:600; color:var(--foreground); }
+      .state-desc { font-size:0.875rem; color:var(--muted-foreground); }
+
       /* ───── Stage badge (progress-bar-on-pill) ───── */
       .stage-badge {
         position: relative;
@@ -2813,6 +2819,17 @@
         const s = store.get();
         const tbody = document.getElementById("orders-table-body");
 
+        if (window.__SIMULATE_LOAD_ERROR) {
+          tbody.innerHTML = `<tr data-comment="orders-error-row"><td colspan="12" data-comment="orders-error-cell">
+            <div class="state-card" data-comment="orders-error-state">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <div class="state-title" data-comment="orders-error-title">Failed to load. Please refresh.</div>
+              <button type="button" class="btn btn-primary btn-sm" data-comment="orders-error-retry" data-component="button" onclick="window.__SIMULATE_LOAD_ERROR=false;renderRows();">Retry</button>
+            </div>
+          </td></tr>`;
+          return;
+        }
+
         if (s.isLoading) {
           tbody.innerHTML = Array.from({ length: 5 })
             .map(
@@ -2840,11 +2857,14 @@
         const { rows } = getPagedOrders();
 
         if (rows.length === 0) {
-          tbody.innerHTML = `
-            <tr data-comment="orders-empty-row">
-              <td colspan="12" class="col-empty" data-comment="orders-empty-cell">No orders found.</td>
-            </tr>
-          `;
+          tbody.innerHTML = `<tr data-comment="orders-empty-row"><td colspan="12" data-comment="orders-empty-cell">
+            <div class="state-card" data-comment="orders-empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <div class="state-title" data-comment="orders-empty-title">No orders found</div>
+              <div class="state-desc" data-comment="orders-empty-desc">Try adjusting your search or filters.</div>
+              <button type="button" class="btn btn-outline btn-sm" data-comment="orders-empty-clear" data-component="button" onclick="store.set({ searchInput:'', searchTerm:'', sort:{key:'invoice',dir:'desc'}, page:1 })">Clear filters</button>
+            </div>
+          </td></tr>`;
           return;
         }
 
@@ -3135,7 +3155,7 @@
       initSelects();
 
       /* ───── Initial loading simulation ───── */
-      setTimeout(() => store.set({ isLoading: false }), 300);
+      setTimeout(() => store.set({ isLoading: false }), 600);
 
       /* ───── Sidebar event handlers ───── */
       document

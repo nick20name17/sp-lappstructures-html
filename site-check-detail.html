@@ -942,6 +942,36 @@
           files: [ { id: 6, name: "level-ground.jpg" } ] },
       ];
 
+      /* ───── Synthesize missing site checks so every list row opens ───── */
+      (function extendSiteChecks() {
+        const template = SEED_SITE_CHECKS[0];
+        const extras = [
+          { id: 508, contact_id: 8, estimate_id: 10031, status: "pending",     type: "site_check", assigned: 0, start: "2025-05-25T15:00:00", done: null,                  results: "" },
+          { id: 509, contact_id: 1, estimate_id: 10032, status: "pending",     type: "site_check", assigned: 3, start: "2025-05-26T08:30:00", done: null,                  results: "" },
+          { id: 510, contact_id: 2, estimate_id: 10033, status: "in_progress", type: "site_check", assigned: 1, start: "2025-05-23T12:00:00", done: null,                  results: "" },
+          { id: 511, contact_id: 3, estimate_id: 10034, status: "completed",   type: "site_check", assigned: 0, start: "2025-05-12T09:00:00", done: "2025-05-12T11:00:00", results: "Level lot, easy access." },
+          { id: 512, contact_id: 4, estimate_id: 10035, status: "pending",     type: "site_check", assigned: 2, start: "2025-05-27T10:30:00", done: null,                  results: "" },
+          { id: 513, contact_id: 5, estimate_id: 10036, status: "cancelled",   type: "site_check", assigned: 3, start: "2025-04-30T11:00:00", done: null,                  results: "" },
+          { id: 514, contact_id: 6, estimate_id: null,  status: "pending",     type: "site_check", assigned: 0, start: "2025-05-28T14:00:00", done: null,                  results: "" },
+        ];
+        extras.forEach((x) => {
+          const base = JSON.parse(JSON.stringify(template));
+          base.id = x.id;
+          base.contact_id = x.contact_id;
+          base.contact = SEED_CUSTOMERS[(x.contact_id - 1) % SEED_CUSTOMERS.length];
+          base.estimate_id = x.estimate_id;
+          base.status = x.status;
+          base.type = x.type;
+          base.assigned_to = ASSIGNED_USERS[x.assigned];
+          base.start_date_time = x.start;
+          base.date_completed = x.done;
+          base.comments = "";
+          base.results_of_site_check = x.results;
+          base.files = [];
+          SEED_SITE_CHECKS.push(base);
+        });
+      })();
+
       // ───── App state ─────
       const params = new URLSearchParams(window.location.search);
       const idParam = Number(params.get("id"));
