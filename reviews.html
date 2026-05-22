@@ -641,6 +641,10 @@
         color: var(--destructive);
         font-size: 0.875rem;
       }
+      .state-card { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px; text-align:center; gap:12px; min-height:280px; }
+      .state-card svg { width:48px; height:48px; color:var(--muted-foreground); }
+      .state-title { font-size:1.125rem; font-weight:600; }
+      .state-desc { font-size:0.875rem; color:var(--muted-foreground); }
 
       /* ───── Pagination bar ───── */
       .pagination-bar {
@@ -1870,23 +1874,35 @@
         const s = store.get();
         const tbody = document.getElementById("reviews-table-body");
 
-        if (s.isLoading) {
-          tbody.innerHTML = renderSkeletonRows();
-          return;
-        }
-        if (s.isError) {
+        if (window.__SIMULATE_LOAD_ERROR || s.isError) {
           tbody.innerHTML = `
             <tr class="error-row" data-comment="reviews-error-row">
-              <td colspan="9" data-comment="reviews-error-cell">Failed to load orders. Please refresh.</td>
+              <td colspan="9" data-comment="reviews-error-cell">
+                <div class="state-card" data-comment="reviews-error-state">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <div class="state-title" data-comment="reviews-error-title">Failed to load. Please refresh.</div>
+                  <button type="button" class="btn btn-primary btn-sm" data-comment="reviews-error-retry" data-component="button" onclick="window.__SIMULATE_LOAD_ERROR=false;renderTableBody();">Retry</button>
+                </div>
+              </td>
             </tr>
           `;
+          return;
+        }
+        if (s.isLoading) {
+          tbody.innerHTML = renderSkeletonRows();
           return;
         }
         const pending = getPendingOrders(s);
         if (pending.length === 0) {
           tbody.innerHTML = `
             <tr class="empty-row" data-comment="reviews-empty-row">
-              <td colspan="9" data-comment="reviews-empty-cell">All caught up — no orders awaiting review.</td>
+              <td colspan="9" data-comment="reviews-empty-cell">
+                <div class="state-card" data-comment="reviews-empty-state">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <div class="state-title" data-comment="reviews-empty-title">No pending reviews</div>
+                  <div class="state-desc" data-comment="reviews-empty-desc">All caught up.</div>
+                </div>
+              </td>
             </tr>
           `;
           return;
