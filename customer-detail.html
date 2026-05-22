@@ -1130,7 +1130,7 @@
     </style>
   </head>
   <body>
-    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" data-comment="customer-detail-mobile-menu-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
     <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="app-shell" data-comment="customer-detail-app-shell">
       <div class="app-frame" data-comment="customer-detail-app-frame">
@@ -1308,7 +1308,7 @@
       </div>
       <div class="cd-drawer-body" data-comment="customer-detail-estimate-drawer-body" id="estimate-drawer-body"></div>
       <div class="cd-drawer-footer" data-comment="customer-detail-estimate-drawer-footer">
-        <button type="button" class="btn btn-outline btn-sm" data-drawer-close="estimate">Close</button>
+        <button type="button" class="btn btn-outline btn-sm" data-drawer-close="estimate" data-comment="customer-detail-estimate-drawer-footer-close">Close</button>
       </div>
     </aside>
 
@@ -1323,7 +1323,7 @@
       </div>
       <div class="cd-drawer-body" data-comment="customer-detail-order-drawer-body" id="order-drawer-body"></div>
       <div class="cd-drawer-footer" data-comment="customer-detail-order-drawer-footer">
-        <button type="button" class="btn btn-outline btn-sm" data-drawer-close="order">Close</button>
+        <button type="button" class="btn btn-outline btn-sm" data-drawer-close="order" data-comment="customer-detail-order-drawer-footer-close">Close</button>
       </div>
     </aside>
 
@@ -1331,12 +1331,12 @@
     <div class="cd-dialog-overlay" data-comment="customer-detail-approve-estimate-overlay" id="approve-estimate-overlay">
       <div class="cd-dialog" data-comment="customer-detail-approve-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
         <div>
-          <h2 class="cd-dialog-title">Approve estimate?</h2>
+          <h2 class="cd-dialog-title" data-comment="customer-detail-approve-estimate-title">Approve estimate?</h2>
           <p class="cd-dialog-desc" id="approve-estimate-desc">This will mark the estimate as approved.</p>
         </div>
         <div class="cd-dialog-footer">
-          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel">Cancel</button>
-          <button type="button" class="btn btn-primary btn-sm" data-estimate-confirm="approve">Approve</button>
+          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel" data-comment="customer-detail-approve-estimate-cancel">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" data-estimate-confirm="approve" data-comment="customer-detail-approve-estimate-confirm">Approve</button>
         </div>
       </div>
     </div>
@@ -1345,12 +1345,12 @@
     <div class="cd-dialog-overlay" data-comment="customer-detail-reject-estimate-overlay" id="reject-estimate-overlay">
       <div class="cd-dialog" data-comment="customer-detail-reject-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
         <div>
-          <h2 class="cd-dialog-title">Reject estimate?</h2>
+          <h2 class="cd-dialog-title" data-comment="customer-detail-reject-estimate-title">Reject estimate?</h2>
           <p class="cd-dialog-desc" id="reject-estimate-desc">This will mark the estimate as rejected.</p>
         </div>
         <div class="cd-dialog-footer">
-          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel">Cancel</button>
-          <button type="button" class="btn btn-destructive btn-sm" data-estimate-confirm="reject">Reject</button>
+          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel" data-comment="customer-detail-reject-estimate-cancel">Cancel</button>
+          <button type="button" class="btn btn-destructive btn-sm" data-estimate-confirm="reject" data-comment="customer-detail-reject-estimate-confirm">Reject</button>
         </div>
       </div>
     </div>
@@ -1359,12 +1359,12 @@
     <div class="cd-dialog-overlay" data-comment="customer-detail-delete-estimate-overlay" id="delete-estimate-overlay">
       <div class="cd-dialog" data-comment="customer-detail-delete-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
         <div>
-          <h2 class="cd-dialog-title">Delete estimate?</h2>
+          <h2 class="cd-dialog-title" data-comment="customer-detail-delete-estimate-title">Delete estimate?</h2>
           <p class="cd-dialog-desc" id="delete-estimate-desc">This action cannot be undone.</p>
         </div>
         <div class="cd-dialog-footer">
-          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel">Cancel</button>
-          <button type="button" class="btn btn-destructive btn-sm" data-estimate-confirm="delete">Delete</button>
+          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel" data-comment="customer-detail-delete-estimate-cancel">Cancel</button>
+          <button type="button" class="btn btn-destructive btn-sm" data-estimate-confirm="delete" data-comment="customer-detail-delete-estimate-confirm">Delete</button>
         </div>
       </div>
     </div>
@@ -1373,12 +1373,12 @@
     <div class="cd-dialog-overlay" data-comment="customer-detail-create-so-overlay" id="create-so-overlay">
       <div class="cd-dialog" data-comment="customer-detail-create-so-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
         <div>
-          <h2 class="cd-dialog-title">Create sales order?</h2>
+          <h2 class="cd-dialog-title" data-comment="customer-detail-create-so-title">Create sales order?</h2>
           <p class="cd-dialog-desc" id="create-so-desc">A new sales order will be created from this estimate.</p>
         </div>
         <div class="cd-dialog-footer">
-          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel">Cancel</button>
-          <button type="button" class="btn btn-primary btn-sm" data-estimate-confirm="createSO">Create</button>
+          <button type="button" class="btn btn-outline btn-sm" data-estimate-confirm="cancel" data-comment="customer-detail-create-so-cancel">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" data-estimate-confirm="createSO" data-comment="customer-detail-create-so-confirm">Create</button>
         </div>
       </div>
     </div>
@@ -2990,6 +2990,15 @@
         document.getElementById(id).addEventListener("click", (e) => {
           if (e.target === e.currentTarget) closeAllEstimateDialogs();
         });
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        if (document.getElementById("estimate-drawer-overlay").classList.contains("is-open")) return closeDrawer("estimate");
+        if (document.getElementById("order-drawer-overlay").classList.contains("is-open")) return closeDrawer("order");
+        const openDialog = ["approve-estimate-overlay","reject-estimate-overlay","delete-estimate-overlay","create-so-overlay"]
+          .find((id) => document.getElementById(id).classList.contains("is-open"));
+        if (openDialog) closeAllEstimateDialogs();
       });
     </script>
       <div id="global-toaster" aria-live="polite" style="position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;"></div>
