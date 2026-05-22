@@ -806,6 +806,21 @@
       .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
       .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
 
+    
+      /* Skeleton shimmer (global polish) */
+      .skeleton-bar, [class*="skeleton"] {
+        background: linear-gradient(90deg,
+          var(--muted, #e5e7eb) 0%,
+          color-mix(in oklch, var(--muted, #e5e7eb) 60%, white 40%) 50%,
+          var(--muted, #e5e7eb) 100%) !important;
+        background-size: 200% 100% !important;
+        animation: skeleton-shimmer 1.4s ease-in-out infinite !important;
+      }
+      @keyframes skeleton-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
     </style>
   </head>
   <body>
@@ -1273,7 +1288,7 @@
         data-comment="users-dialog"
         data-component="dialog"
         role="dialog"
-        aria-modal="true">
+        aria-modal="true" tabindex="-1">
         <div class="dialog-header" data-comment="users-dialog-header">
           <h2
             class="dialog-title"
@@ -1472,7 +1487,7 @@
         data-comment="users-delete-dialog"
         data-component="dialog"
         role="alertdialog"
-        aria-modal="true">
+        aria-modal="true" tabindex="-1">
         <div class="dialog-header" data-comment="users-delete-header">
           <div data-comment="users-delete-header-text">
             <h2 class="dialog-title" data-comment="users-delete-title">
@@ -1524,6 +1539,26 @@
             style="background: var(--destructive)">
             Delete
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── Discard changes dialog ───── -->
+    <div class="dialog-overlay" data-comment="users-discard-overlay" id="users-discard-overlay">
+      <div class="dialog" data-comment="users-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+        <div class="dialog-header" data-comment="users-discard-header">
+          <div data-comment="users-discard-header-text">
+            <h2 class="dialog-title" data-comment="users-discard-title">Discard changes?</h2>
+          </div>
+        </div>
+        <div data-comment="users-discard-body">
+          <p class="dialog-description" data-comment="users-discard-description" style="margin-top:8px">
+            You have unsaved changes. Are you sure you want to discard them?
+          </p>
+        </div>
+        <div class="dialog-footer" data-comment="users-discard-footer">
+          <button class="btn btn-outline" data-comment="users-discard-keep" data-component="button" type="button" id="users-discard-keep">Keep editing</button>
+          <button class="btn btn-primary" data-comment="users-discard-confirm" data-component="button" type="button" id="users-discard-confirm" style="background:var(--destructive)">Discard</button>
         </div>
       </div>
     </div>
@@ -1948,6 +1983,7 @@
 
       // ───── User CRUD actions ─────
       function addUser(data) {
+        if (typeof resetDirty === "function") resetDirty();
         store.set((s) => ({
           users: [...s.users, { id: Date.now(), ...data }],
           dialog: { type: "closed" },
@@ -1956,6 +1992,7 @@
         toast("User added");
       }
       function updateUser(id, data) {
+        if (typeof resetDirty === "function") resetDirty();
         store.set((s) => ({
           users: s.users.map((u) => (u.id === id ? { ...u, ...data } : u)),
           dialog: { type: "closed" },
@@ -2284,6 +2321,7 @@
         const user = store.get().users.find((u) => u.id === id);
         if (!user) return;
         if (btn.dataset.action === "edit") {
+          resetDirty();
           store.set({ dialog: { type: "edit", user }, formErrors: {} });
           loadLocations();
         } else if (btn.dataset.action === "delete") {
@@ -2293,11 +2331,49 @@
 
       // ───── Handlers: dialog ─────
       document.getElementById("users-add-btn").addEventListener("click", () => {
+        resetDirty();
         store.set({ dialog: { type: "create" }, formErrors: {} });
         loadLocations();
       });
+      // ───── Dirty-state tracking ─────
+      let _formDirty = false;
+      let _pendingDiscardAction = null;
+      function markDirty() { _formDirty = true; }
+      function resetDirty() { _formDirty = false; }
+      function openDiscardDialog(onConfirm) {
+        _pendingDiscardAction = onConfirm;
+        document.getElementById("users-discard-overlay").classList.add("is-open");
+      }
+      function closeDiscardDialog() {
+        _pendingDiscardAction = null;
+        document.getElementById("users-discard-overlay").classList.remove("is-open");
+      }
+      document.getElementById("users-discard-keep").addEventListener("click", closeDiscardDialog);
+      document.getElementById("users-discard-confirm").addEventListener("click", () => {
+        const fn = _pendingDiscardAction;
+        resetDirty();
+        closeDiscardDialog();
+        if (fn) fn();
+      });
+      document.getElementById("users-discard-overlay").addEventListener("click", (e) => {
+        if (e.target.id === "users-discard-overlay") closeDiscardDialog();
+      });
+      // Track input/change on dialog form fields
+      document.getElementById("users-form").addEventListener("input", markDirty);
+      document.getElementById("users-form").addEventListener("change", markDirty);
+
+      function attemptClose(action) {
+        const cur = store.get().dialog;
+        if ((cur.type === "create" || cur.type === "edit") && _formDirty) {
+          openDiscardDialog(action);
+        } else {
+          resetDirty();
+          action();
+        }
+      }
+
       document.getElementById("users-dialog-cancel").addEventListener("click", () => {
-        store.set({ dialog: { type: "closed" }, formErrors: {} });
+        attemptClose(() => store.set({ dialog: { type: "closed" }, formErrors: {} }));
       });
       document.getElementById("users-input-role").addEventListener("change", () => {
         const roleVal = document.getElementById("users-input-role").value;
@@ -2345,18 +2421,26 @@
 
       // ───── Handlers: dialog close (X, overlay, Esc) ─────
       function closeDialog() {
+        resetDirty();
         store.set({ dialog: { type: "closed" }, formErrors: {} });
       }
-      document.getElementById("users-dialog-close").addEventListener("click", closeDialog);
+      function closeFormDialog() {
+        attemptClose(() => store.set({ dialog: { type: "closed" }, formErrors: {} }));
+      }
+      document.getElementById("users-dialog-close").addEventListener("click", closeFormDialog);
       document.getElementById("users-delete-close").addEventListener("click", closeDialog);
       document.getElementById("users-dialog-overlay").addEventListener("click", (e) => {
-        if (e.target.id === "users-dialog-overlay") closeDialog();
+        if (e.target.id === "users-dialog-overlay") closeFormDialog();
       });
       document.getElementById("users-delete-overlay").addEventListener("click", (e) => {
         if (e.target.id === "users-delete-overlay") closeDialog();
       });
       document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && store.get().dialog.type !== "closed") closeDialog();
+        if (e.key === "Escape") {
+          const t = store.get().dialog.type;
+          if (t === "create" || t === "edit") closeFormDialog();
+          else if (t !== "closed") closeDialog();
+        }
       });
 
       // ───── Validation ─────
@@ -2408,5 +2492,44 @@
       document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
       document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
     </script>
-</body>
+    <script>
+    /* Focus-trap polish for dialogs/drawers/sheets */
+    (function(){
+      if (window.__focusTrapInstalled) return;
+      window.__focusTrapInstalled = true;
+      const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      function isOpenContainer(el) {
+        return el && el.classList && (el.classList.contains('is-open') || el.classList.contains('open'));
+      }
+      function topOpenSurface() {
+        const surfaces = [...document.querySelectorAll('.dialog, .sheet, .drawer, [class*="-dialog"]:not(.dialog-overlay), [class*="-sheet"]:not(.sheet-overlay), [class*="-drawer"]:not(.drawer-overlay)')];
+        const open = surfaces.filter(s => isOpenContainer(s) || isOpenContainer(s.closest('.dialog-overlay, .sheet-overlay, .drawer-overlay, [class*="-overlay"]')));
+        return open[open.length - 1] || null;
+      }
+      let lastFocused = null;
+      const mo = new MutationObserver(() => {
+        const surface = topOpenSurface();
+        if (surface && document.activeElement && !surface.contains(document.activeElement)) {
+          lastFocused = document.activeElement;
+          const first = surface.querySelector(FOCUSABLE);
+          if (first) first.focus();
+        } else if (!surface && lastFocused) {
+          try { lastFocused.focus(); } catch(e){}
+          lastFocused = null;
+        }
+      });
+      mo.observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        const surface = topOpenSurface();
+        if (!surface) return;
+        const items = [...surface.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
+        if (items.length === 0) return;
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
+    })();
+    </script>
+  </body>
 </html>

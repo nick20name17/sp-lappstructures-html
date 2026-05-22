@@ -797,6 +797,21 @@
       .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
       .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
 
+    
+      /* Skeleton shimmer (global polish) */
+      .skeleton-bar, [class*="skeleton"] {
+        background: linear-gradient(90deg,
+          var(--muted, #e5e7eb) 0%,
+          color-mix(in oklch, var(--muted, #e5e7eb) 60%, white 40%) 50%,
+          var(--muted, #e5e7eb) 100%) !important;
+        background-size: 200% 100% !important;
+        animation: skeleton-shimmer 1.4s ease-in-out infinite !important;
+      }
+      @keyframes skeleton-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
     </style>
   </head>
   <body>

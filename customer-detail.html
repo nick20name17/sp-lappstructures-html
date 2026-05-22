@@ -1127,6 +1127,21 @@
       .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
       .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
 
+    
+      /* Skeleton shimmer (global polish) */
+      .skeleton-bar, [class*="skeleton"] {
+        background: linear-gradient(90deg,
+          var(--muted, #e5e7eb) 0%,
+          color-mix(in oklch, var(--muted, #e5e7eb) 60%, white 40%) 50%,
+          var(--muted, #e5e7eb) 100%) !important;
+        background-size: 200% 100% !important;
+        animation: skeleton-shimmer 1.4s ease-in-out infinite !important;
+      }
+      @keyframes skeleton-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
     </style>
   </head>
   <body>
@@ -1617,6 +1632,20 @@
         <div class="cd-dialog-footer" data-comment="customer-detail-delete-dialog-footer">
           <button type="button" class="btn btn-outline btn-sm" data-comment="customer-detail-delete-dialog-cancel" data-component="button" data-dialog-cancel="delete">Cancel</button>
           <button type="button" class="btn btn-destructive btn-sm" data-comment="customer-detail-delete-dialog-confirm" data-component="button" data-dialog-confirm="delete">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discard changes dialog -->
+    <div class="cd-dialog-overlay" data-comment="customer-detail-discard-dialog-overlay" id="cd-discard-overlay">
+      <div class="cd-dialog" data-comment="customer-detail-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+        <div data-comment="customer-detail-discard-dialog-header">
+          <h2 class="cd-dialog-title" data-comment="customer-detail-discard-dialog-title">Discard changes?</h2>
+          <p class="cd-dialog-desc" data-comment="customer-detail-discard-dialog-description">You have unsaved changes. Are you sure you want to discard them?</p>
+        </div>
+        <div class="cd-dialog-footer" data-comment="customer-detail-discard-dialog-footer">
+          <button type="button" class="btn btn-outline btn-sm" data-comment="customer-detail-discard-keep" data-component="button" id="cd-discard-keep">Keep editing</button>
+          <button type="button" class="btn btn-destructive btn-sm" data-comment="customer-detail-discard-confirm" data-component="button" id="cd-discard-confirm">Discard</button>
         </div>
       </div>
     </div>
@@ -2568,13 +2597,13 @@
         const opener = e.target.closest("[data-open-dialog]");
         if (opener) {
           const which = opener.dataset.openDialog;
-          if (which === "edit") store.set({ editDialogOpen: true });
+          if (which === "edit") { _cdEditDirty = false; store.set({ editDialogOpen: true }); }
           return;
         }
         const cancel = e.target.closest("[data-dialog-cancel]");
         if (cancel) {
           const which = cancel.dataset.dialogCancel;
-          if (which === "edit") store.set({ editDialogOpen: false });
+          if (which === "edit") attemptCloseEditDialog();
           if (which === "delete") store.set({ deleteDialogOpen: false });
           return;
         }
@@ -2658,6 +2687,7 @@
               if (typeof toast === "function") toast("Please fix the errors", "error");
               return;
             }
+            _cdEditDirty = false;
             store.set((s) => ({
               customers: s.customers.map((cc) => (cc.id === c.id ? { ...cc, ...updates } : cc)),
               editDialogOpen: false,
@@ -2686,7 +2716,45 @@
       });
 
       document.getElementById("edit-dialog-overlay").addEventListener("click", (e) => {
-        if (e.target === e.currentTarget) store.set({ editDialogOpen: false });
+        if (e.target === e.currentTarget) attemptCloseEditDialog();
+      });
+
+      /* ───── Dirty tracking + discard dialog ───── */
+      let _cdEditDirty = false;
+      let _cdPendingDiscard = null;
+      const _editDialogEl = document.getElementById("edit-dialog-overlay");
+      _editDialogEl.addEventListener("input", () => { _cdEditDirty = true; });
+      _editDialogEl.addEventListener("change", () => { _cdEditDirty = true; });
+      function attemptCloseEditDialog() {
+        if (_cdEditDirty) {
+          _cdPendingDiscard = () => { _cdEditDirty = false; store.set({ editDialogOpen: false }); };
+          document.getElementById("cd-discard-overlay").classList.add("is-open");
+        } else {
+          store.set({ editDialogOpen: false });
+        }
+      }
+      function closeCdDiscardDialog() {
+        _cdPendingDiscard = null;
+        document.getElementById("cd-discard-overlay").classList.remove("is-open");
+      }
+      document.getElementById("cd-discard-keep").addEventListener("click", closeCdDiscardDialog);
+      document.getElementById("cd-discard-confirm").addEventListener("click", () => {
+        const fn = _cdPendingDiscard;
+        closeCdDiscardDialog();
+        if (fn) fn();
+      });
+      document.getElementById("cd-discard-overlay").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) closeCdDiscardDialog();
+      });
+      // Escape: if edit dialog open, attempt discard flow
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        const s = store.get();
+        if (document.getElementById("cd-discard-overlay").classList.contains("is-open")) {
+          closeCdDiscardDialog();
+          return;
+        }
+        if (s.editDialogOpen) attemptCloseEditDialog();
       });
       document.getElementById("delete-dialog-overlay").addEventListener("click", (e) => {
         if (e.target === e.currentTarget) store.set({ deleteDialogOpen: false });
@@ -3024,5 +3092,44 @@
       document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
       document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
     </script>
-</body>
+    <script>
+    /* Focus-trap polish for dialogs/drawers/sheets */
+    (function(){
+      if (window.__focusTrapInstalled) return;
+      window.__focusTrapInstalled = true;
+      const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      function isOpenContainer(el) {
+        return el && el.classList && (el.classList.contains('is-open') || el.classList.contains('open'));
+      }
+      function topOpenSurface() {
+        const surfaces = [...document.querySelectorAll('.dialog, .sheet, .drawer, [class*="-dialog"]:not(.dialog-overlay), [class*="-sheet"]:not(.sheet-overlay), [class*="-drawer"]:not(.drawer-overlay)')];
+        const open = surfaces.filter(s => isOpenContainer(s) || isOpenContainer(s.closest('.dialog-overlay, .sheet-overlay, .drawer-overlay, [class*="-overlay"]')));
+        return open[open.length - 1] || null;
+      }
+      let lastFocused = null;
+      const mo = new MutationObserver(() => {
+        const surface = topOpenSurface();
+        if (surface && document.activeElement && !surface.contains(document.activeElement)) {
+          lastFocused = document.activeElement;
+          const first = surface.querySelector(FOCUSABLE);
+          if (first) first.focus();
+        } else if (!surface && lastFocused) {
+          try { lastFocused.focus(); } catch(e){}
+          lastFocused = null;
+        }
+      });
+      mo.observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        const surface = topOpenSurface();
+        if (!surface) return;
+        const items = [...surface.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
+        if (items.length === 0) return;
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
+    })();
+    </script>
+  </body>
 </html>

@@ -738,6 +738,21 @@
       .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
       .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
 
+    
+      /* Skeleton shimmer (global polish) */
+      .skeleton-bar, [class*="skeleton"] {
+        background: linear-gradient(90deg,
+          var(--muted, #e5e7eb) 0%,
+          color-mix(in oklch, var(--muted, #e5e7eb) 60%, white 40%) 50%,
+          var(--muted, #e5e7eb) 100%) !important;
+        background-size: 200% 100% !important;
+        animation: skeleton-shimmer 1.4s ease-in-out infinite !important;
+      }
+      @keyframes skeleton-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
     </style>
   </head>
   <body>
@@ -844,7 +859,7 @@
 
     <!-- Delete dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-delete-overlay" id="estimate-detail-delete-overlay" data-dialog-type="delete">
-      <div class="dialog size-sm" data-comment="estimate-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog size-sm" data-comment="estimate-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-delete-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -867,7 +882,7 @@
 
     <!-- Approve dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-approve-overlay" id="estimate-detail-approve-overlay" data-dialog-type="approve">
-      <div class="dialog" data-comment="estimate-detail-approve-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog" data-comment="estimate-detail-approve-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-approve-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -895,7 +910,7 @@
 
     <!-- Reject dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-reject-overlay" id="estimate-detail-reject-overlay" data-dialog-type="reject">
-      <div class="dialog" data-comment="estimate-detail-reject-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog" data-comment="estimate-detail-reject-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-reject-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -923,7 +938,7 @@
 
     <!-- Create Sales Order dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-sales-overlay" id="estimate-detail-sales-overlay" data-dialog-type="createSalesOrder">
-      <div class="dialog" data-comment="estimate-detail-sales-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog" data-comment="estimate-detail-sales-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-sales-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -951,7 +966,7 @@
 
     <!-- Discard edit confirm dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-discard-overlay" id="estimate-detail-discard-overlay" data-dialog-type="discardEdit">
-      <div class="dialog size-sm" data-comment="estimate-detail-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog size-sm" data-comment="estimate-detail-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-discard-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -2020,50 +2035,54 @@
     <style>
       .printable { display: none; }
       @media print {
-        @page { size: letter; margin: 0.6in; }
-        html, body { background: #fff !important; color: #000 !important; }
+        @page { size: letter; margin: 0.5in 0.5in 0.6in 0.5in; }
+        html, body { background: #fff !important; color: #111 !important; }
+        body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body > *:not(.printable) { display: none !important; }
         .printable { display: block !important; }
         .dialog-overlay, .sheet, .drawer, .dialog { display: none !important; }
+        .printable * { box-sizing: border-box; }
+        .printable .ph-header {
+          display: flex; align-items: center; justify-content: space-between;
+          border-bottom: 2px solid #111; padding-bottom: 12px; margin-bottom: 16px;
+        }
+        .printable .ph-brand { display:flex; align-items:center; gap:8px; }
+        .printable .ph-brand-mark { flex-shrink:0; }
+        .printable .ph-brand-name { font-size:14pt; font-weight:700; letter-spacing:0.02em; color:#111; }
+        .printable .ph-brand-sub { font-size:8pt; color:#666; line-height:1.35; margin-top:2px; }
+        .printable .ph-doc-title { font-size:18pt; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#111; }
+        .printable .ph-doc-meta { text-align:right; font-size:10pt; color:#444; line-height:1.4; }
+        .printable .ph-addr-grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px; margin-bottom:16px; }
+        .printable .ph-addr-box { padding:8px 10px; border:1px solid #ddd; border-radius:4px; }
+        .printable .ph-addr-label { font-size:8pt; text-transform:uppercase; color:#666; margin-bottom:4px; letter-spacing:0.05em; font-weight:600; }
+        .printable .ph-addr-body { font-size:10pt; line-height:1.4; color:#111; }
+        .printable .ph-addr-name { font-weight:700; }
+        .printable .ph-addr-row { display:flex; justify-content:space-between; gap:8px; padding:1px 0; }
+        .printable .ph-addr-row b { color:#666; font-weight:600; }
+        .printable .ph-section-title { font-size:11pt; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; border-bottom:1px solid #ccc; padding-bottom:4px; margin:12px 0 8px; color:#111; }
+        .printable .ph-section { page-break-inside: avoid; margin-bottom: 10px; }
+        .printable .ph-grid3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:4px 16px; font-size:10pt; }
+        .printable .ph-grid3 b { color:#666; font-weight:600; }
+        .printable .ph-table { width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:12px; }
+        .printable .ph-table th { text-align:left; background:#f3f4f6; padding:6px 8px; border-bottom:2px solid #111; font-weight:600; }
+        .printable .ph-table td { padding:6px 8px; border-bottom:1px solid #e5e7eb; vertical-align:top; }
+        .printable .ph-table .num { text-align:right; font-variant-numeric: tabular-nums; }
+        .printable .ph-table .ctr { text-align:center; }
+        .printable .ph-totals { margin-left:auto; width:280px; }
+        .printable .ph-totals-row { display:flex; justify-content:space-between; padding:4px 8px; font-size:10pt; }
+        .printable .ph-totals-row.is-total { font-weight:700; font-size:11pt; border-top:2px solid #111; }
+        .printable .ph-memo { font-size:10pt; padding:8px 10px; border:1px solid #ddd; border-radius:4px; margin-top:8px; line-height:1.45; }
+        .printable .ph-memo b { color:#444; }
+        .printable .ph-footer { margin-top:24px; border-top:1px solid #ccc; padding-top:8px; display:flex; justify-content:space-between; font-size:9pt; color:#666; }
+        .printable .ph-sig { margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:32px; page-break-inside: avoid; }
+        .printable .ph-sig-line { border-top:1px solid #111; padding-top:4px; font-size:9pt; color:#666; }
+        .printable .ph-status-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin-top:12px; }
+        .printable .ph-status-cell { border:1px solid #ddd; border-radius:4px; padding:6px; text-align:center; }
+        .printable .ph-status-cell.is-done { background:#f0fdf4; border-color:#86efac; }
+        .printable .ph-status-label { font-size:8pt; text-transform:uppercase; color:#666; }
+        .printable .ph-status-date { font-size:10pt; font-weight:600; margin-top:2px; color:#111; }
+        .printable .ph-attach-item { font-size:9.5pt; color:#444; padding:2px 0; }
       }
-      .printable {
-        font-family: "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-        font-size: 12pt;
-        color: #000;
-        line-height: 1.4;
-      }
-      .printable * { box-sizing: border-box; }
-      .pr-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; }
-      .pr-brand { font-size: 14pt; font-weight: 700; letter-spacing: 0.5px; }
-      .pr-company { font-size: 9pt; color: #333; line-height: 1.35; margin-top: 4px; }
-      .pr-title { font-size: 22pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-align: right; }
-      .pr-subtitle { font-size: 10pt; color: #333; text-align: right; margin-top: 2px; }
-      .pr-meta-row { display: flex; justify-content: space-between; background: #f4f4f4; padding: 6px 10px; border: 1px solid #ccc; font-size: 10pt; margin-bottom: 10px; }
-      .pr-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-      .pr-col { border: 1px solid #ccc; padding: 8px; }
-      .pr-col h4 { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.8px; color: #555; margin: 0 0 4px; }
-      .pr-col .pr-name { font-weight: 700; font-size: 11pt; }
-      .pr-col .pr-line { font-size: 10pt; }
-      .pr-row { display: flex; justify-content: space-between; font-size: 10pt; padding: 1px 0; border-bottom: 1px dotted #ccc; }
-      .pr-row:last-child { border-bottom: none; }
-      .pr-row b { color: #555; font-weight: 600; }
-      .pr-section { margin-bottom: 12px; page-break-inside: avoid; }
-      .pr-section h3 { font-size: 11pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #000; padding-bottom: 3px; margin: 0 0 6px; }
-      .pr-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px 16px; font-size: 10pt; }
-      .pr-grid3 b { color: #555; font-weight: 600; }
-      .pr-table { width: 100%; border-collapse: collapse; font-size: 10pt; }
-      .pr-table th { background: #eee; text-align: left; padding: 5px 6px; border: 1px solid #999; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.4px; }
-      .pr-table td { padding: 4px 6px; border: 1px solid #ccc; vertical-align: top; }
-      .pr-table .num { text-align: right; font-variant-numeric: tabular-nums; }
-      .pr-table .ctr { text-align: center; }
-      .pr-summary { width: 260px; margin-left: auto; margin-top: 8px; font-size: 10pt; }
-      .pr-summary .pr-row { padding: 3px 0; }
-      .pr-summary .pr-total { border-top: 2px solid #000; padding-top: 5px; margin-top: 3px; font-weight: 700; font-size: 11pt; }
-      .pr-terms { font-size: 10pt; margin-top: 14px; padding: 8px; border: 1px solid #ccc; }
-      .pr-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
-      .pr-sign .pr-line-w { border-bottom: 1px solid #000; height: 22px; }
-      .pr-sign .pr-cap { font-size: 9pt; color: #555; margin-top: 3px; }
-      .pr-footer { margin-top: 16px; padding-top: 6px; border-top: 1px solid #ccc; text-align: center; font-size: 8pt; color: #555; }
     </style>
 
     <div id="printable-estimate" class="printable" data-comment="estimate-detail-printable">
@@ -2089,54 +2108,66 @@
         const total = subtotal + tax;
         const files = est.files || [];
 
+        const logoSvg = `<svg class="ph-brand-mark" viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14L16 4l12 10"/><path d="M6 13v15h20V13"/><rect x="13" y="20" width="6" height="8"/></svg>`;
         const html = `
-          <div class="pr-header" data-comment="estimate-printable-header">
-            <div>
-              <div class="pr-brand">LAPP STRUCTURES</div>
-              <div class="pr-company">220 Jalyn Drive<br>New Holland, PA 17557<br>717-354-7433</div>
+          <div class="ph-header" data-comment="estimate-printable-header">
+            <div class="ph-brand">
+              ${logoSvg}
+              <div>
+                <div class="ph-brand-name">LAPP STRUCTURES</div>
+                <div class="ph-brand-sub">220 Jalyn Drive · New Holland, PA 17557 · 717-354-7433</div>
+              </div>
             </div>
-            <div>
-              <div class="pr-title">Estimate</div>
-              <div class="pr-subtitle">${escapeHtml(formatDate(est.order_date))}</div>
-            </div>
-          </div>
-          <div class="pr-meta-row" data-comment="estimate-printable-meta">
-            <span>Sales Rep: <b>${escapeHtml(est.sales_rep_name || "—")}</b></span>
-            <span>Estimate #: <b>${escapeHtml(est.id)}</b></span>
-          </div>
-          <div class="pr-cols" data-comment="estimate-printable-cols">
-            <div class="pr-col">
-              <h4>Bill To</h4>
-              <div class="pr-name">${escapeHtml(customerName)}</div>
-              ${billLines.map(l => `<div class="pr-line">${escapeHtml(l)}</div>`).join("")}
-              ${c.email ? `<div class="pr-line">${escapeHtml(c.email)}</div>` : ""}
-              ${c.primary_phone ? `<div class="pr-line">${escapeHtml(formatPhone(c.primary_phone))}</div>` : ""}
-            </div>
-            <div class="pr-col">
-              <h4>Ship To</h4>
-              <div class="pr-name">${escapeHtml(customerName)}</div>
-              ${shipLines.length ? shipLines.map(l => `<div class="pr-line">${escapeHtml(l)}</div>`).join("") : `<div class="pr-line">Same as billing</div>`}
-            </div>
-            <div class="pr-col">
-              <h4>Details</h4>
-              <div class="pr-row"><b>Estimate Date</b><span>${escapeHtml(formatDate(est.order_date))}</span></div>
-              ${est.po_number ? `<div class="pr-row"><b>PO #</b><span>${escapeHtml(est.po_number)}</span></div>` : ""}
-              ${est.terms ? `<div class="pr-row"><b>Terms</b><span>${escapeHtml(est.terms)}</span></div>` : ""}
-              ${est.delivery_method ? `<div class="pr-row"><b>Delivery</b><span>${escapeHtml(est.delivery_method)}</span></div>` : ""}
-              ${est.product_category ? `<div class="pr-row"><b>Category</b><span>${escapeHtml(est.product_category)}</span></div>` : ""}
-              ${est.location_class ? `<div class="pr-row"><b>Location</b><span>${escapeHtml(est.location_class)}</span></div>` : ""}
+            <div class="ph-doc-title">Estimate</div>
+            <div class="ph-doc-meta">
+              <div>#${escapeHtml(est.id)}</div>
+              <div>${escapeHtml(formatDate(est.order_date))}</div>
+              ${est.sales_rep_name ? `<div>Rep: ${escapeHtml(est.sales_rep_name)}</div>` : ""}
             </div>
           </div>
+
+          <div class="ph-addr-grid" data-comment="estimate-printable-addr">
+            <div class="ph-addr-box">
+              <div class="ph-addr-label">Bill To</div>
+              <div class="ph-addr-body">
+                <div class="ph-addr-name">${escapeHtml(customerName)}</div>
+                ${billLines.map(l => `<div>${escapeHtml(l)}</div>`).join("")}
+                ${c.email ? `<div>${escapeHtml(c.email)}</div>` : ""}
+                ${c.primary_phone ? `<div>${escapeHtml(formatPhone(c.primary_phone))}</div>` : ""}
+              </div>
+            </div>
+            <div class="ph-addr-box">
+              <div class="ph-addr-label">Ship To</div>
+              <div class="ph-addr-body">
+                <div class="ph-addr-name">${escapeHtml(customerName)}</div>
+                ${shipLines.length ? shipLines.map(l => `<div>${escapeHtml(l)}</div>`).join("") : `<div>Same as billing</div>`}
+              </div>
+            </div>
+            <div class="ph-addr-box">
+              <div class="ph-addr-label">Details</div>
+              <div class="ph-addr-body">
+                <div class="ph-addr-row"><b>Date</b><span>${escapeHtml(formatDate(est.order_date))}</span></div>
+                ${est.expiration_date ? `<div class="ph-addr-row"><b>Valid Till</b><span>${escapeHtml(formatDate(est.expiration_date))}</span></div>` : ""}
+                ${est.po_number ? `<div class="ph-addr-row"><b>PO #</b><span>${escapeHtml(est.po_number)}</span></div>` : ""}
+                ${est.terms ? `<div class="ph-addr-row"><b>Terms</b><span>${escapeHtml(est.terms)}</span></div>` : ""}
+                ${est.delivery_method ? `<div class="ph-addr-row"><b>Delivery</b><span>${escapeHtml(est.delivery_method)}</span></div>` : ""}
+                ${est.product_category ? `<div class="ph-addr-row"><b>Category</b><span>${escapeHtml(est.product_category)}</span></div>` : ""}
+                ${est.location_class ? `<div class="ph-addr-row"><b>Location</b><span>${escapeHtml(est.location_class)}</span></div>` : ""}
+              </div>
+            </div>
+          </div>
+
           ${attrEntries.length ? `
-            <div class="pr-section">
-              <h3>Product Configuration</h3>
-              <div class="pr-grid3">
+            <div class="ph-section">
+              <div class="ph-section-title">Product Configuration</div>
+              <div class="ph-grid3">
                 ${attrEntries.map(([k,v]) => `<div><b>${escapeHtml(k)}:</b> ${escapeHtml(Array.isArray(v) ? v.join(", ") : (typeof v === "object" ? Object.values(v).join(", ") : v))}</div>`).join("")}
               </div>
             </div>` : ""}
-          <div class="pr-section">
-            <h3>Line Items</h3>
-            <table class="pr-table">
+
+          <div class="ph-section">
+            <div class="ph-section-title">Line Items</div>
+            <table class="ph-table">
               <thead>
                 <tr>
                   <th class="ctr" style="width:38px">Qty</th>
@@ -2157,30 +2188,76 @@
                   </tr>`).join("") : `<tr><td colspan="5" class="ctr">No line items</td></tr>`}
               </tbody>
             </table>
-            <div class="pr-summary">
-              <div class="pr-row"><span>Subtotal</span><span class="num">${fmtMoney(subtotal)}</span></div>
-              <div class="pr-row"><span>Sales Tax</span><span class="num">${fmtMoney(tax)}</span></div>
-              <div class="pr-row pr-total"><span>Total</span><span class="num">${fmtMoney(total)}</span></div>
+            <div class="ph-totals">
+              <div class="ph-totals-row"><span>Subtotal</span><span>${fmtMoney(subtotal)}</span></div>
+              <div class="ph-totals-row"><span>Sales Tax</span><span>${fmtMoney(tax)}</span></div>
+              <div class="ph-totals-row is-total"><span>Total</span><span>${fmtMoney(total)}</span></div>
             </div>
           </div>
+
           ${(est.special_mfg_instructions || est.memo) ? `
-            <div class="pr-terms">
+            <div class="ph-memo">
               ${est.special_mfg_instructions ? `<div><b>Special Mfg Instructions:</b> ${escapeHtml(est.special_mfg_instructions)}</div>` : ""}
               ${est.memo ? `<div style="margin-top:4px"><b>Memo:</b> ${escapeHtml(est.memo)}</div>` : ""}
             </div>` : ""}
+
           ${files.length ? `
-            <div class="pr-section">
-              <h3>Attachments</h3>
-              ${files.map(f => `<div style="font-size:10pt">• ${escapeHtml(f.name)}</div>`).join("")}
+            <div class="ph-section">
+              <div class="ph-section-title">Attachments</div>
+              ${files.map(f => `<div class="ph-attach-item">• ${escapeHtml(f.name)}</div>`).join("")}
             </div>` : ""}
-          <div class="pr-sign">
-            <div><div class="pr-line-w"></div><div class="pr-cap">Customer Signature</div></div>
-            <div><div class="pr-line-w"></div><div class="pr-cap">Date</div></div>
+
+          <div class="ph-sig">
+            <div><div class="ph-sig-line">Customer Signature</div></div>
+            <div><div class="ph-sig-line">Date</div></div>
           </div>
-          <div class="pr-footer">Lapp Structures &middot; 220 Jalyn Drive, New Holland, PA 17557 &middot; 717-354-7433</div>
+
+          <div class="ph-footer">
+            <span>Lapp Structures · 220 Jalyn Drive, New Holland, PA 17557</span>
+            <span>717-354-7433</span>
+          </div>
         `;
         document.getElementById("printable-estimate-body").innerHTML = html;
       }
     </script>
-</body>
+    <script>
+    /* Focus-trap polish for dialogs/drawers/sheets */
+    (function(){
+      if (window.__focusTrapInstalled) return;
+      window.__focusTrapInstalled = true;
+      const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      function isOpenContainer(el) {
+        return el && el.classList && (el.classList.contains('is-open') || el.classList.contains('open'));
+      }
+      function topOpenSurface() {
+        const surfaces = [...document.querySelectorAll('.dialog, .sheet, .drawer, [class*="-dialog"]:not(.dialog-overlay), [class*="-sheet"]:not(.sheet-overlay), [class*="-drawer"]:not(.drawer-overlay)')];
+        const open = surfaces.filter(s => isOpenContainer(s) || isOpenContainer(s.closest('.dialog-overlay, .sheet-overlay, .drawer-overlay, [class*="-overlay"]')));
+        return open[open.length - 1] || null;
+      }
+      let lastFocused = null;
+      const mo = new MutationObserver(() => {
+        const surface = topOpenSurface();
+        if (surface && document.activeElement && !surface.contains(document.activeElement)) {
+          lastFocused = document.activeElement;
+          const first = surface.querySelector(FOCUSABLE);
+          if (first) first.focus();
+        } else if (!surface && lastFocused) {
+          try { lastFocused.focus(); } catch(e){}
+          lastFocused = null;
+        }
+      });
+      mo.observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        const surface = topOpenSurface();
+        if (!surface) return;
+        const items = [...surface.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
+        if (items.length === 0) return;
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
+    })();
+    </script>
+  </body>
 </html>

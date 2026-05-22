@@ -736,6 +736,21 @@
       .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
       .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
 
+    
+      /* Skeleton shimmer (global polish) */
+      .skeleton-bar, [class*="skeleton"] {
+        background: linear-gradient(90deg,
+          var(--muted, #e5e7eb) 0%,
+          color-mix(in oklch, var(--muted, #e5e7eb) 60%, white 40%) 50%,
+          var(--muted, #e5e7eb) 100%) !important;
+        background-size: 200% 100% !important;
+        animation: skeleton-shimmer 1.4s ease-in-out infinite !important;
+      }
+      @keyframes skeleton-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
     </style>
   </head>
   <body>
@@ -1128,7 +1143,7 @@
 
     <!-- Right-side preview drawer -->
     <div class="sheet-overlay" data-comment="site-checks-sheet-overlay" id="site-checks-sheet-overlay"></div>
-    <aside class="sheet" data-comment="site-checks-sheet" id="site-checks-sheet" aria-label="Site check details">
+    <aside class="sheet" data-comment="site-checks-sheet" id="site-checks-sheet" aria-label="Site check details" role="dialog" aria-modal="true" tabindex="-1">
       <div class="sheet-header" data-comment="site-checks-sheet-header">
         <h2 class="sheet-title" data-comment="site-checks-sheet-title" id="site-checks-sheet-title">Site Check</h2>
         <span data-comment="site-checks-sheet-badge-slot" id="site-checks-sheet-badge"></span>
@@ -1146,7 +1161,7 @@
 
     <!-- Mark as Done dialog -->
     <div class="dialog-overlay" data-comment="site-checks-done-overlay" id="site-checks-done-overlay">
-      <div class="dialog" data-comment="site-checks-done-dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog" data-comment="site-checks-done-dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <div data-comment="site-checks-done-header">
           <h2 class="dialog-title" data-comment="site-checks-done-title">Mark as Done</h2>
           <p class="dialog-description" data-comment="site-checks-done-description" style="margin-top:8px">
@@ -1166,7 +1181,7 @@
 
     <!-- Mark as Cancelled dialog -->
     <div class="dialog-overlay" data-comment="site-checks-cancel-overlay" id="site-checks-cancel-overlay">
-      <div class="dialog" data-comment="site-checks-cancel-dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog" data-comment="site-checks-cancel-dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <div data-comment="site-checks-cancel-header">
           <h2 class="dialog-title" data-comment="site-checks-cancel-title">Mark as Cancelled</h2>
           <p class="dialog-description" data-comment="site-checks-cancel-description" style="margin-top:8px">
@@ -1190,7 +1205,7 @@
         data-comment="site-checks-delete-dialog"
         data-component="dialog"
         role="alertdialog"
-        aria-modal="true">
+        aria-modal="true" tabindex="-1">
         <div data-comment="site-checks-delete-header">
           <h2 class="dialog-title" data-comment="site-checks-delete-title">
             Delete site check
@@ -1871,6 +1886,39 @@
         `;
       }
 
+      // ───── URL sync ─────
+      function readUrlIntoStore() {
+        const p = new URLSearchParams(location.search);
+        const patch = {};
+        if (p.has("page")) { const n = parseInt(p.get("page"), 10); if (n > 0) patch.page = n; }
+        if (p.has("pageSize")) { const n = parseInt(p.get("pageSize"), 10); if (n > 0) patch.pageSize = n; }
+        if (p.has("search")) { patch.listSearchInput = p.get("search"); patch.listSearchTerm = p.get("search"); }
+        if (p.has("ordering")) {
+          const ord = p.get("ordering");
+          if (ord) {
+            const dir = ord.startsWith("-") ? "desc" : "asc";
+            const key = ord.replace(/^-/, "");
+            patch.sort = { key, dir };
+          } else patch.sort = { key: null, dir: null };
+        }
+        if (Object.keys(patch).length) store.set(patch);
+      }
+      let urlSyncReady = false;
+      function writeStoreToUrl() {
+        if (!urlSyncReady) return;
+        const s = store.get();
+        const p = new URLSearchParams();
+        if (s.page && s.page !== 1) p.set("page", String(s.page));
+        if (s.pageSize && s.pageSize !== 10) p.set("pageSize", String(s.pageSize));
+        if (s.listSearchTerm) p.set("search", s.listSearchTerm);
+        if (s.sort && s.sort.key && s.sort.dir && !(s.sort.key === "start_date_time" && s.sort.dir === "desc")) {
+          p.set("ordering", (s.sort.dir === "desc" ? "-" : "") + s.sort.key);
+        }
+        const qs = p.toString();
+        history.replaceState(null, "", qs ? "?" + qs : location.pathname);
+      }
+      window.addEventListener("popstate", readUrlIntoStore);
+
       store.subscribe(renderSidebarNav);
       store.subscribe(renderUser);
       store.subscribe(renderCollapse);
@@ -1880,7 +1928,10 @@
       store.subscribe(renderSearchInput);
       store.subscribe(renderDialog);
       store.subscribe(renderDrawer);
+      store.subscribe(writeStoreToUrl);
 
+      readUrlIntoStore();
+      urlSyncReady = true;
       renderSidebarNav();
       renderUser();
       renderCollapse();
@@ -2054,5 +2105,44 @@
       document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
       document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
     </script>
-</body>
+    <script>
+    /* Focus-trap polish for dialogs/drawers/sheets */
+    (function(){
+      if (window.__focusTrapInstalled) return;
+      window.__focusTrapInstalled = true;
+      const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      function isOpenContainer(el) {
+        return el && el.classList && (el.classList.contains('is-open') || el.classList.contains('open'));
+      }
+      function topOpenSurface() {
+        const surfaces = [...document.querySelectorAll('.dialog, .sheet, .drawer, [class*="-dialog"]:not(.dialog-overlay), [class*="-sheet"]:not(.sheet-overlay), [class*="-drawer"]:not(.drawer-overlay)')];
+        const open = surfaces.filter(s => isOpenContainer(s) || isOpenContainer(s.closest('.dialog-overlay, .sheet-overlay, .drawer-overlay, [class*="-overlay"]')));
+        return open[open.length - 1] || null;
+      }
+      let lastFocused = null;
+      const mo = new MutationObserver(() => {
+        const surface = topOpenSurface();
+        if (surface && document.activeElement && !surface.contains(document.activeElement)) {
+          lastFocused = document.activeElement;
+          const first = surface.querySelector(FOCUSABLE);
+          if (first) first.focus();
+        } else if (!surface && lastFocused) {
+          try { lastFocused.focus(); } catch(e){}
+          lastFocused = null;
+        }
+      });
+      mo.observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        const surface = topOpenSurface();
+        if (!surface) return;
+        const items = [...surface.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
+        if (items.length === 0) return;
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
+    })();
+    </script>
+  </body>
 </html>

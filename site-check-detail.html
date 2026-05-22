@@ -615,6 +615,21 @@
       .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
       .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
 
+    
+      /* Skeleton shimmer (global polish) */
+      .skeleton-bar, [class*="skeleton"] {
+        background: linear-gradient(90deg,
+          var(--muted, #e5e7eb) 0%,
+          color-mix(in oklch, var(--muted, #e5e7eb) 60%, white 40%) 50%,
+          var(--muted, #e5e7eb) 100%) !important;
+        background-size: 200% 100% !important;
+        animation: skeleton-shimmer 1.4s ease-in-out infinite !important;
+      }
+      @keyframes skeleton-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
     </style>
   </head>
   <body>
@@ -721,7 +736,7 @@
 
     <!-- Delete dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-delete-overlay" id="site-check-detail-delete-overlay">
-      <div class="dialog dialog-sm" data-comment="site-check-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog dialog-sm" data-comment="site-check-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close" data-comment="site-check-detail-delete-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
@@ -744,7 +759,7 @@
 
     <!-- Mark as Done dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-done-overlay" id="site-check-detail-done-overlay">
-      <div class="dialog dialog-md" data-comment="site-check-detail-done-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog dialog-md" data-comment="site-check-detail-done-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close" data-comment="site-check-detail-done-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
@@ -779,7 +794,7 @@
 
     <!-- Mark as Cancelled dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-cancel-overlay" id="site-check-detail-cancel-overlay">
-      <div class="dialog dialog-sm" data-comment="site-check-detail-cancel-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog dialog-sm" data-comment="site-check-detail-cancel-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close" data-comment="site-check-detail-cancel-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
@@ -802,7 +817,7 @@
 
     <!-- Discard changes dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-discard-overlay" id="site-check-detail-discard-overlay">
-      <div class="dialog dialog-sm" data-comment="site-check-detail-discard-dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog dialog-sm" data-comment="site-check-detail-discard-dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <div class="dialog-header" data-comment="site-check-detail-discard-header">
           <h2 class="dialog-title" data-comment="site-check-detail-discard-title">Discard changes?</h2>
           <p class="dialog-description" data-comment="site-check-detail-discard-description">You have unsaved changes. Are you sure you want to leave the edit view?</p>
@@ -1672,35 +1687,37 @@
     <style>
       .printable { display: none; }
       @media print {
-        @page { size: letter; margin: 0.6in; }
-        html, body { background: #fff !important; color: #000 !important; }
+        @page { size: letter; margin: 0.5in 0.5in 0.6in 0.5in; }
+        html, body { background: #fff !important; color: #111 !important; }
+        body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body > *:not(.printable) { display: none !important; }
         .printable { display: block !important; }
         .dialog-overlay, .sheet, .drawer, .dialog { display: none !important; }
+        .printable * { box-sizing: border-box; }
+        .printable .ph-header {
+          display: flex; align-items: center; justify-content: space-between;
+          border-bottom: 2px solid #111; padding-bottom: 12px; margin-bottom: 16px;
+        }
+        .printable .ph-brand { display:flex; align-items:center; gap:8px; }
+        .printable .ph-brand-mark { flex-shrink:0; }
+        .printable .ph-brand-name { font-size:14pt; font-weight:700; letter-spacing:0.02em; color:#111; }
+        .printable .ph-brand-sub { font-size:8pt; color:#666; line-height:1.35; margin-top:2px; }
+        .printable .ph-doc-title { font-size:18pt; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#111; }
+        .printable .ph-doc-meta { text-align:right; font-size:10pt; color:#444; line-height:1.4; }
+        .printable .ph-addr-grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px; }
+        .printable .ph-addr-box { padding:8px 10px; border:1px solid #ddd; border-radius:4px; }
+        .printable .ph-addr-label { font-size:8pt; text-transform:uppercase; color:#666; margin-bottom:4px; letter-spacing:0.05em; font-weight:600; }
+        .printable .ph-addr-body { font-size:10pt; line-height:1.4; color:#111; }
+        .printable .ph-addr-row { display:flex; justify-content:space-between; gap:8px; padding:1px 0; }
+        .printable .ph-addr-row b { color:#666; font-weight:600; }
+        .printable .ph-section-title { font-size:11pt; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; border-bottom:1px solid #ccc; padding-bottom:4px; margin:12px 0 8px; color:#111; }
+        .printable .ph-section { page-break-inside: avoid; margin-bottom: 10px; }
+        .printable .ph-block { font-size:10pt; line-height:1.45; padding:8px 10px; border:1px solid #ddd; border-radius:4px; background:#fafafa; min-height:40px; white-space: pre-wrap; }
+        .printable .ph-attach-item { font-size:9.5pt; color:#444; padding:2px 0; }
+        .printable .ph-sig { margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:32px; page-break-inside: avoid; }
+        .printable .ph-sig-line { border-top:1px solid #111; padding-top:4px; font-size:9pt; color:#666; min-height: 28px; }
+        .printable .ph-footer { margin-top:24px; border-top:1px solid #ccc; padding-top:8px; display:flex; justify-content:space-between; font-size:9pt; color:#666; }
       }
-      .printable {
-        font-family: "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-        font-size: 12pt;
-        color: #000;
-        line-height: 1.4;
-      }
-      .printable * { box-sizing: border-box; }
-      .pr-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; }
-      .pr-brand { font-size: 14pt; font-weight: 700; letter-spacing: 0.5px; }
-      .pr-company { font-size: 9pt; color: #333; line-height: 1.35; margin-top: 4px; }
-      .pr-title { font-size: 20pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-align: right; }
-      .pr-subtitle { font-size: 10pt; color: #333; text-align: right; margin-top: 2px; }
-      .pr-meta-row { display: flex; justify-content: space-between; background: #f4f4f4; padding: 6px 10px; border: 1px solid #ccc; font-size: 10pt; margin-bottom: 12px; }
-      .pr-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-      .pr-col { border: 1px solid #ccc; padding: 8px; }
-      .pr-col h4 { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.8px; color: #555; margin: 0 0 4px; }
-      .pr-row { display: flex; justify-content: space-between; font-size: 10pt; padding: 2px 0; border-bottom: 1px dotted #ccc; }
-      .pr-row:last-child { border-bottom: none; }
-      .pr-row b { color: #555; font-weight: 600; }
-      .pr-section { margin-bottom: 12px; page-break-inside: avoid; }
-      .pr-section h3 { font-size: 11pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #000; padding-bottom: 3px; margin: 0 0 6px; }
-      .pr-block { font-size: 10pt; padding: 6px 8px; border: 1px solid #ccc; background: #fafafa; min-height: 32px; }
-      .pr-footer { margin-top: 16px; padding-top: 6px; border-top: 1px solid #ccc; text-align: center; font-size: 8pt; color: #555; }
     </style>
 
     <div id="printable-site-check" class="printable" data-comment="site-check-detail-printable">
@@ -1720,53 +1737,111 @@
         const files = sc.files || [];
         const commentsText = String(sc.comments || "").replace(/<[^>]+>/g, "").trim();
 
+        const logoSvg = `<svg class="ph-brand-mark" viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14L16 4l12 10"/><path d="M6 13v15h20V13"/><rect x="13" y="20" width="6" height="8"/></svg>`;
         const html = `
-          <div class="pr-header">
-            <div>
-              <div class="pr-brand">LAPP STRUCTURES</div>
-              <div class="pr-company">220 Jalyn Drive<br>New Holland, PA 17557<br>717-354-7433</div>
+          <div class="ph-header">
+            <div class="ph-brand">
+              ${logoSvg}
+              <div>
+                <div class="ph-brand-name">LAPP STRUCTURES</div>
+                <div class="ph-brand-sub">220 Jalyn Drive · New Holland, PA 17557 · 717-354-7433</div>
+              </div>
             </div>
-            <div>
-              <div class="pr-title">Site Check SC-${escapeHtml(sc.id)}</div>
-              <div class="pr-subtitle">${escapeHtml(formatDate(sc.created_at))}</div>
-            </div>
-          </div>
-          <div class="pr-meta-row">
-            <span>Status: <b>${escapeHtml(statusLabel)}</b></span>
-            <span>Type: <b>${escapeHtml(typeLabel)}</b></span>
-          </div>
-          <div class="pr-grid2">
-            <div class="pr-col">
-              <h4>Customer</h4>
-              <div class="pr-row"><b>Name</b><span>${escapeHtml(contactName)}</span></div>
-              ${contact.email ? `<div class="pr-row"><b>Email</b><span>${escapeHtml(contact.email)}</span></div>` : ""}
-              ${contact.location ? `<div class="pr-row"><b>Retail Location</b><span>${escapeHtml(contact.location)}</span></div>` : ""}
-            </div>
-            <div class="pr-col">
-              <h4>Assignment</h4>
-              <div class="pr-row"><b>Assigned To</b><span>${escapeHtml(assignedName)}</span></div>
-              <div class="pr-row"><b>Scheduled Start</b><span>${escapeHtml(formatDate(sc.start_date_time))}</span></div>
-              <div class="pr-row"><b>Date Completed</b><span>${escapeHtml(formatDate(sc.date_completed))}</span></div>
-              ${sc.estimate_id ? `<div class="pr-row"><b>Estimate</b><span>#${escapeHtml(sc.estimate_id)}</span></div>` : ""}
+            <div class="ph-doc-title">Site Check</div>
+            <div class="ph-doc-meta">
+              <div>SC-${escapeHtml(sc.id)}</div>
+              <div>${escapeHtml(formatDate(sc.created_at))}</div>
+              <div>${escapeHtml(statusLabel)} · ${escapeHtml(typeLabel)}</div>
             </div>
           </div>
-          <div class="pr-section">
-            <h3>Comments</h3>
-            <div class="pr-block">${commentsText ? escapeHtml(commentsText) : "—"}</div>
+
+          <div class="ph-addr-grid">
+            <div class="ph-addr-box">
+              <div class="ph-addr-label">Customer</div>
+              <div class="ph-addr-body">
+                <div class="ph-addr-row"><b>Name</b><span>${escapeHtml(contactName)}</span></div>
+                ${contact.email ? `<div class="ph-addr-row"><b>Email</b><span>${escapeHtml(contact.email)}</span></div>` : ""}
+                ${contact.location ? `<div class="ph-addr-row"><b>Retail Location</b><span>${escapeHtml(contact.location)}</span></div>` : ""}
+              </div>
+            </div>
+            <div class="ph-addr-box">
+              <div class="ph-addr-label">Assignment</div>
+              <div class="ph-addr-body">
+                <div class="ph-addr-row"><b>Assigned To</b><span>${escapeHtml(assignedName)}</span></div>
+                <div class="ph-addr-row"><b>Scheduled Start</b><span>${escapeHtml(formatDate(sc.start_date_time))}</span></div>
+                <div class="ph-addr-row"><b>Date Completed</b><span>${escapeHtml(formatDate(sc.date_completed))}</span></div>
+                ${sc.estimate_id ? `<div class="ph-addr-row"><b>Estimate</b><span>#${escapeHtml(sc.estimate_id)}</span></div>` : ""}
+              </div>
+            </div>
           </div>
-          <div class="pr-section">
-            <h3>Results</h3>
-            <div class="pr-block">${sc.results_of_site_check ? escapeHtml(sc.results_of_site_check) : "—"}</div>
+
+          <div class="ph-section">
+            <div class="ph-section-title">Comments</div>
+            <div class="ph-block">${commentsText ? escapeHtml(commentsText) : "—"}</div>
           </div>
+
+          <div class="ph-section">
+            <div class="ph-section-title">Results</div>
+            <div class="ph-block">${sc.results_of_site_check ? escapeHtml(sc.results_of_site_check) : "—"}</div>
+          </div>
+
           ${files.length ? `
-            <div class="pr-section">
-              <h3>Attachments</h3>
-              ${files.map(f => `<div style="font-size:10pt">• ${escapeHtml(f.name)}</div>`).join("")}
+            <div class="ph-section">
+              <div class="ph-section-title">Attachments</div>
+              ${files.map(f => `<div class="ph-attach-item">• ${escapeHtml(f.name)}</div>`).join("")}
             </div>` : ""}
-          <div class="pr-footer">Lapp Structures &middot; 220 Jalyn Drive, New Holland, PA 17557 &middot; 717-354-7433</div>
+
+          <div class="ph-sig">
+            <div><div class="ph-sig-line">Technician Signature</div></div>
+            <div><div class="ph-sig-line">Customer Signature</div></div>
+          </div>
+
+          <div class="ph-footer">
+            <span>Lapp Structures · 220 Jalyn Drive, New Holland, PA 17557</span>
+            <span>717-354-7433</span>
+          </div>
         `;
         document.getElementById("printable-site-check-body").innerHTML = html;
       }
     </script>
-</body>
+    <script>
+    /* Focus-trap polish for dialogs/drawers/sheets */
+    (function(){
+      if (window.__focusTrapInstalled) return;
+      window.__focusTrapInstalled = true;
+      const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      function isOpenContainer(el) {
+        return el && el.classList && (el.classList.contains('is-open') || el.classList.contains('open'));
+      }
+      function topOpenSurface() {
+        const surfaces = [...document.querySelectorAll('.dialog, .sheet, .drawer, [class*="-dialog"]:not(.dialog-overlay), [class*="-sheet"]:not(.sheet-overlay), [class*="-drawer"]:not(.drawer-overlay)')];
+        const open = surfaces.filter(s => isOpenContainer(s) || isOpenContainer(s.closest('.dialog-overlay, .sheet-overlay, .drawer-overlay, [class*="-overlay"]')));
+        return open[open.length - 1] || null;
+      }
+      let lastFocused = null;
+      const mo = new MutationObserver(() => {
+        const surface = topOpenSurface();
+        if (surface && document.activeElement && !surface.contains(document.activeElement)) {
+          lastFocused = document.activeElement;
+          const first = surface.querySelector(FOCUSABLE);
+          if (first) first.focus();
+        } else if (!surface && lastFocused) {
+          try { lastFocused.focus(); } catch(e){}
+          lastFocused = null;
+        }
+      });
+      mo.observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        const surface = topOpenSurface();
+        if (!surface) return;
+        const items = [...surface.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
+        if (items.length === 0) return;
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
+    })();
+    </script>
+  </body>
 </html>

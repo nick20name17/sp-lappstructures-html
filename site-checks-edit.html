@@ -943,6 +943,21 @@
       .sheet { transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
       .dialog { transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1); }
 
+    
+      /* Skeleton shimmer (global polish) */
+      .skeleton-bar, [class*="skeleton"] {
+        background: linear-gradient(90deg,
+          var(--muted, #e5e7eb) 0%,
+          color-mix(in oklch, var(--muted, #e5e7eb) 60%, white 40%) 50%,
+          var(--muted, #e5e7eb) 100%) !important;
+        background-size: 200% 100% !important;
+        animation: skeleton-shimmer 1.4s ease-in-out infinite !important;
+      }
+      @keyframes skeleton-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
     </style>
   </head>
   <body>
@@ -1038,7 +1053,7 @@
 
     <!-- Delete confirm dialog -->
     <div class="dialog-overlay" data-comment="site-checks-edit-delete-overlay" id="delete-overlay">
-      <div class="dialog" data-comment="site-checks-edit-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog" data-comment="site-checks-edit-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <div data-comment="site-checks-edit-delete-header">
           <h2 class="dialog-title" data-comment="site-checks-edit-delete-title">Delete site check?</h2>
           <p class="dialog-description" data-comment="site-checks-edit-delete-description" style="margin-top: 8px">
@@ -1054,7 +1069,7 @@
 
     <!-- Discard changes dialog -->
     <div class="dialog-overlay" data-comment="site-checks-edit-discard-overlay" id="discard-overlay">
-      <div class="dialog" data-comment="site-checks-edit-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="dialog" data-comment="site-checks-edit-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <div data-comment="site-checks-edit-discard-header">
           <h2 class="dialog-title" data-comment="site-checks-edit-discard-title">Discard changes?</h2>
           <p class="dialog-description" data-comment="site-checks-edit-discard-description" style="margin-top: 8px">
@@ -2331,5 +2346,44 @@
       document.getElementById("sidebar-backdrop") && document.getElementById("sidebar-backdrop").addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); });
       document.querySelectorAll(".app-sidebar a, .sidebar a").forEach(function(a){ a.addEventListener("click", function(){ document.body.classList.remove("sidebar-open"); }); });
     </script>
-</body>
+    <script>
+    /* Focus-trap polish for dialogs/drawers/sheets */
+    (function(){
+      if (window.__focusTrapInstalled) return;
+      window.__focusTrapInstalled = true;
+      const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      function isOpenContainer(el) {
+        return el && el.classList && (el.classList.contains('is-open') || el.classList.contains('open'));
+      }
+      function topOpenSurface() {
+        const surfaces = [...document.querySelectorAll('.dialog, .sheet, .drawer, [class*="-dialog"]:not(.dialog-overlay), [class*="-sheet"]:not(.sheet-overlay), [class*="-drawer"]:not(.drawer-overlay)')];
+        const open = surfaces.filter(s => isOpenContainer(s) || isOpenContainer(s.closest('.dialog-overlay, .sheet-overlay, .drawer-overlay, [class*="-overlay"]')));
+        return open[open.length - 1] || null;
+      }
+      let lastFocused = null;
+      const mo = new MutationObserver(() => {
+        const surface = topOpenSurface();
+        if (surface && document.activeElement && !surface.contains(document.activeElement)) {
+          lastFocused = document.activeElement;
+          const first = surface.querySelector(FOCUSABLE);
+          if (first) first.focus();
+        } else if (!surface && lastFocused) {
+          try { lastFocused.focus(); } catch(e){}
+          lastFocused = null;
+        }
+      });
+      mo.observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        const surface = topOpenSurface();
+        if (!surface) return;
+        const items = [...surface.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
+        if (items.length === 0) return;
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
+    })();
+    </script>
+  </body>
 </html>
