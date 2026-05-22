@@ -1358,13 +1358,13 @@
           return {
             attributes: {
               ...s.attributes,
-              [type]: [...list, {
+              [type]: [{
                 id: Date.now(),
                 name,
                 hex_color: has_color ? "#fff" : null,
                 type,
                 values: [],
-              }],
+              }, ...list],
             },
             addingSelect: false,
             selectName: "",
@@ -1379,7 +1379,7 @@
             ...s.attributes,
             [type]: (s.attributes[type] || []).map((a) =>
               a.id === attrId
-                ? { ...a, values: [...a.values, { id: Date.now(), name, hex_color: null }] }
+                ? { ...a, values: [{ id: Date.now(), name, hex_color: null }, ...a.values] }
                 : a,
             ),
           },
@@ -1418,7 +1418,7 @@
       // ───── Actions: dimensions ─────
       function addDimension({ name, length, width }) {
         store.set((s) => ({
-          dimensions: [...s.dimensions, { id: Date.now(), name, length: Number(length), width: Number(width) }],
+          dimensions: [{ id: Date.now(), name, length: Number(length), width: Number(width) }, ...s.dimensions],
           dimAdding: false,
           dimName: "", dimLength: "", dimWidth: "",
         }));
@@ -1430,7 +1430,7 @@
       // ───── Actions: categories ─────
       function addCategory({ name, with_attribute_values }) {
         store.set((s) => ({
-          categories: [...s.categories, { id: Date.now(), name, with_attribute_values }],
+          categories: [{ id: Date.now(), name, with_attribute_values }, ...s.categories],
           catAdding: false,
           catName: "", catWithValues: false,
         }));
