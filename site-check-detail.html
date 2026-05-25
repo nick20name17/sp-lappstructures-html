@@ -877,14 +877,19 @@
 
     <!-- Discard changes dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-discard-overlay" id="site-check-detail-discard-overlay">
-      <div class="dialog dialog-sm" data-comment="site-check-detail-discard-dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog" data-comment="site-check-detail-discard-dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <div class="dialog-header" data-comment="site-check-detail-discard-header">
-          <h2 class="dialog-title" data-comment="site-check-detail-discard-title">Discard changes?</h2>
-          <p class="dialog-description" data-comment="site-check-detail-discard-description">You have unsaved changes. Are you sure you want to leave the edit view?</p>
+          <div data-comment="site-check-detail-discard-header-row" style="display:flex;align-items:center;gap:12px;">
+            <span data-comment="site-check-detail-discard-icon" aria-hidden="true" style="display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border-radius:9999px;background:color-mix(in oklch, var(--primary) 10%, transparent);color:var(--primary);">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            </span>
+            <h2 class="dialog-title" data-comment="site-check-detail-discard-title">Discard changes?</h2>
+          </div>
+          <p class="dialog-description" data-comment="site-check-detail-discard-description">You have unsaved changes. Are you sure you want to leave edit mode? Your changes will be lost.</p>
         </div>
         <div class="dialog-footer" data-comment="site-check-detail-discard-footer">
-          <button class="btn btn-outline" type="button" id="site-check-detail-discard-cancel" data-comment="site-check-detail-discard-cancel">Keep editing</button>
-          <button class="btn btn-destructive" type="button" id="site-check-detail-discard-confirm" data-comment="site-check-detail-discard-confirm">Discard</button>
+          <button class="btn btn-outline" type="button" id="site-check-detail-discard-cancel" data-comment="site-check-detail-discard-cancel">Keep Editing</button>
+          <button class="btn btn-destructive" type="button" id="site-check-detail-discard-confirm" data-comment="site-check-detail-discard-confirm">Discard Changes</button>
         </div>
       </div>
     </div>

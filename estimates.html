@@ -1507,7 +1507,7 @@
       data-comment="estimates-delete-overlay"
       id="estimates-delete-overlay">
       <div
-        class="dialog"
+        class="dialog size-sm"
         data-comment="estimates-delete-dialog"
         data-component="dialog"
         role="alertdialog"
@@ -2050,7 +2050,7 @@
               <td class="hide-mobile" data-role-hide-col="dealer" data-comment="${ctx}-site-check">${renderSiteCheckBadge(e.site_check_status || "not_required", ctx)}</td>
               <td data-comment="${ctx}-memo" title="${escapeHtml(e.memo || "")}">${escapeHtml(e.memo || "—")}</td>
               <td data-comment="${ctx}-actions">
-                <div class="row-actions" data-comment="${ctx}-actions-wrap" data-role-hidden="sales" onclick="event.stopPropagation()">
+                <div class="row-actions" data-comment="${ctx}-actions-wrap" data-role-hidden="sales">
                   <button type="button" class="btn-icon-sm danger" data-comment="${ctx}-delete" data-component="button" data-action="delete" data-estimate-id="${e.id}" aria-label="Delete estimate">${ICONS.trash2}</button>
                 </div>
               </td>
@@ -2675,6 +2675,8 @@
           if (estimate) store.set({ dialog: { type: "delete", estimate } });
           return;
         }
+        // Clicks inside row-actions (but not on a known action) should not open drawer
+        if (e.target.closest(".row-actions")) return;
         const row = e.target.closest("tr.clickable");
         if (row && row.dataset.estimateId) {
           store.set({ drawer: { open: true, estimateId: Number(row.dataset.estimateId) } });

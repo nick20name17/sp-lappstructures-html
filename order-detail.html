@@ -1688,24 +1688,29 @@
             </div>
           </div>
         </div>
-        <div class="od-form-row" data-comment="order-detail-delivery-scheduled-row">
-          <label for="delivery-scheduled" data-comment="order-detail-delivery-scheduled-label">Scheduled date</label>
-          <div class="date-picker" data-comment="order-detail-delivery-scheduled-input" data-component="date-picker" data-value="" data-placeholder="Pick a date">
-            <button type="button" class="date-picker-trigger" data-comment="order-detail-delivery-scheduled-trigger" aria-expanded="false">
-              <span class="date-picker-label" data-comment="order-detail-delivery-scheduled-label-text">Pick a date</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-comment="order-detail-delivery-scheduled-icon"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <div class="od-form-row" data-comment="order-detail-delivery-loading-row">
+          <label for="delivery-loading" data-comment="order-detail-delivery-loading-label">Loading instructions</label>
+          <div class="select" id="delivery-loading" data-comment="order-detail-delivery-loading-select" data-component="select" data-placeholder="Choose...">
+            <button type="button" class="select-trigger" aria-expanded="false" data-comment="order-detail-delivery-loading-select-trigger">
+              <span class="select-trigger-label"></span>
+              <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
-            <input type="hidden" id="delivery-scheduled" name="delivery_scheduled" value="" />
-            <div class="date-picker-popover" style="display:none"></div>
+            <input type="hidden" value="" />
+            <div class="select-popover" style="display:none" role="listbox">
+              <div class="select-item" data-value="Forklift" data-comment="order-detail-delivery-loading-opt-forklift">Forklift</div>
+              <div class="select-item" data-value="Liftgate" data-comment="order-detail-delivery-loading-opt-liftgate">Liftgate</div>
+              <div class="select-item" data-value="Dock" data-comment="order-detail-delivery-loading-opt-dock">Dock</div>
+              <div class="select-item" data-value="Hand Unload" data-comment="order-detail-delivery-loading-opt-hand">Hand Unload</div>
+            </div>
           </div>
-        </div>
-        <div class="od-form-row" data-comment="order-detail-delivery-instructions-row">
-          <label for="delivery-instructions" data-comment="order-detail-delivery-instructions-label">Loading instructions</label>
-          <textarea id="delivery-instructions" data-comment="order-detail-delivery-instructions-input" data-component="textarea" rows="3"></textarea>
         </div>
         <div class="od-form-row" data-comment="order-detail-delivery-special-row">
           <label for="delivery-special" data-comment="order-detail-delivery-special-label">Special delivery instructions</label>
           <textarea id="delivery-special" data-comment="order-detail-delivery-special-input" data-component="textarea" rows="3" placeholder="Gate codes, contact on arrival, accessibility notes, etc."></textarea>
+        </div>
+        <div class="od-form-row" data-comment="order-detail-delivery-note-row">
+          <label for="delivery-note" data-comment="order-detail-delivery-note-label">Note</label>
+          <textarea id="delivery-note" data-comment="order-detail-delivery-note-input" data-component="textarea" rows="3" placeholder="Internal note about this delivery…"></textarea>
         </div>
         <div class="od-dialog-footer" data-comment="order-detail-delivery-dialog-footer">
           <button type="button" class="btn btn-outline btn-sm" data-comment="order-detail-delivery-dialog-cancel" data-component="button" data-dialog-cancel="delivery">Cancel</button>

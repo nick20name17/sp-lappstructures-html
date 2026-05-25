@@ -693,6 +693,7 @@
         display: grid; gap: 16px;
       }
       .dialog.size-sm { max-width: 24rem; }
+      .dialog.size-md { max-width: 28rem; }
       .dialog-header {
         display: flex; flex-direction: column;
         gap: 8px; text-align: left;
@@ -927,7 +928,7 @@
 
     <!-- Approve dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-approve-overlay" id="estimate-detail-approve-overlay" data-dialog-type="approve">
-      <div class="dialog" data-comment="estimate-detail-approve-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog size-md" data-comment="estimate-detail-approve-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-approve-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -955,7 +956,7 @@
 
     <!-- Reject dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-reject-overlay" id="estimate-detail-reject-overlay" data-dialog-type="reject">
-      <div class="dialog" data-comment="estimate-detail-reject-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog size-md" data-comment="estimate-detail-reject-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-reject-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -983,7 +984,7 @@
 
     <!-- Create Sales Order dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-sales-overlay" id="estimate-detail-sales-overlay" data-dialog-type="createSalesOrder">
-      <div class="dialog" data-comment="estimate-detail-sales-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog size-md" data-comment="estimate-detail-sales-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-sales-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -1011,21 +1012,24 @@
 
     <!-- Discard edit confirm dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-discard-overlay" id="estimate-detail-discard-overlay" data-dialog-type="discardEdit">
-      <div class="dialog size-sm" data-comment="estimate-detail-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog" data-comment="estimate-detail-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-discard-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
         <div class="dialog-header" data-comment="estimate-detail-discard-header">
           <div class="dialog-header-row" data-comment="estimate-detail-discard-header-row">
-            <h2 class="dialog-title" data-comment="estimate-detail-discard-title">Discard unsaved changes?</h2>
+            <span class="dialog-icon-circle" data-comment="estimate-detail-discard-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            </span>
+            <h2 class="dialog-title" data-comment="estimate-detail-discard-title">Discard changes?</h2>
           </div>
           <p class="dialog-description" data-comment="estimate-detail-discard-description">
-            You have unsaved changes. If you go back, your edits will be lost.
+            You have unsaved changes. Are you sure you want to leave edit mode? Your changes will be lost.
           </p>
         </div>
         <div class="dialog-footer" data-comment="estimate-detail-discard-footer">
           <button class="btn btn-outline" data-comment="estimate-detail-discard-cancel" data-component="button" type="button" id="estimate-detail-discard-cancel">Keep Editing</button>
-          <button class="btn btn-destructive" data-comment="estimate-detail-discard-confirm" data-component="button" type="button" id="estimate-detail-discard-confirm">Discard</button>
+          <button class="btn btn-destructive" data-comment="estimate-detail-discard-confirm" data-component="button" type="button" id="estimate-detail-discard-confirm">Discard Changes</button>
         </div>
       </div>
     </div>

@@ -2100,7 +2100,7 @@
         document.getElementById("reviews-approve-dialog-title").textContent =
           type === "pricing" ? "Approve Pricing Review" : "Approve Shop Review";
         document.getElementById("reviews-approve-dialog-desc").innerHTML =
-          order ? `Approve ${label.toLowerCase()} for order <strong>${order.invoice || order.autoid}</strong>.` : "";
+          order ? `Approve ${label.toLowerCase()} for order <span style="color: var(--foreground); font-weight: 500;">${order.invoice || order.autoid}</span>.` : "";
         const ta = document.getElementById("reviews-approve-comment");
         if (ta.value !== s.approveComment) ta.value = s.approveComment;
       }

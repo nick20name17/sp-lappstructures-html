@@ -1096,6 +1096,58 @@
         max-height: 90vh;
       }
 
+      .dialog-panel.dialog-panel-xl {
+        max-width: min(80vw, 1200px);
+        max-height: 90vh;
+      }
+      @media (max-width: 768px) {
+        .dialog-panel.dialog-panel-xl { max-width: 100%; }
+      }
+
+      .form-section-group {
+        border: 1px solid var(--border);
+        border-radius: 1.25rem;
+        padding: 14px;
+        background: var(--muted);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .form-section-group-title {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: var(--muted-foreground);
+        margin-bottom: 4px;
+      }
+      .form-section-blocks {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        align-items: start;
+      }
+      @media (max-width: 768px) {
+        .form-section-blocks { grid-template-columns: 1fr; }
+      }
+      .form-block-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .form-block-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--foreground);
+      }
+      .form-block-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
       .dialog.is-open .dialog-panel {
         opacity: 1;
         transform: translateY(0);
@@ -1950,7 +2002,7 @@
       aria-modal="true"
       aria-hidden="true"
       aria-labelledby="customers-dialog-title" tabindex="-1">
-      <div class="dialog-panel dialog-panel-wide" data-comment="customers-dialog-panel">
+      <div class="dialog-panel dialog-panel-xl" data-comment="customers-dialog-panel">
         <header class="dialog-header" data-comment="customers-dialog-header">
           <h2
             class="dialog-title"
@@ -1958,7 +2010,7 @@
             id="customers-dialog-title">
             Add new customer
           </h2>
-          <p class="dialog-description" data-comment="customers-dialog-description">
+          <p class="dialog-description" data-comment="customers-dialog-description" style="display:none">
             Enter the customer details below.
           </p>
           <button
@@ -1971,379 +2023,313 @@
           </button>
         </header>
         <div class="dialog-body" data-comment="customers-dialog-body">
-          <!-- Personal info -->
-          <section class="form-section" data-comment="customers-form-section-personal">
-            <h3 class="form-section-title" data-comment="customers-form-section-personal-title">Personal</h3>
-            <div class="form-grid" data-comment="customers-form-personal-grid">
-              <div class="form-row" data-comment="customers-form-first-name">
-                <label data-comment="customers-form-first-name-label" for="customer-first-name"
-                  >First name<span class="req">*</span></label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-first-name-input"
-                  data-component="input"
-                  id="customer-first-name"
-                  placeholder="Jane" />
-                <span
-                  class="form-error"
-                  data-comment="customers-form-first-name-error"
-                  id="customer-first-name-error"
-                  style="display: none"
-                  >First name is required.</span
-                >
+          <!-- ───── Section: General information ───── -->
+          <section class="form-section-group" data-comment="customers-form-section-general">
+            <h3 class="form-section-group-title" data-comment="customers-form-section-general-title">General information</h3>
+            <div class="form-section-blocks" data-comment="customers-form-section-general-blocks">
+              <!-- Block: Personal -->
+              <div class="form-block-card" data-comment="customers-form-block-personal">
+                <h4 class="form-block-title" data-comment="customers-form-block-personal-title">Personal</h4>
+                <div class="form-block-fields" data-comment="customers-form-block-personal-fields">
+                  <div class="form-row" data-comment="customers-form-first-name">
+                    <label data-comment="customers-form-first-name-label" for="customer-first-name">First name<span class="req">*</span></label>
+                    <input type="text" data-comment="customers-form-first-name-input" data-component="input" id="customer-first-name" placeholder="Enter first name" />
+                    <span class="form-error" data-comment="customers-form-first-name-error" id="customer-first-name-error" style="display: none">First name is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-last-name">
+                    <label data-comment="customers-form-last-name-label" for="customer-last-name">Last name<span class="req">*</span></label>
+                    <input type="text" data-comment="customers-form-last-name-input" data-component="input" id="customer-last-name" placeholder="Enter last name" />
+                    <span class="form-error" data-comment="customers-form-last-name-error" id="customer-last-name-error" style="display: none">Last name is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-ebms-id">
+                    <label data-comment="customers-form-ebms-id-label" for="customer-ebms-id">EBMS customer ID</label>
+                    <input type="text" data-comment="customers-form-ebms-id-input" data-component="input" id="customer-ebms-id" placeholder="Enter EBMS ID" />
+                    <span class="form-hint" data-comment="customers-form-ebms-id-hint">Format: ABC-1234</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-tags">
+                    <label data-comment="customers-form-tags-label" for="customer-tags">Tags</label>
+                    <div class="select" data-comment="customers-form-tags-select" data-component="select" data-placeholder="Choose..." id="customer-tags">
+                      <button type="button" class="select-trigger" aria-expanded="false" data-comment="customers-tags-select-trigger"><span class="select-trigger-label"></span>
+                        <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </button>
+                      <input type="hidden" value="" />
+                      <div class="select-popover" style="display:none" role="listbox">
+                        <div class="select-item" data-value="">—</div>
+                        <div class="select-item" data-value="VIP">VIP</div>
+                        <div class="select-item" data-value="Dealer">Dealer</div>
+                        <div class="select-item" data-value="Repeat">Repeat</div>
+                        <div class="select-item" data-value="Builder">Builder</div>
+                        <div class="select-item" data-value="Rush">Rush</div>
+                        <div class="select-item" data-value="New">New</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-position">
+                    <label data-comment="customers-form-position-label" for="customer-position">Title or Position</label>
+                    <input type="text" data-comment="customers-form-position-input" data-component="input" id="customer-position" placeholder="Enter title or position" />
+                  </div>
+                  <div class="form-row" data-comment="customers-form-website">
+                    <label data-comment="customers-form-website-label" for="customer-website">Website URL</label>
+                    <input type="url" data-comment="customers-form-website-input" data-component="input" id="customer-website" placeholder="https://example.com" />
+                  </div>
+                </div>
               </div>
-              <div class="form-row" data-comment="customers-form-last-name">
-                <label data-comment="customers-form-last-name-label" for="customer-last-name"
-                  >Last name<span class="req">*</span></label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-last-name-input"
-                  data-component="input"
-                  id="customer-last-name"
-                  placeholder="Doe" />
-                <span
-                  class="form-error"
-                  data-comment="customers-form-last-name-error"
-                  id="customer-last-name-error"
-                  style="display: none"
-                  >Last name is required.</span
-                >
-              </div>
-              <div class="form-row" data-comment="customers-form-email">
-                <label data-comment="customers-form-email-label" for="customer-email"
-                  >Email<span class="req">*</span></label
-                >
-                <input
-                  type="email"
-                  data-comment="customers-form-email-input"
-                  data-component="input"
-                  id="customer-email"
-                  placeholder="jane@example.com" />
-                <span
-                  class="form-error"
-                  data-comment="customers-form-email-error"
-                  id="customer-email-error"
-                  style="display: none"
-                  >Enter a valid email address.</span
-                >
-              </div>
-              <div class="form-row" data-comment="customers-form-phone">
-                <label data-comment="customers-form-phone-label" for="customer-phone"
-                  >Primary phone<span class="req">*</span></label
-                >
-                <input
-                  type="tel"
-                  data-comment="customers-form-phone-input"
-                  data-component="input"
-                  id="customer-phone"
-                  placeholder="(555) 555-1234" />
-                <span
-                  class="form-error"
-                  data-comment="customers-form-phone-error"
-                  id="customer-phone-error"
-                  style="display: none"
-                  >Primary phone is required.</span
-                >
-              </div>
-              <div class="form-row" data-comment="customers-form-secondary-phone">
-                <label data-comment="customers-form-secondary-phone-label" for="customer-secondary-phone"
-                  >Secondary phone</label
-                >
-                <input
-                  type="tel"
-                  data-comment="customers-form-secondary-phone-input"
-                  data-component="input"
-                  id="customer-secondary-phone"
-                  placeholder="(555) 555-5678" />
-              </div>
-              <div class="form-row" data-comment="customers-form-website">
-                <label data-comment="customers-form-website-label" for="customer-website"
-                  >Website</label
-                >
-                <input
-                  type="url"
-                  data-comment="customers-form-website-input"
-                  data-component="input"
-                  id="customer-website"
-                  placeholder="https://example.com" />
-              </div>
-            </div>
-          </section>
 
-          <!-- Business info -->
-          <section class="form-section" data-comment="customers-form-section-business">
-            <h3 class="form-section-title" data-comment="customers-form-section-business-title">Business</h3>
-            <div class="form-grid" data-comment="customers-form-business-grid">
-              <div class="form-row" data-comment="customers-form-company">
-                <label data-comment="customers-form-company-label" for="customer-company"
-                  >Company</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-company-input"
-                  data-component="input"
-                  id="customer-company"
-                  placeholder="Acme Corp" />
+              <!-- Block: Contact -->
+              <div class="form-block-card" data-comment="customers-form-block-contact">
+                <h4 class="form-block-title" data-comment="customers-form-block-contact-title">Contact</h4>
+                <div class="form-block-fields" data-comment="customers-form-block-contact-fields">
+                  <div class="form-row" data-comment="customers-form-phone">
+                    <label data-comment="customers-form-phone-label" for="customer-phone">Primary Phone<span class="req">*</span></label>
+                    <input type="tel" data-comment="customers-form-phone-input" data-component="input" id="customer-phone" placeholder="(973)-467-9365" />
+                    <span class="form-error" data-comment="customers-form-phone-error" id="customer-phone-error" style="display: none">Primary phone is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-secondary-phone">
+                    <label data-comment="customers-form-secondary-phone-label" for="customer-secondary-phone">Secondary Phone</label>
+                    <input type="tel" data-comment="customers-form-secondary-phone-input" data-component="input" id="customer-secondary-phone" placeholder="(973)-467-9365" />
+                  </div>
+                  <div class="form-row" data-comment="customers-form-available-times">
+                    <label data-comment="customers-form-available-times-label" for="customer-available-times">Best time to contact</label>
+                    <input type="text" data-comment="customers-form-available-times-input" data-component="input" id="customer-available-times" placeholder="Enter available times" />
+                  </div>
+                  <div class="form-row" data-comment="customers-form-email">
+                    <label data-comment="customers-form-email-label" for="customer-email">Email<span class="req">*</span></label>
+                    <input type="email" data-comment="customers-form-email-input" data-component="input" id="customer-email" placeholder="Enter email address" />
+                    <span class="form-error" data-comment="customers-form-email-error" id="customer-email-error" style="display: none">Enter a valid email address.</span>
+                  </div>
+                </div>
               </div>
-              <div class="form-row" data-comment="customers-form-position">
-                <label data-comment="customers-form-position-label" for="customer-position"
-                  >Position</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-position-input"
-                  data-component="input"
-                  id="customer-position"
-                  placeholder="Owner" />
-              </div>
-              <div class="form-row" data-comment="customers-form-ebms-id">
-                <label data-comment="customers-form-ebms-id-label" for="customer-ebms-id"
-                  >EBMS ID</label
-                >
-                <input
-                  type="text"
-                  data-comment="customers-form-ebms-id-input"
-                  data-component="input"
-                  id="customer-ebms-id"
-                  placeholder="EBMS-001" />
-                <span class="form-hint" data-comment="customers-form-ebms-id-hint">Format: ABC-1234</span>
-              </div>
-              <div class="form-row col-span-2" data-comment="customers-form-note">
-                <label data-comment="customers-form-note-label" for="customer-note"
-                  >Note</label
-                >
-                <textarea
-                  data-comment="customers-form-note-input"
-                  data-component="textarea"
-                  id="customer-note"
-                  placeholder="Internal notes about the customer..."></textarea>
-              </div>
-            </div>
-          </section>
 
-          <!-- Sales Details -->
-          <section class="form-section" data-comment="customers-form-section-sales">
-            <h3 class="form-section-title" data-comment="customers-form-section-sales-title">Sales Details</h3>
-            <div class="form-grid" data-comment="customers-form-sales-grid">
-              <div class="form-row" data-comment="customers-form-tags">
-                <label data-comment="customers-form-tags-label" for="customer-tags">Tags</label>
-                <div class="form-checkbox-group" data-comment="customers-form-tags-group" id="customer-tags">
-                  <label class="form-checkbox" data-comment="customers-form-tag-vip"><input type="checkbox" data-tag-value="VIP" />VIP</label>
-                  <label class="form-checkbox" data-comment="customers-form-tag-dealer"><input type="checkbox" data-tag-value="Dealer" />Dealer</label>
-                  <label class="form-checkbox" data-comment="customers-form-tag-repeat"><input type="checkbox" data-tag-value="Repeat" />Repeat</label>
-                  <label class="form-checkbox" data-comment="customers-form-tag-builder"><input type="checkbox" data-tag-value="Builder" />Builder</label>
-                  <label class="form-checkbox" data-comment="customers-form-tag-rush"><input type="checkbox" data-tag-value="Rush" />Rush</label>
-                  <label class="form-checkbox" data-comment="customers-form-tag-new"><input type="checkbox" data-tag-value="New" />New</label>
-                </div>
-              </div>
-              <div class="form-row" data-comment="customers-form-sales-rep">
-                <label data-comment="customers-form-sales-rep-label" for="customer-sales-rep">Sales Rep</label>
-                <div class="select" data-comment="customers-form-sales-rep-select" data-component="select" data-placeholder="Choose..." id="customer-sales-rep">
-                  <button type="button" class="select-trigger" aria-expanded="false" data-comment="customers-sales-rep-select-trigger"><span class="select-trigger-label"></span>
-                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </button>
-                  <input type="hidden" value="" />
-                  <div class="select-popover" style="display:none" role="listbox">
-                    <div class="select-item" data-value="">—</div>
-                    <div class="select-item" data-value="Tom Bradley">Tom Bradley</div>
-                    <div class="select-item" data-value="Linda Park">Linda Park</div>
-                    <div class="select-item" data-value="Marcus Yu">Marcus Yu</div>
-                    <div class="select-item" data-value="Sarah Chen">Sarah Chen</div>
-                    <div class="select-item" data-value="James Wright">James Wright</div>
+              <!-- Block: Sales Details -->
+              <div class="form-block-card" data-comment="customers-form-block-sales">
+                <h4 class="form-block-title" data-comment="customers-form-block-sales-title">Sales Details</h4>
+                <div class="form-block-fields" data-comment="customers-form-block-sales-fields">
+                  <div class="form-row" data-comment="customers-form-sales-rep">
+                    <label data-comment="customers-form-sales-rep-label" for="customer-sales-rep">Sales Rep</label>
+                    <div class="select" data-comment="customers-form-sales-rep-select" data-component="select" data-placeholder="Choose..." id="customer-sales-rep">
+                      <button type="button" class="select-trigger" aria-expanded="false" data-comment="customers-sales-rep-select-trigger"><span class="select-trigger-label"></span>
+                        <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </button>
+                      <input type="hidden" value="" />
+                      <div class="select-popover" style="display:none" role="listbox">
+                        <div class="select-item" data-value="">—</div>
+                        <div class="select-item" data-value="Tom Bradley">Tom Bradley</div>
+                        <div class="select-item" data-value="Linda Park">Linda Park</div>
+                        <div class="select-item" data-value="Marcus Yu">Marcus Yu</div>
+                        <div class="select-item" data-value="Sarah Chen">Sarah Chen</div>
+                        <div class="select-item" data-value="James Wright">James Wright</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-location" data-role-required="admin,retail_location">
+                    <label data-comment="customers-form-location-label" for="customer-location">Location (Class)<span class="req" data-role-asterisk style="display:none">*</span></label>
+                    <input type="text" data-component="input" id="customer-location" placeholder="Choose..." />
+                    <span class="form-error" id="customer-location-error" style="display: none">Location is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-terms">
+                    <label data-comment="customers-form-terms-label" for="customer-terms">Terms</label>
+                    <div class="select" data-component="select" data-placeholder="Choose..." id="customer-terms">
+                      <button type="button" class="select-trigger" data-comment="customers-terms-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                        <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </button>
+                      <input type="hidden" value="" />
+                      <div class="select-popover" style="display:none" role="listbox">
+                        <div class="select-item" data-value="">—</div>
+                        <div class="select-item" data-value="Net 30">Net 30</div>
+                        <div class="select-item" data-value="Net 60">Net 60</div>
+                        <div class="select-item" data-value="Net 90">Net 90</div>
+                        <div class="select-item" data-value="Due on receipt">Due on receipt</div>
+                        <div class="select-item" data-value="COD">COD</div>
+                        <div class="select-item" data-value="50% deposit">50% deposit</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="form-row" data-comment="customers-form-location" data-role-required="admin,retail_location">
-                <label data-comment="customers-form-location-label" for="customer-location">Location<span class="req" data-role-asterisk style="display:none">*</span></label>
-                <input type="text" data-component="input" id="customer-location" placeholder="Lancaster, PA" />
-                <span class="form-error" id="customer-location-error" style="display: none">Location is required.</span>
-              </div>
-              <div class="form-row" data-comment="customers-form-terms">
-                <label for="customer-terms">Terms</label>
-                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-terms">
-                  <button type="button" class="select-trigger" data-comment="customers-terms-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
-                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </button>
-                  <input type="hidden" value="" />
-                  <div class="select-popover" style="display:none" role="listbox">
-                    <div class="select-item" data-value="">—</div>
-                    <div class="select-item" data-value="Net 30">Net 30</div>
-                    <div class="select-item" data-value="Net 60">Net 60</div>
-                    <div class="select-item" data-value="Net 90">Net 90</div>
-                    <div class="select-item" data-value="Due on receipt">Due on receipt</div>
-                    <div class="select-item" data-value="COD">COD</div>
-                    <div class="select-item" data-value="50% deposit">50% deposit</div>
+
+              <!-- Block: Other -->
+              <div class="form-block-card" data-comment="customers-form-block-other">
+                <h4 class="form-block-title" data-comment="customers-form-block-other-title">Other</h4>
+                <div class="form-block-fields" data-comment="customers-form-block-other-fields">
+                  <div class="form-row" data-comment="customers-form-company">
+                    <label data-comment="customers-form-company-label" for="customer-company">Company name</label>
+                    <input type="text" data-comment="customers-form-company-input" data-component="input" id="customer-company" placeholder="Enter company name" />
+                  </div>
+                  <div class="form-row" data-comment="customers-form-note">
+                    <label data-comment="customers-form-note-label" for="customer-note">Entity note</label>
+                    <textarea data-comment="customers-form-note-input" data-component="textarea" id="customer-note" placeholder="Enter note"></textarea>
                   </div>
                 </div>
               </div>
-              <div class="form-row" data-comment="customers-form-customer-type">
-                <label for="customer-type-sel">Customer Type</label>
-                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-customer-type">
-                  <button type="button" class="select-trigger" data-comment="customers-customer-type-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
-                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </button>
-                  <input type="hidden" value="" />
-                  <div class="select-popover" style="display:none" role="listbox">
-                    <div class="select-item" data-value="">—</div>
-                    <div class="select-item" data-value="Residential">Residential</div>
-                    <div class="select-item" data-value="Commercial">Commercial</div>
-                    <div class="select-item" data-value="Builder">Builder</div>
-                    <div class="select-item" data-value="Dealer">Dealer</div>
-                  </div>
+
+              <!-- Block: Email preferences (no title) -->
+              <div class="form-block-card" data-comment="customers-form-block-email-prefs">
+                <div class="form-block-fields" data-comment="customers-form-block-email-prefs-fields">
+                  <label class="form-checkbox" data-comment="customers-form-opt-marketing">
+                    <input type="checkbox" id="customer-opt-out-marketing" />
+                    Opt Out of Marketing Emails
+                  </label>
+                  <label class="form-checkbox" data-comment="customers-form-opt-billing">
+                    <input type="checkbox" id="customer-opt-out-billing" />
+                    Opt Out of Billing Emails
+                  </label>
                 </div>
               </div>
-              <div class="form-row" data-comment="customers-form-lead-origin">
-                <label>Lead Origin</label>
-                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-origin">
-                  <button type="button" class="select-trigger" data-comment="customers-lead-origin-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
-                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </button>
-                  <input type="hidden" value="" />
-                  <div class="select-popover" style="display:none" role="listbox">
-                    <div class="select-item" data-value="">—</div>
-                    <div class="select-item" data-value="Web">Web</div>
-                    <div class="select-item" data-value="Referral">Referral</div>
-                    <div class="select-item" data-value="Trade Show">Trade Show</div>
-                    <div class="select-item" data-value="Cold Outreach">Cold Outreach</div>
+
+              <!-- Block: Positioning -->
+              <div class="form-block-card" data-comment="customers-form-block-positioning">
+                <h4 class="form-block-title" data-comment="customers-form-block-positioning-title">Positioning</h4>
+                <div class="form-block-fields" data-comment="customers-form-block-positioning-fields">
+                  <div class="form-row" data-comment="customers-form-customer-type">
+                    <label data-comment="customers-form-customer-type-label" for="customer-customer-type">Customer Type</label>
+                    <div class="select" data-component="select" data-placeholder="Choose..." id="customer-customer-type">
+                      <button type="button" class="select-trigger" data-comment="customers-customer-type-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                        <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </button>
+                      <input type="hidden" value="" />
+                      <div class="select-popover" style="display:none" role="listbox">
+                        <div class="select-item" data-value="">—</div>
+                        <div class="select-item" data-value="Residential">Residential</div>
+                        <div class="select-item" data-value="Commercial">Commercial</div>
+                        <div class="select-item" data-value="Builder">Builder</div>
+                        <div class="select-item" data-value="Dealer">Dealer</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div class="form-row" data-comment="customers-form-lead-status">
-                <label>Lead Status</label>
-                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-status">
-                  <button type="button" class="select-trigger" data-comment="customers-lead-status-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
-                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </button>
-                  <input type="hidden" value="" />
-                  <div class="select-popover" style="display:none" role="listbox">
-                    <div class="select-item" data-value="">—</div>
-                    <div class="select-item" data-value="New">New</div>
-                    <div class="select-item" data-value="Contacted">Contacted</div>
-                    <div class="select-item" data-value="Qualified">Qualified</div>
-                    <div class="select-item" data-value="Lost">Lost</div>
-                    <div class="select-item" data-value="Customer">Customer</div>
+                  <div class="form-row" data-comment="customers-form-lead-origin">
+                    <label data-comment="customers-form-lead-origin-label">Lead Origin</label>
+                    <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-origin">
+                      <button type="button" class="select-trigger" data-comment="customers-lead-origin-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                        <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </button>
+                      <input type="hidden" value="" />
+                      <div class="select-popover" style="display:none" role="listbox">
+                        <div class="select-item" data-value="">—</div>
+                        <div class="select-item" data-value="Web">Web</div>
+                        <div class="select-item" data-value="Referral">Referral</div>
+                        <div class="select-item" data-value="Trade Show">Trade Show</div>
+                        <div class="select-item" data-value="Cold Outreach">Cold Outreach</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div class="form-row" data-comment="customers-form-lead-rating">
-                <label>Lead Rating</label>
-                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-rating">
-                  <button type="button" class="select-trigger" data-comment="customers-lead-rating-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
-                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </button>
-                  <input type="hidden" value="" />
-                  <div class="select-popover" style="display:none" role="listbox">
-                    <div class="select-item" data-value="">—</div>
-                    <div class="select-item" data-value="Hot">Hot</div>
-                    <div class="select-item" data-value="Warm">Warm</div>
-                    <div class="select-item" data-value="Cold">Cold</div>
+                  <div class="form-row" data-comment="customers-form-lead-status">
+                    <label data-comment="customers-form-lead-status-label">Lead Status</label>
+                    <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-status">
+                      <button type="button" class="select-trigger" data-comment="customers-lead-status-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                        <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </button>
+                      <input type="hidden" value="" />
+                      <div class="select-popover" style="display:none" role="listbox">
+                        <div class="select-item" data-value="">—</div>
+                        <div class="select-item" data-value="New">New</div>
+                        <div class="select-item" data-value="Contacted">Contacted</div>
+                        <div class="select-item" data-value="Qualified">Qualified</div>
+                        <div class="select-item" data-value="Lost">Lost</div>
+                        <div class="select-item" data-value="Customer">Customer</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div class="form-row" data-comment="customers-form-lead-source">
-                <label>Lead Source</label>
-                <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-source">
-                  <button type="button" class="select-trigger" data-comment="customers-lead-source-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
-                    <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </button>
-                  <input type="hidden" value="" />
-                  <div class="select-popover" style="display:none" role="listbox">
-                    <div class="select-item" data-value="">—</div>
-                    <div class="select-item" data-value="Google">Google</div>
-                    <div class="select-item" data-value="Facebook">Facebook</div>
-                    <div class="select-item" data-value="Instagram">Instagram</div>
-                    <div class="select-item" data-value="Word of Mouth">Word of Mouth</div>
-                    <div class="select-item" data-value="Other">Other</div>
+                  <div class="form-row" data-comment="customers-form-lead-rating">
+                    <label data-comment="customers-form-lead-rating-label">Lead Rating</label>
+                    <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-rating">
+                      <button type="button" class="select-trigger" data-comment="customers-lead-rating-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                        <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </button>
+                      <input type="hidden" value="" />
+                      <div class="select-popover" style="display:none" role="listbox">
+                        <div class="select-item" data-value="">—</div>
+                        <div class="select-item" data-value="Hot">Hot</div>
+                        <div class="select-item" data-value="Warm">Warm</div>
+                        <div class="select-item" data-value="Cold">Cold</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-lead-source">
+                    <label data-comment="customers-form-lead-source-label">Lead Source</label>
+                    <div class="select" data-component="select" data-placeholder="Choose..." id="customer-lead-source">
+                      <button type="button" class="select-trigger" data-comment="customers-lead-source-select-trigger" aria-expanded="false"><span class="select-trigger-label"></span>
+                        <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </button>
+                      <input type="hidden" value="" />
+                      <div class="select-popover" style="display:none" role="listbox">
+                        <div class="select-item" data-value="">—</div>
+                        <div class="select-item" data-value="Google">Google</div>
+                        <div class="select-item" data-value="Facebook">Facebook</div>
+                        <div class="select-item" data-value="Instagram">Instagram</div>
+                        <div class="select-item" data-value="Word of Mouth">Word of Mouth</div>
+                        <div class="select-item" data-value="Other">Other</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </section>
 
-          <!-- Positioning -->
-          <section class="form-section" data-comment="customers-form-section-positioning">
-            <h3 class="form-section-title" data-comment="customers-form-section-positioning-title">Positioning</h3>
-            <div class="form-grid" data-comment="customers-form-positioning-grid">
-              <div class="form-row form-row-checkboxes col-span-2" data-comment="customers-form-available-times">
-                <label>Available times</label>
-                <div class="form-checkbox-group" id="customer-available-times">
-                  <label class="form-checkbox"><input type="checkbox" data-time-value="Morning" />Morning</label>
-                  <label class="form-checkbox"><input type="checkbox" data-time-value="Afternoon" />Afternoon</label>
-                  <label class="form-checkbox"><input type="checkbox" data-time-value="Evening" />Evening</label>
-                  <label class="form-checkbox"><input type="checkbox" data-time-value="Weekends" />Weekends</label>
+          <!-- ───── Section: Address ───── -->
+          <section class="form-section-group" data-comment="customers-form-section-address">
+            <h3 class="form-section-group-title" data-comment="customers-form-section-address-title">Address</h3>
+            <div class="form-section-blocks" data-comment="customers-form-section-address-blocks">
+              <!-- Block: Billing Address -->
+              <div class="form-block-card" data-comment="customers-form-block-billing" id="customer-billing-section">
+                <h4 class="form-block-title" data-comment="customers-form-block-billing-title">Billing Address</h4>
+                <div class="form-block-fields" data-comment="customers-form-block-billing-fields">
+                  <div class="form-row" data-comment="customers-form-billing-street">
+                    <label for="customer-billing-street">Street<span class="req">*</span></label>
+                    <input type="text" data-component="input" id="customer-billing-street" placeholder="Enter street" />
+                    <span class="form-error" id="customer-billing-street-error" style="display:none">Street is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-billing-city">
+                    <label for="customer-billing-city">City<span class="req">*</span></label>
+                    <input type="text" data-component="input" id="customer-billing-city" placeholder="Enter city" />
+                    <span class="form-error" id="customer-billing-city-error" style="display:none">City is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-billing-state">
+                    <label for="customer-billing-state">State/Province<span class="req">*</span></label>
+                    <input type="text" data-component="input" id="customer-billing-state" placeholder="Enter state or province" />
+                    <span class="form-error" id="customer-billing-state-error" style="display:none">State is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-billing-zip">
+                    <label for="customer-billing-zip">Postal Code<span class="req">*</span></label>
+                    <input type="text" data-component="input" id="customer-billing-zip" placeholder="Enter postal code" />
+                    <span class="form-error" id="customer-billing-zip-error" style="display:none">Postal code is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-billing-country">
+                    <label for="customer-billing-country">Country</label>
+                    <input type="text" data-component="input" id="customer-billing-country" placeholder="Enter country" />
+                  </div>
                 </div>
               </div>
-              <label class="form-checkbox" data-comment="customers-form-opt-marketing">
-                <input type="checkbox" id="customer-opt-out-marketing" />
-                Opt Out of Marketing Emails
-              </label>
-              <label class="form-checkbox" data-comment="customers-form-opt-billing">
-                <input type="checkbox" id="customer-opt-out-billing" />
-                Opt Out of Billing Emails
-              </label>
-            </div>
-          </section>
 
-          <!-- Billing address -->
-          <section class="form-section" data-comment="customers-form-section-billing">
-            <h3 class="form-section-title" data-comment="customers-form-section-billing-title">Billing address</h3>
-            <div class="form-grid-3" data-comment="customers-form-billing-grid">
-              <div class="form-row col-span-3" data-comment="customers-form-billing-street">
-                <label for="customer-billing-street">Street<span class="req">*</span></label>
-                <input type="text" data-component="input" id="customer-billing-street" placeholder="123 Main St" />
-                <span class="form-error" id="customer-billing-street-error" style="display:none">Street is required.</span>
-              </div>
-              <div class="form-row" data-comment="customers-form-billing-city">
-                <label for="customer-billing-city">City<span class="req">*</span></label>
-                <input type="text" data-component="input" id="customer-billing-city" placeholder="Lancaster" />
-                <span class="form-error" id="customer-billing-city-error" style="display:none">City is required.</span>
-              </div>
-              <div class="form-row" data-comment="customers-form-billing-state">
-                <label for="customer-billing-state">State<span class="req">*</span></label>
-                <input type="text" data-component="input" id="customer-billing-state" placeholder="Pennsylvania" />
-                <span class="form-error" id="customer-billing-state-error" style="display:none">State is required.</span>
-              </div>
-              <div class="form-row" data-comment="customers-form-billing-zip">
-                <label for="customer-billing-zip">Postal Code<span class="req">*</span></label>
-                <input type="text" data-component="input" id="customer-billing-zip" placeholder="17601" />
-                <span class="form-error" id="customer-billing-zip-error" style="display:none">Postal code is required.</span>
-              </div>
-              <div class="form-row col-span-3" data-comment="customers-form-billing-country">
-                <label for="customer-billing-country">Country</label>
-                <input type="text" data-component="input" id="customer-billing-country" placeholder="United States" />
-              </div>
-            </div>
-          </section>
-
-          <!-- Shipping address -->
-          <section class="form-section" data-comment="customers-form-section-shipping" id="customer-shipping-section">
-            <h3 class="form-section-title" data-comment="customers-form-section-shipping-title">Shipping address</h3>
-            <div class="form-grid-3" data-comment="customers-form-shipping-grid">
-              <div class="form-row col-span-3" data-comment="customers-form-shipping-street">
-                <label for="customer-shipping-street">Street<span class="req">*</span></label>
-                <input type="text" data-component="input" id="customer-shipping-street" placeholder="123 Main St" />
-                <span class="form-error" id="customer-shipping-street-error" style="display:none">Street is required.</span>
-              </div>
-              <div class="form-row" data-comment="customers-form-shipping-city">
-                <label for="customer-shipping-city">City<span class="req">*</span></label>
-                <input type="text" data-component="input" id="customer-shipping-city" placeholder="Lancaster" />
-                <span class="form-error" id="customer-shipping-city-error" style="display:none">City is required.</span>
-              </div>
-              <div class="form-row" data-comment="customers-form-shipping-state">
-                <label for="customer-shipping-state">State<span class="req">*</span></label>
-                <input type="text" data-component="input" id="customer-shipping-state" placeholder="Pennsylvania" />
-                <span class="form-error" id="customer-shipping-state-error" style="display:none">State is required.</span>
-              </div>
-              <div class="form-row" data-comment="customers-form-shipping-zip">
-                <label for="customer-shipping-zip">Postal Code<span class="req">*</span></label>
-                <input type="text" data-component="input" id="customer-shipping-zip" placeholder="17601" />
-                <span class="form-error" id="customer-shipping-zip-error" style="display:none">Postal code is required.</span>
-              </div>
-              <div class="form-row col-span-3" data-comment="customers-form-shipping-country">
-                <label for="customer-shipping-country">Country</label>
-                <input type="text" data-component="input" id="customer-shipping-country" placeholder="United States" />
+              <!-- Block: Shipping Address -->
+              <div class="form-block-card" data-comment="customers-form-block-shipping" id="customer-shipping-section">
+                <h4 class="form-block-title" data-comment="customers-form-block-shipping-title">Shipping Address</h4>
+                <div class="form-block-fields" data-comment="customers-form-block-shipping-fields">
+                  <div class="form-row" data-comment="customers-form-shipping-street">
+                    <label for="customer-shipping-street">Street<span class="req">*</span></label>
+                    <input type="text" data-component="input" id="customer-shipping-street" placeholder="Enter street" />
+                    <span class="form-error" id="customer-shipping-street-error" style="display:none">Street is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-shipping-city">
+                    <label for="customer-shipping-city">City<span class="req">*</span></label>
+                    <input type="text" data-component="input" id="customer-shipping-city" placeholder="Enter city" />
+                    <span class="form-error" id="customer-shipping-city-error" style="display:none">City is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-shipping-state">
+                    <label for="customer-shipping-state">State/Province<span class="req">*</span></label>
+                    <input type="text" data-component="input" id="customer-shipping-state" placeholder="Enter state or province" />
+                    <span class="form-error" id="customer-shipping-state-error" style="display:none">State is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-shipping-zip">
+                    <label for="customer-shipping-zip">Postal Code<span class="req">*</span></label>
+                    <input type="text" data-component="input" id="customer-shipping-zip" placeholder="Enter postal code" />
+                    <span class="form-error" id="customer-shipping-zip-error" style="display:none">Postal code is required.</span>
+                  </div>
+                  <div class="form-row" data-comment="customers-form-shipping-country">
+                    <label for="customer-shipping-country">Country</label>
+                    <input type="text" data-component="input" id="customer-shipping-country" placeholder="Enter country" />
+                  </div>
+                </div>
               </div>
             </div>
           </section>

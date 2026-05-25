@@ -1571,8 +1571,7 @@
     <!-- Address edit dialog (billing or shipping) -->
     <div class="ec-dialog-overlay" data-comment="estimates-create-address-dialog-overlay" id="estimates-create-address-dialog-overlay">
       <div class="ec-dialog" role="dialog" aria-modal="true" data-comment="estimates-create-address-dialog">
-        <h3 class="ec-dialog-title" data-comment="estimates-create-address-dialog-title" id="estimates-create-address-dialog-title">Edit Address</h3>
-        <p class="ec-dialog-desc" data-comment="estimates-create-address-dialog-desc">Updates this estimate only.</p>
+        <h3 class="ec-dialog-title" data-comment="estimates-create-address-dialog-title" id="estimates-create-address-dialog-title">Billing Address</h3>
         <div class="ec-dialog-body" data-comment="estimates-create-address-dialog-body">
           <div class="ec-field" data-comment="estimates-create-address-dialog-street-field">
             <label for="estimates-create-address-dialog-street">Street</label>
@@ -1590,7 +1589,7 @@
           </div>
           <div class="ec-dialog-grid-2">
             <div class="ec-field" data-comment="estimates-create-address-dialog-zip-field">
-              <label for="estimates-create-address-dialog-zip">Postal Code</label>
+              <label for="estimates-create-address-dialog-zip">Zip Code</label>
               <input id="estimates-create-address-dialog-zip" data-comment="estimates-create-address-dialog-zip" type="text" />
             </div>
             <div class="ec-field" data-comment="estimates-create-address-dialog-country-field">
@@ -1684,11 +1683,11 @@
     <!-- Site-check proposal dialog -->
     <div class="ec-dialog-overlay" data-comment="estimates-create-site-check-overlay" id="estimates-create-site-check-overlay">
       <div class="ec-dialog" role="dialog" aria-modal="true" data-comment="estimates-create-site-check-dialog">
-        <h3 class="ec-dialog-title" data-comment="estimates-create-site-check-title">Create a site check?</h3>
-        <p class="ec-dialog-desc" data-comment="estimates-create-site-check-desc">Schedule a site visit to verify measurements before production.</p>
+        <h3 class="ec-dialog-title" data-comment="estimates-create-site-check-title">Create a Site Check?</h3>
+        <p class="ec-dialog-desc" data-comment="estimates-create-site-check-desc">This estimate has a site check requested. Would you like to create a site check for it now?</p>
         <div class="ec-dialog-footer">
-          <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-site-check-no" id="estimates-create-site-check-no">Not now</button>
-          <button type="button" class="btn btn-primary btn-sm" data-comment="estimates-create-site-check-yes" id="estimates-create-site-check-yes">Create site check</button>
+          <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-site-check-no" id="estimates-create-site-check-no">Skip</button>
+          <button type="button" class="btn btn-primary btn-sm" data-comment="estimates-create-site-check-yes" id="estimates-create-site-check-yes">Create Site Check</button>
         </div>
       </div>
     </div>
@@ -2917,7 +2916,7 @@
       function openAddressDialog(type) {
         const current = type === "billing" ? getEffectiveBilling() : getEffectiveShipping();
         document.getElementById("estimates-create-address-dialog-title").textContent =
-          type === "billing" ? "Edit Billing Address" : "Edit Shipping Address";
+          type === "billing" ? "Billing Address" : "Shipping Address";
         document.getElementById("estimates-create-address-dialog-type").value = type;
         document.getElementById("estimates-create-address-dialog-street").value  = current?.street    || "";
         document.getElementById("estimates-create-address-dialog-city").value    = current?.city      || "";

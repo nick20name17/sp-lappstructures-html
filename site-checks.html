@@ -1782,12 +1782,12 @@
               </td>
               <td data-comment="${ctx}-estimate">
                 ${sc.estimate_id
-                  ? `<a class="estimate-link" data-comment="${ctx}-estimate-link" href="estimate-detail.html?id=${sc.estimate_id}" onclick="event.stopPropagation()">${sc.estimate_id}</a>`
+                  ? `<a class="estimate-link" data-comment="${ctx}-estimate-link" href="estimate-detail.html?id=${sc.estimate_id}" >${sc.estimate_id}</a>`
                   : "—"}
               </td>
               <td data-comment="${ctx}-customer">
                 ${sc.contact
-                  ? `<a class="customer-link" data-comment="${ctx}-customer-link" href="customer-detail.html?id=${sc.contact.id}" onclick="event.stopPropagation()">${escapeHtml(customerName || "—")}</a>`
+                  ? `<a class="customer-link" data-comment="${ctx}-customer-link" href="customer-detail.html?id=${sc.contact.id}" >${escapeHtml(customerName || "—")}</a>`
                   : "—"}
               </td>
               <td data-comment="${ctx}-status">${renderSCBadge(sc.status, ctx)}</td>
@@ -1795,7 +1795,7 @@
               <td class="hide-mobile" data-comment="${ctx}-start-date">${formatDate(sc.start_date_time)}</td>
               <td data-comment="${ctx}-actions">
                 ${s.viewOnly ? "" : `
-                <div class="row-actions" data-comment="${ctx}-actions-wrap" onclick="event.stopPropagation()">
+                <div class="row-actions" data-comment="${ctx}-actions-wrap" >
                   <button type="button" class="btn-icon-sm danger" data-comment="${ctx}-delete" data-component="button" data-action="delete" data-site-check-id="${sc.id}" aria-label="Delete site check">${ICONS.trash2}</button>
                 </div>`}
               </td>
@@ -1848,6 +1848,8 @@
         if (sc) {
           document.getElementById("site-checks-done-id-label").textContent = `SC-${sc.id}`;
           document.getElementById("site-checks-cancel-id-label").textContent = `SC-${sc.id}`;
+          const delDesc = document.getElementById("site-checks-delete-description");
+          if (delDesc) delDesc.innerHTML = `Are you sure you want to delete <strong>SC-${sc.id}</strong>? This action cannot be undone.`;
         }
         const ta = document.getElementById("site-checks-done-results");
         if (ta && ta.value !== s.doneResults) ta.value = s.doneResults;
@@ -2081,11 +2083,14 @@
       document.getElementById("site-checks-table-body").addEventListener("click", (e) => {
         const actionBtn = e.target.closest("[data-action='delete']");
         if (actionBtn) {
+          e.stopPropagation();
           const id = Number(actionBtn.dataset.siteCheckId);
           const sc = store.get().siteChecks.find((x) => x.id === id);
           if (sc) store.set({ dialog: { type: "delete", siteCheck: sc } });
           return;
         }
+        // Skip if click landed inside row-actions wrapper
+        if (e.target.closest(".row-actions")) return;
         // Row click → open drawer (preview) instead of navigating
         const row = e.target.closest("tr.clickable[data-site-check-id]");
         if (row) {
