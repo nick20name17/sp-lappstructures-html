@@ -643,7 +643,7 @@
 
       /* File upload / attachments */
       .upload-zone {
-        border: 1px dashed color-mix(in oklch, var(--input) 60%, var(--muted-foreground));
+        border: 2px dashed color-mix(in oklch, var(--input) 60%, var(--muted-foreground));
         border-radius: 8px;
         background: color-mix(in oklch, var(--muted) 60%, white);
         padding: 18px;
@@ -1577,6 +1577,14 @@
         const errors = validate(s.form);
         store.set({ submitAttempted: true, errors });
         if (Object.keys(errors).length > 0) {
+          const order = ["contact_id", "assigned_to_id", "estimate_id"];
+          const firstKey = order.find((k) => errors[k]);
+          const idMap = { contact_id: "contact-trigger", assigned_to_id: "assigned-trigger", estimate_id: "estimate-trigger" };
+          const el = firstKey && document.getElementById(idMap[firstKey]);
+          if (el) {
+            el.scrollIntoView({ block: "center", behavior: "smooth" });
+            try { el.focus(); } catch (e) {}
+          }
           return;
         }
         store.set({ isSaving: true });
@@ -1790,7 +1798,9 @@
         ];
         fields.forEach((f) => {
           const hasError = !!s.errors[f.key];
-          document.getElementById(f.triggerId).classList.toggle("is-error", hasError);
+          const trig = document.getElementById(f.triggerId);
+          trig.classList.toggle("is-error", hasError);
+          if (hasError) trig.setAttribute("aria-invalid", "true"); else trig.removeAttribute("aria-invalid");
           const errEl = document.getElementById(f.errorId);
           errEl.style.display = hasError ? "block" : "none";
           if (hasError) errEl.textContent = s.errors[f.key];

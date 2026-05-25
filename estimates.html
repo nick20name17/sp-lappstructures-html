@@ -1983,7 +1983,7 @@
           body.innerHTML = `<tr data-comment="estimates-error-row"><td colspan="${colCount}" data-comment="estimates-error-cell">
             <div class="state-card" data-comment="estimates-error-state">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              <div class="state-title" data-comment="estimates-error-title">Failed to load. Please refresh.</div>
+              <div class="state-title" data-comment="estimates-error-title">Failed to load estimates. Please refresh.</div>
               <button type="button" class="btn btn-primary btn-sm" data-comment="estimates-error-retry" data-component="button" onclick="window.__SIMULATE_LOAD_ERROR=false;store.set({estimatesError:false});">Retry</button>
             </div>
           </td></tr>`;
@@ -2020,7 +2020,7 @@
           body.innerHTML = `<tr data-comment="estimates-empty-row"><td colspan="${colCount}" data-comment="estimates-empty-cell">
             <div class="state-card" data-comment="estimates-empty-state">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <div class="state-title" data-comment="estimates-empty-title">No estimates found</div>
+              <div class="state-title" data-comment="estimates-empty-title">No estimates yet.</div>
               <div class="state-desc" data-comment="estimates-empty-desc">Try adjusting your search or filters.</div>
               <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-empty-clear" data-component="button" onclick="store.set({ listSearchInput:'', listSearchTerm:'', sort:{key:'id',dir:'desc'}, page:1 })">Clear filters</button>
             </div>

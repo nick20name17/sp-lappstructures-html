@@ -1161,6 +1161,49 @@
       }
       .od-form-error { font-size: 0.75rem; color: var(--destructive); }
 
+      /* Rich text editor (decorative) */
+      .rte-shell {
+        border: 1px solid var(--input);
+        border-radius: 6px;
+        background: transparent;
+        overflow: hidden;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .rte-shell:focus-within {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+      }
+      .rte-shell .rte-toolbar {
+        display: flex; align-items: center; gap: 2px;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--input);
+        background: color-mix(in oklch, var(--muted) 40%, transparent);
+      }
+      .rte-shell .rte-toolbar button {
+        width: 26px; height: 26px;
+        display: inline-flex; align-items: center; justify-content: center;
+        border-radius: 4px;
+        color: var(--muted-foreground);
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+      }
+      .rte-shell .rte-toolbar button:hover { background: var(--card); color: var(--foreground); }
+      .rte-shell .rte-toolbar button svg { width: 14px; height: 14px; }
+      .rte-shell .rte-toolbar-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+      .rte-shell > textarea {
+        width: 100%;
+        border: 0;
+        border-radius: 0;
+        outline: none;
+        background: transparent;
+        color: var(--foreground);
+        font-family: inherit; font-size: 0.875rem;
+        padding: 8px 10px;
+        resize: vertical;
+        min-height: 80px;
+      }
+
       /* ───── Body ───── */
       .od-body {
         flex: 1;
@@ -1587,15 +1630,15 @@
 
     <!-- Payment dialog -->
     <div class="od-dialog-overlay" data-comment="order-detail-payment-dialog-overlay" id="payment-dialog-overlay">
-      <div class="od-dialog" data-comment="order-detail-payment-dialog" data-component="dialog" role="dialog" aria-modal="true">
+      <div class="od-dialog" data-comment="order-detail-payment-dialog" data-component="dialog" role="dialog" aria-modal="true" aria-labelledby="payment-dialog-title" aria-describedby="payment-dialog-description" tabindex="-1">
         <div data-comment="order-detail-payment-dialog-header">
           <div class="od-dialog-header-row" data-comment="order-detail-payment-dialog-header-row">
             <span class="od-dialog-icon-badge" data-comment="order-detail-payment-dialog-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </span>
-            <h2 class="od-dialog-title" data-comment="order-detail-payment-dialog-title">Record Down Payment</h2>
+            <h2 class="od-dialog-title" id="payment-dialog-title" data-comment="order-detail-payment-dialog-title">Record Down Payment</h2>
           </div>
-          <p class="od-dialog-description" data-comment="order-detail-payment-dialog-description">Verify that the customer's down payment has been received and recorded.</p>
+          <p class="od-dialog-description" id="payment-dialog-description" data-comment="order-detail-payment-dialog-description">Verify that the customer's down payment has been received and recorded.</p>
         </div>
         <div class="od-form-row" data-comment="order-detail-payment-date-row">
           <label for="payment-date" data-comment="order-detail-payment-date-label">Payment date</label>
@@ -1641,15 +1684,15 @@
 
     <!-- Delivery dialog -->
     <div class="od-dialog-overlay" data-comment="order-detail-delivery-dialog-overlay" id="delivery-dialog-overlay">
-      <div class="od-dialog" data-comment="order-detail-delivery-dialog" data-component="dialog" role="dialog" aria-modal="true">
+      <div class="od-dialog" data-comment="order-detail-delivery-dialog" data-component="dialog" role="dialog" aria-modal="true" aria-labelledby="delivery-dialog-title" aria-describedby="delivery-dialog-description" tabindex="-1">
         <div data-comment="order-detail-delivery-dialog-header">
           <div class="od-dialog-header-row" data-comment="order-detail-delivery-dialog-header-row">
             <span class="od-dialog-icon-badge" data-comment="order-detail-delivery-dialog-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
             </span>
-            <h2 class="od-dialog-title" data-comment="order-detail-delivery-dialog-title">Update Delivery Information</h2>
+            <h2 class="od-dialog-title" id="delivery-dialog-title" data-comment="order-detail-delivery-dialog-title">Update Delivery Information</h2>
           </div>
-          <p class="od-dialog-description" data-comment="order-detail-delivery-dialog-description">Confirm the delivery method and any special handling details for this order.</p>
+          <p class="od-dialog-description" id="delivery-dialog-description" data-comment="order-detail-delivery-dialog-description">Confirm the delivery method and any special handling details for this order.</p>
         </div>
         <div class="od-form-row" data-comment="order-detail-delivery-lead-time-row">
           <label for="delivery-lead-time" data-comment="order-detail-delivery-lead-time-label">Lead time</label>
@@ -1706,7 +1749,17 @@
         </div>
         <div class="od-form-row" data-comment="order-detail-delivery-special-row">
           <label for="delivery-special" data-comment="order-detail-delivery-special-label">Special delivery instructions</label>
-          <textarea id="delivery-special" data-comment="order-detail-delivery-special-input" data-component="textarea" rows="3" placeholder="Gate codes, contact on arrival, accessibility notes, etc."></textarea>
+          <div class="rte-shell" data-comment="order-detail-delivery-special-rte" data-component="rich-text-editor">
+            <div class="rte-toolbar" data-comment="order-detail-delivery-special-rte-toolbar" role="toolbar" aria-label="Formatting">
+              <button type="button" data-comment="order-detail-delivery-special-rte-bold" title="Bold" aria-label="Bold" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h9a4 4 0 0 1 0 8H6z"/><path d="M6 4h7a4 4 0 0 1 0 8H6z"/></svg></button>
+              <button type="button" data-comment="order-detail-delivery-special-rte-italic" title="Italic" aria-label="Italic" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
+              <button type="button" data-comment="order-detail-delivery-special-rte-underline" title="Underline" aria-label="Underline" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" y1="20" x2="20" y2="20"/></svg></button>
+              <span class="rte-toolbar-sep" data-comment="order-detail-delivery-special-rte-sep-1"></span>
+              <button type="button" data-comment="order-detail-delivery-special-rte-ul" title="Bullet list" aria-label="Bullet list" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+              <button type="button" data-comment="order-detail-delivery-special-rte-ol" title="Numbered list" aria-label="Numbered list" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
+            </div>
+            <textarea id="delivery-special" data-comment="order-detail-delivery-special-input" data-component="textarea" rows="3" placeholder="Gate codes, contact on arrival, accessibility notes, etc."></textarea>
+          </div>
         </div>
         <div class="od-form-row" data-comment="order-detail-delivery-note-row">
           <label for="delivery-note" data-comment="order-detail-delivery-note-label">Note</label>
@@ -1721,13 +1774,13 @@
 
     <!-- Confirm delete image dialog -->
     <div class="od-dialog-overlay" data-comment="order-detail-confirm-delete-overlay" id="confirm-delete-overlay">
-      <div class="od-dialog" data-comment="order-detail-confirm-delete-dialog" data-component="dialog" role="dialog" aria-modal="true">
+      <div class="od-dialog" data-comment="order-detail-confirm-delete-dialog" data-component="dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title" aria-describedby="confirm-delete-description" tabindex="-1">
         <div data-comment="order-detail-confirm-delete-header">
           <div class="od-dialog-header-row" data-comment="order-detail-confirm-delete-header-row">
             <span class="od-dialog-icon-badge" data-comment="order-detail-confirm-delete-icon" aria-hidden="true" style="background:color-mix(in oklch, var(--destructive) 12%, transparent);color:var(--destructive);">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6 17.5 20a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2L5 6"/></svg>
             </span>
-            <h2 class="od-dialog-title" data-comment="order-detail-confirm-delete-title">Remove this image?</h2>
+            <h2 class="od-dialog-title" id="confirm-delete-title" data-comment="order-detail-confirm-delete-title">Remove this image?</h2>
           </div>
           <p class="od-dialog-description" data-comment="order-detail-confirm-delete-description" id="confirm-delete-description">This attachment will be removed from the order. This action cannot be undone.</p>
         </div>
@@ -2696,7 +2749,7 @@
                 <span class="od-timeline-state is-${item.state}" data-comment="${slug}-state">${stateLabel[item.state]}</span>
               `;
               const tag = isInteractive ? "button" : "div";
-              const extraAttrs = isInteractive ? ' type="button" data-open-dialog="payment"' : "";
+              const extraAttrs = isInteractive ? ' type="button" data-open-dialog="payment" aria-label="Record Down Payment"' : "";
               return `
                 <li class="od-timeline-item" data-comment="${slug}-item">
                   <${tag} class="${rowClass}" data-comment="${slug}-row"${extraAttrs}>${inner}</${tag}>
@@ -3394,7 +3447,7 @@
         body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body > *:not(.printable) { display: none !important; }
         .printable { display: block !important; }
-        .dialog-overlay, .sheet, .drawer, .dialog { display: none !important; }
+        .dialog-overlay, .od-dialog-overlay, .sheet, .drawer, .dialog, .od-dialog, .sidebar, .page-header, .od-footer { display: none !important; }
         .printable * { box-sizing: border-box; }
         .printable .ph-header {
           display: flex; align-items: center; justify-content: space-between;

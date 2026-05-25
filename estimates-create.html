@@ -600,7 +600,7 @@
 
       /* Image upload */
       .image-upload {
-        border: 1.5px dashed color-mix(in oklch, var(--input) 80%, transparent);
+        border: 2px dashed color-mix(in oklch, var(--input) 80%, transparent);
         border-radius: 8px;
         padding: 24px 16px;
         display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -643,6 +643,48 @@
         display: inline-flex; align-items: center; justify-content: center;
       }
       .image-upload-item-remove svg { width: 12px; height: 12px; }
+
+      /* Rich text editor (decorative) */
+      .rte-shell {
+        border: 1px solid var(--input);
+        border-radius: 6px;
+        background: transparent;
+        overflow: hidden;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .rte-shell:focus-within {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+      }
+      .rte-shell .rte-toolbar {
+        display: flex; align-items: center; gap: 2px;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--input);
+        background: color-mix(in oklch, var(--muted) 40%, transparent);
+      }
+      .rte-shell .rte-toolbar button {
+        width: 26px; height: 26px;
+        display: inline-flex; align-items: center; justify-content: center;
+        border-radius: 4px;
+        color: var(--muted-foreground);
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .rte-shell .rte-toolbar button:hover { background: var(--card); color: var(--foreground); }
+      .rte-shell .rte-toolbar button svg { width: 14px; height: 14px; }
+      .rte-shell .rte-toolbar-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+      .rte-shell > .textarea {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        min-height: 96px;
+      }
+      .rte-shell > .textarea:focus-visible {
+        border: 0;
+        box-shadow: none;
+      }
 
       /* Line Items Table */
       .line-items-card { border-radius: 12px; background: var(--card); padding: 12px; }
@@ -1475,11 +1517,51 @@
                       <div class="card-grid" data-comment="estimates-create-block-notes-grid">
                         <div class="field" data-comment="estimates-create-field-mgf-instructions">
                           <label class="field-label" data-comment="estimates-create-field-mgf-instructions-label" for="estimates-create-mgf-instructions">Special Mgf Instructions</label>
-                          <textarea class="textarea" data-comment="estimates-create-textarea-mgf-instructions" data-component="textarea" id="estimates-create-mgf-instructions" name="special_mgf_instructions" placeholder="Enter special manufacturing instructions"></textarea>
+                          <div class="rte-shell" data-comment="estimates-create-rte-mgf-instructions" data-component="rich-text-editor">
+                            <div class="rte-toolbar" data-comment="estimates-create-rte-mgf-instructions-toolbar" role="toolbar" aria-label="Formatting">
+                              <button type="button" data-comment="estimates-create-rte-mgf-bold" title="Bold" aria-label="Bold" tabindex="-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h9a4 4 0 0 1 0 8H6z"/><path d="M6 4h7a4 4 0 0 1 0 8H6z"/></svg>
+                              </button>
+                              <button type="button" data-comment="estimates-create-rte-mgf-italic" title="Italic" aria-label="Italic" tabindex="-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+                              </button>
+                              <button type="button" data-comment="estimates-create-rte-mgf-underline" title="Underline" aria-label="Underline" tabindex="-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" y1="20" x2="20" y2="20"/></svg>
+                              </button>
+                              <span class="rte-toolbar-sep" data-comment="estimates-create-rte-mgf-sep-1"></span>
+                              <button type="button" data-comment="estimates-create-rte-mgf-ul" title="Bullet list" aria-label="Bullet list" tabindex="-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                              </button>
+                              <button type="button" data-comment="estimates-create-rte-mgf-ol" title="Numbered list" aria-label="Numbered list" tabindex="-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+                              </button>
+                            </div>
+                            <textarea class="textarea" data-comment="estimates-create-textarea-mgf-instructions" data-component="textarea" id="estimates-create-mgf-instructions" name="special_mgf_instructions" placeholder="Enter special manufacturing instructions"></textarea>
+                          </div>
                         </div>
                         <div class="field" data-comment="estimates-create-field-memo">
                           <label class="field-label" data-comment="estimates-create-field-memo-label" for="estimates-create-memo">Memo (Internal)</label>
-                          <textarea class="textarea" data-comment="estimates-create-textarea-memo" data-component="textarea" id="estimates-create-memo" name="memo" placeholder="Enter internal memo"></textarea>
+                          <div class="rte-shell" data-comment="estimates-create-rte-memo" data-component="rich-text-editor">
+                            <div class="rte-toolbar" data-comment="estimates-create-rte-memo-toolbar" role="toolbar" aria-label="Formatting">
+                              <button type="button" data-comment="estimates-create-rte-memo-bold" title="Bold" aria-label="Bold" tabindex="-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h9a4 4 0 0 1 0 8H6z"/><path d="M6 4h7a4 4 0 0 1 0 8H6z"/></svg>
+                              </button>
+                              <button type="button" data-comment="estimates-create-rte-memo-italic" title="Italic" aria-label="Italic" tabindex="-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+                              </button>
+                              <button type="button" data-comment="estimates-create-rte-memo-underline" title="Underline" aria-label="Underline" tabindex="-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" y1="20" x2="20" y2="20"/></svg>
+                              </button>
+                              <span class="rte-toolbar-sep" data-comment="estimates-create-rte-memo-sep-1"></span>
+                              <button type="button" data-comment="estimates-create-rte-memo-ul" title="Bullet list" aria-label="Bullet list" tabindex="-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                              </button>
+                              <button type="button" data-comment="estimates-create-rte-memo-ol" title="Numbered list" aria-label="Numbered list" tabindex="-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+                              </button>
+                            </div>
+                            <textarea class="textarea" data-comment="estimates-create-textarea-memo" data-component="textarea" id="estimates-create-memo" name="memo" placeholder="Enter internal memo"></textarea>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1570,7 +1652,7 @@
 
     <!-- Address edit dialog (billing or shipping) -->
     <div class="ec-dialog-overlay" data-comment="estimates-create-address-dialog-overlay" id="estimates-create-address-dialog-overlay">
-      <div class="ec-dialog" role="dialog" aria-modal="true" data-comment="estimates-create-address-dialog">
+      <div class="ec-dialog" role="dialog" aria-modal="true" aria-labelledby="estimates-create-address-dialog-title" tabindex="-1" data-comment="estimates-create-address-dialog">
         <h3 class="ec-dialog-title" data-comment="estimates-create-address-dialog-title" id="estimates-create-address-dialog-title">Billing Address</h3>
         <div class="ec-dialog-body" data-comment="estimates-create-address-dialog-body">
           <div class="ec-field" data-comment="estimates-create-address-dialog-street-field">
@@ -1608,9 +1690,9 @@
 
     <!-- New customer dialog -->
     <div class="ec-dialog-overlay" data-comment="estimates-create-new-customer-overlay" id="estimates-create-new-customer-overlay">
-      <div class="ec-dialog is-wide" role="dialog" aria-modal="true" data-comment="estimates-create-new-customer-dialog">
-        <h3 class="ec-dialog-title" data-comment="estimates-create-new-customer-title">Add new customer</h3>
-        <p class="ec-dialog-desc" data-comment="estimates-create-new-customer-desc">Create a customer and select them for this estimate.</p>
+      <div class="ec-dialog is-wide" role="dialog" aria-modal="true" aria-labelledby="estimates-create-new-customer-title" aria-describedby="estimates-create-new-customer-desc" tabindex="-1" data-comment="estimates-create-new-customer-dialog">
+        <h3 class="ec-dialog-title" id="estimates-create-new-customer-title" data-comment="estimates-create-new-customer-title">Add new customer</h3>
+        <p class="ec-dialog-desc" id="estimates-create-new-customer-desc" data-comment="estimates-create-new-customer-desc">Create a customer and select them for this estimate.</p>
         <div class="ec-dialog-body" data-comment="estimates-create-new-customer-body">
           <div class="ec-dialog-grid-2">
             <div class="ec-field" data-comment="estimates-create-new-customer-first-name-field">
@@ -1682,9 +1764,9 @@
 
     <!-- Site-check proposal dialog -->
     <div class="ec-dialog-overlay" data-comment="estimates-create-site-check-overlay" id="estimates-create-site-check-overlay">
-      <div class="ec-dialog" role="dialog" aria-modal="true" data-comment="estimates-create-site-check-dialog">
-        <h3 class="ec-dialog-title" data-comment="estimates-create-site-check-title">Create a Site Check?</h3>
-        <p class="ec-dialog-desc" data-comment="estimates-create-site-check-desc">This estimate has a site check requested. Would you like to create a site check for it now?</p>
+      <div class="ec-dialog" role="alertdialog" aria-modal="true" aria-labelledby="estimates-create-site-check-title" aria-describedby="estimates-create-site-check-desc" tabindex="-1" data-comment="estimates-create-site-check-dialog">
+        <h3 class="ec-dialog-title" id="estimates-create-site-check-title" data-comment="estimates-create-site-check-title">Create a Site Check?</h3>
+        <p class="ec-dialog-desc" id="estimates-create-site-check-desc" data-comment="estimates-create-site-check-desc">This estimate has a site check requested. Would you like to create a site check for it now?</p>
         <div class="ec-dialog-footer">
           <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-site-check-no" id="estimates-create-site-check-no">Skip</button>
           <button type="button" class="btn btn-primary btn-sm" data-comment="estimates-create-site-check-yes" id="estimates-create-site-check-yes">Create Site Check</button>
@@ -2870,9 +2952,9 @@
           overlay.setAttribute("data-comment", "estimates-create-discard-overlay");
           overlay.style.cssText = "position:fixed;inset:0;background: rgba(0, 0, 0, 0.5);display:flex;align-items:center;justify-content:center;z-index:200;";
           overlay.innerHTML = `
-            <div class="dialog is-open" role="dialog" aria-modal="true" data-comment="estimates-create-discard-dialog" style="background:var(--card,#fff);border:1px solid var(--border, #E2E8F0);border-radius:8px;padding:24px;max-width:420px;width:calc(100% - 32px);box-shadow:0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);" tabindex="-1">
-              <h3 style="margin:0 0 8px;font-size:18px;font-weight:600;">Discard changes?</h3>
-              <p style="margin:0 0 20px;color:var(--muted-foreground,#6b7280);font-size:14px;">You have unsaved changes. Are you sure you want to leave this page?</p>
+            <div class="dialog is-open" role="alertdialog" aria-modal="true" aria-labelledby="estimates-create-discard-title" aria-describedby="estimates-create-discard-desc" data-comment="estimates-create-discard-dialog" style="background:var(--card,#fff);border:1px solid var(--border, #E2E8F0);border-radius:8px;padding:24px;max-width:420px;width:calc(100% - 32px);box-shadow:0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);" tabindex="-1">
+              <h3 id="estimates-create-discard-title" style="margin:0 0 8px;font-size:18px;font-weight:600;">Discard changes?</h3>
+              <p id="estimates-create-discard-desc" style="margin:0 0 20px;color:var(--muted-foreground,#6b7280);font-size:14px;">You have unsaved changes. Are you sure you want to leave this page?</p>
               <div style="display:flex;justify-content:flex-end;gap:8px;">
                 <button type="button" class="btn btn-outline btn-sm" data-comment="estimates-create-discard-cancel" id="estimates-create-discard-cancel">Keep editing</button>
                 <button type="button" class="btn btn-sm" data-comment="estimates-create-discard-confirm" id="estimates-create-discard-confirm" style="background:var(--destructive,#dc2626);color:#fff;">Discard</button>

@@ -796,13 +796,13 @@
 
     <!-- Delete dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-delete-overlay" id="site-check-detail-delete-overlay">
-      <div class="dialog dialog-sm" data-comment="site-check-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog dialog-sm" data-comment="site-check-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="scd-delete-title" aria-describedby="scd-delete-desc" tabindex="-1">
         <button type="button" class="dialog-close" data-comment="site-check-detail-delete-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
         <div class="dialog-header" data-comment="site-check-detail-delete-header">
-          <h2 class="dialog-title" data-comment="site-check-detail-delete-title">Delete site check</h2>
-          <p class="dialog-description" data-comment="site-check-detail-delete-description">
+          <h2 class="dialog-title" id="scd-delete-title" data-comment="site-check-detail-delete-title">Delete site check</h2>
+          <p class="dialog-description" id="scd-delete-desc" data-comment="site-check-detail-delete-description">
             Are you sure you want to delete <span id="site-check-detail-delete-id-label" data-comment="site-check-detail-delete-id-label" style="color: var(--foreground); font-weight: 500;">SC-…</span>? This action cannot be undone.
           </p>
         </div>
@@ -819,13 +819,13 @@
 
     <!-- Mark as Done dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-done-overlay" id="site-check-detail-done-overlay">
-      <div class="dialog dialog-md" data-comment="site-check-detail-done-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog dialog-md" data-comment="site-check-detail-done-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="scd-done-title" aria-describedby="scd-done-desc" tabindex="-1">
         <button type="button" class="dialog-close" data-comment="site-check-detail-done-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
         <div class="dialog-header" data-comment="site-check-detail-done-header">
-          <h2 class="dialog-title" data-comment="site-check-detail-done-title">Mark as Done</h2>
-          <p class="dialog-description" data-comment="site-check-detail-done-description">
+          <h2 class="dialog-title" id="scd-done-title" data-comment="site-check-detail-done-title">Mark as Done</h2>
+          <p class="dialog-description" id="scd-done-desc" data-comment="site-check-detail-done-description">
             Are you sure you want to mark <span id="site-check-detail-done-id-label" data-comment="site-check-detail-done-id-label" style="color: var(--foreground); font-weight: 500;">SC-…</span> as completed? The date completed will be set to now.
           </p>
         </div>
@@ -854,13 +854,13 @@
 
     <!-- Mark as Cancelled dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-cancel-overlay" id="site-check-detail-cancel-overlay">
-      <div class="dialog dialog-sm" data-comment="site-check-detail-cancel-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog dialog-sm" data-comment="site-check-detail-cancel-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="scd-cancel-title" aria-describedby="scd-cancel-desc" tabindex="-1">
         <button type="button" class="dialog-close" data-comment="site-check-detail-cancel-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
         <div class="dialog-header" data-comment="site-check-detail-cancel-header">
-          <h2 class="dialog-title" data-comment="site-check-detail-cancel-title">Mark as Cancelled</h2>
-          <p class="dialog-description" data-comment="site-check-detail-cancel-description">
+          <h2 class="dialog-title" id="scd-cancel-title" data-comment="site-check-detail-cancel-title">Mark as Cancelled</h2>
+          <p class="dialog-description" id="scd-cancel-desc" data-comment="site-check-detail-cancel-description">
             Are you sure you want to cancel <span id="site-check-detail-cancel-id-label" data-comment="site-check-detail-cancel-id-label" style="color: var(--foreground); font-weight: 500;">SC-…</span>? This will mark the site check as cancelled.
           </p>
         </div>
@@ -877,15 +877,15 @@
 
     <!-- Discard changes dialog -->
     <div class="dialog-overlay" data-comment="site-check-detail-discard-overlay" id="site-check-detail-discard-overlay">
-      <div class="dialog" data-comment="site-check-detail-discard-dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog" data-comment="site-check-detail-discard-dialog" role="alertdialog" aria-modal="true" aria-labelledby="scd-discard-title" aria-describedby="scd-discard-desc" tabindex="-1">
         <div class="dialog-header" data-comment="site-check-detail-discard-header">
           <div data-comment="site-check-detail-discard-header-row" style="display:flex;align-items:center;gap:12px;">
             <span data-comment="site-check-detail-discard-icon" aria-hidden="true" style="display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border-radius:9999px;background:color-mix(in oklch, var(--primary) 10%, transparent);color:var(--primary);">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
             </span>
-            <h2 class="dialog-title" data-comment="site-check-detail-discard-title">Discard changes?</h2>
+            <h2 class="dialog-title" id="scd-discard-title" data-comment="site-check-detail-discard-title">Discard changes?</h2>
           </div>
-          <p class="dialog-description" data-comment="site-check-detail-discard-description">You have unsaved changes. Are you sure you want to leave edit mode? Your changes will be lost.</p>
+          <p class="dialog-description" id="scd-discard-desc" data-comment="site-check-detail-discard-description">You have unsaved changes. Are you sure you want to leave edit mode? Your changes will be lost.</p>
         </div>
         <div class="dialog-footer" data-comment="site-check-detail-discard-footer">
           <button class="btn btn-outline" type="button" id="site-check-detail-discard-cancel" data-comment="site-check-detail-discard-cancel">Keep Editing</button>
@@ -1123,6 +1123,7 @@
           siteChecks: s.siteChecks.filter((sc) => sc.id !== id),
           dialog: { type: "closed" },
         }));
+        window.showToast && window.showToast("Site check deleted.", "success");
         window.location.href = "site-checks.html";
       }
       function markDone(id, results) {
@@ -1133,12 +1134,14 @@
           dialog: { type: "closed" },
           doneResults: "",
         }));
+        window.showToast && window.showToast("Site check marked as completed.", "success");
       }
       function markCancelled(id) {
         store.set((s) => ({
           siteChecks: s.siteChecks.map((sc) => sc.id === id ? { ...sc, status: "cancelled" } : sc),
           dialog: { type: "closed" },
         }));
+        window.showToast && window.showToast("Site check marked as cancelled.", "success");
       }
 
       // ───── Sidebar ─────
@@ -1459,7 +1462,7 @@
                         </select>
                       </div>
                       <div class="form-field" data-comment="site-check-detail-edit-field-assigned">
-                        <label for="sc-edit-assigned">Assigned To</label>
+                        <label for="sc-edit-assigned">Assigned To<span class="req" data-comment="site-check-detail-edit-label-assigned-required">*</span></label>
                         <select id="sc-edit-assigned" name="assigned_to_id" class="form-select" data-comment="site-check-detail-edit-input-assigned">
                           ${ASSIGNED_USERS.map((u) => `<option value="${u.id}" ${f.assigned_to_id===u.id?"selected":""}>${u.first_name} ${u.last_name}</option>`).join("")}
                         </select>
@@ -1469,7 +1472,7 @@
                         <input id="sc-edit-start" name="start_date_time" type="datetime-local" class="form-input" value="${escapeHtml((f.start_date_time||"").slice(0,16))}" data-comment="site-check-detail-edit-input-start-date" />
                       </div>
                       <div class="form-field" data-comment="site-check-detail-edit-field-estimate">
-                        <label for="sc-edit-estimate">Related Estimate</label>
+                        <label for="sc-edit-estimate">Related Estimate<span class="req" data-comment="site-check-detail-edit-label-estimate-required">*</span></label>
                         <input id="sc-edit-estimate" name="estimate_id" type="number" class="form-input" value="${f.estimate_id ?? ""}" data-comment="site-check-detail-edit-input-estimate" />
                       </div>
                       <div class="form-field full" data-comment="site-check-detail-edit-field-comments">
@@ -1669,6 +1672,7 @@
           } : sc),
           editing: false, editForm: null, editDirty: false,
         }));
+        window.showToast && window.showToast("Site check updated.", "success");
       }
 
       // ───── Handlers: action buttons ─────

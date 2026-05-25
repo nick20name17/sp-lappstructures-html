@@ -862,14 +862,14 @@
       }
       @keyframes color-popover-pop { from { opacity: 0; transform: translateY(-4px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
       .color-swatch {
-        width: 22px; height: 22px;
-        border-radius: 9999px;
+        width: 24px; height: 24px;
+        border-radius: 2px;
         border: 1px solid var(--border);
         cursor: pointer;
         padding: 0;
       }
       .color-swatch:hover { transform: scale(1.1); }
-      .color-swatch.is-selected { box-shadow: 0 0 0 2px var(--ring); }
+      .color-swatch.is-selected { box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px var(--background); outline: 2px solid var(--ring); outline-offset: 2px; }
       .attr-value-delete {
         padding: 4px;
         border-radius: 4px;
@@ -1434,6 +1434,7 @@
             hasColor: false,
           };
         });
+        window.showToast && window.showToast("Attribute created.", "success");
       }
 
       function addAttributeValue(type, attrId, name) {
@@ -1449,6 +1450,7 @@
           addingOptionFor: null,
           optionName: "",
         }));
+        window.showToast && window.showToast("Option added.", "success");
       }
 
       function setAttributeValueColor(type, attrId, valueId, hex) {
@@ -1476,6 +1478,7 @@
             ),
           },
         }));
+        window.showToast && window.showToast("Option deleted.", "success");
       }
 
       // ───── Actions: dimensions ─────
@@ -1485,9 +1488,11 @@
           dimAdding: false,
           dimName: "", dimLength: "", dimWidth: "",
         }));
+        window.showToast && window.showToast("Dimension added.", "success");
       }
       function deleteDimension(id) {
         store.set((s) => ({ dimensions: s.dimensions.filter((d) => d.id !== id) }));
+        window.showToast && window.showToast("Dimension deleted.", "success");
       }
 
       // ───── Actions: categories ─────
@@ -1497,9 +1502,11 @@
           catAdding: false,
           catName: "", catWithValues: false,
         }));
+        window.showToast && window.showToast("Category added.", "success");
       }
       function deleteCategory(id) {
         store.set((s) => ({ categories: s.categories.filter((c) => c.id !== id) }));
+        window.showToast && window.showToast("Category deleted.", "success");
       }
 
       // ───── Render: sidebar nav ─────
@@ -1625,7 +1632,7 @@
           body.innerHTML = `
             <div class="state-card" data-comment="attributes-error-state">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              <div class="state-title" data-comment="attributes-error-title">Failed to load. Please refresh.</div>
+              <div class="state-title" data-comment="attributes-error-title">Failed to load attributes. Please refresh.</div>
               <button type="button" class="btn btn-primary btn-sm" data-comment="attributes-error-retry" data-component="button" onclick="window.__SIMULATE_LOAD_ERROR=false;renderTabBody();">Retry</button>
             </div>`;
           return;

@@ -1645,6 +1645,7 @@
           dialog: { type: "closed" },
           drawerId: s.drawerId === id ? null : s.drawerId,
         }));
+        window.showToast && window.showToast("Site check deleted.", "success");
       }
       function markDone(id, results) {
         store.set((s) => ({
@@ -1654,12 +1655,14 @@
           dialog: { type: "closed" },
           doneResults: "",
         }));
+        window.showToast && window.showToast("Site check marked as completed.", "success");
       }
       function markCancelled(id) {
         store.set((s) => ({
           siteChecks: s.siteChecks.map((sc) => sc.id === id ? { ...sc, status: "cancelled" } : sc),
           dialog: { type: "closed" },
         }));
+        window.showToast && window.showToast("Site check marked as cancelled.", "success");
       }
 
       function applyFilters(siteChecks, term) {

@@ -799,6 +799,48 @@
         100% { background-position: -200% 0; }
       }
 
+      /* Rich text editor (decorative) */
+      .rte-shell {
+        border: 1px solid var(--input);
+        border-radius: 6px;
+        background: var(--card);
+        overflow: hidden;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .rte-shell:focus-within {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+      }
+      .rte-shell .rte-toolbar {
+        display: flex; align-items: center; gap: 2px;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--input);
+        background: color-mix(in oklch, var(--muted) 40%, transparent);
+      }
+      .rte-shell .rte-toolbar button {
+        width: 26px; height: 26px;
+        display: inline-flex; align-items: center; justify-content: center;
+        border-radius: 4px;
+        color: var(--muted-foreground);
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+      }
+      .rte-shell .rte-toolbar button:hover { background: var(--card); color: var(--foreground); }
+      .rte-shell .rte-toolbar button svg { width: 14px; height: 14px; }
+      .rte-shell .rte-toolbar-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+      .rte-shell > textarea {
+        width: 100%;
+        border: 0;
+        border-radius: 0;
+        outline: none;
+        background: transparent;
+        color: var(--foreground);
+        font-family: inherit; font-size: 0.875rem;
+        padding: 8px 10px;
+        resize: vertical;
+        min-height: 80px;
+      }
     </style>
   </head>
   <body>
@@ -905,13 +947,13 @@
 
     <!-- Delete dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-delete-overlay" id="estimate-detail-delete-overlay" data-dialog-type="delete">
-      <div class="dialog size-sm" data-comment="estimate-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog size-sm" data-comment="estimate-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="estimate-detail-delete-title-id" aria-describedby="estimate-detail-delete-desc-id" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-delete-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
         <div class="dialog-header" data-comment="estimate-detail-delete-header">
-          <h2 class="dialog-title" data-comment="estimate-detail-delete-title">Delete estimate</h2>
-          <p class="dialog-description" data-comment="estimate-detail-delete-description">
+          <h2 class="dialog-title" id="estimate-detail-delete-title-id" data-comment="estimate-detail-delete-title">Delete estimate</h2>
+          <p class="dialog-description" id="estimate-detail-delete-desc-id" data-comment="estimate-detail-delete-description">
             Are you sure you want to delete <span class="id-ref" id="estimate-detail-delete-id"></span>? This action cannot be undone.
           </p>
         </div>
@@ -928,7 +970,7 @@
 
     <!-- Approve dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-approve-overlay" id="estimate-detail-approve-overlay" data-dialog-type="approve">
-      <div class="dialog size-md" data-comment="estimate-detail-approve-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog size-md" data-comment="estimate-detail-approve-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="estimate-detail-approve-title-id" aria-describedby="estimate-detail-approve-desc-id" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-approve-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -937,9 +979,9 @@
             <span class="dialog-icon-circle" data-comment="estimate-detail-approve-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
             </span>
-            <h2 class="dialog-title" data-comment="estimate-detail-approve-title">Approve Estimate</h2>
+            <h2 class="dialog-title" id="estimate-detail-approve-title-id" data-comment="estimate-detail-approve-title">Approve Estimate</h2>
           </div>
-          <p class="dialog-description" data-comment="estimate-detail-approve-description">
+          <p class="dialog-description" id="estimate-detail-approve-desc-id" data-comment="estimate-detail-approve-description">
             Are you sure you want to approve estimate <span class="id-ref" id="estimate-detail-approve-id"></span>?
           </p>
         </div>
@@ -956,7 +998,7 @@
 
     <!-- Reject dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-reject-overlay" id="estimate-detail-reject-overlay" data-dialog-type="reject">
-      <div class="dialog size-md" data-comment="estimate-detail-reject-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog size-md" data-comment="estimate-detail-reject-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="estimate-detail-reject-title-id" aria-describedby="estimate-detail-reject-desc-id" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-reject-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -965,9 +1007,9 @@
             <span class="dialog-icon-circle" data-comment="estimate-detail-reject-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
             </span>
-            <h2 class="dialog-title" data-comment="estimate-detail-reject-title">Reject estimate</h2>
+            <h2 class="dialog-title" id="estimate-detail-reject-title-id" data-comment="estimate-detail-reject-title">Reject estimate</h2>
           </div>
-          <p class="dialog-description" data-comment="estimate-detail-reject-description">
+          <p class="dialog-description" id="estimate-detail-reject-desc-id" data-comment="estimate-detail-reject-description">
             Are you sure you want to reject <span class="id-ref" id="estimate-detail-reject-id"></span>?
           </p>
         </div>
@@ -984,7 +1026,7 @@
 
     <!-- Create Sales Order dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-sales-overlay" id="estimate-detail-sales-overlay" data-dialog-type="createSalesOrder">
-      <div class="dialog size-md" data-comment="estimate-detail-sales-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog size-md" data-comment="estimate-detail-sales-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="estimate-detail-sales-title-id" aria-describedby="estimate-detail-sales-desc-id" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-sales-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -993,9 +1035,9 @@
             <span class="dialog-icon-circle" data-comment="estimate-detail-sales-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
             </span>
-            <h2 class="dialog-title" data-comment="estimate-detail-sales-title">Create Sales Order</h2>
+            <h2 class="dialog-title" id="estimate-detail-sales-title-id" data-comment="estimate-detail-sales-title">Create Sales Order</h2>
           </div>
-          <p class="dialog-description" data-comment="estimate-detail-sales-description">
+          <p class="dialog-description" id="estimate-detail-sales-desc-id" data-comment="estimate-detail-sales-description">
             Are you sure you want to create a sales order in EBMS for estimate <span class="id-ref" id="estimate-detail-sales-id"></span>?
           </p>
         </div>
@@ -1012,7 +1054,7 @@
 
     <!-- Discard edit confirm dialog -->
     <div class="dialog-overlay" data-comment="estimate-detail-discard-overlay" id="estimate-detail-discard-overlay" data-dialog-type="discardEdit">
-      <div class="dialog" data-comment="estimate-detail-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog" data-comment="estimate-detail-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="estimate-detail-discard-title-id" aria-describedby="estimate-detail-discard-desc-id" tabindex="-1">
         <button type="button" class="dialog-close-btn" data-comment="estimate-detail-discard-close" data-dialog-close aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
@@ -1021,9 +1063,9 @@
             <span class="dialog-icon-circle" data-comment="estimate-detail-discard-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
             </span>
-            <h2 class="dialog-title" data-comment="estimate-detail-discard-title">Discard changes?</h2>
+            <h2 class="dialog-title" id="estimate-detail-discard-title-id" data-comment="estimate-detail-discard-title">Discard changes?</h2>
           </div>
-          <p class="dialog-description" data-comment="estimate-detail-discard-description">
+          <p class="dialog-description" id="estimate-detail-discard-desc-id" data-comment="estimate-detail-discard-description">
             You have unsaved changes. Are you sure you want to leave edit mode? Your changes will be lost.
           </p>
         </div>
@@ -1335,6 +1377,7 @@
           estimates: s.estimates.filter((e) => e.id !== id),
           dialog: { type: "closed" },
         }));
+        window.showToast && window.showToast("Estimate deleted.", "success");
         // navigate back to list
         window.location.href = "estimates.html";
       }
@@ -1343,18 +1386,21 @@
           estimates: s.estimates.map((e) => e.id === id ? { ...e, status: "accepted" } : e),
           dialog: { type: "closed" },
         }));
+        window.showToast && window.showToast("Sales order created.", "success");
       }
       function rejectEstimate(id) {
         store.set((s) => ({
           estimates: s.estimates.map((e) => e.id === id ? { ...e, status: "rejected" } : e),
           dialog: { type: "closed" },
         }));
+        window.showToast && window.showToast("Estimate rejected.", "success");
       }
       function createSalesOrder(id) {
         store.set((s) => ({
           estimates: s.estimates.map((e) => e.id === id ? { ...e, order: "SO-" + id } : e),
           dialog: { type: "closed" },
         }));
+        window.showToast && window.showToast("Sales order created.", "success");
       }
 
       // ───── Sidebar renderers ─────
@@ -1911,7 +1957,17 @@
                     </div>
                     <div class="detail-row" data-comment="estimate-detail-edit-memo" style="grid-column:1 / -1;">
                       <label class="detail-row-label" data-comment="estimate-detail-edit-memo-label" for="edit-memo">Memo (Internal)</label>
-                      <textarea id="edit-memo" data-comment="estimate-detail-edit-memo-input" data-edit-field rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--input);border-radius:6px;font-family:inherit;font-size:0.875rem;outline:none;background:var(--card);color:var(--foreground);resize:vertical;">${escapeHtml(est.memo ?? "")}</textarea>
+                      <div class="rte-shell" data-comment="estimate-detail-edit-memo-rte" data-component="rich-text-editor">
+                        <div class="rte-toolbar" data-comment="estimate-detail-edit-memo-rte-toolbar" role="toolbar" aria-label="Formatting">
+                          <button type="button" data-comment="estimate-detail-edit-memo-rte-bold" title="Bold" aria-label="Bold" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h9a4 4 0 0 1 0 8H6z"/><path d="M6 4h7a4 4 0 0 1 0 8H6z"/></svg></button>
+                          <button type="button" data-comment="estimate-detail-edit-memo-rte-italic" title="Italic" aria-label="Italic" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
+                          <button type="button" data-comment="estimate-detail-edit-memo-rte-underline" title="Underline" aria-label="Underline" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" y1="20" x2="20" y2="20"/></svg></button>
+                          <span class="rte-toolbar-sep" data-comment="estimate-detail-edit-memo-rte-sep-1"></span>
+                          <button type="button" data-comment="estimate-detail-edit-memo-rte-ul" title="Bullet list" aria-label="Bullet list" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+                          <button type="button" data-comment="estimate-detail-edit-memo-rte-ol" title="Numbered list" aria-label="Numbered list" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
+                        </div>
+                        <textarea id="edit-memo" data-comment="estimate-detail-edit-memo-input" data-edit-field rows="3">${escapeHtml(est.memo ?? "")}</textarea>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2018,8 +2074,8 @@
           window.history.replaceState({}, "", url.toString());
         }
         else if (action === "cancel-edit")    attemptBackOrExit();
-        else if (action === "save-edit")      exitEditMode();
-        else if (action === "duplicate")      { /* mock */ }
+        else if (action === "save-edit")      { exitEditMode(); window.showToast && window.showToast("Estimate updated.", "success"); }
+        else if (action === "duplicate")      { window.showToast && window.showToast("Estimate duplicated.", "success"); }
         else if (action === "print")          { renderPrintable(); window.print(); }
       });
       // Track dirty state inside edit form
@@ -2089,7 +2145,7 @@
         body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body > *:not(.printable) { display: none !important; }
         .printable { display: block !important; }
-        .dialog-overlay, .sheet, .drawer, .dialog { display: none !important; }
+        .dialog-overlay, .sheet, .drawer, .dialog, .sidebar, .page-header { display: none !important; }
         .printable * { box-sizing: border-box; }
         .printable .ph-header {
           display: flex; align-items: center; justify-content: space-between;

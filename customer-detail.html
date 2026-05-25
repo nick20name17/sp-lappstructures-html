@@ -1008,6 +1008,9 @@
         grid-template-columns: 2fr 1fr 1fr 1fr;
         gap: 10px;
       }
+      @media (max-width: 640px) {
+        .cd-form-grid, .cd-form-grid-4 { grid-template-columns: 1fr; }
+      }
       .cd-form-checkbox {
         display: flex;
         align-items: center;
@@ -1471,13 +1474,13 @@
 
     <!-- Approve Estimate Dialog -->
     <div class="cd-dialog-overlay" data-comment="customer-detail-approve-estimate-overlay" id="approve-estimate-overlay">
-      <div class="cd-dialog" data-comment="customer-detail-approve-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="cd-dialog" data-comment="customer-detail-approve-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="approve-estimate-title" aria-describedby="approve-estimate-desc" tabindex="-1">
         <div>
           <div data-comment="customer-detail-approve-estimate-header-row" style="display:flex;align-items:center;gap:12px;">
             <span data-comment="customer-detail-approve-estimate-icon" aria-hidden="true" style="display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border-radius:9999px;background:color-mix(in oklch, var(--primary) 10%, transparent);color:var(--primary);">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
             </span>
-            <h2 class="cd-dialog-title" data-comment="customer-detail-approve-estimate-title">Approve Estimate</h2>
+            <h2 class="cd-dialog-title" id="approve-estimate-title" data-comment="customer-detail-approve-estimate-title">Approve Estimate</h2>
           </div>
           <p class="cd-dialog-desc" data-comment="customer-detail-approve-estimate-description" id="approve-estimate-desc">Are you sure you want to approve estimate <span id="approve-estimate-id" style="color: var(--foreground); font-weight: 500;"></span>?</p>
         </div>
@@ -1490,13 +1493,13 @@
 
     <!-- Reject Estimate Dialog -->
     <div class="cd-dialog-overlay" data-comment="customer-detail-reject-estimate-overlay" id="reject-estimate-overlay">
-      <div class="cd-dialog" data-comment="customer-detail-reject-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="cd-dialog" data-comment="customer-detail-reject-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="reject-estimate-title" aria-describedby="reject-estimate-desc" tabindex="-1">
         <div>
           <div data-comment="customer-detail-reject-estimate-header-row" style="display:flex;align-items:center;gap:12px;">
             <span data-comment="customer-detail-reject-estimate-icon" aria-hidden="true" style="display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border-radius:9999px;background:color-mix(in oklch, var(--primary) 10%, transparent);color:var(--primary);">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
             </span>
-            <h2 class="cd-dialog-title" data-comment="customer-detail-reject-estimate-title">Reject estimate</h2>
+            <h2 class="cd-dialog-title" id="reject-estimate-title" data-comment="customer-detail-reject-estimate-title">Reject estimate</h2>
           </div>
           <p class="cd-dialog-desc" data-comment="customer-detail-reject-estimate-description" id="reject-estimate-desc">Are you sure you want to reject <span id="reject-estimate-id" style="color: var(--foreground); font-weight: 500;"></span>?</p>
         </div>
@@ -1509,9 +1512,9 @@
 
     <!-- Delete Estimate Dialog -->
     <div class="cd-dialog-overlay" data-comment="customer-detail-delete-estimate-overlay" id="delete-estimate-overlay">
-      <div class="cd-dialog" data-comment="customer-detail-delete-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="cd-dialog" data-comment="customer-detail-delete-estimate-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-estimate-title" aria-describedby="delete-estimate-desc" tabindex="-1">
         <div>
-          <h2 class="cd-dialog-title" data-comment="customer-detail-delete-estimate-title">Delete estimate</h2>
+          <h2 class="cd-dialog-title" id="delete-estimate-title" data-comment="customer-detail-delete-estimate-title">Delete estimate</h2>
           <p class="cd-dialog-desc" data-comment="customer-detail-delete-estimate-description" id="delete-estimate-desc">Are you sure you want to delete <span id="delete-estimate-id" style="color: var(--foreground); font-weight: 500;"></span>? This action cannot be undone.</p>
         </div>
         <div class="cd-dialog-footer">
@@ -1523,13 +1526,13 @@
 
     <!-- Create Sales Order Dialog -->
     <div class="cd-dialog-overlay" data-comment="customer-detail-create-so-overlay" id="create-so-overlay">
-      <div class="cd-dialog" data-comment="customer-detail-create-so-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="cd-dialog" data-comment="customer-detail-create-so-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="create-so-title" aria-describedby="create-so-desc" tabindex="-1">
         <div>
           <div data-comment="customer-detail-create-so-header-row" style="display:flex;align-items:center;gap:12px;">
             <span data-comment="customer-detail-create-so-icon" aria-hidden="true" style="display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border-radius:9999px;background:color-mix(in oklch, var(--primary) 10%, transparent);color:var(--primary);">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             </span>
-            <h2 class="cd-dialog-title" data-comment="customer-detail-create-so-title">Create Sales Order</h2>
+            <h2 class="cd-dialog-title" id="create-so-title" data-comment="customer-detail-create-so-title">Create Sales Order</h2>
           </div>
           <p class="cd-dialog-desc" data-comment="customer-detail-create-so-description" id="create-so-desc">Are you sure you want to create a sales order in EBMS for estimate <span id="create-so-id" style="color: var(--foreground); font-weight: 500;"></span>?</p>
         </div>
@@ -1542,9 +1545,9 @@
 
     <!-- Edit customer dialog -->
     <div class="cd-dialog-overlay" data-comment="customer-detail-edit-dialog-overlay" id="edit-dialog-overlay">
-      <div class="cd-dialog cd-dialog-xl" data-comment="customer-detail-edit-dialog" data-component="dialog" role="dialog" aria-modal="true">
+      <div class="cd-dialog cd-dialog-xl" data-comment="customer-detail-edit-dialog" data-component="dialog" role="dialog" aria-modal="true" aria-labelledby="cd-edit-dialog-title" tabindex="-1">
         <div data-comment="customer-detail-edit-dialog-header">
-          <h2 class="cd-dialog-title" data-comment="customer-detail-edit-dialog-title">Edit Customer</h2>
+          <h2 class="cd-dialog-title" id="cd-edit-dialog-title" data-comment="customer-detail-edit-dialog-title">Edit Customer</h2>
         </div>
         <div class="cd-dialog-body" data-comment="customer-detail-edit-dialog-body">
           <!-- ───── Section: General information ───── -->
@@ -1798,9 +1801,9 @@
 
     <!-- Delete confirmation dialog -->
     <div class="cd-dialog-overlay" data-comment="customer-detail-delete-dialog-overlay" id="delete-dialog-overlay">
-      <div class="cd-dialog" data-comment="customer-detail-delete-dialog" data-component="dialog" role="dialog" aria-modal="true">
+      <div class="cd-dialog" data-comment="customer-detail-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="cd-delete-dialog-title" aria-describedby="customer-detail-delete-dialog-description-text" tabindex="-1">
         <div data-comment="customer-detail-delete-dialog-header">
-          <h2 class="cd-dialog-title" data-comment="customer-detail-delete-dialog-title">Delete customer</h2>
+          <h2 class="cd-dialog-title" id="cd-delete-dialog-title" data-comment="customer-detail-delete-dialog-title">Delete customer</h2>
           <p class="cd-dialog-desc" data-comment="customer-detail-delete-dialog-description" id="customer-detail-delete-dialog-description-text">
             Are you sure you want to delete <span id="customer-detail-delete-dialog-name" data-comment="customer-detail-delete-dialog-name" style="color: var(--foreground); font-weight: 500;"></span>? This action cannot be undone.
           </p>
@@ -1814,15 +1817,15 @@
 
     <!-- Discard changes dialog -->
     <div class="cd-dialog-overlay" data-comment="customer-detail-discard-dialog-overlay" id="cd-discard-overlay">
-      <div class="cd-dialog" data-comment="customer-detail-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true">
+      <div class="cd-dialog" data-comment="customer-detail-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="cd-discard-dialog-title" aria-describedby="cd-discard-dialog-desc" tabindex="-1">
         <div data-comment="customer-detail-discard-dialog-header">
           <div data-comment="customer-detail-discard-dialog-header-row" style="display:flex;align-items:center;gap:12px;">
             <span data-comment="customer-detail-discard-dialog-icon" aria-hidden="true" style="display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border-radius:9999px;background:color-mix(in oklch, var(--primary) 10%, transparent);color:var(--primary);">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
             </span>
-            <h2 class="cd-dialog-title" data-comment="customer-detail-discard-dialog-title">Discard changes?</h2>
+            <h2 class="cd-dialog-title" id="cd-discard-dialog-title" data-comment="customer-detail-discard-dialog-title">Discard changes?</h2>
           </div>
-          <p class="cd-dialog-desc" data-comment="customer-detail-discard-dialog-description">You have unsaved changes. Are you sure you want to leave edit mode? Your changes will be lost.</p>
+          <p class="cd-dialog-desc" id="cd-discard-dialog-desc" data-comment="customer-detail-discard-dialog-description">You have unsaved changes. Are you sure you want to leave edit mode? Your changes will be lost.</p>
         </div>
         <div class="cd-dialog-footer" data-comment="customer-detail-discard-dialog-footer">
           <button type="button" class="btn btn-outline btn-sm" data-comment="customer-detail-discard-keep" data-component="button" id="cd-discard-keep">Keep Editing</button>

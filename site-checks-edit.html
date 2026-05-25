@@ -666,7 +666,7 @@
 
       /* File upload / attachments */
       .upload-zone {
-        border: 1px dashed color-mix(in oklch, var(--input) 60%, var(--muted-foreground));
+        border: 2px dashed color-mix(in oklch, var(--input) 60%, var(--muted-foreground));
         border-radius: 8px;
         background: color-mix(in oklch, var(--muted) 60%, white);
         padding: 18px;
@@ -1123,10 +1123,10 @@
 
     <!-- Delete confirm dialog -->
     <div class="dialog-overlay" data-comment="site-checks-edit-delete-overlay" id="delete-overlay">
-      <div class="dialog" data-comment="site-checks-edit-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog" data-comment="site-checks-edit-delete-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="sce-delete-title" aria-describedby="sce-delete-desc" tabindex="-1">
         <div data-comment="site-checks-edit-delete-header">
-          <h2 class="dialog-title" data-comment="site-checks-edit-delete-title">Delete site check?</h2>
-          <p class="dialog-description" data-comment="site-checks-edit-delete-description" style="margin-top: 8px">
+          <h2 class="dialog-title" id="sce-delete-title" data-comment="site-checks-edit-delete-title">Delete site check?</h2>
+          <p class="dialog-description" id="sce-delete-desc" data-comment="site-checks-edit-delete-description" style="margin-top: 8px">
             This cannot be undone.
           </p>
         </div>
@@ -1139,10 +1139,10 @@
 
     <!-- Discard changes dialog -->
     <div class="dialog-overlay" data-comment="site-checks-edit-discard-overlay" id="discard-overlay">
-      <div class="dialog" data-comment="site-checks-edit-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true" tabindex="-1">
+      <div class="dialog" data-comment="site-checks-edit-discard-dialog" data-component="dialog" role="alertdialog" aria-modal="true" aria-labelledby="sce-discard-title" aria-describedby="sce-discard-desc" tabindex="-1">
         <div data-comment="site-checks-edit-discard-header">
-          <h2 class="dialog-title" data-comment="site-checks-edit-discard-title">Discard changes?</h2>
-          <p class="dialog-description" data-comment="site-checks-edit-discard-description" style="margin-top: 8px">
+          <h2 class="dialog-title" id="sce-discard-title" data-comment="site-checks-edit-discard-title">Discard changes?</h2>
+          <p class="dialog-description" id="sce-discard-desc" data-comment="site-checks-edit-discard-description" style="margin-top: 8px">
             Your unsaved changes will be lost.
           </p>
         </div>
@@ -1887,6 +1887,7 @@
           if (!trigger || !errEl) return;
           const hasError = !!s.errors[f.key];
           trigger.classList.toggle("is-error", hasError);
+          if (hasError) trigger.setAttribute("aria-invalid", "true"); else trigger.removeAttribute("aria-invalid");
           errEl.style.display = hasError ? "block" : "none";
           if (hasError) errEl.textContent = s.errors[f.key];
         });
@@ -2011,6 +2012,14 @@
         const errors = validate(s.form);
         store.set({ submitAttempted: true, errors });
         if (Object.keys(errors).length > 0) {
+          const order = ["contact_id", "assigned_to_id", "estimate_id"];
+          const firstKey = order.find((k) => errors[k]);
+          const idMap = { contact_id: "contact-trigger", assigned_to_id: "assigned-trigger", estimate_id: "estimate-trigger" };
+          const el = firstKey && document.getElementById(idMap[firstKey]);
+          if (el) {
+            el.scrollIntoView({ block: "center", behavior: "smooth" });
+            try { el.focus(); } catch (e) {}
+          }
           return;
         }
         store.set({ isSaving: true });

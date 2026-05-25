@@ -749,7 +749,7 @@
         border-color: var(--ring);
         box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
       }
-      .form-input[aria-invalid="true"], .form-select[aria-invalid="true"] {
+      .form-input[aria-invalid="true"], .form-select[aria-invalid="true"], .select-trigger[aria-invalid="true"] {
         border-color: var(--destructive);
         box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
       }
@@ -1408,7 +1408,7 @@
                 class="form-label"
                 data-comment="users-dialog-label-first-name"
                 for="users-input-first-name"
-                >First name</label
+                >First name<span class="req" data-comment="users-dialog-label-first-name-required">*</span></label
               >
               <input
                 class="form-input"
@@ -1427,7 +1427,7 @@
                 class="form-label"
                 data-comment="users-dialog-label-last-name"
                 for="users-input-last-name"
-                >Last name</label
+                >Last name<span class="req" data-comment="users-dialog-label-last-name-required">*</span></label
               >
               <input
                 class="form-input"
@@ -1447,7 +1447,7 @@
               class="form-label"
               data-comment="users-dialog-label-email"
               for="users-input-email"
-              >Email</label
+              >Email<span class="req" data-comment="users-dialog-label-email-required">*</span></label
             >
             <input
               class="form-input"
@@ -1485,7 +1485,7 @@
               class="form-label"
               data-comment="users-dialog-label-role"
               for="users-input-role"
-              >Role</label
+              >Role<span class="req" data-comment="users-dialog-label-role-required">*</span></label
             >
             <div
               class="select"
@@ -1518,7 +1518,7 @@
               class="form-label"
               data-comment="users-dialog-label-location"
               for="users-input-location"
-              >Location</label
+              >Location<span class="req" data-comment="users-dialog-label-location-required">*</span></label
             >
             <div
               class="select"
@@ -2144,7 +2144,7 @@
           body.innerHTML = `<tr data-comment="users-error-row"><td colspan="${colCount}" data-comment="users-error-cell">
             <div class="state-card" data-comment="users-error-state">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              <div class="state-title" data-comment="users-error-title">Failed to load. Please refresh.</div>
+              <div class="state-title" data-comment="users-error-title">Failed to load users. Please refresh.</div>
               <button type="button" class="btn btn-primary btn-sm" data-comment="users-error-retry" data-component="button" onclick="window.__SIMULATE_LOAD_ERROR=false;store.set({usersError:false});">Retry</button>
             </div>
           </td></tr>`;
@@ -2175,7 +2175,7 @@
           body.innerHTML = `<tr data-comment="users-empty-row"><td colspan="${colCount}" data-comment="users-empty-cell">
             <div class="state-card" data-comment="users-empty-state">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <div class="state-title" data-comment="users-empty-title">No users found</div>
+              <div class="state-title" data-comment="users-empty-title">No users yet.</div>
               <div class="state-desc" data-comment="users-empty-desc">Try adjusting your search or filters.</div>
               <button type="button" class="btn btn-outline btn-sm" data-comment="users-empty-clear" data-component="button" onclick="store.set({ listSearchInput:'', listSearchTerm:'', sort:{key:'name',dir:'asc'}, page:1 })">Clear filters</button>
             </div>
@@ -2302,10 +2302,18 @@
           deleteOverlay.classList.remove("is-open");
         }
 
-        // Clear/apply form errors
+        // Clear/apply form errors + aria-invalid
         ["first_name", "last_name", "email", "password", "role", "location"].forEach((k) => {
           const errSpan = document.getElementById(`users-error-${k.replace(/_/g, "-")}`);
           if (errSpan) errSpan.textContent = s.formErrors[k] || "";
+          const inp = document.getElementById(`users-input-${k.replace(/_/g, "-")}`);
+          if (inp) {
+            const target = inp.classList.contains("select") ? inp.querySelector(".select-trigger") : inp;
+            if (target) {
+              if (s.formErrors[k]) target.setAttribute("aria-invalid", "true");
+              else target.removeAttribute("aria-invalid");
+            }
+          }
         });
 
         // Toggle location field visibility based on the live role value
@@ -2477,6 +2485,19 @@
         const errors = validateUserForm(data, store.get().dialog.type === "edit");
         if (Object.keys(errors).length > 0) {
           store.set({ formErrors: errors });
+          // Scroll to first invalid field & focus
+          const order = ["first_name", "last_name", "email", "password", "role", "location"];
+          const firstKey = order.find((k) => errors[k]);
+          if (firstKey) {
+            const inp = document.getElementById(`users-input-${firstKey.replace(/_/g, "-")}`);
+            if (inp) {
+              const target = inp.classList.contains("select") ? inp.querySelector(".select-trigger") : inp;
+              if (target) {
+                target.scrollIntoView({ block: "center", behavior: "smooth" });
+                try { target.focus(); } catch (e) {}
+              }
+            }
+          }
           return;
         }
         // Omit location entirely when role doesn't use it
