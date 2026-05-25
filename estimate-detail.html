@@ -854,7 +854,7 @@
           data-comment="estimate-detail-sidebar"
           id="sidebar"
           aria-label="Primary navigation">
-          <a class="sidebar-logo" data-comment="estimate-detail-sidebar-logo" href="orders.html" aria-label="Go to home">
+          <a class="sidebar-logo" data-comment="estimate-detail-sidebar-logo" href="home.html" aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="estimate-detail-sidebar-logo-mark">
               <img data-comment="estimate-detail-sidebar-logo-img" src="img/shared/logo.png" alt="Lapp Structures" />
             </span>
@@ -1122,7 +1122,7 @@
             { label: "Customers", path: "customers.html", icon: "userRound" },
             { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
             { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
-            { label: "Sales Orders", path: "orders.html", icon: "list" },
+            { label: "Sales Orders", path: "home.html", icon: "list" },
             { label: "Users", path: "users.html", icon: "users" },
             { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
             { label: "Options List", path: "attributes.html", icon: "layers2" },
@@ -1805,7 +1805,7 @@
                     ${ICONS.clipboardCheck2} View Site Check
                   </a>` : ""}
                 ${est.order ? `
-                  <a class="btn btn-outline btn-sm" data-comment="estimate-detail-action-view-order" data-component="button" href="orders.html?id=${est.order}">
+                  <a class="btn btn-outline btn-sm" data-comment="estimate-detail-action-view-order" data-component="button" href="home.html?id=${est.order}">
                     ${ICONS.package} View Order
                   </a>` : ""}
                 <button type="button" class="btn btn-outline btn-sm" data-comment="estimate-detail-action-print" data-component="button" data-action="print">

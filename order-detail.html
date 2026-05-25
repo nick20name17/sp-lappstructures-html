@@ -1472,7 +1472,7 @@
           <a
             class="sidebar-logo"
             data-comment="order-detail-sidebar-logo"
-            href="orders.html"
+            href="home.html"
             aria-label="Go to home">
             <span class="sidebar-logo-mark" data-comment="order-detail-sidebar-logo-mark">
               <img
@@ -1611,7 +1611,7 @@
                   class="btn btn-ghost btn-sm"
                   data-comment="order-detail-action-back"
                   data-component="button"
-                  href="orders.html">
+                  href="home.html">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m12 19-7-7 7-7" />
                     <path d="M19 12H5" />
@@ -1983,7 +1983,7 @@
               { label: "Customers", path: "customers.html", icon: "userRound" },
               { label: "Estimates", path: "estimates.html", icon: "clipboardList" },
               { label: "Site Checks", path: "site-checks.html", icon: "mapPin" },
-              { label: "Sales Orders", path: "orders.html", icon: "list" },
+              { label: "Sales Orders", path: "home.html", icon: "list" },
               { label: "Users", path: "users.html", icon: "users" },
               { label: "Internal View", path: "reviews.html", icon: "clipboardCheck", badge: true },
               { label: "Options List", path: "attributes.html", icon: "layers2" },
@@ -2019,7 +2019,7 @@
       }
       function statusIdx(status) { return STATUS_ORDER.indexOf(status); }
 
-      /* ───── Seed sidebar customers (mirrors orders.html / home.html) ───── */
+      /* ───── Seed sidebar customers (mirrors home.html / home.html) ───── */
       const SIDEBAR_CUSTOMERS = [
         { id: 1, first_name: "Anna", last_name: "Lee", email: "anna@example.com" },
         { id: 2, first_name: "Mark", last_name: "Chen", email: "mark@example.com" },
@@ -2031,7 +2031,7 @@
         { id: 8, first_name: "Michael", last_name: "Davis", email: "michael.d@example.com" },
       ];
 
-      /* ───── Seed orders (mirrors orders.html shape, expanded with full sales_order data) ───── */
+      /* ───── Seed orders (mirrors home.html shape, expanded with full sales_order data) ───── */
       const SEED_ORDERS = [
         {
           autoid: "ORD-1001",
@@ -2487,7 +2487,7 @@
         sidebarSearchTerm: "",
         customers: SIDEBAR_CUSTOMERS,
         reviewBadges: { not_pricing_reviewed: 0, not_shop_reviewed: 1 },
-        currentPath: "orders.html",
+        currentPath: "home.html",
 
         orderIdParam: getOrderIdFromUrl(),
         orders: SEED_ORDERS,
@@ -2675,7 +2675,7 @@
             ${ICONS.alertCircle.replace('<svg ', '<svg data-comment="order-detail-empty-icon" ')}
             <h2 class="od-empty-heading" data-comment="order-detail-empty-heading">Order not found</h2>
             <p class="od-empty-text" data-comment="order-detail-empty-text">No order matches the id in the URL.</p>
-            <a class="btn btn-primary btn-sm" data-comment="order-detail-empty-back-link" data-component="button" href="orders.html">
+            <a class="btn btn-primary btn-sm" data-comment="order-detail-empty-back-link" data-component="button" href="home.html">
               ${ICONS.list}
               Back to Sales Orders
             </a>

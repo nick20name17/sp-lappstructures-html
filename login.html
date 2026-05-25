@@ -753,7 +753,7 @@
             setServerError(null);
             const btnText = document.getElementById("submit-text");
             btnText.textContent = "Success — redirecting…";
-            setTimeout(() => { window.location.href = "orders.html"; }, 400);
+            setTimeout(() => { window.location.href = "home.html"; }, 400);
           } catch (err) {
             setServerError(err.message);
             setSubmitting(false);
