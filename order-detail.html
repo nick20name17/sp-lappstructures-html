@@ -25,42 +25,63 @@
       /* ───── Design tokens ───── */
       :root {
         --radius: 0.5rem;
+
         --background: oklch(0.93 0.011 257);
         --background-secondary: oklch(98.837% 0.00143 285.197);
         --foreground: oklch(0.14 0.033 262);
+
         --card: oklch(1 0 0);
         --card-foreground: oklch(0.22 0.03 255);
+
         --popover: oklch(1 0 0);
+        --popover-foreground: oklch(0.22 0.03 255);
+
         --primary: oklch(0.53 0.18 260);
         --primary-foreground: oklch(1 0 0);
+
         --secondary: oklch(0.97 0.005 250);
         --secondary-foreground: oklch(0.14 0.033 262);
         --secondary-hover: oklch(0.93 0.011 257);
+
         --muted: oklch(0.97 0.005 250);
         --muted-foreground: oklch(0.56 0.023 255);
+
         --accent: oklch(0.96 0.03 260);
         --accent-foreground: oklch(0.53 0.18 260);
+
         --destructive: oklch(0.50 0.19 25);
+        --destructive-foreground: oklch(1 0 0);
+
         --success: oklch(0.58 0.16 150);
+        --success-foreground: oklch(1 0 0);
+
         --border: oklch(0.93 0.011 257);
         --input: oklch(0.92 0.01 250);
         --ring: oklch(0.53 0.18 260);
 
+        --chart-1: oklch(0.53 0.18 260);
+        --chart-2: oklch(0.58 0.16 150);
+        --chart-3: oklch(0.60 0.10 220);
+        --chart-4: oklch(0.75 0.12 80);
+        --chart-5: oklch(0.65 0.15 25);
+
         --sidebar: oklch(1 0 0);
         --sidebar-foreground: oklch(0.55 0.02 255);
         --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-primary-foreground: oklch(1 0 0);
         --sidebar-accent: oklch(0.97 0.005 250);
         --sidebar-accent-foreground: oklch(0.14 0.033 262);
         --sidebar-border: oklch(0.92 0.01 250);
+        --sidebar-ring: oklch(0.53 0.18 260);
+
+        --brand-navy: #163259;
+        --font-body: "Inter", sans-serif;
+        --font-display: "SF Pro Display", "Inter", sans-serif;
 
         --amber-bg: #fef3c7;
         --amber-fg: #92400e;
         --green-bg: #dcfce7;
         --green-fg: #166534;
-
-        --brand-navy: #163259;
-        --font-body: "Inter", sans-serif;
-        --font-display: "SF Pro Display", "Inter", sans-serif;
       }
 
       html,
@@ -509,53 +530,61 @@
       }
 
       /* ───── Buttons ───── */
+      /* ───── Buttons (aligned with React Button variants) ───── */
       .btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: 8px;
         white-space: nowrap;
         border-radius: 6px;
         font-size: 0.875rem;
         font-weight: 500;
         font-family: inherit;
         height: 36px;
-        padding: 8px 12px;
-        transition: background 0.15s ease, color 0.15s ease;
+        padding: 8px 16px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        outline: none;
+        transition: background-color 0.15s ease, color 0.15s ease,
+          border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .btn:focus-visible {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
       }
       .btn:disabled { pointer-events: none; opacity: 0.5; }
+      .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-      .btn-primary {
-        background: var(--primary);
-        color: var(--primary-foreground);
-      }
+      .btn-primary { background: var(--primary); color: var(--primary-foreground); }
       .btn-primary:hover { background: color-mix(in oklch, var(--primary) 90%, black); }
-
-      .btn-outline {
-        background: var(--card);
-        color: var(--foreground);
-        border: 1px solid var(--border);
-      }
+      .btn-secondary { background: var(--secondary); color: var(--secondary-foreground); }
+      .btn-secondary:hover { background: var(--secondary-hover); }
+      .btn-outline { background: white; color: var(--foreground); border-color: var(--border); }
       .btn-outline:hover { background: var(--secondary); }
-
-      .btn-ghost {
-        background: transparent;
-        color: var(--muted-foreground);
+      .btn-ghost { background: transparent; color: var(--muted-foreground); }
+      .btn-ghost:hover { background: var(--secondary); color: var(--foreground); }
+      .btn-destructive { background: var(--destructive); color: #fff; }
+      .btn-destructive:hover { background: color-mix(in oklch, var(--destructive) 90%, black); }
+      .btn-destructive-outline {
+        background: white; color: var(--destructive);
+        border-color: color-mix(in oklch, var(--destructive) 40%, white);
       }
-      .btn-ghost:hover {
-        background: var(--secondary);
-        color: var(--foreground);
-      }
+      .btn-destructive-outline:hover { background: color-mix(in oklch, var(--destructive) 8%, white); }
+      .btn-success { background: var(--success); color: #fff; }
+      .btn-success:hover { background: color-mix(in oklch, var(--success) 90%, black); }
+      .btn-link { background: transparent; color: var(--primary); text-underline-offset: 4px; height: auto; padding: 0; }
+      .btn-link:hover { text-decoration: underline; }
 
-      .btn-sm {
-        height: 32px;
-        padding: 6px 10px;
-        font-size: 0.8125rem;
-      }
-
-      .btn svg { width: 16px; height: 16px; }
-
-      /* ───── Status badge (used in header) ───── */
+      .btn-sm { height: 32px; padding: 6px 12px; gap: 6px; }
+      .btn-sm svg { width: 14px; height: 14px; }
+      .btn-lg { height: 40px; padding: 8px 24px; }
+      .btn-icon { width: 36px; height: 36px; padding: 0; }
+      .btn-icon-sm { width: 32px; height: 32px; padding: 0; }
+      .btn-icon-lg { width: 40px; height: 40px; padding: 0; }
+/* ───── Status badge (used in header) ───── */
       .status-badge {
         display: inline-flex;
         align-items: center;
@@ -1026,7 +1055,7 @@
       .od-dialog-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.45);
+        background: rgba(0, 0, 0, 0.5);
         display: none;
         align-items: center;
         justify-content: center;
@@ -1036,16 +1065,19 @@
       .od-dialog-overlay.is-open { display: flex; }
       .od-dialog {
         background: var(--card);
-        border-radius: 14px;
-        padding: 20px;
-        max-width: 460px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 24px;
+        max-width: 32rem;
         width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 14px;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        gap: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+        animation: od-dialog-pop 0.2s ease;
       }
-      .od-dialog-title { font-size: 1.05rem; font-weight: 600; }
+      @keyframes od-dialog-pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+      .od-dialog-title { font-size: 1.125rem; line-height: 1; font-weight: 600; }
       .od-dialog-header-row {
         display: flex;
         align-items: center;
@@ -1066,41 +1098,68 @@
       .od-dialog-description { font-size: 0.875rem; color: var(--muted-foreground); }
       .od-dialog-footer {
         display: flex;
-        justify-content: flex-end;
+        flex-direction: column-reverse;
         gap: 8px;
+      }
+      @media (min-width: 640px) {
+        .od-dialog-footer { flex-direction: row; justify-content: flex-end; }
       }
       .od-form-row {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 6px;
       }
       .od-form-row label {
-        font-size: 0.8125rem;
+        font-size: 0.875rem;
+        line-height: 1;
         font-weight: 500;
         color: var(--foreground);
+        user-select: none;
       }
+      .od-form-row label .req { color: var(--destructive); margin-left: 2px; }
       .od-form-row input,
       .od-form-row select,
       .od-form-row textarea {
+        width: 100%;
+        min-width: 0;
         height: 36px;
-        padding: 0 10px;
+        padding: 4px 12px;
         border: 1px solid var(--input);
-        border-radius: 6px;
+        border-radius: 0.375rem;
         font-family: inherit;
         font-size: 0.875rem;
-        outline: none;
-        background: var(--card);
+        background: transparent;
         color: var(--foreground);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
       }
+      .od-form-row input::placeholder,
+      .od-form-row textarea::placeholder { color: var(--muted-foreground); }
       .od-form-row textarea {
         height: auto;
         min-height: 64px;
-        padding: 8px 10px;
+        padding: 8px 12px;
         resize: vertical;
       }
-      .od-form-row input:focus,
-      .od-form-row select:focus,
-      .od-form-row textarea:focus { border-color: var(--ring); }
+      .od-form-row input:focus-visible,
+      .od-form-row select:focus-visible,
+      .od-form-row textarea:focus-visible {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+      }
+      .od-form-row input[aria-invalid="true"],
+      .od-form-row select[aria-invalid="true"],
+      .od-form-row textarea[aria-invalid="true"] {
+        border-color: var(--destructive);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
+      }
+      .od-form-row input:disabled,
+      .od-form-row select:disabled,
+      .od-form-row textarea:disabled {
+        pointer-events: none; cursor: not-allowed; opacity: 0.5;
+      }
+      .od-form-error { font-size: 0.75rem; color: var(--destructive); }
 
       /* ───── Body ───── */
       .od-body {
@@ -1178,8 +1237,8 @@
       .select .select-trigger[aria-expanded="true"] { border-color: var(--ring); }
       .select .select-trigger[data-placeholder="true"] { color: var(--muted-foreground); }
       .select .select-trigger-chevron {
-        width: 14px;
-        height: 14px;
+        width: 16px;
+        height: 16px;
         color: var(--muted-foreground);
         flex-shrink: 0;
         transition: transform 0.15s ease;
@@ -1313,7 +1372,7 @@
       /* Mobile menu */
       .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
       .mobile-menu-btn svg { width:20px; height:20px; }
-      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background: rgba(0, 0, 0, 0.5); z-index:40; }
       @media (max-width: 768px) {
         .mobile-menu-btn { display:flex; }
         .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
@@ -1328,9 +1387,9 @@
       [data-tooltip] { position:relative; }
       [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
         content: attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
-        background:var(--popover, #1f2937); color:var(--popover-foreground, #fff);
-        padding:4px 8px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
-        pointer-events:none; z-index:60; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        background:var(--background, #fff); color:var(--foreground, #030816); border:1px solid var(--border, #E2E8F0);
+        padding:6px 12px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
+        pointer-events:none; z-index:60; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
         animation:tooltip-in 0.15s ease-out;
       }
       @keyframes tooltip-in { from { opacity:0; transform:translateX(-50%) translateY(2px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
@@ -1918,7 +1977,7 @@
       const SEED_ORDERS = [
         {
           autoid: "ORD-1001",
-          invoice: "SO-1001",
+          invoice: "73566",
           crea_date: "2025-04-22",
           customer: "Anna Lee",
           customer_id: 1,
@@ -1976,7 +2035,7 @@
         },
         {
           autoid: "ORD-1002",
-          invoice: "SO-1002",
+          invoice: "73571",
           crea_date: "2025-04-25",
           customer: "Mark Chen",
           customer_id: 2,
@@ -2031,7 +2090,7 @@
         },
         {
           autoid: "ORD-1003",
-          invoice: "SO-1003",
+          invoice: "73582",
           crea_date: "2025-04-29",
           customer: "Sarah Johnson",
           customer_id: 3,
@@ -2085,7 +2144,7 @@
         },
         {
           autoid: "ORD-1004",
-          invoice: "SO-1004",
+          invoice: "73588",
           crea_date: "2025-05-01",
           customer: "David Smith",
           customer_id: 4,
@@ -2136,7 +2195,7 @@
         },
         {
           autoid: "ORD-1005",
-          invoice: "SO-1005",
+          invoice: "73593",
           crea_date: "2025-05-03",
           customer: "Emma Garcia",
           customer_id: 5,
@@ -2190,7 +2249,7 @@
         },
         {
           autoid: "ORD-1006",
-          invoice: "SO-1006",
+          invoice: "73601",
           crea_date: "2025-05-05",
           customer: "James Wilson",
           customer_id: 6,
@@ -2245,31 +2304,31 @@
 
       /* ───── Synthesize missing orders so every list row opens ───── */
       (function extendOrders() {
-        const template = SEED_ORDERS[5]; // SO-1006 as base
+        const template = SEED_ORDERS[5]; // 73601 as base
         const extras = [
-          { invoice: "SO-1007", customer: "Olivia Brown", category: "Sheds", dimension: "12x16", total: 8420.50, status: "pricing_review", po_no: "PO-77123" },
-          { invoice: "SO-1008", customer: "Daniel Kim", category: "Garages", dimension: "16x24", total: 14250.00, status: "shop_review", po_no: null },
-          { invoice: "SO-1009", customer: "Sophia Martinez", category: "Sheds", dimension: "8x12", total: 4380.00, status: "down_payment_received", po_no: "PO-77124" },
-          { invoice: "SO-1010", customer: "Liam Johnson", category: "Sheds", dimension: "10x12", total: 5920.00, status: "complete", po_no: null },
-          { invoice: "SO-1011", customer: "Emma Davis", category: "Cabins", dimension: "12x20", total: 18200.00, status: "in_production", po_no: "PO-77125" },
-          { invoice: "SO-1012", customer: "Noah Garcia", category: "Sheds", dimension: "10x16", total: 7320.00, status: "scheduled_delivery", po_no: null },
-          { invoice: "SO-1013", customer: "Ava Rodriguez", category: "Sheds", dimension: "8x10", total: 3580.00, status: "delivered", po_no: "PO-77126" },
-          { invoice: "SO-1014", customer: "William Lee", category: "Garages", dimension: "20x24", total: 16800.00, status: "awaiting_signature", po_no: null },
-          { invoice: "SO-1015", customer: "Isabella Lopez", category: "Sheds", dimension: "10x14", total: 6450.00, status: "pricing_review", po_no: "PO-77127" },
+          { invoice: "73612", customer: "Olivia Brown", category: "Sheds", dimension: "12x16", total: 8420.50, status: "pricing_review", po_no: "PO-77123" },
+          { invoice: "73624", customer: "Daniel Kim", category: "Garages", dimension: "16x24", total: 14250.00, status: "shop_review", po_no: null },
+          { invoice: "73638", customer: "Sophia Martinez", category: "Sheds", dimension: "8x12", total: 4380.00, status: "down_payment_received", po_no: "PO-77124" },
+          { invoice: "73649", customer: "Liam Johnson", category: "Sheds", dimension: "10x12", total: 5920.00, status: "complete", po_no: null },
+          { invoice: "73661", customer: "Emma Davis", category: "Cabins", dimension: "12x20", total: 18200.00, status: "in_production", po_no: "PO-77125" },
+          { invoice: "73678", customer: "Noah Garcia", category: "Sheds", dimension: "10x16", total: 7320.00, status: "scheduled_delivery", po_no: null },
+          { invoice: "73690", customer: "Ava Rodriguez", category: "Sheds", dimension: "8x10", total: 3580.00, status: "delivered", po_no: "PO-77126" },
+          { invoice: "73705", customer: "William Lee", category: "Garages", dimension: "20x24", total: 16800.00, status: "awaiting_signature", po_no: null },
+          { invoice: "73719", customer: "Isabella Lopez", category: "Sheds", dimension: "10x14", total: 6450.00, status: "pricing_review", po_no: "PO-77127" },
         ];
         const reviewExtras = [
-          { invoice: "INV-1001", customer: "Riverbend Construction LLC", category: "Lofted Barns", dimension: "12x16", total: 12450.0, status: "down_payment_received", po_no: "PO-RV001" },
-          { invoice: "INV-1002", customer: "Hillcrest Farms",             category: "Storage Sheds",dimension: "10x12", total: 8975.5,  status: "pricing_reviewed",       po_no: "PO-RV002" },
-          { invoice: "INV-1003", customer: "Karen Whitmore",              category: "Garages",      dimension: "16x32", total: 24300.0, status: "down_payment_received",  po_no: "PO-RV003" },
-          { invoice: "INV-1004", customer: "Maple & Pine Properties",     category: "Cabins",       dimension: "12x20", total: 6280.75, status: "pricing_reviewed",       po_no: "PO-RV004" },
-          { invoice: "INV-1005", customer: "Bryan Holloway",              category: "Workshops",    dimension: "14x28", total: 14820.0, status: "down_payment_received",  po_no: "PO-RV005" },
-          { invoice: "INV-1006", customer: "Stillwater Retreats",         category: "Cabins",       dimension: "16x32", total: 32150.0, status: "pricing_reviewed",       po_no: "PO-RV006" },
-          { invoice: "INV-1007", customer: "Greenleaf Homestead",         category: "Storage Sheds",dimension: "10x14", total: 4895.0,  status: "down_payment_received",  po_no: "PO-RV007" },
-          { invoice: "INV-1008", customer: "Northbrook Builders",         category: "Garages",      dimension: "20x24", total: 18640.0, status: "shop_reviewed",          po_no: "PO-RV008" },
-          { invoice: "INV-1009", customer: "Sundown Properties",          category: "Cabins",       dimension: "14x24", total: 21300.0, status: "down_payment_received",  po_no: "PO-RV009" },
-          { invoice: "INV-1010", customer: "Linda Park Holdings",         category: "Lofted Barns", dimension: "12x20", total: 9820.0,  status: "pricing_reviewed",       po_no: "PO-RV010" },
-          { invoice: "INV-1011", customer: "Apex Outdoor Co",             category: "Workshops",    dimension: "16x20", total: 16450.0, status: "down_payment_received",  po_no: "PO-RV011" },
-          { invoice: "INV-1012", customer: "Hollow Creek Estates",        category: "Cabins",       dimension: "12x16", total: 11875.0, status: "shop_reviewed",          po_no: "PO-RV012" },
+          { invoice: "73731", customer: "Riverbend Construction LLC", category: "Lofted Barns", dimension: "12x16", total: 12450.0, status: "down_payment_received", po_no: "PO-RV001" },
+          { invoice: "73742", customer: "Hillcrest Farms",             category: "Storage Sheds",dimension: "10x12", total: 8975.5,  status: "pricing_reviewed",       po_no: "PO-RV002" },
+          { invoice: "73754", customer: "Karen Whitmore",              category: "Garages",      dimension: "16x32", total: 24300.0, status: "down_payment_received",  po_no: "PO-RV003" },
+          { invoice: "73766", customer: "Maple & Pine Properties",     category: "Cabins",       dimension: "12x20", total: 6280.75, status: "pricing_reviewed",       po_no: "PO-RV004" },
+          { invoice: "73778", customer: "Bryan Holloway",              category: "Workshops",    dimension: "14x28", total: 14820.0, status: "down_payment_received",  po_no: "PO-RV005" },
+          { invoice: "73789", customer: "Stillwater Retreats",         category: "Cabins",       dimension: "16x32", total: 32150.0, status: "pricing_reviewed",       po_no: "PO-RV006" },
+          { invoice: "73801", customer: "Greenleaf Homestead",         category: "Storage Sheds",dimension: "10x14", total: 4895.0,  status: "down_payment_received",  po_no: "PO-RV007" },
+          { invoice: "73813", customer: "Northbrook Builders",         category: "Garages",      dimension: "20x24", total: 18640.0, status: "shop_reviewed",          po_no: "PO-RV008" },
+          { invoice: "73825", customer: "Sundown Properties",          category: "Cabins",       dimension: "14x24", total: 21300.0, status: "down_payment_received",  po_no: "PO-RV009" },
+          { invoice: "73836", customer: "Linda Park Holdings",         category: "Lofted Barns", dimension: "12x20", total: 9820.0,  status: "pricing_reviewed",       po_no: "PO-RV010" },
+          { invoice: "73847", customer: "Apex Outdoor Co",             category: "Workshops",    dimension: "16x20", total: 16450.0, status: "down_payment_received",  po_no: "PO-RV011" },
+          { invoice: "73858", customer: "Hollow Creek Estates",        category: "Cabins",       dimension: "12x16", total: 11875.0, status: "shop_reviewed",          po_no: "PO-RV012" },
         ];
         reviewExtras.forEach((x, j) => {
           const base = JSON.parse(JSON.stringify(template));
@@ -2369,7 +2428,7 @@
         searchOpen: false,
         sidebarSearchTerm: "",
         customers: SIDEBAR_CUSTOMERS,
-        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        reviewBadges: { not_pricing_reviewed: 0, not_shop_reviewed: 5 },
         currentPath: "orders.html",
 
         orderIdParam: getOrderIdFromUrl(),

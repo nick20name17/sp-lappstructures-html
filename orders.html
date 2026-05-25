@@ -25,39 +25,59 @@
       /* ───── Design tokens ───── */
       :root {
         --radius: 0.5rem;
+
         --background: oklch(0.93 0.011 257);
         --background-secondary: oklch(98.837% 0.00143 285.197);
         --foreground: oklch(0.14 0.033 262);
+
         --card: oklch(1 0 0);
         --card-foreground: oklch(0.22 0.03 255);
+
         --popover: oklch(1 0 0);
+        --popover-foreground: oklch(0.22 0.03 255);
+
         --primary: oklch(0.53 0.18 260);
         --primary-foreground: oklch(1 0 0);
+
         --secondary: oklch(0.97 0.005 250);
         --secondary-foreground: oklch(0.14 0.033 262);
         --secondary-hover: oklch(0.93 0.011 257);
+
         --muted: oklch(0.97 0.005 250);
         --muted-foreground: oklch(0.56 0.023 255);
+
         --accent: oklch(0.96 0.03 260);
         --accent-foreground: oklch(0.53 0.18 260);
+
         --destructive: oklch(0.50 0.19 25);
+        --destructive-foreground: oklch(1 0 0);
+
         --success: oklch(0.58 0.16 150);
+        --success-foreground: oklch(1 0 0);
+
         --border: oklch(0.93 0.011 257);
         --input: oklch(0.92 0.01 250);
         --ring: oklch(0.53 0.18 260);
 
+        --chart-1: oklch(0.53 0.18 260);
+        --chart-2: oklch(0.58 0.16 150);
+        --chart-3: oklch(0.60 0.10 220);
+        --chart-4: oklch(0.75 0.12 80);
+        --chart-5: oklch(0.65 0.15 25);
+
         --sidebar: oklch(1 0 0);
         --sidebar-foreground: oklch(0.55 0.02 255);
         --sidebar-primary: oklch(0.53 0.18 260);
+        --sidebar-primary-foreground: oklch(1 0 0);
         --sidebar-accent: oklch(0.97 0.005 250);
         --sidebar-accent-foreground: oklch(0.14 0.033 262);
         --sidebar-border: oklch(0.92 0.01 250);
+        --sidebar-ring: oklch(0.53 0.18 260);
 
         --brand-navy: #163259;
         --font-body: "Inter", sans-serif;
         --font-display: "SF Pro Display", "Inter", sans-serif;
 
-        /* Status badge palette */
         --amber-bg: #fef3c7;
         --amber-fg: #92400e;
         --green-bg: #d1fae5;
@@ -637,6 +657,7 @@
       }
 
       /* ───── Buttons ───── */
+      /* ───── Buttons (aligned with React Button variants) ───── */
       .btn {
         display: inline-flex;
         align-items: center;
@@ -649,55 +670,48 @@
         font-family: inherit;
         height: 36px;
         padding: 8px 16px;
-        transition: background 0.15s ease, color 0.15s ease;
-      }
-
-      .btn:disabled {
-        pointer-events: none;
-        opacity: 0.5;
-      }
-
-      .btn-primary {
-        background: var(--primary);
-        color: var(--primary-foreground);
-      }
-
-      .btn-primary:hover {
-        background: color-mix(in oklch, var(--primary) 90%, black);
-      }
-
-      .btn-outline {
-        background: white;
-        color: var(--foreground);
-        border: 1px solid var(--border);
-      }
-
-      .btn-outline:hover {
-        background: var(--secondary);
-      }
-
-      .btn-ghost {
+        border: 1px solid transparent;
         background: transparent;
-        color: var(--muted-foreground);
+        color: inherit;
+        cursor: pointer;
+        outline: none;
+        transition: background-color 0.15s ease, color 0.15s ease,
+          border-color 0.15s ease, box-shadow 0.15s ease;
       }
-
-      .btn-ghost:hover {
-        background: var(--secondary);
-        color: var(--foreground);
+      .btn:focus-visible {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
       }
+      .btn:disabled { pointer-events: none; opacity: 0.5; }
+      .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-      .btn-icon {
-        height: 32px;
-        width: 32px;
-        padding: 0;
+      .btn-primary { background: var(--primary); color: var(--primary-foreground); }
+      .btn-primary:hover { background: color-mix(in oklch, var(--primary) 90%, black); }
+      .btn-secondary { background: var(--secondary); color: var(--secondary-foreground); }
+      .btn-secondary:hover { background: var(--secondary-hover); }
+      .btn-outline { background: white; color: var(--foreground); border-color: var(--border); }
+      .btn-outline:hover { background: var(--secondary); }
+      .btn-ghost { background: transparent; color: var(--muted-foreground); }
+      .btn-ghost:hover { background: var(--secondary); color: var(--foreground); }
+      .btn-destructive { background: var(--destructive); color: #fff; }
+      .btn-destructive:hover { background: color-mix(in oklch, var(--destructive) 90%, black); }
+      .btn-destructive-outline {
+        background: white; color: var(--destructive);
+        border-color: color-mix(in oklch, var(--destructive) 40%, white);
       }
+      .btn-destructive-outline:hover { background: color-mix(in oklch, var(--destructive) 8%, white); }
+      .btn-success { background: var(--success); color: #fff; }
+      .btn-success:hover { background: color-mix(in oklch, var(--success) 90%, black); }
+      .btn-link { background: transparent; color: var(--primary); text-underline-offset: 4px; height: auto; padding: 0; }
+      .btn-link:hover { text-decoration: underline; }
 
-      .btn svg {
-        width: 16px;
-        height: 16px;
-      }
-
-      /* ───── Search box (in PageHeader) ───── */
+      .btn-sm { height: 32px; padding: 6px 12px; gap: 6px; }
+      .btn-sm svg { width: 14px; height: 14px; }
+      .btn-lg { height: 40px; padding: 8px 24px; }
+      .btn-icon { width: 36px; height: 36px; padding: 0; }
+      .btn-icon-sm { width: 32px; height: 32px; padding: 0; }
+      .btn-icon-lg { width: 40px; height: 40px; padding: 0; }
+/* ───── Search box (in PageHeader) ───── */
       .search-box {
         position: relative;
       }
@@ -801,21 +815,27 @@
       .data-table thead th {
         position: sticky;
         top: 0;
-        background: var(--sidebar);
+        background: var(--muted);
         text-align: left;
         font-weight: 500;
         color: var(--muted-foreground);
-        padding: 10px 12px;
+        height: 40px;
+        padding: 0 8px;
         border-bottom: 1px solid var(--border);
         white-space: nowrap;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         z-index: 1;
+      }
+      @media (min-width: 640px) {
+        .data-table thead th { padding: 0 16px; }
       }
 
       .data-table thead .th-inner {
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        text-transform: capitalize;
       }
 
       .data-table thead .th-sortable {
@@ -1056,7 +1076,7 @@
       .drawer-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(0, 0, 0, 0.5);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.25s ease;
@@ -1075,10 +1095,11 @@
         bottom: 0;
         width: 100%;
         max-width: 900px;
-        background: var(--background-secondary);
-        box-shadow: -8px 0 24px rgba(0, 0, 0, 0.08);
+        background: var(--background);
+        border-left: 1px solid var(--border);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
         transform: translateX(100%);
-        transition: transform 0.3s ease;
+        transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
         z-index: 110;
         display: flex;
         flex-direction: column;
@@ -1350,8 +1371,8 @@
       .select .select-trigger[aria-expanded="true"] { border-color: var(--ring); }
       .select .select-trigger[data-placeholder="true"] { color: var(--muted-foreground); }
       .select .select-trigger-chevron {
-        width: 14px;
-        height: 14px;
+        width: 16px;
+        height: 16px;
         color: var(--muted-foreground);
         flex-shrink: 0;
         transition: transform 0.15s ease;
@@ -1409,7 +1430,7 @@
       /* Mobile menu */
       .mobile-menu-btn { display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; border-radius:8px; background:var(--card,#fff); border:1px solid var(--border,#e5e7eb); cursor:pointer; align-items:center; justify-content:center; }
       .mobile-menu-btn svg { width:20px; height:20px; }
-      .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:40; }
+      .sidebar-backdrop { display:none; position:fixed; inset:0; background: rgba(0, 0, 0, 0.5); z-index:40; }
       @media (max-width: 768px) {
         .mobile-menu-btn { display:flex; }
         .app-sidebar, .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; position:fixed; top:0; left:0; height:100vh; z-index:45; }
@@ -1424,9 +1445,9 @@
       [data-tooltip] { position:relative; }
       [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
         content: attr(data-tooltip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
-        background:var(--popover, #1f2937); color:var(--popover-foreground, #fff);
-        padding:4px 8px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
-        pointer-events:none; z-index:60; box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        background:var(--background, #fff); color:var(--foreground, #030816); border:1px solid var(--border, #E2E8F0);
+        padding:6px 12px; border-radius:6px; font-size:0.75rem; white-space:nowrap;
+        pointer-events:none; z-index:60; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
         animation:tooltip-in 0.15s ease-out;
       }
       @keyframes tooltip-in { from { opacity:0; transform:translateX(-50%) translateY(2px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
@@ -1740,9 +1761,9 @@
                     <colgroup>
                       <col style="width: 120px" />
                       <col style="width: 140px" />
-                      <col style="width: 200px" />
                       <col style="width: 150px" />
                       <col style="width: 120px" />
+                      <col style="width: 200px" />
                       <col style="width: 200px" />
                       <col class="hide-mobile" style="width: 130px" />
                       <col class="hide-mobile" style="width: 170px" />
@@ -1765,12 +1786,6 @@
                             <span class="th-sort-icon" data-sort-icon></span>
                           </span>
                         </th>
-                        <th data-comment="orders-th-customer" data-sort-key="customer">
-                          <span class="th-inner th-sortable">
-                            <span>Customer</span>
-                            <span class="th-sort-icon" data-sort-icon></span>
-                          </span>
-                        </th>
                         <th data-comment="orders-th-category">
                           <span class="th-inner"><span>Category</span></span>
                         </th>
@@ -1779,6 +1794,12 @@
                         </th>
                         <th data-comment="orders-th-stage">
                           <span class="th-inner"><span>Stage</span></span>
+                        </th>
+                        <th data-comment="orders-th-customer" data-sort-key="customer">
+                          <span class="th-inner th-sortable">
+                            <span>Customer</span>
+                            <span class="th-sort-icon" data-sort-icon></span>
+                          </span>
                         </th>
                         <th class="hide-mobile" data-comment="orders-th-po" data-sort-key="po_no">
                           <span class="th-inner th-sortable">
@@ -1824,13 +1845,13 @@
                     class="select select-sm select-inline"
                     data-comment="orders-pagination-size-select"
                     data-component="select"
-                    data-placeholder="10"
+                    data-placeholder="25"
                     id="orders-pagination-size">
                     <button type="button" class="select-trigger" aria-expanded="false" data-comment="orders-pagination-size-select-trigger">
                       <span class="select-trigger-label"></span>
                       <svg class="select-trigger-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                     </button>
-                    <input type="hidden" value="10" />
+                    <input type="hidden" value="25" />
                     <div class="select-popover" style="display:none" role="listbox">
                       <div class="select-item" data-value="10" data-comment="orders-pagination-size-opt-10">10</div>
                       <div class="select-item" data-value="15" data-comment="orders-pagination-size-opt-15">15</div>
@@ -2228,7 +2249,7 @@
       const SEED_ORDERS = [
         {
           autoid: "ORD-1001",
-          invoice: "SO-1001",
+          invoice: "73566",
           crea_date: "2025-04-22",
           customer: "Anna Lee",
           customer_id: 1,
@@ -2249,7 +2270,7 @@
         },
         {
           autoid: "ORD-1002",
-          invoice: "SO-1002",
+          invoice: "73571",
           crea_date: "2025-04-25",
           customer: "Mark Chen",
           customer_id: 2,
@@ -2269,7 +2290,7 @@
         },
         {
           autoid: "ORD-1003",
-          invoice: "SO-1003",
+          invoice: "73582",
           crea_date: "2025-04-29",
           customer: "Sarah Johnson",
           customer_id: 3,
@@ -2289,7 +2310,7 @@
         },
         {
           autoid: "ORD-1004",
-          invoice: "SO-1004",
+          invoice: "73588",
           crea_date: "2025-05-01",
           customer: "David Smith",
           customer_id: 4,
@@ -2309,7 +2330,7 @@
         },
         {
           autoid: "ORD-1005",
-          invoice: "SO-1005",
+          invoice: "73593",
           crea_date: "2025-05-03",
           customer: "Emma Garcia",
           customer_id: 5,
@@ -2329,7 +2350,7 @@
         },
         {
           autoid: "ORD-1006",
-          invoice: "SO-1006",
+          invoice: "73601",
           crea_date: "2025-05-05",
           customer: "James Wilson",
           customer_id: 6,
@@ -2349,7 +2370,7 @@
         },
         {
           autoid: "ORD-1007",
-          invoice: "SO-1007",
+          invoice: "73612",
           crea_date: "2025-05-07",
           customer: "Olivia Brown",
           customer_id: 7,
@@ -2369,7 +2390,7 @@
         },
         {
           autoid: "ORD-1008",
-          invoice: "SO-1008",
+          invoice: "73624",
           crea_date: "2025-05-09",
           customer: "Michael Davis",
           customer_id: 8,
@@ -2389,7 +2410,7 @@
         },
         {
           autoid: "ORD-1009",
-          invoice: "SO-1009",
+          invoice: "73638",
           crea_date: "2025-05-10",
           customer: "Anna Lee",
           customer_id: 1,
@@ -2409,7 +2430,7 @@
         },
         {
           autoid: "ORD-1010",
-          invoice: "SO-1010",
+          invoice: "73649",
           crea_date: "2025-05-12",
           customer: "Mark Chen",
           customer_id: 2,
@@ -2429,7 +2450,7 @@
         },
         {
           autoid: "ORD-1011",
-          invoice: "SO-1011",
+          invoice: "73661",
           crea_date: "2025-05-13",
           customer: "Sarah Johnson",
           customer_id: 3,
@@ -2449,7 +2470,7 @@
         },
         {
           autoid: "ORD-1012",
-          invoice: "SO-1012",
+          invoice: "73678",
           crea_date: "2025-05-14",
           customer: "David Smith",
           customer_id: 4,
@@ -2469,7 +2490,7 @@
         },
         {
           autoid: "ORD-1013",
-          invoice: "SO-1013",
+          invoice: "73690",
           crea_date: "2025-05-15",
           customer: "Emma Garcia",
           customer_id: 5,
@@ -2489,7 +2510,7 @@
         },
         {
           autoid: "ORD-1014",
-          invoice: "SO-1014",
+          invoice: "73705",
           crea_date: "2025-05-16",
           customer: "James Wilson",
           customer_id: 6,
@@ -2509,7 +2530,7 @@
         },
         {
           autoid: "ORD-1015",
-          invoice: "SO-1015",
+          invoice: "73719",
           crea_date: "2025-05-18",
           customer: "Olivia Brown",
           customer_id: 7,
@@ -2541,7 +2562,7 @@
         searchOpen: false,
         sidebarSearchTerm: "",
         customers: SIDEBAR_CUSTOMERS,
-        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        reviewBadges: { not_pricing_reviewed: 0, not_shop_reviewed: 5 },
         currentPath: "orders.html",
 
         orders: SEED_ORDERS,
@@ -2550,7 +2571,7 @@
         searchInput: "",
         sort: { key: "invoice", dir: "desc" }, // dir: 'asc' | 'desc'; default -invoice
         page: 1,
-        pageSize: 10,
+        pageSize: 25,
         previewOrder: null,
       });
 
@@ -2850,18 +2871,18 @@
             .map(
               (_, i) => `
               <tr data-comment="orders-skeleton-row-${i}">
-                <td><span class="skeleton" style="width:12%"></span></td>
-                <td><span class="skeleton" style="width:18%"></span></td>
-                <td><span class="skeleton" style="width:28%"></span></td>
-                <td><span class="skeleton" style="width:12%"></span></td>
-                <td><span class="skeleton" style="width:18%"></span></td>
-                <td><span class="skeleton" style="width:16%"></span></td>
-                <td class="hide-mobile"><span class="skeleton" style="width:12%"></span></td>
-                <td class="hide-mobile"><span class="skeleton" style="width:18%"></span></td>
-                <td><span class="skeleton" style="width:18%"></span></td>
-                <td><span class="skeleton" style="width:30%"></span></td>
-                <td class="hide-mobile"><span class="skeleton" style="width:14%"></span></td>
-                <td><span class="skeleton" style="width:26%"></span></td>
+                <td><span class="skeleton" style="width:60%"></span></td>
+                <td><span class="skeleton" style="width:70%"></span></td>
+                <td><span class="skeleton" style="width:60%"></span></td>
+                <td><span class="skeleton" style="width:50%"></span></td>
+                <td><span class="skeleton" style="width:80%"></span></td>
+                <td><span class="skeleton" style="width:70%"></span></td>
+                <td class="hide-mobile"><span class="skeleton" style="width:60%"></span></td>
+                <td class="hide-mobile"><span class="skeleton" style="width:70%"></span></td>
+                <td><span class="skeleton" style="width:70%"></span></td>
+                <td><span class="skeleton" style="width:80%"></span></td>
+                <td class="hide-mobile"><span class="skeleton" style="width:50%"></span></td>
+                <td><span class="skeleton" style="width:90%"></span></td>
               </tr>
             `,
             )
@@ -2890,12 +2911,12 @@
               <tr class="clickable" data-comment="orders-row-${idSafe}" data-row-id="${idSafe}">
                 <td data-comment="orders-row-${idSafe}-invoice">${esc(o.invoice)}</td>
                 <td data-comment="orders-row-${idSafe}-created">${esc(formatDate(o.crea_date))}</td>
-                <td data-comment="orders-row-${idSafe}-customer">
-                  <a class="cell-link cell-overflow" data-comment="orders-row-${idSafe}-customer-link" href="customer-detail.html?id=${esc(o.customer_id)}&tab=orders" onclick="event.stopPropagation()">${esc(o.customer || "—")}</a>
-                </td>
                 <td data-comment="orders-row-${idSafe}-category"><span class="cell-overflow">${esc(o.category || "—")}</span></td>
                 <td data-comment="orders-row-${idSafe}-dimension"><span class="cell-overflow">${esc(o.dimension || "—")}</span></td>
                 <td data-comment="orders-row-${idSafe}-stage">${renderStageBadge(o.status, `orders-row-${idSafe}-stage-badge`)}</td>
+                <td data-comment="orders-row-${idSafe}-customer">
+                  <a class="cell-link cell-overflow" data-comment="orders-row-${idSafe}-customer-link" href="customer-detail.html?id=${esc(o.customer_id)}&tab=orders" onclick="event.stopPropagation()">${esc(o.customer || "—")}</a>
+                </td>
                 <td class="hide-mobile" data-comment="orders-row-${idSafe}-po">${esc(o.po_no || "—")}</td>
                 <td class="hide-mobile" data-comment="orders-row-${idSafe}-scheduled">${esc(formatDate(o.dp_estprod))}</td>
                 <td data-comment="orders-row-${idSafe}-ship-type">${esc(o.ship_type || "—")}</td>
@@ -3133,7 +3154,7 @@
         const s = store.get();
         const params = new URLSearchParams();
         if (s.page && s.page !== 1) params.set("page", String(s.page));
-        if (s.pageSize && s.pageSize !== 10) params.set("pageSize", String(s.pageSize));
+        if (s.pageSize && s.pageSize !== 25) params.set("pageSize", String(s.pageSize));
         const ord = orderingParam();
         if (ord && ord !== "-invoice") params.set("ordering", ord);
         if (s.searchTerm) params.set("search", s.searchTerm);
