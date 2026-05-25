@@ -1167,7 +1167,7 @@
             <!-- Body: sub-sidebar + tab content -->
             <div class="attributes-layout" data-comment="attributes-layout">
               <!-- Sub-tabs sidebar -->
-              <aside class="tab-sidebar reveal" data-comment="attributes-tab-sidebar" data-component="card">
+              <aside class="tab-sidebar" data-comment="attributes-tab-sidebar" data-component="card">
                 <ul class="tab-sidebar-list" data-comment="attributes-tab-sidebar-list" id="attributes-sub-tabs">
                   <!-- rendered by JS -->
                 </ul>
@@ -1673,18 +1673,12 @@
           <div class="tab-toolbar" data-comment="attributes-toolbar">
             <div class="tab-count-row" data-comment="attributes-count-row">
               <p class="tab-count" data-comment="attributes-count">${count} select${count !== 1 ? "s" : ""}</p>
-              <div style="display:flex;gap:8px;">
-                <button type="button" class="btn btn-outline btn-sm"
-                  data-comment="attributes-toggle-loading"
+              ${!s.addingSelect ? `
+                <button type="button" class="btn btn-primary btn-sm"
+                  data-comment="attributes-new-select"
                   data-component="button"
-                  id="attributes-toggle-loading">Toggle loading</button>
-                ${!s.addingSelect ? `
-                  <button type="button" class="btn btn-primary btn-sm"
-                    data-comment="attributes-new-select"
-                    data-component="button"
-                    id="attributes-new-select">${ICONS.plus} New select</button>
-                ` : ""}
-              </div>
+                  id="attributes-new-select">${ICONS.plus} New select</button>
+              ` : ""}
             </div>
 
             ${s.addingSelect ? renderAddSelectForm() : ""}
@@ -1695,7 +1689,7 @@
                 data-comment="attributes-search-input"
                 data-component="input"
                 id="attributes-search-input"
-                placeholder="Search attributes..."
+                placeholder="Search..."
                 value="${s.attrSearch}" />
             </div>
           </div>
@@ -2178,12 +2172,6 @@
         // New select button
         if (e.target.closest("#attributes-new-select")) {
           store.set({ addingSelect: true });
-          return;
-        }
-
-        // Toggle loading debug
-        if (e.target.closest("#attributes-toggle-loading")) {
-          store.set({ isLoading: !s.isLoading });
           return;
         }
 
