@@ -483,8 +483,6 @@
         border-bottom: 1px solid var(--border);
         white-space: nowrap;
         font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
       }
       @media (min-width: 640px) {
         .data-table thead th { padding: 0 16px; }
@@ -1541,7 +1539,7 @@
         searchOpen: false,
         searchTerm: "",
         customers: SEED_CUSTOMERS,
-        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        reviewBadges: { not_pricing_reviewed: 0, not_shop_reviewed: 1 },
         currentPath: "site-checks.html",
 
         siteChecks: SEED_SITE_CHECKS,

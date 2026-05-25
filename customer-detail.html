@@ -758,8 +758,6 @@
         height: 40px;
         padding: 0 8px;
         white-space: nowrap;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
       }
       @media (min-width: 640px) {
         .cd-table th { padding: 0 16px; }
@@ -2085,7 +2083,7 @@
         sidebarCustomers: SEED_CUSTOMERS.map((c) => ({
           id: c.id, first_name: c.first_name, last_name: c.last_name, email: c.email,
         })),
-        reviewBadges: { not_pricing_reviewed: 3, not_shop_reviewed: 5 },
+        reviewBadges: { not_pricing_reviewed: 0, not_shop_reviewed: 1 },
         currentPath: "customers.html",
 
         customerIdParam: getParam("id"),
